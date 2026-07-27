@@ -26,7 +26,8 @@ router.post("/check", authenticateToken, async (req: Request<{}, {}, CheckPlagia
 
     const recentSubmissions = await prisma.submission.findMany({
       where: { language },
-      orderBy: { createdAt: "desc" },
+      orderBy: { submittedAt: "desc" },
+
       take: 100,
       select: { code: true },
     });

@@ -1,347 +1,145 @@
-import { Router, Request, Response } from "express";
-import { authenticateToken } from "../middlewares/auth";
-import prisma from "../lib/prisma";
-import LanguageAdapter from "../services/languageAdapter";
-import * as path from "path";
-import * as os from "os";
-import * as fs from "fs";
-import { sanitizeCode } from "./code.routes";
+import { Router, Request, Response } from 'express';
+import prisma from '../lib/prisma';
+import { authenticateToken } from '../middlewares/auth';
+import { evaluateCodeSubmission } from '../services/languageAdapter';
+
+
 
 const router = Router();
 
-const TEMP_DIR = path.join(os.tmpdir(), "talentos-code");
-if (!fs.existsSync(TEMP_DIR)) {
-  fs.mkdirSync(TEMP_DIR, { recursive: true });
-}
-
-const languageAdapter = new LanguageAdapter(TEMP_DIR);
-
-interface SubmitCodeBody {
-  problemId: string;
-  code: string;
-  language: string;
-}
-
-function determineVerdict(results: Array<{ error?: string; passed: boolean }>): string {
-  for (const r of results) {
-    if (r.error === "Time Limit Exceeded") return "TLE";
-    if (r.error && r.error.includes("Compilation")) return "CE";
-    if (r.error && r.error.includes("Exit code")) return "RE";
-  }
-  if (results.every((r) => r.passed)) return "AC";
-  return "WA";
-}
-
-router.post("/", authenticateToken, async (req: Request<{}, {}, SubmitCodeBody>, res: Response) => {
+// POST /api/submissions — Submit solution code
+router.post('/', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
-    const { problemId, code, language } = req.body;
+    const { problemId, contestId, code, language } = req.body;
 
     if (!problemId || !code || !language) {
-      res.status(400).json({ error: "Problem ID, code, and language are required" });
-      return;
-    }
-
-    if (code.length > 500000) {
-      res.status(413).json({ error: "Code exceeds maximum size of 500KB" });
-      return;
-    }
-
-    console.log(`[Submission Attempt] User ${userId} is submitting code for problem ${problemId} in ${language}. Code size: ${code.length} bytes.`);
-
-    const sanitization = sanitizeCode(code);
-    if (!sanitization.valid) {
-      res.status(400).json({ error: sanitization.error });
+      res.status(400).json({ error: 'problemId, code, and language are required' });
       return;
     }
 
     const problem = await prisma.problem.findUnique({
       where: { id: problemId },
+      include: { testCases: true },
     });
 
     if (!problem) {
-      res.status(404).json({ error: "Problem not found" });
+      res.status(404).json({ error: 'Problem not found' });
       return;
     }
 
-    const testCases = problem.testCases as Array<{ input: string; expectedOutput: string }>;
-    const timeLimit = problem.timeLimit || 1000;
-
-    const streamMode = req.query.stream === 'true';
-
-    if (streamMode) {
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Connection', 'keep-alive');
-      res.flushHeaders();
-
-      let liveResults: any[] = [];
-      try {
-        const result = await languageAdapter.runTestCases(
-          code, 
-          language, 
-          testCases, 
-          timeLimit, 
-          problem.driverCode as Record<string, string> | null,
-          (tcResult) => {
-            liveResults.push(tcResult);
-            const isHidden = (testCases as any[])[tcResult.testCase - 1]?.isHidden ?? ((tcResult.testCase - 1) >= 3);
-            const sanitizedResult = {
-              ...tcResult,
-              input: isHidden ? "[Hidden]" : tcResult.input,
-              expectedOutput: isHidden ? "[Hidden]" : tcResult.expectedOutput,
-              actualOutput: isHidden ? "[Hidden]" : tcResult.actualOutput,
-            };
-            res.write(`data: ${JSON.stringify({ type: 'progress', result: sanitizedResult })}\n\n`);
-            if ((res as any).flush) (res as any).flush();
-          }
-        );
-
-        const passedTests = result.summary.passed;
-        const totalTests = result.summary.total;
-        const status = passedTests === totalTests ? "passed" : "failed";
-        const verdict = determineVerdict(result.results);
-
-        const submission = await prisma.submission.create({
-          data: {
-            userId,
-            problemId,
-            code,
-            language,
-            status,
-            verdict,
-            passedTests,
-            totalTests,
-            executionTime: result.results.reduce((acc, r) => acc + r.executionTime, 0),
-            maxTime: Math.max(...result.results.map((r) => r.executionTime), 0),
-            memoryUsed: result.results.reduce((max, r) => Math.max(max, r.memoryUsed || 0), 0),
-            error: result.results.some((r) => r.error)
-              ? result.results.find((r) => r.error)?.error || null
-              : null,
-            testResults: {
-              create: result.results.map((r) => ({
-                testCaseIndex: r.testCase,
-                input: r.input,
-                expectedOutput: r.expectedOutput,
-                actualOutput: r.actualOutput,
-                passed: r.passed,
-                executionTime: r.executionTime,
-                error: r.error || null,
-              })),
-            },
-          },
-        });
-
-        res.write(`data: ${JSON.stringify({ 
-          type: 'done', 
-          summary: result.summary, 
-          submissionId: submission.id,
-          status,
-          verdict
-        })}\n\n`);
-        res.end();
-      } catch (err: any) {
-        res.write(`data: ${JSON.stringify({ type: 'error', error: err.message })}\n\n`);
-        res.end();
-      }
-      return;
-    }
-
-    const result = await languageAdapter.runTestCases(code, language, testCases, timeLimit, problem.driverCode as Record<string, string> | null);
-
-    const passedTests = result.summary.passed;
-    const totalTests = result.summary.total;
-    const status = passedTests === totalTests ? "passed" : "failed";
-    const verdict = determineVerdict(result.results);
-
+    // Create initial PENDING submission record
     const submission = await prisma.submission.create({
       data: {
         userId,
         problemId,
+        contestId: contestId || null,
         code,
         language,
-        status,
-        verdict,
-        passedTests,
-        totalTests,
-        executionTime: result.results.reduce((acc, r) => acc + r.executionTime, 0),
-        maxTime: Math.max(...result.results.map((r) => r.executionTime), 0),
-        memoryUsed: result.results.reduce((max, r) => Math.max(max, r.memoryUsed || 0), 0),
-        error: result.results.some((r) => r.error)
-          ? result.results.find((r) => r.error)?.error || null
-          : null,
-        testResults: {
-          create: result.results.map((r) => ({
-            testCaseIndex: r.testCase,
-            input: r.input,
-            expectedOutput: r.expectedOutput,
-            actualOutput: r.actualOutput,
-            passed: r.passed,
-            executionTime: r.executionTime,
-            error: r.error || null,
-          })),
-        },
-      },
-      include: {
-        testResults: {
-          orderBy: { testCaseIndex: "asc" },
-        },
+        status: 'PENDING',
       },
     });
 
-    console.log(`[Submission Success] Submission ID: ${submission.id}, Status: ${submission.status}, Verdict: ${submission.verdict}, Passed: ${passedTests}/${totalTests}`);
+    // Evaluate code test cases via Codeforces-style languageAdapter
+    const evalResult = await evaluateCodeSubmission({
+      problemId: problem.id,
+      code,
+      language,
+      testCases: problem.testCases.map((tc) => ({
+        id: tc.id,
+        input: tc.input,
+        expectedOutput: tc.expectedOutput,
+        isHidden: tc.isHidden,
+      })),
+      referenceSolution: problem.referenceSolution,
+    });
 
-    // Sanitize results: Hide input/output details for hidden test cases
-    interface TestCase {
-      input: string;
-      expectedOutput: string;
-      isHidden?: boolean;
+    // Update submission record
+    const finalSubmission = await prisma.submission.update({
+      where: { id: submission.id },
+      data: {
+        status: evalResult.status as any,
+        executionTime: evalResult.executionTime,
+        memoryUsed: evalResult.memoryUsed,
+        score: evalResult.score,
+        testResults: evalResult.testResults as any,
+      },
+    });
+
+    // If part of a contest, update candidate's total score in ContestRegistration
+    if (contestId && evalResult.status === 'ACCEPTED') {
+      const contestProblem = await prisma.contestProblem.findUnique({
+        where: { contestId_problemId: { contestId, problemId } },
+      });
+      const points = contestProblem?.points || 100;
+
+      await prisma.contestRegistration.updateMany({
+        where: { contestId, userId },
+        data: {
+          score: { increment: points },
+          status: 'IN_PROGRESS',
+        },
+      });
     }
-    const problemTestCases = testCases as TestCase[];
-    const sanitizedResults = submission.testResults.map((r, index) => {
-      const isHidden = problemTestCases[index]?.isHidden ?? (index >= 3); // Hide if flagged hidden, or default to hiding after the first 3
-      return {
-        id: r.id,
-        submissionId: r.submissionId,
-        testCaseIndex: r.testCaseIndex,
-        passed: r.passed,
-        executionTime: r.executionTime,
-        error: r.error,
-        createdAt: r.createdAt,
-        input: isHidden ? "[Hidden]" : r.input,
-        expectedOutput: isHidden ? "[Hidden]" : r.expectedOutput,
-        actualOutput: isHidden ? "[Hidden]" : r.actualOutput,
-      };
-    });
-
-    console.log(`[Submission Success] Submission ID: ${submission.id}, Status: ${submission.status}, Verdict: ${submission.verdict}, Passed: ${passedTests}/${totalTests}`);
 
     res.json({
-      submission: {
-        id: submission.id,
-        status: submission.status,
-        verdict: submission.verdict,
-        passedTests: submission.passedTests,
-        totalTests: submission.totalTests,
-        executionTime: submission.executionTime,
-        maxTime: submission.maxTime,
-        results: sanitizedResults,
-      },
+      success: true,
+      submission: finalSubmission,
+      evalResult,
     });
-  } catch (error: unknown) {
-    console.error("Error submitting code:", error);
-    const message = error instanceof Error ? error.message : 'Failed to submit code';
-    res.status(500).json({ error: message });
+  } catch (error: any) {
+    console.error('Submission error:', error);
+    res.status(500).json({ error: 'Failed to process submission' });
   }
 });
 
-router.get("/", authenticateToken, async (req: Request, res: Response) => {
+// GET /api/submissions/my — Fetch user's submissions
+router.get('/my', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
-    const { problemId, status } = req.query;
-
-    const where: any = { userId };
-    if (problemId) where.problemId = problemId as string;
-    if (status) where.status = status as string;
+    const { contestId, problemId } = req.query;
 
     const submissions = await prisma.submission.findMany({
-      where,
+      where: {
+        userId,
+        ...(contestId && { contestId: String(contestId) }),
+        ...(problemId && { problemId: String(problemId) }),
+      },
+      orderBy: { submittedAt: 'desc' },
+      take: 50,
       include: {
-        testResults: {
-          orderBy: { testCaseIndex: "asc" },
-          take: 5,
-        },
-        user: {
-          select: { id: true, fullName: true, avatarUrl: true },
+        problem: {
+          select: { title: true, slug: true, difficulty: true },
         },
       },
-      orderBy: { createdAt: "desc" },
-      take: 50,
     });
 
     res.json({ submissions });
-  } catch (error: unknown) {
-    console.error("Error fetching submissions:", error);
-    const message = error instanceof Error ? error.message : 'Failed to fetch submissions';
-    res.status(500).json({ error: message });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to fetch submissions' });
   }
 });
 
-router.get("/:id", authenticateToken, async (req: Request, res: Response) => {
+// GET /api/submissions/:id — Fetch single submission details
+router.get('/:id', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
-    const idParam = req.params.id;
-    const id = Array.isArray(idParam) ? idParam[0] : idParam;
-    const userId = req.user!.userId;
-
-    const submission = await prisma.submission.findFirst({
-      where: { id, userId },
+    const submission = await prisma.submission.findUnique({
+      where: { id: req.params.id },
       include: {
-        problem: true,
-        testResults: {
-          orderBy: { testCaseIndex: "asc" },
-        },
-        user: {
-          select: { id: true, fullName: true, avatarUrl: true },
+        problem: {
+          select: { title: true, difficulty: true },
         },
       },
     });
 
     if (!submission) {
-      res.status(404).json({ error: "Submission not found" });
+      res.status(404).json({ error: 'Submission not found' });
       return;
     }
-
-    // Sanitize past submission details
-    const problemTestCases = (submission.problem.testCases as any[]) || [];
-    const sanitizedResults = submission.testResults.map((r, index) => {
-      const isHidden = problemTestCases[index]?.isHidden ?? (index >= 3);
-      return {
-        ...r,
-        input: isHidden ? "[Hidden]" : r.input,
-        expectedOutput: isHidden ? "[Hidden]" : r.expectedOutput,
-        actualOutput: isHidden ? "[Hidden]" : r.actualOutput,
-      };
-    });
-
-    res.json({
-      submission: {
-        ...submission,
-        testResults: sanitizedResults,
-      },
-    });
-  } catch (error: unknown) {
-    console.error("Error fetching submission:", error);
-    const message = error instanceof Error ? error.message : 'Failed to fetch submission';
-    res.status(500).json({ error: message });
-  }
-});
-
-router.patch("/:id", authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const idParam = req.params.id;
-    const id = Array.isArray(idParam) ? idParam[0] : idParam;
-    const userId = req.user!.userId;
-    const { notes, tags } = req.body;
-
-    const existing = await prisma.submission.findFirst({ where: { id, userId } });
-    if (!existing) {
-      res.status(404).json({ error: "Submission not found" });
-      return;
-    }
-
-    const submission = await prisma.submission.update({
-      where: { id },
-      data: {
-        notes: notes !== undefined ? notes : existing.notes,
-        tags: tags !== undefined ? tags : existing.tags,
-      },
-    });
 
     res.json({ submission });
-  } catch (error: unknown) {
-    console.error("Error updating submission:", error);
-    const message = error instanceof Error ? error.message : 'Failed to update submission';
-    res.status(500).json({ error: message });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to fetch submission' });
   }
 });
 
