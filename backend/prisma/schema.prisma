@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ORG_ADMIN
+  TEACHER
+  STUDENT
+}
+
+enum EvaluationStrategy {
+  EXACT_MATCH
+  UNORDERED_MATCH
+  FLOAT_TOLERANCE
+}
+
+enum SubmissionStatus {
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+  PENDING
+  RUNNING
+}
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  logoUrl     String?
+  domain      String?  @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  contests    Contest[]
+  problems    Problem[]
+}
+
+model User {
+  id             String        @id @default(uuid())
+  email          String        @unique
+  password       String
+  name           String
+  role           Role          @default(STUDENT)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  createdContests Contest[]             @relation("CreatedContests")
+  registrations   ContestRegistration[]
+  submissions     Submission[]
+  proctoringLogs  ProctoringLog[]
+}
+
+model Problem {
+  id                 String             @id @default(uuid())
+  title              String
+  slug               String             @unique
+  description        String
+  difficulty         String             @default("Medium") // Easy, Medium, Hard
+  category           String             @default("General")
+  problemType        String             @default("code") // code, sql
+  evaluationStrategy EvaluationStrategy @default(EXACT_MATCH)
+  referenceSolution  String?
+  starterCode        Json               // { java: "...", cpp: "...", python: "...", javascript: "..." }
+  driverCode         Json?              // Optional driver code
+  images             Json?
+  organizationId     String?
+  organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  testCases          TestCase[]
+  contestProblems    ContestProblem[]
+  submissions        Submission[]
+}
+
+model TestCase {
+  id             String   @id @default(uuid())
+  problemId      String
+  problem        Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  input          String
+  expectedOutput String
+  isHidden       Boolean  @default(false)
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model Contest {
+  id                      String   @id @default(uuid())
+  title                   String
+  description             String?
+  startTime               DateTime
+  endTime                 DateTime
+  duration                Int      // In minutes
+  difficulty              String   @default("Medium")
+  isPublic                Boolean  @default(true)
+  allowJoin               Boolean  @default(true)
+  
+  // Security & SEB Settings
+  requireSeb              Boolean  @default(false)
+  sebConfig               String?  // Custom uploaded SEB XML configuration
+  sebQuitPassword         String?
+  requireFullscreen       Boolean  @default(true)
+  preventTabSwitch        Boolean  @default(true)
+  disableCopyPaste        Boolean  @default(true)
+  enableProctoring        Boolean  @default(false)
+  maxWarnings             Int      @default(3)
+  allowMultipleMonitors   Boolean  @default(false)
+  randomizeQuestionOrder  Boolean  @default(false)
+
+  organizationId          String?
+  organization            Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById             String
+  createdBy               User          @relation("CreatedContests", fields: [createdById], references: [id])
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  problems                ContestProblem[]
+  registrations           ContestRegistration[]
+  submissions             Submission[]
+  proctoringLogs          ProctoringLog[]
+  plagiarismReports       PlagiarismReport[]
+}
+
+model ContestProblem {
+  id        String   @id @default(uuid())
+  contestId String
+  contest   Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problemId String
+  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  order     Int      @default(0)
+  points    Int      @default(100)
+
+  @@unique([contestId, problemId])
+}
+
+model ContestRegistration {
+  id                 String   @id @default(uuid())
+  contestId          String
+  contest            Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score              Int      @default(0)
+  penalty            Int      @default(0)
+  activeSessionToken String?  // Single-use token for SEB deep linking
+  status             String   @default("REGISTERED") // REGISTERED, IN_PROGRESS, SUBMITTED, DISQUALIFIED
+  registeredAt       DateTime @default(now())
+
+  @@unique([contestId, userId])
+}
+
+model Submission {
+  id            String           @id @default(uuid())
+  contestId     String?
+  contest       Contest?         @relation(fields: [contestId], references: [id], onDelete: SetNull)
+  problemId     String
+  problem       Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code          String
+  language      String
+  status        SubmissionStatus @default(PENDING)
+  executionTime Int?             // In milliseconds
+  memoryUsed    Int?             // In KB
+  score         Int              @default(0)
+  testResults   Json?            // Detailed testcase execution breakdown
+  submittedAt   DateTime         @default(now())
+}
+
+model ProctoringLog {
+  id        String   @id @default(uuid())
+  contestId String
+  contest   Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType String   // TAB_SWITCH, FULLSCREEN_EXIT, SEB_HASH_MISMATCH, WEBCAM_ALERT
+  details   String?
+  timestamp DateTime @default(now())
+}
+
+model PlagiarismReport {
+  id            String   @id @default(uuid())
+  contestId     String
+  contest       Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  similarityMap Json     // Matrix of student solution similarities
+  createdAt     DateTime @default(now())
+}
