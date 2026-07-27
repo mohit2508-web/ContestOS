@@ -198,7 +198,7 @@ export function LeaderboardPage() {
       <header className="bg-black border-b border-white/5 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-black text-white tracking-tight">
-            Talent<span className="text-[var(--accent-yellow)] text-glow-yellow">OS</span>
+            Contest<span className="text-amber-400 font-black">OS</span>
           </h1>
           <div className="flex items-center gap-4">
             <button

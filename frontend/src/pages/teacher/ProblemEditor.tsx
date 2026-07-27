@@ -15,10 +15,10 @@ interface TestCaseEntry {
 
 const LANGUAGE_KEYS = ['java', 'cpp', 'python', 'javascript', 'c'] as const;
 
-const AI_PROMPT_TEMPLATE = `You are a problem-import assistant for TalentOS.
+const AI_PROMPT_TEMPLATE = `You are a problem-import assistant for ContestOS.
 Your task is to convert any coding problem description into a structured JSON configuration block matching the following schema.
 
-TalentOS uses a CODEFORCES-STYLE execution model:
+ContestOS uses a CODEFORCES-STYLE execution model:
 - Students write COMPLETE programs with main() that read from stdin and print to stdout.
 - There is NO function-only wrapper. Students must handle all input parsing themselves.
 - The "starterCode" for each language must be a COMPLETE program (with imports, main(), stdin reading, and a TODO section for the student's logic).
@@ -782,7 +782,7 @@ export function TeacherProblemEditorPage() {
             <div className="flex items-center gap-3">
               <span className="text-2xl">💡</span>
               <div>
-                <h3 className="text-md font-bold text-blue-300">TalentOS Problem Mapping Guide & Best Practices</h3>
+                <h3 className="text-md font-bold text-blue-300">ContestOS Problem Mapping Guide & Best Practices</h3>
                 <p className="text-xs text-blue-400/80 mt-0.5">Click to expand our step-by-step guidelines for creating coding, SQL, and Web-Dev challenges.</p>
               </div>
             </div>

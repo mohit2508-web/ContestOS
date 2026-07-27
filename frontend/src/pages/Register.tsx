@@ -661,10 +661,7 @@ export function RegisterPage() {
         </div>
 
         <h1 className="text-3xl font-black text-white mb-2 text-center tracking-tight">
-          Join Talent
-          <span className="text-[var(--accent-yellow)] text-glow-yellow">
-            OS
-          </span>
+          Join Contest<span className="text-amber-400">OS</span>
         </h1>
         <p className="text-gray-400 text-center mb-8 text-sm uppercase tracking-wider font-bold">
           {step === 1 && "Create your account"}
@@ -778,7 +775,7 @@ export function RegisterPage() {
                   !usernameError && (
                     <p className="text-gray-500 text-xs mt-1">
                       Minimum 8 characters. Use this to create a public profile
-                      link (e.g., talentos.com/u/yourname)
+                      link (e.g., contestos.io/u/yourname)
                     </p>
                   )}
               </div>
