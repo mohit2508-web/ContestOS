@@ -8,8 +8,13 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "prisma:push": "prisma db push",
+    "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+
   "dependencies": {
     "@prisma/client": "^5.20.0",
     "axios": "^1.7.7",
