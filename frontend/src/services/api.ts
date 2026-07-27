@@ -8,10 +8,8 @@ export const apiAxios = axios.create({
 });
 
 apiAxios.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  const token = localStorage.getItem('accessToken') || localStorage.getItem('token') || 'demo-jwt-token';
+  config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
@@ -34,52 +32,7 @@ export const api = {
       }
       return { contests: list };
     } catch {
-      return {
-        contests: [
-          {
-            id: 'c-1',
-            contestId: 'cf-1980',
-            name: 'Codeforces Round 995 (Div. 2)',
-            url: 'https://codeforces.com/contests',
-            platform: 'codeforces',
-            startTime: new Date(Date.now() + 3600000).toISOString(),
-            endTime: new Date(Date.now() + 10800000).toISOString(),
-            duration: 120,
-            status: 'upcoming',
-            description: 'Div. 2 Competitive Coding Contest',
-            participants: 12400,
-            isBookmarked: false,
-          },
-          {
-            id: 'c-2',
-            contestId: 'lc-412',
-            name: 'LeetCode Weekly Contest 412',
-            url: 'https://leetcode.com/contest/',
-            platform: 'leetcode',
-            startTime: new Date(Date.now() + 86400000).toISOString(),
-            endTime: new Date(Date.now() + 91800000).toISOString(),
-            duration: 90,
-            status: 'upcoming',
-            description: 'Weekly LeetCode contest',
-            participants: 28000,
-            isBookmarked: true,
-          },
-          {
-            id: 'c-3',
-            contestId: 'cc-starters-150',
-            name: 'CodeChef Starters 150 (Rated)',
-            url: 'https://www.codechef.com/contests',
-            platform: 'codechef',
-            startTime: new Date(Date.now() - 1800000).toISOString(),
-            endTime: new Date(Date.now() + 5400000).toISOString(),
-            duration: 120,
-            status: 'ongoing',
-            description: 'Live CodeChef Contest',
-            participants: 9500,
-            isBookmarked: false,
-          },
-        ],
-      };
+      return { contests: [] };
     }
   },
   scrapeContests: async (_platform?: string) => {
