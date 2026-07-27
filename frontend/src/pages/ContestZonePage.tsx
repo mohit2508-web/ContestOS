@@ -703,12 +703,25 @@ export function OverviewTab() {
               <button
                 id="seb-download-config"
                 onClick={handleDownloadSebConfig}
-                className="px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-extrabold rounded-2xl transition flex flex-col items-center justify-center text-center gap-1"
+                className="px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-extrabold rounded-2xl transition flex flex-col items-center justify-center text-center gap-1 cursor-pointer"
               >
                 <span className="text-sm">📥 Download SEB Config</span>
                 <span className="text-[10px] text-gray-400 font-medium">Alternative setup (.seb file)</span>
               </button>
             </div>
+
+            {/* SEB Simulation Tester Mode */}
+            <div className="mt-3">
+              <button
+                onClick={() => {
+                  window.location.href = window.location.pathname + '?seb=1';
+                }}
+                className="w-full py-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-extrabold rounded-2xl transition flex items-center justify-center gap-2 text-xs cursor-pointer"
+              >
+                <span>🧪 Test SEB Simulation Mode (Bypass for testing in standard browser)</span>
+              </button>
+            </div>
+
 
             {/* Platform info footer */}
             <div className="flex justify-between items-center mt-5 text-[9px] font-mono text-gray-600 border-t border-white/5 pt-4">

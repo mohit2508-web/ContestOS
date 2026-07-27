@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { Navbar } from './components/Navbar';
 import {
   ContestZoneLayout,
   ContestProtectedRoute,
@@ -20,6 +21,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
+          <Navbar />
           <Routes>
             {/* Student Candidate Portal */}
             <Route path="/" element={<Navigate to="/contests" replace />} />
@@ -42,7 +44,7 @@ export default function App() {
               <Route path="rules" element={<OverviewTab />} />
             </Route>
 
-            {/* Teacher / Admin Portal */}
+            {/* Teacher / Admin Host Portal */}
             <Route path="/admin/contests" element={<ContestManagement />} />
             <Route path="/admin/problems/new" element={<TeacherProblemEditorPage />} />
             <Route path="/admin/problems/:id/edit" element={<TeacherProblemEditorPage />} />
