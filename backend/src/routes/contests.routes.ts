@@ -26,13 +26,14 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
     const formatted = contests.map((c) => ({
       ...c,
       _count: {
-        problems: c._count.problems,
-        participants: c._count.registrations,
+        problems: c._count?.problems || 0,
+        participants: c._count?.registrations || 0,
       },
     }));
 
     res.json({ contests: formatted });
   } catch (error: any) {
+    console.error('Fetch contests error:', error);
     res.status(500).json({ error: 'Failed to fetch contests' });
   }
 });

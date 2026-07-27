@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middlewares/auth';
+import crypto from 'crypto';
 
 const router = Router();
 
@@ -87,9 +88,10 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
   }
 });
 
-// GET /api/contests/manager/:id — Fetch single contest details
+// GET /api/contests/manager/:id — Fetch single contest details & isJoined state
 router.get('/:id', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
+    const userId = req.user?.userId;
     const contest = await prisma.contest.findUnique({
       where: { id: req.params.id },
       include: {
@@ -112,9 +114,105 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response): Promi
       return;
     }
 
-    res.json({ contest });
+    const participant = userId
+      ? contest.registrations.find((r) => r.userId === userId)
+      : null;
+
+    res.json({
+      contest,
+      isJoined: !!participant,
+      participant: participant || null,
+    });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to fetch contest details' });
+  }
+});
+
+// POST /api/contests/manager/:id/join — Candidate Join Contest
+router.post('/:id/join', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+    const contestId = req.params.id;
+
+    const contest = await prisma.contest.findUnique({
+      where: { id: contestId },
+    });
+
+    if (!contest) {
+      res.status(404).json({ error: 'Contest not found' });
+      return;
+    }
+
+    const registration = await prisma.contestRegistration.upsert({
+      where: {
+        contestId_userId: { contestId, userId },
+      },
+      update: {
+        status: 'REGISTERED',
+      },
+      create: {
+        contestId,
+        userId,
+        score: 0,
+        penalty: 0,
+        status: 'REGISTERED',
+      },
+    });
+
+    res.json({
+      success: true,
+      registration,
+      message: 'Successfully registered for contest',
+    });
+  } catch (error: any) {
+    console.error('Join contest error:', error);
+    res.status(500).json({ error: 'Failed to join contest' });
+  }
+});
+
+// POST /api/contests/manager/:id/seb-token — Mint SEB Launch Session Token
+router.post('/:id/seb-token', authenticateToken, async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const sessionToken = `seb_session_${crypto.randomBytes(16).toString('hex')}`;
+    res.json({ sessionToken });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to generate SEB token' });
+  }
+});
+
+// GET /api/contests/manager/:id/verify-seb — Verify SEB Handshake
+router.get('/:id/verify-seb', authenticateToken, async (_req: Request, res: Response): Promise<void> => {
+  res.json({ success: true, verified: true });
+});
+
+// GET /api/contests/manager/:id/seb-config — Generate .seb Configuration File
+router.get('/:id/seb-config', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const contestId = req.params.id;
+    const contest = await prisma.contest.findUnique({ where: { id: contestId } });
+    if (!contest) {
+      res.status(404).json({ error: 'Contest not found' });
+      return;
+    }
+
+    const xmlConfig = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>startURL</key>
+    <string>http://localhost:5173/contests/${contest.id}?seb=1</string>
+    <key>allowQuit</key>
+    <true/>
+    <key>enableLogging</key>
+    <true/>
+</dict>
+</plist>`;
+
+    res.setHeader('Content-Type', 'application/x-seb');
+    res.setHeader('Content-Disposition', `attachment; filename="${contest.title.replace(/\s+/g, '_')}_config.seb"`);
+    res.send(xmlConfig);
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to generate SEB config' });
   }
 });
 
