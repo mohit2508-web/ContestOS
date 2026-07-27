@@ -9,9 +9,9 @@ import {
   ProblemsTab,
 } from './pages/ContestZonePage';
 import { TeacherProblemEditorPage } from './pages/teacher/ProblemEditor';
-import { ContestManagement } from './pages/teacher/ContestManagement';
-import { ContestBoard } from './pages/ContestBoard';
-import { Leaderboard } from './pages/Leaderboard';
+import { ContestManagementPage as ContestManagement } from './pages/teacher/ContestManagement';
+import { ContestBoardPage as ContestBoard } from './pages/ContestBoard';
+import { LeaderboardPage as Leaderboard } from './pages/Leaderboard';
 
 const queryClient = new QueryClient();
 
