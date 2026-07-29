@@ -16,12 +16,49 @@ export interface LeaderboardEntry {
   stats?: any;
 }
 
+export type UserRole = 'SUPER_ADMIN' | 'ORG_ADMIN' | 'ORG_MEMBER' | 'EVALUATOR' | 'STUDENT';
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole | string;
+  organizationId?: string | null;
+  hierarchyLevel?: number;
+  username?: string;
+  phone?: string;
+  status?: string;
+  lastLoginAt?: string;
+  organization?: {
+    id: string;
+    name: string;
+    slug: string;
+    subscriptionTier: string;
+    featureFlags?: Record<string, boolean>;
+  };
+}
+
+export interface TeamInvitation {
+  id: string;
+  email: string;
+  role: UserRole;
+  status: 'PENDING' | 'ACCEPTED' | 'EXPIRED' | 'REVOKED';
+  organizationId: string;
+  invitedById: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  userId: string;
+  user: { name: string; email: string };
   organizationId?: string;
+  action: string;
+  resource: string;
+  resourceId?: string;
+  details?: any;
+  timestamp: string;
 }
 
 export interface Problem {

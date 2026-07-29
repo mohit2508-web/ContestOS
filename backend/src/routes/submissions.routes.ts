@@ -7,6 +7,33 @@ import { evaluateCodeSubmission } from '../services/languageAdapter';
 
 const router = Router();
 
+// GET /api/submissions — Fetch submissions list
+router.get('/', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+    const { contestId, problemId } = req.query;
+
+    const submissions = await prisma.submission.findMany({
+      where: {
+        userId,
+        ...(contestId && { contestId: String(contestId) }),
+        ...(problemId && { problemId: String(problemId) }),
+      },
+      orderBy: { submittedAt: 'desc' },
+      take: 50,
+      include: {
+        problem: {
+          select: { title: true, slug: true, difficulty: true },
+        },
+      },
+    });
+
+    res.json({ submissions });
+  } catch (error: any) {
+    res.json({ submissions: [] });
+  }
+});
+
 // POST /api/submissions — Submit solution code
 router.post('/', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
@@ -40,6 +67,17 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
       },
     });
 
+    const isStream = req.query.stream === 'true';
+
+    if (isStream) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      if (typeof (res as any).flushHeaders === 'function') {
+        (res as any).flushHeaders();
+      }
+    }
+
     // Evaluate code test cases via Codeforces-style languageAdapter
     const evalResult = await evaluateCodeSubmission({
       problemId: problem.id,
@@ -52,6 +90,11 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
         isHidden: tc.isHidden,
       })),
       referenceSolution: problem.referenceSolution,
+      onProgress: (tcResult) => {
+        if (isStream) {
+          res.write(`data: ${JSON.stringify({ type: 'progress', result: tcResult })}\n\n`);
+        }
+      },
     });
 
     // Update submission record
@@ -66,20 +109,65 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
       },
     });
 
-    // If part of a contest, update candidate's total score in ContestRegistration
-    if (contestId && evalResult.status === 'ACCEPTED') {
+    // If part of a contest, update/upsert candidate's score in ContestRegistration
+    if (contestId) {
       const contestProblem = await prisma.contestProblem.findUnique({
         where: { contestId_problemId: { contestId, problemId } },
       });
-      const points = contestProblem?.points || 100;
+      const maxPoints = contestProblem?.points || 100;
 
-      await prisma.contestRegistration.updateMany({
-        where: { contestId, userId },
-        data: {
-          score: { increment: points },
-          status: 'IN_PROGRESS',
+      // Calculate points earned: full for ACCEPTED, partial for partial/wrong
+      let earnedPoints = 0;
+      if (evalResult.status === 'ACCEPTED') {
+        earnedPoints = maxPoints;
+      } else if (evalResult.passedCount > 0 && evalResult.totalCount > 0) {
+        // Partial credit proportional to passed testcases
+        earnedPoints = Math.round((evalResult.passedCount / evalResult.totalCount) * maxPoints);
+      }
+
+      if (earnedPoints > 0) {
+        // Get current best score for this problem from this user in this contest
+        const existingBest = await prisma.submission.findFirst({
+          where: { contestId, problemId, userId, status: { in: ['ACCEPTED', 'WRONG_ANSWER', 'RUNTIME_ERROR', 'TIME_LIMIT_EXCEEDED'] } },
+          orderBy: { score: 'desc' },
+        });
+        const prevBestPoints = existingBest?.score || 0;
+        const pointsDelta = Math.max(0, earnedPoints - prevBestPoints);
+
+        if (pointsDelta > 0) {
+          // Upsert ContestRegistration to ensure record exists and add only new score delta
+          await prisma.contestRegistration.upsert({
+            where: { contestId_userId: { contestId, userId } },
+            create: {
+              contestId,
+              userId,
+              score: earnedPoints,
+              status: 'IN_PROGRESS',
+              penalty: 0,
+            },
+            update: {
+              score: { increment: pointsDelta },
+              status: 'IN_PROGRESS',
+            },
+          });
+        }
+      }
+    }
+
+    if (isStream) {
+      res.write(`data: ${JSON.stringify({
+        type: 'done',
+        status: evalResult.status === 'ACCEPTED' ? 'passed' : 'failed',
+        summary: {
+          passed: evalResult.passedCount,
+          failed: evalResult.totalCount - evalResult.passedCount,
+          total: evalResult.totalCount,
         },
-      });
+        submission: finalSubmission,
+        evalResult,
+      })}\n\n`);
+      res.end();
+      return;
     }
 
     res.json({

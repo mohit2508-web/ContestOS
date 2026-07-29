@@ -127,16 +127,6 @@ export class ExternalCodeExecutor {
       };
     }
 
-    if (request.language.toLowerCase() !== "java") {
-      return {
-        success: false,
-        output: "",
-        stderr: "Only Java execution is currently enabled for Piston Docker execution.",
-        error: "Only Java supported",
-        executionTime: Date.now() - startTime,
-      };
-    }
-
     return await this.executeWithPiston(request, startTime);
   }
 

@@ -1,61 +1,69 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { api } from '../services/api';
 
-export function LoginPage() {
-  const [email, setEmail] = useState('student@iitd.ac.in');
-  const [password, setPassword] = useState('Student@123456');
+const HIERARCHY_MAP: Record<string, number> = {
+  SUPER_ADMIN: 1, ORG_ADMIN: 2, ORG_MEMBER: 3, EVALUATOR: 4, STUDENT: 5,
+};
+
+function roleToPath(role: string): string {
+  switch (role) {
+    case 'SUPER_ADMIN': return '/admin/platform';
+    case 'ORG_ADMIN': return '/admin/org';
+    case 'ORG_MEMBER': return '/member/contests';
+    case 'EVALUATOR': return '/evaluator/assigned';
+    case 'STUDENT': return '/contests';
+    default: return '/contests';
+  }
+}
+
+const DEMO_ACCOUNTS = [
+  { label: 'Super Admin', role: 'SUPER_ADMIN', email: 'admin@contestos.io', password: 'Admin@123456', color: 'from-red-500 to-red-600' },
+  { label: 'Org Admin', role: 'ORG_ADMIN', email: 'admin@iitd.ac.in', password: 'Admin@123456', color: 'from-purple-500 to-purple-600' },
+  { label: 'Org Member', role: 'ORG_MEMBER', email: 'teacher@iitd.ac.in', password: 'Teacher@123456', color: 'from-blue-500 to-blue-600' },
+  { label: 'Evaluator', role: 'EVALUATOR', email: 'evaluator@iitd.ac.in', password: 'Evaluator@123456', color: 'from-teal-500 to-teal-600' },
+  { label: 'Student', role: 'STUDENT', email: 'student@iitd.ac.in', password: 'Student@123456', color: 'from-emerald-500 to-emerald-600' },
+];
+
+export function LoginPageComponent() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const doLogin = async (loginEmail: string, loginPassword: string) => {
     setError('');
     setLoading(true);
-
     try {
-      let role = 'STUDENT';
-      let name = 'Aarav Patel (Student)';
-      if (email.includes('teacher')) {
-        role = 'TEACHER';
-        name = 'Dr. Sharma (Host / Teacher)';
-      } else if (email.includes('admin')) {
-        role = 'SUPER_ADMIN';
-        name = 'SuperAdmin (Owner)';
-      }
-
-      login('demo-jwt-token', {
-        id: 'user-id-1',
-        name,
-        email,
-        role,
+      const result = await api.login(loginEmail, loginPassword);
+      login(result.accessToken, result.refreshToken, {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+        role: result.user.role,
+        organizationId: result.user.organizationId,
+        hierarchyLevel: HIERARCHY_MAP[result.user.role] || 5,
       });
-
-      if (role === 'TEACHER' || role === 'SUPER_ADMIN') {
-        navigate('/admin/contests');
-      } else {
-        navigate('/contests');
-      }
-    } catch {
-      setError('Login failed. Please check credentials.');
+      navigate(roleToPath(result.user.role));
+    } catch (err: any) {
+      setError(err?.response?.data?.error || 'Login failed. Please check credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDemoLogin = (demoRole: 'student' | 'teacher' | 'admin') => {
-    if (demoRole === 'student') {
-      login('token', { id: 's1', name: 'Aarav Patel (Student)', email: 'student@iitd.ac.in', role: 'STUDENT' });
-      navigate('/contests');
-    } else if (demoRole === 'teacher') {
-      login('token', { id: 't1', name: 'Dr. Sharma (Host)', email: 'teacher@iitd.ac.in', role: 'TEACHER' });
-      navigate('/admin/contests');
-    } else {
-      login('token', { id: 'a1', name: 'SuperAdmin (Owner)', email: 'admin@contestos.io', role: 'SUPER_ADMIN' });
-      navigate('/admin/contests');
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await doLogin(email, password);
+  };
+
+  const handleDemoLogin = (account: typeof DEMO_ACCOUNTS[number]) => {
+    setEmail(account.email);
+    setPassword(account.password);
+    doLogin(account.email, account.password);
   };
 
   return (
@@ -76,7 +84,7 @@ export function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLoginSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-400 text-xs font-bold uppercase tracking-wider mb-1.5">Email Address</label>
             <input
@@ -96,7 +104,7 @@ export function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-black/60 border border-white/10 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-amber-400 text-sm transition"
-              placeholder="••••••••"
+              placeholder="Enter password"
               required
             />
           </div>
@@ -106,39 +114,37 @@ export function LoginPage() {
             disabled={loading}
             className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-400 text-black font-extrabold text-sm rounded-xl hover:from-amber-400 hover:to-yellow-400 transition shadow-lg shadow-amber-500/20 cursor-pointer"
           >
-            {loading ? 'Authenticating...' : 'Sign In →'}
+            {loading ? 'Authenticating...' : 'Sign In'}
           </button>
         </form>
 
-        {/* Demo Quick Login Options */}
-        <div className="border-t border-white/10 pt-4 space-y-2">
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-mono text-center">Quick Demo Login Persona</p>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => handleDemoLogin('student')}
-              className="py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-lg text-[10px] font-bold transition cursor-pointer"
-            >
-              🎓 Student
-            </button>
-            <button
-              onClick={() => handleDemoLogin('teacher')}
-              className="py-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold transition cursor-pointer"
-            >
-              👨‍🏫 Host / Teacher
-            </button>
-            <button
-              onClick={() => handleDemoLogin('admin')}
-              className="py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-400 rounded-lg text-[10px] font-bold transition cursor-pointer"
-            >
-              👑 Owner Admin
-            </button>
+        <div className="relative pt-2">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/10" />
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="bg-zinc-950 px-3 text-gray-500 uppercase tracking-widest">Quick Access (Testing)</span>
           </div>
         </div>
 
-        <p className="text-gray-400 text-center text-xs pt-2">
+        <div className="grid grid-cols-1 gap-2">
+          {DEMO_ACCOUNTS.map((account) => (
+            <button
+              key={account.role}
+              onClick={() => handleDemoLogin(account)}
+              disabled={loading}
+              className={`flex items-center justify-between px-4 py-2.5 bg-gradient-to-r ${account.color} text-white text-xs font-bold rounded-xl hover:opacity-90 transition shadow-md cursor-pointer disabled:opacity-40`}
+            >
+              <span>{account.label}</span>
+              <span className="text-white/70 font-mono text-[10px]">{account.email}</span>
+            </button>
+          ))}
+        </div>
+
+        <p className="text-gray-400 text-center text-xs pt-1">
           Don't have an account?{' '}
           <Link to="/register" className="text-amber-400 font-bold hover:underline">
-            Register Candidate / Host →
+            Register as Participant
           </Link>
         </p>
       </div>
@@ -146,4 +152,4 @@ export function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default LoginPageComponent;

@@ -372,7 +372,7 @@ export function ContestZoneLayout() {
   const contestStart = new Date(contest.startTime).getTime();
   const contestEnd = new Date(contest.endTime).getTime();
   const isLive = now >= contestStart && now <= contestEnd;
-  const showSebWizard = isSebBrowser && isJoined && isLive;
+  const showSebWizard = isSebBrowser && isLive;
 
   return (
     <div className="relative min-h-screen bg-black font-sans selection:bg-amber-500/20 selection:text-amber-400">
@@ -433,7 +433,7 @@ export function ContestZoneLayout() {
 
       {/* Subtle animated background pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900 via-black to-zinc-950 -z-10" />
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:40px_40px] -z-10" />
+      <div className="absolute inset-0 pointer-events-none opacity-20 -z-10" style={{ backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
     </div>
   );
 }
@@ -448,24 +448,20 @@ export function OverviewTab() {
   const queryClient = useQueryClient();
   const { contestId } = useParams<{ contestId: string }>();
   const [sebLaunching, setSebLaunching] = useState(false);
-  const [joining, setJoining] = useState(false);
-  const [joinedOverride, setJoinedOverride] = useState(false);
-
-  const effectiveJoined = isJoined || joinedOverride;
+  // Local override: set true after successful join so UI advances immediately
+  const [hasLocalJoined, setHasLocalJoined] = useState(false);
+  const effectivelyJoined = isJoined || hasLocalJoined;
 
   const handleJoin = async () => {
-    setJoining(true);
     try {
       await api.joinManagerContest(contest.id);
-      setJoinedOverride(true);
-      notify.toast.success('Successfully joined the contest!');
+      notify.toast.success('Successfully joined the contest! 🎉');
+      setHasLocalJoined(true);
       queryClient.invalidateQueries({ queryKey: ['contest', contestId] });
     } catch (err: any) {
-      setJoinedOverride(true);
-      notify.toast.success('Successfully registered for contest!');
-      queryClient.invalidateQueries({ queryKey: ['contest', contestId] });
-    } finally {
-      setJoining(false);
+      const msg = err?.response?.data?.error || err?.message || 'Failed to join contest';
+      notify.toast.error(msg);
+      console.error('[handleJoin] error:', msg);
     }
   };
 
@@ -480,7 +476,10 @@ export function OverviewTab() {
       const { sessionToken } = await api.getSebToken(contest.id);
       const frontendUrl = window.location.origin;
       const protocol = window.location.protocol === 'https:' ? 'sebs:' : 'seb:';
-      const sebUrl = `${frontendUrl.replace(/^https?:/, protocol)}/contests/${contest.id}?sessionToken=${sessionToken}`;
+      const token = localStorage.getItem('accessToken') || '';
+      const userStr = localStorage.getItem('user') || '';
+      const userParam = userStr ? encodeURIComponent(userStr) : '';
+      const sebUrl = `${frontendUrl.replace(/^https?:/, protocol)}/contests/${contest.id}?seb=1&token=${token}&user=${userParam}&sessionToken=${sessionToken}`;
       window.location.href = sebUrl;
     } catch (err) {
       notify.toast.error('Failed to generate launch token. Please try again.');
@@ -513,10 +512,9 @@ export function OverviewTab() {
   const isUpcoming = now < start;
 
   // ── SEB Gate: shown in normal browser when this contest requires SEB ──
-  const showSebGate = effectiveJoined && isLive && contest.requireSeb && !isSebBrowser;
+  const showSebGate = effectivelyJoined && isLive && contest.requireSeb && !isSebBrowser;
 
-  // ── Diagnostics Cockpit: shown only inside Safe Exam Browser ──
-  const showDiagnostics = effectiveJoined && isLive && isSebBrowser;
+
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-4xl mx-auto">
@@ -570,42 +568,14 @@ export function OverviewTab() {
       </div>
 
       {/* Join button */}
-      {!effectiveJoined && !isEnded && (
+      {!effectivelyJoined && !isEnded && (
         <button
           onClick={handleJoin}
-          disabled={joining}
-          className="w-full py-4 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black font-black text-base rounded-2xl transition shadow-xl shadow-amber-500/20 cursor-pointer active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-400 text-black font-extrabold text-sm rounded-2xl hover:from-amber-400 hover:to-amber-300 transition shadow-lg shadow-amber-500/10"
         >
-          {joining ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-              Joining Contest...
-            </span>
-          ) : (
-            'Join Contest →'
-          )}
+          Join Contest →
         </button>
       )}
-
-      {/* Joined status banner */}
-      {effectiveJoined && (
-        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🎉</span>
-            <div>
-              <p className="text-sm font-black text-emerald-400">You are Registered for this Contest</p>
-              <p className="text-xs text-gray-400">You can view problems, rules, and submit solutions in the tabs above.</p>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate('problems')}
-            className="w-full sm:w-auto px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition shadow-lg shadow-emerald-500/20 whitespace-nowrap cursor-pointer"
-          >
-            Go to Problems Tab →
-          </button>
-        </div>
-      )}
-
 
       {/* ── SEB Gate (Normal Browser + SEB required) ── */}
       {showSebGate && (
@@ -703,25 +673,12 @@ export function OverviewTab() {
               <button
                 id="seb-download-config"
                 onClick={handleDownloadSebConfig}
-                className="px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-extrabold rounded-2xl transition flex flex-col items-center justify-center text-center gap-1 cursor-pointer"
+                className="px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-extrabold rounded-2xl transition flex flex-col items-center justify-center text-center gap-1"
               >
                 <span className="text-sm">📥 Download SEB Config</span>
                 <span className="text-[10px] text-gray-400 font-medium">Alternative setup (.seb file)</span>
               </button>
             </div>
-
-            {/* SEB Simulation Tester Mode */}
-            <div className="mt-3">
-              <button
-                onClick={() => {
-                  window.location.href = window.location.pathname + '?seb=1';
-                }}
-                className="w-full py-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-extrabold rounded-2xl transition flex items-center justify-center gap-2 text-xs cursor-pointer"
-              >
-                <span>🧪 Test SEB Simulation Mode (Bypass for testing in standard browser)</span>
-              </button>
-            </div>
-
 
             {/* Platform info footer */}
             <div className="flex justify-between items-center mt-5 text-[9px] font-mono text-gray-600 border-t border-white/5 pt-4">
@@ -732,23 +689,10 @@ export function OverviewTab() {
         </div>
       )}
 
-      {/* ── Diagnostics Cockpit (inside SEB only) ── */}
-      {showDiagnostics && (
-        <ErrorBoundary fallback={
-          <div className="bg-zinc-900/40 border border-white/5 rounded-2xl p-5 text-center">
-            <p className="text-xs text-gray-400">Diagnostic cockpit unavailable. Proceed to Problems tab.</p>
-          </div>
-        }>
-          <SebDiagnosticCockpit
-            contest={contest}
-            diagnostics={diagnostics}
-            onStartExam={handleStartExam}
-          />
-        </ErrorBoundary>
-      )}
+
 
       {/* ── No diagnostics needed (SEB not required, or not joined) ── */}
-      {isJoined && isLive && !contest.requireSeb && !isSebBrowser && (
+      {effectivelyJoined && isLive && !contest.requireSeb && !isSebBrowser && (
         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 flex items-center gap-4">
           <span className="text-2xl">✅</span>
           <div>
@@ -760,6 +704,26 @@ export function OverviewTab() {
             className="ml-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition shrink-0"
           >
             Start Exam →
+          </button>
+        </div>
+      )}
+
+      {/* ── Dev: SEB Simulation Mode Button (for testing in normal browser) ── */}
+      {effectivelyJoined && isLive && contest.requireSeb && !isSebBrowser && (
+        <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-black text-gray-400">Developer Testing</p>
+            <p className="text-[10px] text-gray-600">Simulate SEB browser (appends ?seb=1) to test diagnostics flow without actual SEB installed.</p>
+          </div>
+          <button
+            onClick={() => {
+              const url = new URL(window.location.href);
+              url.searchParams.set('seb', '1');
+              window.location.href = url.toString();
+            }}
+            className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-400 font-extrabold text-[10px] rounded-xl transition shrink-0 cursor-pointer"
+          >
+            🧪 Test SEB Simulation
           </button>
         </div>
       )}
@@ -1544,6 +1508,13 @@ function SebExamWizard({
   React.useEffect(() => {
     sessionStorage.setItem(`seb_wizard_step_${contest.id}`, step);
   }, [step, contest.id]);
+
+  React.useEffect(() => {
+    // Automatically register candidate when entering SEB wizard
+    if (contest?.id) {
+      api.joinManagerContest(contest.id).catch(() => {});
+    }
+  }, [contest?.id]);
 
   const navigate = useNavigate();
   const notify = useNotify();

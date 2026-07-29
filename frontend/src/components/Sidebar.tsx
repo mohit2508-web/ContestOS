@@ -1,134 +1,156 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { ROLE_LABELS, ROLE_COLORS } from '../config/roles';
 
-const ROLE_LABELS: Record<string, string> = {
-  student: 'Student Candidate',
-  teacher: 'Teacher / Host',
-  college_head: 'Institution Head',
-  coordinator: 'Coordinator',
-  owner: 'SuperAdmin / Owner',
-  SUPER_ADMIN: 'SuperAdmin / Owner',
-  TEACHER: 'Teacher / Host',
-  STUDENT: 'Student Candidate',
+const Icon = ({ d }: { d: string }) => (
+  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+  </svg>
+);
+
+const icons = {
+  dashboard: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+  trophy: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
+  code: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+  users: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+  clipboard: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+  shield: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  chart: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+  search: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
+  eye: 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z',
+  check: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+  doc: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+  credit: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+  flag: 'M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2z',
+  menu: 'M4 6h16M4 12h16M4 18h16',
+  close: 'M6 18L18 6M6 6l12 12',
+  logout: 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1',
+  globe: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9',
 };
-
-const ROLE_COLORS: Record<string, string> = {
-  student: 'bg-emerald-600',
-  teacher: 'bg-blue-600',
-  college_head: 'bg-indigo-600',
-  coordinator: 'bg-purple-600',
-  owner: 'bg-amber-600',
-  SUPER_ADMIN: 'bg-amber-600',
-  TEACHER: 'bg-blue-600',
-  STUDENT: 'bg-emerald-600',
-};
-
-const DashboardIcon = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-  </svg>
-);
-
-const LeaderboardIcon = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-  </svg>
-);
-
-const TrophyIcon = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 3h16M3 7h16v4a4 4 0 01-4 4H7a4 4 0 01-4-4V7zm8 8v4m0 0H8m5 0h3" />
-  </svg>
-);
-
-const CodeIcon = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-  </svg>
-);
-
-const UsersIcon = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-  </svg>
-);
-
-const SettingsIcon = () => (
-  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  </svg>
-);
-
-const MenuIcon = () => (
-  <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-  </svg>
-);
 
 interface NavItem {
   path: string;
   label: string;
-  icon: ReactNode;
-  section?: string;
+  icon: string;
 }
 
-function getNavItemsForRole(role: string): NavItem[] {
-  const normalizedRole = (role || 'STUDENT').toUpperCase();
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
 
-  // Strict isolation: STUDENTS see ONLY student assessment features
-  if (normalizedRole === 'STUDENT') {
-    return [
-      { path: '/contests', label: 'Contests & Exams', icon: <TrophyIcon />, section: 'Assessment' },
-      { path: '/leaderboard', label: 'Live Leaderboard', icon: <LeaderboardIcon />, section: 'Assessment' },
-    ];
+function getNavSections(role: string): NavSection[] {
+  switch ((role || 'STUDENT').toUpperCase()) {
+    case 'SUPER_ADMIN':
+      return [
+        { title: 'Platform', items: [
+          { path: '/admin/platform', label: 'Platform Dashboard', icon: icons.dashboard },
+          { path: '/admin/platform?tab=organizations', label: 'All Organizations', icon: icons.globe },
+          { path: '/admin/platform?tab=users', label: 'All Users', icon: icons.users },
+          { path: '/admin/platform?tab=audit', label: 'Audit Logs', icon: icons.doc },
+          { path: '/admin/platform?tab=billing', label: 'Billing & Tiers', icon: icons.credit },
+          { path: '/admin/platform?tab=features', label: 'Feature Flags', icon: icons.flag },
+        ]},
+        { title: 'Contests & Bank', items: [
+          { path: '/admin/contests', label: 'Contest Management', icon: icons.trophy },
+          { path: '/problems', label: 'Question Bank', icon: icons.code },
+        ]},
+      ];
+
+    case 'ORG_ADMIN':
+      return [
+        { title: 'Organization', items: [
+          { path: '/admin/org', label: 'Dashboard', icon: icons.dashboard },
+          { path: '/admin/org?tab=contests', label: 'Contests', icon: icons.trophy },
+          { path: '/admin/org?tab=team', label: 'Team Members', icon: icons.users },
+          { path: '/problems', label: 'Question Bank', icon: icons.code },
+          { path: '/admin/org?tab=participants', label: 'Participants', icon: icons.eye },
+          { path: '/admin/org?tab=billing', label: 'Billing', icon: icons.credit },
+        ]},
+        { title: 'Manage', items: [
+          { path: '/admin/contests', label: 'Full Contest Manager', icon: icons.trophy },
+          { path: '/problems/new', label: '+ Create New Question', icon: icons.code },
+        ]},
+      ];
+
+    case 'ORG_MEMBER':
+      return [
+        { title: 'My Work', items: [
+          { path: '/member/contests', label: 'Assigned Contests', icon: icons.clipboard },
+          { path: '/member/contests?tab=command-center', label: 'Live Command Center', icon: icons.eye },
+          { path: '/member/contests?tab=results', label: 'Results', icon: icons.chart },
+        ]},
+        { title: 'Contest & Question Management', items: [
+          { path: '/admin/contests', label: 'Full Contest & Question Manager', icon: icons.trophy },
+          { path: '/problems', label: 'Question Bank', icon: icons.code },
+          { path: '/problems/new', label: '+ Create New Question', icon: icons.code },
+        ]},
+      ];
+
+    case 'EVALUATOR':
+      return [
+        { title: 'Evaluation', items: [
+          { path: '/evaluator/assigned', label: 'Grading Queue', icon: icons.clipboard },
+          { path: '/evaluator/assigned?tab=history', label: 'Graded History', icon: icons.check },
+        ]},
+      ];
+
+    case 'STUDENT':
+    default:
+      return [
+        { title: 'Assessment', items: [
+          { path: '/browse', label: 'Browse Contests', icon: icons.globe },
+          { path: '/contests', label: 'My Contests', icon: icons.trophy },
+          { path: '/leaderboard', label: 'Leaderboard', icon: icons.chart },
+        ]},
+        { title: 'Practice', items: [
+          { path: '/playground', label: 'Code Playground', icon: icons.code },
+          { path: '/playground/web-dev', label: 'Web Dev Playground', icon: icons.flag },
+          { path: '/playground/sql', label: 'SQL Playground', icon: icons.doc },
+        ]},
+      ];
   }
-
-  // TEACHER / HOST Portal links
-  if (normalizedRole === 'TEACHER') {
-    return [
-      { path: '/contests', label: 'Contest Arena', icon: <TrophyIcon />, section: 'Assessment' },
-      { path: '/admin/contests', label: 'Host & Create Contest', icon: <CodeIcon />, section: 'Management' },
-      { path: '/admin/problems/new', label: 'Question Bank Editor', icon: <CodeIcon />, section: 'Management' },
-      { path: '/leaderboard', label: 'Leaderboard', icon: <LeaderboardIcon />, section: 'Management' },
-    ];
-  }
-
-  // OWNER / SUPERADMIN Portal links
-  return [
-    { path: '/contests', label: 'Contest Arena', icon: <TrophyIcon />, section: 'Assessment' },
-    { path: '/admin/contests', label: 'Host & Create Contest', icon: <CodeIcon />, section: 'Management' },
-    { path: '/admin/problems/new', label: 'Question Bank Editor', icon: <CodeIcon />, section: 'Management' },
-    { path: '/leaderboard', label: 'Leaderboard', icon: <LeaderboardIcon />, section: 'Management' },
-  ];
 }
 
 export function Sidebar({ children }: { children: ReactNode }) {
-  const { user, logout, login } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // SEB Immersive Mode: hide sidebar completely inside SEB
   const isSeb =
     navigator.userAgent.toLowerCase().includes('seb') ||
     navigator.userAgent.toLowerCase().includes('safeexambrowser') ||
     new URLSearchParams(window.location.search).get('seb') === '1';
 
-  // Do not render sidebar on login, register, or inside SEB exam mode
-  if (isSeb || location.pathname === '/login' || location.pathname === '/register') {
+  if (isSeb || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/' || location.pathname === '/landing') {
     return <>{children}</>;
   }
 
-  const role = user?.role || 'STUDENT';
-  const navItems = getNavItemsForRole(role);
+  const role = (user?.role || 'STUDENT').toUpperCase();
+  const sections = getNavSections(role);
+  const roleLabel = ROLE_LABELS[role] || 'Participant';
+  const roleColor = ROLE_COLORS[role] || 'bg-emerald-600';
+
+  const isActive = (path: string) => {
+    const [itemPath, itemQuery] = path.split('?');
+    const currentPath = location.pathname;
+    const currentSearch = location.search;
+
+    if (currentPath !== itemPath) {
+      return false;
+    }
+
+    if (itemQuery) {
+      return currentSearch.includes(itemQuery);
+    }
+
+    const params = new URLSearchParams(currentSearch);
+    const currentTab = params.get('tab');
+    return !currentTab || currentTab === 'overview';
+  };
 
   return (
     <div className="flex h-screen bg-black overflow-hidden relative">
@@ -138,7 +160,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
           Contest<span className="text-amber-400">OS</span>
         </h1>
         <button onClick={() => setIsOpen(true)} className="text-white p-2">
-          <MenuIcon />
+          <Icon d={icons.menu} />
         </button>
       </div>
 
@@ -166,11 +188,9 @@ export function Sidebar({ children }: { children: ReactNode }) {
                 Contest<span className="text-amber-400">OS</span>
               </h1>
               <span
-                className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold rounded ${
-                  ROLE_COLORS[role] || 'bg-emerald-600'
-                } text-white mt-1 inline-block`}
+                className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold rounded ${roleColor} text-white mt-1 inline-block`}
               >
-                {ROLE_LABELS[role] || 'Student Candidate'}
+                {roleLabel}
               </span>
             </div>
           )}
@@ -178,59 +198,52 @@ export function Sidebar({ children }: { children: ReactNode }) {
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="hidden md:flex text-gray-400 hover:text-white p-1.5 hover:bg-white/5 rounded-lg transition"
           >
-            {isCollapsed ? '👉' : '👈'}
+            {isCollapsed ? '\u2192' : '\u2190'}
           </button>
           <button onClick={() => setIsOpen(false)} className="md:hidden text-gray-400 p-1">
-            <CloseIcon />
+            <Icon d={icons.close} />
           </button>
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto custom-scrollbar">
-          {navItems.map((item) => {
-            const isActive =
-              location.pathname === item.path ||
-              (item.path !== '/' && location.pathname.startsWith(item.path + '/'));
-
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all ${
-                  isActive
-                    ? 'bg-gradient-to-r from-amber-500 to-amber-400 text-black shadow-lg shadow-amber-500/20 font-black'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                {item.icon}
-                {!isCollapsed && <span>{item.label}</span>}
-              </NavLink>
-            );
-          })}
+        <nav className="flex-1 p-3 space-y-4 overflow-y-auto custom-scrollbar">
+          {sections.map((section) => (
+            <div key={section.title}>
+              {!isCollapsed && (
+                <h3 className="text-[10px] text-gray-500 uppercase tracking-widest font-bold px-3 mb-1.5">
+                  {section.title}
+                </h3>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const active = isActive(item.path);
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setIsOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                        active
+                          ? 'bg-gradient-to-r from-amber-500 to-amber-400 text-black shadow-lg shadow-amber-500/20 font-black'
+                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <Icon d={item.icon} />
+                      {!isCollapsed && <span className="truncate">{item.label}</span>}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
-        {/* User Identity & Role Switcher Footer */}
+        {/* User Identity Footer */}
         <div className="p-3 border-t border-white/10 bg-zinc-900/50 shrink-0 space-y-2">
-          {!isCollapsed && (
-            <div className="bg-white/5 p-2 rounded-xl border border-white/5 flex items-center justify-between">
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-white truncate">{user?.name || 'Aarav Patel'}</p>
-                <p className="text-[10px] text-amber-400 truncate">{user?.email || 'student@iitd.ac.in'}</p>
-              </div>
-              <button
-                onClick={() => {
-                  if (role === 'STUDENT') {
-                    login('token', { id: '2', name: 'Dr. Sharma (Host)', email: 'teacher@iitd.ac.in', role: 'TEACHER' });
-                  } else {
-                    login('token', { id: '1', name: 'Aarav Patel (Student)', email: 'student@iitd.ac.in', role: 'STUDENT' });
-                  }
-                }}
-                className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-[9px] font-bold text-white transition shrink-0 cursor-pointer"
-                title="Switch test persona"
-              >
-                🔁 Switch
-              </button>
+          {!isCollapsed && user && (
+            <div className="bg-white/5 p-2.5 rounded-xl border border-white/5">
+              <p className="text-xs font-bold text-white truncate">{user.name}</p>
+              <p className="text-[10px] text-amber-400 truncate">{user.email}</p>
             </div>
           )}
 
@@ -238,7 +251,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
             {!user ? (
               <NavLink
                 to="/login"
-                className="w-full py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs rounded-xl text-center transition"
+                className="w-full py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs rounded-xl text-center transition"
               >
                 Login
               </NavLink>
@@ -248,9 +261,10 @@ export function Sidebar({ children }: { children: ReactNode }) {
                   logout();
                   navigate('/login');
                 }}
-                className="w-full py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1 cursor-pointer"
+                className="w-full py-2.5 bg-red-600/20 hover:bg-red-600/30 text-red-400 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>🚪</span> Logout
+                <Icon d={icons.logout} />
+                {!isCollapsed && <span>Logout</span>}
               </button>
             )}
           </div>

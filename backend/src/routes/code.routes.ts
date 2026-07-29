@@ -5,6 +5,18 @@ import { evaluateCodeSubmission } from '../services/languageAdapter';
 
 const router = Router();
 
+// GET /api/code/languages — Available compilers & languages
+router.get('/languages', async (_req: Request, res: Response): Promise<void> => {
+  res.json({
+    languages: [
+      { id: 'cpp', name: 'C++ 20 (GCC 11.2)', extension: 'cpp' },
+      { id: 'python', name: 'Python 3.10', extension: 'py' },
+      { id: 'java', name: 'Java 17 (OpenJDK)', extension: 'java' },
+      { id: 'javascript', name: 'JavaScript (Node.js v18)', extension: 'js' },
+    ],
+  });
+});
+
 // POST /api/code/run — Execute candidate code against input
 router.post('/run', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
@@ -23,9 +35,9 @@ router.post('/run', authenticateToken, async (req: Request, res: Response): Prom
     });
 
     res.json({
-      success: evalResult.status === 'ACCEPTED',
-      output: evalResult.testResults[0]?.actualOutput || 'Code executed successfully',
-      stderr: '',
+      success: !evalResult.testResults[0]?.error,
+      output: evalResult.testResults[0]?.actualOutput || evalResult.testResults[0]?.error || 'No output',
+      stderr: evalResult.testResults[0]?.error || '',
       executionTime: `${evalResult.executionTime}ms`,
     });
   } catch (error: any) {
@@ -43,6 +55,17 @@ router.post('/run-tests', authenticateToken, async (req: Request, res: Response)
       return;
     }
 
+    const isStream = req.query.stream === 'true';
+
+    if (isStream) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      if (typeof (res as any).flushHeaders === 'function') {
+        (res as any).flushHeaders();
+      }
+    }
+
     const evalResult = await evaluateCodeSubmission({
       problemId: problemId || 'test',
       code,
@@ -53,7 +76,27 @@ router.post('/run-tests', authenticateToken, async (req: Request, res: Response)
         expectedOutput: tc.expectedOutput || '',
         isHidden: tc.isHidden || false,
       })),
+      onProgress: (tcResult) => {
+        if (isStream) {
+          res.write(`data: ${JSON.stringify({ type: 'progress', result: tcResult })}\n\n`);
+        }
+      },
     });
+
+    if (isStream) {
+      res.write(`data: ${JSON.stringify({
+        type: 'done',
+        status: evalResult.status === 'ACCEPTED' ? 'passed' : 'failed',
+        summary: {
+          passed: evalResult.passedCount,
+          failed: evalResult.totalCount - evalResult.passedCount,
+          total: evalResult.totalCount,
+        },
+        results: evalResult.testResults,
+      })}\n\n`);
+      res.end();
+      return;
+    }
 
     res.json({
       results: evalResult.testResults,

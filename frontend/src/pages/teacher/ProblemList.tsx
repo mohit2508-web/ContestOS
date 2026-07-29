@@ -10,7 +10,8 @@ interface Problem {
   category: string | null;
   problemType?: string;
   evaluationStrategy: string;
-  testCases: any[];
+  testCases?: any[];
+  _count?: { testCases?: number; contestProblems?: number };
   createdById?: string;
   createdAt: string;
 }
@@ -84,8 +85,19 @@ export function TeacherProblemListPage() {
     try {
       await api.deleteProblem(id);
       setProblems(prev => prev.filter(p => p.id !== id));
+      notify.toast.success('Problem deleted');
     } catch (err) {
       console.error('Failed to delete problem:', err);
+    }
+  };
+
+  const handleClone = async (id: string, title: string) => {
+    try {
+      await api.copyPublicProblem(id);
+      notify.toast.success(`"${title}" cloned to your Organization Bank!`);
+      loadProblems();
+    } catch (err: any) {
+      notify.toast.error(err?.response?.data?.error || 'Failed to clone problem');
     }
   };
 
@@ -93,8 +105,8 @@ export function TeacherProblemListPage() {
     return <div className="bg-white/5 rounded-lg h-64" />;
   }
 
-  const sampleCount = (tc: any[]) => tc.filter((t: any) => !t.isHidden).length;
-  const hiddenCount = (tc: any[]) => tc.filter((t: any) => t.isHidden).length;
+  const sampleCount = (tc?: any[]) => (Array.isArray(tc) ? tc.filter((t: any) => !t.isHidden).length : 0);
+  const hiddenCount = (tc?: any[]) => (Array.isArray(tc) ? tc.filter((t: any) => t.isHidden).length : 0);
 
   const filteredProblems = problems.filter(p => {
     const typeMatch = activeTab === 'all' || (p.problemType || 'code') === activeTab;
@@ -210,11 +222,20 @@ export function TeacherProblemListPage() {
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-xs text-gray-500">
-                      {sampleCount(problem.testCases)} sample · {hiddenCount(problem.testCases)} hidden
+                      {Array.isArray(problem.testCases)
+                        ? `${sampleCount(problem.testCases)} sample · ${hiddenCount(problem.testCases)} hidden`
+                        : `${problem._count?.testCases || 0} test cases`}
                     </span>
                     <span className="text-xs text-gray-400 bg-white/5 px-2 py-0.5 rounded">
                       {STRATEGY_LABELS[problem.evaluationStrategy] || problem.evaluationStrategy}
                     </span>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleClone(problem.id, problem.title); }}
+                      className="text-xs px-2.5 py-1 rounded font-bold border border-blue-500/30 text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 transition flex items-center gap-1"
+                      title="Clone to Private Bank"
+                    >
+                      <span>📥</span> Clone
+                    </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(problem.id, problem.title); }}
                       className="text-gray-500 hover:text-red-400 p-1 transition"

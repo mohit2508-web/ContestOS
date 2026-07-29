@@ -74,7 +74,8 @@ export function ContestManagementPage() {
   // Monitor state
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [monitorLoading, setMonitorLoading] = useState(false);
-  const [monitorTab, setMonitorTab] = useState<'participants' | 'snapshots' | 'lobby' | 'seb'>('participants');
+  const [monitorTab, setMonitorTab] = useState<'participants' | 'snapshots' | 'lobby' | 'seb' | 'questions'>('participants');
+  const [showSamplePreview, setShowSamplePreview] = useState(false);
 
   // --- Pre-Contest Lobby Telemetry States ---
   const [lobbyUsers, setLobbyUsers] = useState<Record<string, {
@@ -326,6 +327,21 @@ export function ContestManagementPage() {
       document.body.removeChild(link);
     };
 
+    const sampleMockParticipants: Participant[] = [
+      { user: { id: 'mock-1', fullName: 'Student Candidate (IITD)', email: 'student@iitd.ac.in' }, score: 100, solvedCount: 1, warnings: 1, isTerminated: false },
+      { user: { id: 'mock-2', fullName: 'Rohan Sharma (NSUT)', email: 'rohan.sharma@nsut.ac.in' }, score: 200, solvedCount: 2, warnings: 0, isTerminated: false },
+      { user: { id: 'mock-3', fullName: 'Priya Patel (DTU)', email: 'priya.p@dtu.ac.in' }, score: 0, solvedCount: 0, warnings: 3, isTerminated: true },
+    ];
+
+    const sampleMockLogs = [
+      { id: 'log-1', userId: 'mock-1', eventType: 'SEB_SESSION_START', description: 'SEB Session launched successfully', createdAt: new Date().toISOString(), user: { fullName: 'Student Candidate (IITD)', email: 'student@iitd.ac.in' } },
+      { id: 'log-2', userId: 'mock-1', eventType: 'TAB_SWITCH', description: 'Student switched browser tab', createdAt: new Date().toISOString(), user: { fullName: 'Student Candidate (IITD)', email: 'student@iitd.ac.in' } },
+      { id: 'log-3', userId: 'mock-3', eventType: 'FULLSCREEN_EXIT', description: 'Exited fullscreen mode 3 times', createdAt: new Date().toISOString(), user: { fullName: 'Priya Patel (DTU)', email: 'priya.p@dtu.ac.in' } },
+    ];
+
+    const displayParticipants = showSamplePreview ? sampleMockParticipants : participants;
+    const displayLogs = showSamplePreview ? sampleMockLogs : contestLogs;
+
     return (
       <div className="space-y-6">
         {/* Post-Contest Finalization Summary Panel */}
@@ -351,11 +367,14 @@ export function ContestManagementPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Candidates list */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-sm">
+          {/* Left Column: Candidates SEB Table */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider">Candidate SEB &amp; Integrity Log ({participants.length})</h3>
+              <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider">
+                Candidate SEB &amp; Integrity Log ({displayParticipants.length})
+                {showSamplePreview && <span className="ml-2 text-amber-400 font-bold text-[10px] lowercase">(sample preview data)</span>}
+              </h3>
               <button 
                 onClick={() => openMonitor(selectedContest!)}
                 className="text-xs text-[var(--accent-blue)] hover:underline flex items-center gap-1"
@@ -364,8 +383,19 @@ export function ContestManagementPage() {
               </button>
             </div>
 
-            {participants.length === 0 ? (
-              <p className="text-gray-500 text-sm italic py-10 text-center bg-white/5 border border-white/10 rounded-xl">No candidates registered for this contest.</p>
+            {displayParticipants.length === 0 ? (
+              <div className="text-center py-10 bg-white/5 border border-white/10 rounded-xl space-y-2">
+                <span className="text-2xl block">🔒</span>
+                <p className="text-gray-300 font-bold text-sm">Awaiting Candidate Registration</p>
+                <p className="text-gray-500 text-xs max-w-sm mx-auto">No candidates have registered for this exam yet. Telemetry will record live as soon as students enter the contest.</p>
+                <button
+                  type="button"
+                  onClick={() => setShowSamplePreview(true)}
+                  className="mt-2 text-xs text-amber-400 hover:underline font-semibold"
+                >
+                  Click here to preview with sample data →
+                </button>
+              </div>
             ) : (
               <div className="border border-white/10 rounded-xl overflow-hidden bg-white/5">
                 <div className="overflow-x-auto">
@@ -380,8 +410,8 @@ export function ContestManagementPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
-                      {participants.map(p => {
-                        const launchCount = contestLogs.filter(log => log.userId === p.user.id && log.eventType === 'SEB_SESSION_START').length;
+                      {displayParticipants.map(p => {
+                        const launchCount = displayLogs.filter(log => log.userId === p.user.id && log.eventType === 'SEB_SESSION_START').length;
                         const isDisqualified = p.isTerminated || (p.warnings || 0) >= (selectedContest?.maxWarnings || 3);
                         const isSuspected = (p.warnings || 0) > 0 && !isDisqualified;
 
@@ -528,6 +558,164 @@ export function ContestManagementPage() {
     );
   };
 
+  // Mapped problems state
+  const [mappedProblems, setMappedProblems] = useState<any[]>([]);
+  const [mappedProblemsLoading, setMappedProblemsLoading] = useState(false);
+  const [addingProblemId, setAddingProblemId] = useState('');
+  const [selectedBankProblemId, setSelectedBankProblemId] = useState('');
+
+  const loadMappedProblems = useCallback(async (contestId: string) => {
+    setMappedProblemsLoading(true);
+    try {
+      const res = await api.getContestProblems(contestId);
+      setMappedProblems(res.problems || []);
+    } catch (err) {
+      console.error('Failed to load mapped problems:', err);
+    } finally {
+      setMappedProblemsLoading(false);
+    }
+  }, []);
+
+  const handleAttachProblemToCurrentContest = async () => {
+    if (!selectedContest || !selectedBankProblemId) return;
+    setAddingProblemId(selectedBankProblemId);
+    try {
+      await api.attachContestProblem(selectedContest.id, { problemId: selectedBankProblemId, points: 100 });
+      notify.toast.success('Question attached to contest!');
+      loadMappedProblems(selectedContest.id);
+      loadContests();
+      setSelectedBankProblemId('');
+    } catch (err: any) {
+      notify.toast.error(err?.response?.data?.error || 'Failed to attach problem');
+    } finally {
+      setAddingProblemId('');
+    }
+  };
+
+  const handleRemoveMappedProblem = async (problemId: string) => {
+    if (!selectedContest) return;
+    if (!confirm('Are you sure you want to remove this question from the contest?')) return;
+    try {
+      await api.removeContestProblem(selectedContest.id, problemId);
+      notify.toast.success('Question unmapped from contest!');
+      loadMappedProblems(selectedContest.id);
+      loadContests();
+    } catch (err) {
+      notify.toast.error('Failed to unmap question');
+    }
+  };
+
+  const renderMappedQuestions = () => {
+    const unmappedBankProblems = problemBank.filter(
+      (bp) => !mappedProblems.some((mp) => mp.problemId === bp.id)
+    );
+
+    return (
+      <div className="space-y-6">
+        {/* Quick Attach Header Bar */}
+        <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 className="font-bold text-white text-sm">Mapped Contest Questions ({mappedProblems.length})</h3>
+            <p className="text-xs text-gray-400 mt-0.5">Attach questions directly from your Question Bank or manage current question order &amp; points.</p>
+          </div>
+
+          <div className="flex items-center space-x-2 w-full md:w-auto">
+            <select
+              value={selectedBankProblemId}
+              onChange={(e) => setSelectedBankProblemId(e.target.value)}
+              className="bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400 flex-1 md:w-64"
+            >
+              <option value="">Select question from bank...</option>
+              {unmappedBankProblems.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title} ({p.difficulty || 'Medium'} • {p.category || 'General'})
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={handleAttachProblemToCurrentContest}
+              disabled={!selectedBankProblemId || Boolean(addingProblemId)}
+              className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-extrabold text-xs rounded-xl shadow-md shadow-emerald-500/20 transition-all disabled:opacity-40 shrink-0"
+            >
+              {addingProblemId ? 'Adding...' : '+ Attach Question'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => window.location.href = '/problems/new'}
+              className="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-extrabold text-xs rounded-xl shadow-md shadow-purple-600/20 transition-all shrink-0 flex items-center gap-1"
+            >
+              <span>✨</span> + Create New Question
+            </button>
+          </div>
+        </div>
+
+        {/* Mapped Questions List Table */}
+        {mappedProblemsLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-emerald-400"></div>
+          </div>
+        ) : mappedProblems.length === 0 ? (
+          <div className="text-center py-16 bg-white/5 border border-white/10 rounded-2xl space-y-2">
+            <span className="text-3xl block">📋</span>
+            <p className="text-gray-300 font-bold text-sm">No Questions Mapped Yet</p>
+            <p className="text-gray-500 text-xs max-w-sm mx-auto">
+              Select questions from the dropdown above or go to the Question Bank to map questions to this contest.
+            </p>
+          </div>
+        ) : (
+          <div className="border border-white/10 rounded-2xl overflow-hidden bg-white/5">
+            <table className="w-full text-left text-xs font-mono select-text border-collapse">
+              <thead>
+                <tr className="bg-black/40 border-b border-white/10 text-gray-400 uppercase text-[9px] tracking-wider font-bold">
+                  <th className="p-3">Order</th>
+                  <th className="p-3">Question Title</th>
+                  <th className="p-3">Category</th>
+                  <th className="p-3 text-center">Difficulty</th>
+                  <th className="p-3 text-center">Points</th>
+                  <th className="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {mappedProblems.map((cp: any, idx: number) => {
+                  const prob = cp.problem || {};
+                  return (
+                    <tr key={cp.id || idx} className="hover:bg-white/5 transition-colors">
+                      <td className="p-3 font-bold text-emerald-400">#{cp.order || idx + 1}</td>
+                      <td className="p-3 font-bold text-white font-sans text-sm">
+                        {prob.title || 'Untitled Problem'}
+                      </td>
+                      <td className="p-3 text-gray-400">{prob.category || 'Algorithms'}</td>
+                      <td className="p-3 text-center">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          prob.difficulty === 'Easy' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                          prob.difficulty === 'Medium' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                          'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                        }`}>
+                          {prob.difficulty || 'Medium'}
+                        </span>
+                      </td>
+                      <td className="p-3 text-center font-bold text-white">{cp.points || 100} pts</td>
+                      <td className="p-3 text-right">
+                        <button
+                          onClick={() => handleRemoveMappedProblem(cp.problemId)}
+                          className="px-3 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs font-bold transition border border-rose-500/20"
+                        >
+                          Unmap
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Flagged snapshots state
   const [flaggedSnapshots, setFlaggedSnapshots] = useState<any[]>([]);
   const [snapshotsLoading, setSnapshotsLoading] = useState(false);
@@ -631,11 +819,15 @@ export function ContestManagementPage() {
   const openMonitor = async (contest: Contest) => {
     setSelectedContest(contest);
     setMonitorTab('participants');
+    setShowSamplePreview(false);
     setMonitorLoading(true);
     try {
-      const lbData = await api.getContestLeaderboard(contest.id);
+      const [lbData] = await Promise.all([
+        api.getContestLeaderboard(contest.id),
+        loadContestLogs(contest.id),
+        loadMappedProblems(contest.id),
+      ]);
       setParticipants(lbData.leaderboard || []);
-      await loadContestLogs(contest.id);
     } catch (err) {
       console.error(err);
     } finally {
@@ -667,7 +859,7 @@ export function ContestManagementPage() {
 
   const blockStudent = async (userId: string) => {
     if (!selectedContest) return;
-    const note = await notify.prompt("Enter reason for manual block (optional):");
+    const note = window.prompt("Enter reason for manual block (optional):");
     if (note === null) return;
     try {
       await api.blockContestParticipant(selectedContest.id, userId, note);
@@ -680,7 +872,7 @@ export function ContestManagementPage() {
 
   const unblockStudent = async (userId: string) => {
     if (!selectedContest) return;
-    const note = await notify.prompt("Enter reason for unblocking (optional):");
+    const note = window.prompt("Enter reason for unblocking (optional):");
     if (note === null) return;
     try {
       await api.unblockContestParticipant(selectedContest.id, userId, note);
@@ -693,7 +885,7 @@ export function ContestManagementPage() {
 
   const handleResetWarnings = async (userId: string, fullName: string) => {
     if (!selectedContest) return;
-    const reason = await notify.prompt(`Enter reason for resetting warning count for ${fullName}:`);
+    const reason = window.prompt(`Enter reason for resetting warning count for ${fullName}:`);
     if (reason === null) return;
     try {
       await api.client.post(`/contests/${selectedContest.id}/attempts/${userId}/reset-warnings`, { reason });
@@ -734,14 +926,14 @@ export function ContestManagementPage() {
         </div>
         <button 
           onClick={() => setShowCreate(true)}
-          className="px-4 py-2 bg-[var(--accent-green)] text-black font-bold rounded-lg hover:opacity-90 transition"
+          className="px-5 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-black font-black rounded-xl shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95 flex items-center gap-2"
         >
-          + Create Contest
+          <span>+</span> Create Contest
         </button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--accent-green)]"></div></div>
+        <div className="flex justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div></div>
       ) : error ? (
         <div className="text-red-400 text-center py-20">{error}</div>
       ) : contests.length === 0 ? (
@@ -751,33 +943,33 @@ export function ContestManagementPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {contests.map(c => (
-            <div key={c.id} className="bg-[var(--bg-card)] border border-white/10 rounded-xl p-5 hover:border-[var(--accent-green)]/50 transition">
+            <div key={c.id} className="bg-zinc-900 border border-white/10 rounded-2xl p-5 hover:border-emerald-400/50 transition-all shadow-xl">
               <div className="flex justify-between items-start mb-3">
-                <h3 className="font-bold text-lg">{c.title}</h3>
-                <span className={`px-2 py-0.5 text-xs font-bold rounded ${c.isPublic ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                <h3 className="font-extrabold text-lg text-white">{c.title}</h3>
+                <span className={`px-2.5 py-0.5 text-xs font-bold rounded-lg ${c.isPublic ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'}`}>
                   {c.isPublic ? 'Public' : 'Private'}
                 </span>
               </div>
-              <div className="space-y-1 mb-4 text-sm text-gray-400">
+              <div className="space-y-1 mb-4 text-sm text-gray-400 font-mono">
                 <p>Starts: {new Date(c.startTime).toLocaleString()}</p>
                 <p>Ends: {new Date(c.endTime).toLocaleString()}</p>
                 <p>Duration: {c.duration} mins</p>
-                <p>Participants: {c._count.participants}</p>
+                <p>Participants: {c._count?.participants || 0}</p>
               </div>
               
               <div className="flex flex-wrap gap-2 mb-4">
-                {c.requireFullscreen && <span className="text-[10px] px-2 py-1 bg-white/5 rounded text-gray-300">Fullscreen</span>}
-                {c.preventTabSwitch && <span className="text-[10px] px-2 py-1 bg-white/5 rounded text-gray-300">No Tabs</span>}
-                {c.disableCopyPaste && <span className="text-[10px] px-2 py-1 bg-white/5 rounded text-gray-300">No Copy</span>}
-                {c.enableProctoring && <span className="text-[10px] px-2 py-1 bg-[var(--accent-green)]/20 text-[var(--accent-green)] rounded font-bold">Proctored</span>}
-                {c.requireSeb && <span className="text-[10px] px-2 py-1 bg-blue-500/20 text-blue-400 rounded font-bold">🔒 SEB</span>}
+                {c.requireFullscreen && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">Fullscreen</span>}
+                {c.preventTabSwitch && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">No Tabs</span>}
+                {c.disableCopyPaste && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">No Copy</span>}
+                {c.enableProctoring && <span className="text-[10px] px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md font-bold">Proctored</span>}
+                {c.requireSeb && <span className="text-[10px] px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md font-bold">🔒 SEB</span>}
               </div>
 
               <button 
                 onClick={() => openMonitor(c)}
-                className="w-full py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition"
+                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2"
               >
-                Monitor & Manage
+                <span>📊</span> Monitor &amp; Manage
               </button>
             </div>
           ))}
@@ -1000,7 +1192,7 @@ export function ContestManagementPage() {
                 </div>
               </div>
 
-              <button disabled={creating} type="submit" className="w-full py-3 bg-[var(--accent-green)] text-black font-bold rounded-lg hover:opacity-90 transition disabled:opacity-50">
+              <button disabled={creating} type="submit" className="w-full py-3.5 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-black font-black text-base rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">
                 {creating ? 'Creating...' : 'Create Secure Contest'}
               </button>
             </form>
@@ -1011,29 +1203,42 @@ export function ContestManagementPage() {
       {/* MONITOR MODAL */}
       {selectedContest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-[var(--bg-card)] border border-white/10 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto flex flex-col">
-            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/20 sticky top-0 z-10">
+          <div className="bg-zinc-900 border border-white/10 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center bg-black/40 sticky top-0 z-10">
               <div>
-                <h2 className="text-2xl font-bold">{selectedContest.title} <span className="text-sm font-normal text-gray-400 ml-2">Live Monitor</span></h2>
+                <h2 className="text-2xl font-black text-white">{selectedContest.title} <span className="text-sm font-semibold text-emerald-400 ml-2">Live Monitor</span></h2>
                 <div className="flex gap-4 text-xs text-gray-400 mt-1">
                   <span>{selectedContest.isPublic ? 'Public' : 'Private'}</span>
                   <span>|</span>
-                  <span className={selectedContest.enableProctoring ? 'text-[var(--accent-green)]' : ''}>{selectedContest.enableProctoring ? 'Proctoring Active' : 'No Proctoring'}</span>
+                  <span className={selectedContest.enableProctoring ? 'text-emerald-400 font-bold' : ''}>{selectedContest.enableProctoring ? 'Proctoring Active' : 'No Proctoring'}</span>
                 </div>
               </div>
-              <button onClick={() => setSelectedContest(null)} className="p-2 bg-white/10 hover:bg-white/20 rounded-lg">Close</button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowSamplePreview(!showSamplePreview)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 border ${
+                    showSamplePreview
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                      : 'bg-white/5 text-gray-400 hover:text-white border-white/10'
+                  }`}
+                >
+                  <span>{showSamplePreview ? '🧪 Sample Preview Active' : '👁️ Preview Mock Data'}</span>
+                </button>
+                <button onClick={() => setSelectedContest(null)} className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 rounded-xl font-bold transition">Close</button>
+              </div>
             </div>
 
-            <div className="flex gap-4 border-b border-white/10 px-6 bg-black/10">
+            <div className="flex gap-4 border-b border-white/10 px-6 bg-black/20 overflow-x-auto">
               <button 
                 onClick={() => setMonitorTab('participants')}
-                className={`py-3 text-sm font-bold border-b-2 transition ${monitorTab === 'participants' ? 'border-[var(--accent-green)] text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+                className={`py-3 text-sm font-extrabold border-b-2 transition ${monitorTab === 'participants' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-gray-400 hover:text-white'}`}
               >
                 Active Participants
               </button>
               <button 
                 onClick={() => setMonitorTab('lobby')}
-                className={`py-3 text-sm font-bold border-b-2 transition ${monitorTab === 'lobby' ? 'border-[var(--accent-green)] text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+                className={`py-3 text-sm font-extrabold border-b-2 transition ${monitorTab === 'lobby' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-gray-400 hover:text-white'}`}
               >
                 Pre-Contest Lobby Telemetry
               </button>
@@ -1043,7 +1248,7 @@ export function ContestManagementPage() {
                     setMonitorTab('snapshots');
                     loadFlaggedSnapshots(selectedContest.id);
                   }}
-                  className={`py-3 text-sm font-bold border-b-2 transition ${monitorTab === 'snapshots' ? 'border-[var(--accent-green)] text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+                  className={`py-3 text-sm font-extrabold border-b-2 transition ${monitorTab === 'snapshots' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-gray-400 hover:text-white'}`}
                 >
                   Flagged Proctoring Snapshots
                 </button>
@@ -1053,7 +1258,7 @@ export function ContestManagementPage() {
                   setMonitorTab('seb');
                   loadContestLogs(selectedContest.id);
                 }}
-                className={`py-3 text-sm font-bold border-b-2 transition ${monitorTab === 'seb' ? 'border-[var(--accent-green)] text-white' : 'border-transparent text-gray-400 hover:text-white'}`}
+                className={`py-3 text-sm font-extrabold border-b-2 transition ${monitorTab === 'seb' ? 'border-emerald-400 text-emerald-400' : 'border-transparent text-gray-400 hover:text-white'}`}
               >
                 🔒 SEB &amp; Integrity Monitor
               </button>
@@ -1078,7 +1283,7 @@ export function ContestManagementPage() {
                       </select>
                       <button 
                         onClick={handleInviteClass} disabled={inviting || !selectedClassId}
-                        className="w-full py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-semibold transition disabled:opacity-50"
+                        className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold rounded-xl transition shadow-md shadow-emerald-500/20 disabled:opacity-50"
                       >
                         {inviting ? 'Inviting...' : 'Invite Class Students'}
                       </button>
@@ -1088,12 +1293,12 @@ export function ContestManagementPage() {
                   {/* Right Column: Participants List */}
                   <div className={selectedContest.isPublic ? 'lg:col-span-3' : 'lg:col-span-2'}>
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-bold">Participants ({participants.length})</h3>
-                      <button onClick={() => openMonitor(selectedContest)} className="text-xs text-[var(--accent-blue)] hover:underline">Refresh</button>
+                      <h3 className="font-bold text-white">Participants ({participants.length})</h3>
+                      <button onClick={() => openMonitor(selectedContest)} className="text-xs text-blue-400 font-bold hover:underline">🔄 Refresh</button>
                     </div>
                     
                     {monitorLoading ? (
-                      <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--accent-green)]"></div></div>
+                      <div className="flex justify-center py-10"><div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-400"></div></div>
                     ) : participants.length === 0 ? (
                       <p className="text-gray-500 text-sm italic">No participants have joined yet.</p>
                     ) : (
@@ -1118,7 +1323,7 @@ export function ContestManagementPage() {
                               </div>
                               <button 
                                 onClick={() => navigate(`/teacher/contests/${selectedContest.id}/attempts/${p.user.id}/report`)} 
-                                className="p-2 text-[var(--accent-green)] hover:bg-[var(--accent-green)]/15 rounded-lg transition"
+                                className="p-2 text-emerald-400 hover:bg-emerald-500/20 rounded-lg transition"
                                 title="View Performance Report Audit"
                               >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1167,6 +1372,8 @@ export function ContestManagementPage() {
                 renderLobbyTelemetry()
               ) : monitorTab === 'seb' ? (
                 renderSebMonitor()
+              ) : monitorTab === 'questions' ? (
+                renderMappedQuestions()
               ) : (
                 <div>
                   <div className="flex justify-between items-center mb-4">

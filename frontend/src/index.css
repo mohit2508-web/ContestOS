@@ -1,11 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   --bg-primary: #090d16;
   --bg-card: #111827;
+  --bg-card-hover: #1f293d;
   --accent-blue: #3b82f6;
+  --accent-green: #10b981;
+  --accent-green-hover: #059669;
+  --accent-yellow: #f59e0b;
+  --accent-purple: #8b5cf6;
+  --accent-gold: #eab308;
+  --border-color: rgba(255, 255, 255, 0.12);
 }
 
 body {

@@ -8,13 +8,43 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-
-
 enum Role {
   SUPER_ADMIN
   ORG_ADMIN
-  TEACHER
+  ORG_MEMBER
   STUDENT
+  EVALUATOR
+}
+
+enum OrgStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_INVITE
+}
+
+enum ContestMemberRole {
+  CONTENT_EDITOR
+  PROCTOR
+  EVALUATOR
 }
 
 enum EvaluationStrategy {
@@ -35,17 +65,24 @@ enum SubmissionStatus {
 }
 
 model Organization {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
-  logoUrl     String?
-  domain      String?  @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String           @id @default(uuid())
+  name            String
+  slug            String           @unique
+  logoUrl         String?
+  domain          String?          @unique
+  status          OrgStatus        @default(ACTIVE)
+  subscriptionTier SubscriptionTier @default(FREE)
+  featureFlags    Json?
+  maxContests     Int              @default(5)
+  maxUsers        Int              @default(50)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
-  users       User[]
-  contests    Contest[]
-  problems    Problem[]
+  users           User[]
+  contests        Contest[]
+  problems        Problem[]
+  invitations     TeamInvitation[]
+  auditLogs       AuditLog[]
 }
 
 model User {
@@ -53,16 +90,31 @@ model User {
   email          String        @unique
   password       String
   name           String
+  username       String?       @unique
+  phone          String?
   role           Role          @default(STUDENT)
+  status         UserStatus    @default(ACTIVE)
+  lastLoginAt    DateTime?
+  invitedById    String?
+  invitedBy      User?         @relation("InvitedUsers", fields: [invitedById], references: [id])
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
-  createdContests Contest[]             @relation("CreatedContests")
-  registrations   ContestRegistration[]
-  submissions     Submission[]
-  proctoringLogs  ProctoringLog[]
+  createdContests    Contest[]              @relation("CreatedContests")
+  createdProblems    Problem[]              @relation("CreatedProblems")
+  registrations      ContestRegistration[]
+  submissions        Submission[]
+  proctoringLogs     ProctoringLog[]
+  invitedUsers       User[]                @relation("InvitedUsers")
+  sentInvitations    TeamInvitation[]   @relation("InvitationSender")
+  contestAssignments ContestAssignment[]
+  assignedContests   ContestAssignment[]   @relation("AssignedBy")
+  auditLogs          AuditLog[]
+  refreshTokens      RefreshToken[]
+  scoredSubmissions  Submission[]          @relation("ScoredSubmissions")
+  reviewedRequests   OrganizationRequest[] @relation("ReviewedBy")
 }
 
 model Problem {
@@ -70,22 +122,28 @@ model Problem {
   title              String
   slug               String             @unique
   description        String
-  difficulty         String             @default("Medium") // Easy, Medium, Hard
+  difficulty         String             @default("Medium")
   category           String             @default("General")
-  problemType        String             @default("code") // code, sql
+  problemType        String             @default("code")
   evaluationStrategy EvaluationStrategy @default(EXACT_MATCH)
   referenceSolution  String?
-  starterCode        Json               // { java: "...", cpp: "...", python: "...", javascript: "..." }
-  driverCode         Json?              // Optional driver code
+  starterCode        Json
+  driverCode         Json?
   images             Json?
+  isPublic           Boolean            @default(false)
   organizationId     String?
   organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById        String?
+  createdBy          User?              @relation("CreatedProblems", fields: [createdById], references: [id], onDelete: SetNull)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  testCases          TestCase[]
-  contestProblems    ContestProblem[]
-  submissions        Submission[]
+  testCases       TestCase[]
+  contestProblems ContestProblem[]
+  submissions     Submission[]
+
+  @@index([organizationId, isPublic])
+  @@index([createdById])
 }
 
 model TestCase {
@@ -100,52 +158,54 @@ model TestCase {
 }
 
 model Contest {
-  id                      String   @id @default(uuid())
-  title                   String
-  description             String?
-  startTime               DateTime
-  endTime                 DateTime
-  duration                Int      // In minutes
-  difficulty              String   @default("Medium")
-  isPublic                Boolean  @default(true)
-  allowJoin               Boolean  @default(true)
-  
-  // Security & SEB Settings
-  requireSeb              Boolean  @default(false)
-  sebConfig               String?  // Custom uploaded SEB XML configuration
-  sebQuitPassword         String?
-  requireFullscreen       Boolean  @default(true)
-  preventTabSwitch        Boolean  @default(true)
-  disableCopyPaste        Boolean  @default(true)
-  enableProctoring        Boolean  @default(false)
-  maxWarnings             Int      @default(3)
-  allowMultipleMonitors   Boolean  @default(false)
-  randomizeQuestionOrder  Boolean  @default(false)
+  id                     String   @id @default(uuid())
+  title                  String
+  description            String?
+  startTime              DateTime
+  endTime                DateTime
+  duration               Int
+  difficulty             String   @default("Medium")
+  isPublic               Boolean  @default(true)
+  allowJoin              Boolean  @default(true)
 
-  organizationId          String?
-  organization            Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  createdById             String
-  createdBy               User          @relation("CreatedContests", fields: [createdById], references: [id])
-  createdAt               DateTime      @default(now())
-  updatedAt               DateTime      @updatedAt
+  requireSeb             Boolean  @default(false)
+  sebConfig              String?
+  sebQuitPassword        String?
+  requireFullscreen      Boolean  @default(true)
+  preventTabSwitch       Boolean  @default(true)
+  disableCopyPaste       Boolean  @default(true)
+  enableProctoring       Boolean  @default(false)
+  maxWarnings            Int      @default(3)
+  allowMultipleMonitors  Boolean  @default(false)
+  randomizeQuestionOrder Boolean  @default(false)
 
-  problems                ContestProblem[]
-  registrations           ContestRegistration[]
-  submissions             Submission[]
-  proctoringLogs          ProctoringLog[]
-  plagiarismReports       PlagiarismReport[]
+  organizationId         String?
+  organization           Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById            String
+  createdBy              User          @relation("CreatedContests", fields: [createdById], references: [id])
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  problems           ContestProblem[]
+  registrations      ContestRegistration[]
+  submissions        Submission[]
+  proctoringLogs     ProctoringLog[]
+  plagiarismReports  PlagiarismReport[]
+  assignments        ContestAssignment[]
 }
 
 model ContestProblem {
-  id        String   @id @default(uuid())
-  contestId String
-  contest   Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  problemId String
-  problem   Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  order     Int      @default(0)
-  points    Int      @default(100)
+  id                String   @id @default(uuid())
+  contestId         String
+  contest           Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problemId         String
+  problem           Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  order             Int      @default(0)
+  points            Int      @default(100)
+  timeLimitOverride Int?
 
   @@unique([contestId, problemId])
+  @@index([contestId, order])
 }
 
 model ContestRegistration {
@@ -156,29 +216,33 @@ model ContestRegistration {
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   score              Int      @default(0)
   penalty            Int      @default(0)
-  activeSessionToken String?  // Single-use token for SEB deep linking
-  status             String   @default("REGISTERED") // REGISTERED, IN_PROGRESS, SUBMITTED, DISQUALIFIED
+  activeSessionToken String?
+  status             String   @default("REGISTERED")
   registeredAt       DateTime @default(now())
 
   @@unique([contestId, userId])
 }
 
 model Submission {
-  id            String           @id @default(uuid())
-  contestId     String?
-  contest       Contest?         @relation(fields: [contestId], references: [id], onDelete: SetNull)
-  problemId     String
-  problem       Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  userId        String
-  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  code          String
-  language      String
-  status        SubmissionStatus @default(PENDING)
-  executionTime Int?             // In milliseconds
-  memoryUsed    Int?             // In KB
-  score         Int              @default(0)
-  testResults   Json?            // Detailed testcase execution breakdown
-  submittedAt   DateTime         @default(now())
+  id                 String           @id @default(uuid())
+  contestId          String?
+  contest            Contest?         @relation(fields: [contestId], references: [id], onDelete: SetNull)
+  problemId          String
+  problem            Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code               String
+  language           String
+  status             SubmissionStatus @default(PENDING)
+  executionTime      Int?
+  memoryUsed         Int?
+  score              Int              @default(0)
+  testResults        Json?
+  evaluatedById      String?
+  evaluatedBy        User?            @relation("ScoredSubmissions", fields: [evaluatedById], references: [id])
+  evaluatedAt        DateTime?
+  evaluationComments String?
+  submittedAt        DateTime         @default(now())
 }
 
 model ProctoringLog {
@@ -187,7 +251,7 @@ model ProctoringLog {
   contest   Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  eventType String   // TAB_SWITCH, FULLSCREEN_EXIT, SEB_HASH_MISMATCH, WEBCAM_ALERT
+  eventType String
   details   String?
   timestamp DateTime @default(now())
 }
@@ -196,6 +260,81 @@ model PlagiarismReport {
   id            String   @id @default(uuid())
   contestId     String
   contest       Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
-  similarityMap Json     // Matrix of student solution similarities
+  similarityMap Json
   createdAt     DateTime @default(now())
+}
+
+model TeamInvitation {
+  id             String           @id @default(uuid())
+  email          String
+  role           Role             @default(ORG_MEMBER)
+  token          String           @unique
+  status         InvitationStatus @default(PENDING)
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedById    String
+  invitedBy      User             @relation("InvitationSender", fields: [invitedById], references: [id])
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime         @default(now())
+}
+
+model ContestAssignment {
+  id           String             @id @default(uuid())
+  contestId    String
+  contest      Contest            @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedById String
+  assignedBy   User               @relation("AssignedBy", fields: [assignedById], references: [id])
+  role         ContestMemberRole  @default(CONTENT_EDITOR)
+  createdAt    DateTime           @default(now())
+
+  @@unique([contestId, userId])
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  action         String
+  resource       String
+  resourceId     String?
+  details        Json?
+  timestamp      DateTime     @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+enum OrgRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model OrganizationRequest {
+  id             String            @id @default(uuid())
+  orgName        String
+  orgType        String
+  contactName    String
+  contactEmail   String
+  contactPhone   String?
+  websiteUrl     String?
+  domain         String?
+  reason         String?
+  status         OrgRequestStatus  @default(PENDING)
+  reviewedById   String?
+  reviewedBy     User?             @relation("ReviewedBy", fields: [reviewedById], references: [id])
+  reviewNotes    String?
+  reviewedAt     DateTime?
+  createdAt      DateTime          @default(now())
 }

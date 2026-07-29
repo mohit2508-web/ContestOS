@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middlewares/auth';
+import { requireRole } from '../middlewares/rbac';
 
 const router = Router();
 
 // POST /api/guard/log — Log security proctoring event (Tab switch, Fullscreen exit, Webcam warning)
-router.post('/log', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+router.post('/log', authenticateToken, requireRole('student'), async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
     const { contestId, eventType, details } = req.body;
@@ -59,7 +60,7 @@ router.post('/log', authenticateToken, async (req: Request, res: Response): Prom
 });
 
 // GET /api/guard/logs/:contestId — Fetch proctoring logs for a contest (Teacher / Admin)
-router.get('/logs/:contestId', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+router.get('/logs/:contestId', authenticateToken, requireRole('super_admin', 'org_admin', 'org_member'), async (req: Request, res: Response): Promise<void> => {
   try {
     const { contestId } = req.params;
 
@@ -80,7 +81,10 @@ router.get('/logs/:contestId', authenticateToken, async (req: Request, res: Resp
       eventType: l.eventType,
       description: l.details,
       createdAt: l.timestamp,
-      user: { fullName: l.user.name, email: l.user.email },
+      user: {
+        fullName: l.user && l.user.name ? l.user.name : (l.user && l.user.email ? l.user.email.split('@')[0] : 'System Candidate'),
+        email: l.user && l.user.email ? l.user.email : 'candidate@contestos.org',
+      },
     }));
 
     res.json({ logs: formattedLogs });

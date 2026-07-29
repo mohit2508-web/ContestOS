@@ -1,15 +1,29 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma';
-import { authenticateToken } from '../middlewares/auth';
+import { authenticateToken, optionalAuth } from '../middlewares/auth';
+import { requireRole } from '../middlewares/rbac';
 
 const router = Router();
 
-// GET /api/contests — List all public contests
-router.get('/', async (req: Request, res: Response): Promise<void> => {
+// GET /api/contests — List all available contests for current user/org
+router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
+    const user = req.user;
+    const orgId = user?.organizationId;
+
+    const whereCondition = user
+      ? {
+          OR: [
+            { isPublic: true },
+            ...(orgId ? [{ organizationId: orgId }] : []),
+            { registrations: { some: { userId: user.userId } } },
+          ],
+        }
+      : { isPublic: true };
+
     const contests = await prisma.contest.findMany({
-      where: { isPublic: true },
-      orderBy: { startTime: 'desc' },
+      where: whereCondition,
+      orderBy: { createdAt: 'desc' },
       include: {
         organization: {
           select: { name: true, logoUrl: true },
@@ -38,8 +52,48 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// GET /api/contests/my-participations — Student's registered contests with status
+router.get('/my-participations', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+
+    const registrations = await prisma.contestRegistration.findMany({
+      where: { userId },
+      include: {
+        contest: {
+          include: {
+            organization: { select: { name: true, logoUrl: true } },
+            _count: { select: { problems: true, registrations: true } },
+          },
+        },
+      },
+      orderBy: { registeredAt: 'desc' },
+    });
+
+    const participations = registrations.map((reg) => ({
+      contestId: reg.contestId,
+      score: reg.score,
+      status: reg.status,
+      penalty: reg.penalty,
+      registeredAt: reg.registeredAt,
+      contest: {
+        ...reg.contest,
+        _count: {
+          problems: reg.contest._count?.problems || 0,
+          participants: reg.contest._count?.registrations || 0,
+        },
+      },
+    }));
+
+    res.json({ participations });
+  } catch (error: any) {
+    console.error('Fetch my-participations error:', error);
+    res.status(500).json({ error: 'Failed to fetch participations' });
+  }
+});
+
 // POST /api/contests/join-by-code — Join Contest with Secret Code / Passcode
-router.post('/join-by-code', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+router.post('/join-by-code', authenticateToken, requireRole('student'), async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
     const { secretCode } = req.body;
@@ -101,7 +155,7 @@ router.post('/join-by-code', authenticateToken, async (req: Request, res: Respon
 });
 
 // GET /api/contests/:id/my-report — Student attempt report
-router.get('/:id/my-report', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+router.get('/:id/my-report', authenticateToken, requireRole('student'), async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
     const contestId = req.params.id;

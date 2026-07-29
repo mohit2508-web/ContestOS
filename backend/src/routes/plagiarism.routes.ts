@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { authenticateToken } from "../middlewares/auth";
+import { requireRole } from "../middlewares/rbac";
 import plagiarismDetector from "../services/plagiarismDetector";
 import prisma from "../lib/prisma";
 
@@ -15,7 +16,7 @@ interface CompareBody {
   code2: string;
 }
 
-router.post("/check", authenticateToken, async (req: Request<{}, {}, CheckPlagiarismBody>, res: Response) => {
+router.post("/check", authenticateToken, requireRole('super_admin', 'org_admin', 'org_member'), async (req: Request<{}, {}, CheckPlagiarismBody>, res: Response) => {
   try {
     const { code, language } = req.body;
 
@@ -49,7 +50,7 @@ router.post("/check", authenticateToken, async (req: Request<{}, {}, CheckPlagia
   }
 });
 
-router.post("/compare", authenticateToken, async (req: Request<{}, {}, CompareBody>, res: Response) => {
+router.post("/compare", authenticateToken, requireRole('super_admin', 'org_admin', 'org_member'), async (req: Request<{}, {}, CompareBody>, res: Response) => {
   try {
     const { code1, code2 } = req.body;
 
@@ -71,7 +72,7 @@ router.post("/compare", authenticateToken, async (req: Request<{}, {}, CompareBo
   }
 });
 
-router.post("/fingerprint", authenticateToken, async (req: Request, res: Response) => {
+router.post("/fingerprint", authenticateToken, requireRole('super_admin', 'org_admin', 'org_member'), async (req: Request, res: Response) => {
   try {
     const { code } = req.body;
     if (!code) {

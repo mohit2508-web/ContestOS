@@ -13,25 +13,28 @@ export function Navbar() {
 
   const handleRoleSwitch = (role: 'STUDENT' | 'TEACHER' | 'ADMIN') => {
     if (role === 'STUDENT') {
-      login('demo-jwt-token', {
+      login('demo-access-token', 'demo-refresh-token', {
         id: 'student-id-1',
         name: 'Aarav Patel (Student)',
         email: 'student@iitd.ac.in',
         role: 'STUDENT',
+        hierarchyLevel: 5,
       });
     } else if (role === 'TEACHER') {
-      login('demo-jwt-token', {
+      login('demo-access-token', 'demo-refresh-token', {
         id: 'teacher-id-1',
         name: 'Dr. Sharma (Host / Teacher)',
         email: 'teacher@iitd.ac.in',
-        role: 'TEACHER',
+        role: 'ORG_MEMBER',
+        hierarchyLevel: 3,
       });
     } else {
-      login('demo-jwt-token', {
+      login('demo-access-token', 'demo-refresh-token', {
         id: 'admin-id-1',
         name: 'SuperAdmin (Owner)',
         email: 'admin@contestos.io',
         role: 'SUPER_ADMIN',
+        hierarchyLevel: 1,
       });
     }
   };
@@ -101,6 +104,13 @@ export function Navbar() {
 
         {/* Right: Active Identity & Demo Role Selector */}
         <div className="flex items-center gap-3">
+          <a
+            href="http://localhost:3000"
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-400 hover:text-white transition-colors border border-white/10 rounded-lg hover:bg-white/5"
+          >
+            <span>🌐</span>
+            <span>Back to Site</span>
+          </a>
           <div className="hidden md:flex flex-col text-right">
             <span className="text-xs font-bold text-white leading-tight">{user?.name || 'Aarav Patel'}</span>
             <span className="text-[10px] text-amber-400 font-mono">{user?.email || 'student@iitd.ac.in'}</span>

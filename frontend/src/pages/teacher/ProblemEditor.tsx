@@ -5,6 +5,7 @@ import MarkdownRenderer from '../../components/MarkdownRenderer';
 import axios from 'axios';
 import { generateStarterCode, generateDriverCode } from '../../utils/signatureBuilder';
 import { useNotify } from '../../components/notifications';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface TestCaseEntry {
   input: string;
@@ -220,6 +221,7 @@ int main() {
 
 export function TeacherProblemEditorPage() {
   const notify = useNotify();
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(id);
@@ -230,6 +232,7 @@ export function TeacherProblemEditorPage() {
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState('Medium');
   const [category, setCategory] = useState('DSA');
+  const [isPublic, setIsPublic] = useState(false);
   const [evaluationStrategy, setEvaluationStrategy] = useState('EXACT_MATCH');
   const [referenceSolution, setReferenceSolution] = useState('');
   const [testCases, setTestCases] = useState<TestCaseEntry[]>([
@@ -559,8 +562,8 @@ export function TeacherProblemEditorPage() {
     const newDriver: Record<string, string> = { ...driverCode };
     
     langs.forEach(lang => {
-      newStarter[lang] = generateStarterCode(sigMethodName, sigReturnType, sigParams, lang);
-      newDriver[lang] = generateDriverCode(sigMethodName, sigReturnType, sigParams, lang);
+      newStarter[lang] = generateStarterCode(lang, sigMethodName, sigReturnType, sigParams);
+      newDriver[lang] = generateDriverCode(lang, sigMethodName, sigReturnType, sigParams);
     });
     
     setStarterCode(newStarter);
@@ -576,6 +579,7 @@ export function TeacherProblemEditorPage() {
       setDescription(p.description);
       setDifficulty(p.difficulty);
       setCategory(p.category || 'DSA');
+      setIsPublic(Boolean(p.isPublic));
       setEvaluationStrategy(p.evaluationStrategy || 'EXACT_MATCH');
       setReferenceSolution(p.referenceSolution || '');
       setTestCases(
@@ -683,7 +687,7 @@ export function TeacherProblemEditorPage() {
         setup: schema.trim(),
         tables: parseTableStructure(schema),
       } : undefined,
-      isPublic: true,
+      isPublic: user?.role === 'SUPER_ADMIN' ? isPublic : false,
       images: Object.keys(images).length > 0 ? images : undefined,
     };
 
@@ -891,6 +895,22 @@ export function TeacherProblemEditorPage() {
                 />
               </div>
             </div>
+            {user?.role === 'SUPER_ADMIN' && (
+              <div className="mt-3 bg-purple-950/20 border border-purple-500/30 rounded-lg p-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isPublic}
+                    onChange={e => setIsPublic(e.target.checked)}
+                    className="w-4 h-4 accent-purple-400"
+                  />
+                  <div>
+                    <p className="text-sm font-bold text-purple-300">Publish to Public Platform Bank</p>
+                    <p className="text-xs text-purple-400/70">Allow all organizations on ContestOS to view & clone this question.</p>
+                  </div>
+                </label>
+              </div>
+            )}
           </div>
           <div>
             <div className="flex items-center justify-between mb-1">

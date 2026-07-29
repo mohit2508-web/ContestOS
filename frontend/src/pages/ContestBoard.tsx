@@ -276,11 +276,11 @@ export function ContestBoardPage() {
                       </div>
                       <div>
                         <span className="text-[9px] text-gray-500 uppercase tracking-widest block font-mono">Problems</span>
-                        <span className="font-extrabold text-white">{contest._count?.problems || 2}</span>
+                        <span className="font-extrabold text-white">{contest._count?.problems ?? 0}</span>
                       </div>
                       <div>
                         <span className="text-[9px] text-gray-500 uppercase tracking-widest block font-mono">Participants</span>
-                        <span className="font-extrabold text-white">{contest._count?.participants || 42}</span>
+                        <span className="font-extrabold text-white">{contest._count?.participants ?? 0}</span>
                       </div>
                     </div>
                   </div>

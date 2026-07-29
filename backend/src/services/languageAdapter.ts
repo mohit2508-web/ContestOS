@@ -3126,31 +3126,81 @@ if (result === undefined) {
   }
 }
 
+const defaultLanguageAdapter = new LanguageAdapter();
+
 export async function evaluateCodeSubmission(params: {
   problemId: string;
   code: string;
   language: string;
   testCases: Array<{ id: string; input: string; expectedOutput: string; isHidden?: boolean }>;
   referenceSolution?: string | null;
+  onProgress?: (result: TestCaseResult) => void;
 }) {
-  const results = (params.testCases || []).map((tc, idx) => ({
-    testCase: idx + 1,
-    passed: true,
-    input: tc.input,
-    expectedOutput: tc.expectedOutput,
-    actualOutput: tc.expectedOutput,
-    executionTime: 15,
-    memoryUsed: 512,
+  const { code, language, testCases = [], onProgress } = params;
+
+  if (!testCases || testCases.length === 0) {
+    return {
+      status: 'ACCEPTED',
+      score: 100,
+      executionTime: 0,
+      memoryUsed: 0,
+      testResults: [],
+      passedCount: 0,
+      totalCount: 0,
+    };
+  }
+
+  const formattedTestCases: TestCase[] = testCases.map((tc) => ({
+    input: tc.input || '',
+    expectedOutput: tc.expectedOutput || '',
+    isHidden: tc.isHidden || false,
   }));
 
+  const testSuiteResult = await defaultLanguageAdapter.runTestCases(
+    code,
+    language,
+    formattedTestCases,
+    5000,
+    null,
+    onProgress
+  );
+
+  const passedCount = testSuiteResult.summary.passed;
+  const totalCount = testSuiteResult.summary.total;
+
+  let overallStatus = 'ACCEPTED';
+  let maxExecutionTime = 0;
+
+  for (const r of testSuiteResult.results) {
+    maxExecutionTime = Math.max(maxExecutionTime, r.executionTime || 0);
+  }
+
+  const firstFailed = testSuiteResult.results.find((r) => !r.passed);
+  if (firstFailed) {
+    const errText = (firstFailed.error || '').toLowerCase();
+    if (errText.includes('compilation failed') || errText.includes('javac') || errText.includes('g++') || errText.includes('syntaxerror')) {
+      overallStatus = 'COMPILATION_ERROR';
+    } else if (errText.includes('time limit exceeded')) {
+      overallStatus = 'TIME_LIMIT_EXCEEDED';
+    } else if (errText.includes('memory limit exceeded')) {
+      overallStatus = 'MEMORY_LIMIT_EXCEEDED';
+    } else if (errText.includes('exit code') || errText.includes('exception') || errText.includes('error')) {
+      overallStatus = 'RUNTIME_ERROR';
+    } else {
+      overallStatus = 'WRONG_ANSWER';
+    }
+  }
+
+  const score = totalCount > 0 ? Math.floor((passedCount / totalCount) * 100) : 0;
+
   return {
-    status: 'ACCEPTED',
-    score: 100,
-    executionTime: 15,
+    status: overallStatus,
+    score,
+    executionTime: maxExecutionTime,
     memoryUsed: 512,
-    testResults: results,
-    passedCount: results.length,
-    totalCount: results.length,
+    testResults: testSuiteResult.results,
+    passedCount,
+    totalCount,
   };
 }
 
