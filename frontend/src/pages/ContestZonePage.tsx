@@ -282,10 +282,133 @@ export function ContestZoneLayout() {
 
   // Redirect if exam has already been completed/finalized
   useEffect(() => {
-    if (detailData?.participant?.status === 'COMPLETED') {
+    const p = detailData?.participant;
+    const isFinished =
+      p?.status === 'COMPLETED' ||
+      p?.status === 'AUTO_SUBMITTED' ||
+      p?.status === 'DISQUALIFIED' ||
+      (p?.solvedCount || 0) > 0;
+
+    if (isFinished) {
       navigate(`/contests/${contestId}/report`, { replace: true });
     }
   }, [detailData, contestId, navigate]);
+
+  // Track SEB Launch & Security Proctoring Events
+  useEffect(() => {
+    if (!contestId || !isJoined) return;
+
+    // Log initial entry / SEB session launch event
+    const initialEventType = isSebBrowser ? 'SEB_SESSION_START' : 'CONTEST_ENTERED';
+    const initialDetails = isSebBrowser
+      ? 'Safe Exam Browser session verified & active'
+      : 'Candidate entered contest arena';
+
+    api.client
+      .post('/guard/log', { contestId, eventType: initialEventType, details: initialDetails })
+      .catch(() => {});
+
+    // 3-second grace period during initial page mount / SEB launch to prevent false positive TAB_SWITCH logs
+    let isInitialMount = true;
+    const mountTimer = setTimeout(() => {
+      isInitialMount = false;
+    }, 3000);
+
+    // Window Blur / Tab Switch event handler
+    const handleVisibilityChange = () => {
+      if (document.hidden && !isInitialMount) {
+        api.client
+          .post('/guard/log', {
+            contestId,
+            eventType: 'TAB_SWITCH',
+            details: 'Tab switch / browser blur detected',
+          })
+          .catch(() => {});
+      }
+    };
+
+    // Fullscreen exit handler
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        api.client
+          .post('/guard/log', {
+            contestId,
+            eventType: 'FULLSCREEN_EXIT',
+            details: 'Exited fullscreen mode',
+          })
+          .catch(() => {});
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      clearTimeout(mountTimer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [contestId, isJoined, isSebBrowser]);
+
+  // TalentOS Warning Toast & Proctor Command Listener
+  const [proctorToast, setProctorToast] = useState<{ message: string; type: 'warning' | 'info' | 'success' } | null>(null);
+  const lastSeenLogIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!contestId || !isJoined) return;
+
+    const checkProctorLogs = async () => {
+      try {
+        const res = await api.getMyContestLogs(contestId);
+        const logs: any[] = res.logs || [];
+        if (logs.length === 0) return;
+
+        const latestLog = logs[0];
+        if (latestLog && latestLog.id !== lastSeenLogIdRef.current) {
+          lastSeenLogIdRef.current = latestLog.id;
+
+          if (latestLog.eventType === 'PROCTOR_WARNING') {
+            setProctorToast({
+              message: latestLog.description || 'Official warning issued by exam proctor.',
+              type: 'warning',
+            });
+            notify.toast.warning('⚠️ OFFICIAL PROCTOR WARNING RECEIVED');
+          } else if (latestLog.eventType === 'FULLSCREEN_ENFORCED') {
+            setProctorToast({
+              message: 'Proctor enforced fullscreen mode. Please remain in fullscreen.',
+              type: 'warning',
+            });
+            if (document.documentElement.requestFullscreen) {
+              document.documentElement.requestFullscreen().catch(() => {});
+            }
+          } else if (latestLog.eventType === 'TIME_EXTENDED') {
+            setProctorToast({
+              message: latestLog.description || 'Exam time extended by proctor.',
+              type: 'info',
+            });
+          } else if (latestLog.eventType === 'WARNINGS_RESET') {
+            setProctorToast({
+              message: 'Your warning count has been reset to 0 by proctor.',
+              type: 'success',
+            });
+          } else if (latestLog.eventType === 'FORCE_SUBMITTED') {
+            notify.toast.error('Exam force-submitted by proctor.');
+            navigate(`/contests/${contestId}/report`, { replace: true });
+          }
+        }
+      } catch (_e) {}
+    };
+
+    const interval = setInterval(checkProctorLogs, 3000);
+    return () => clearInterval(interval);
+  }, [contestId, isJoined, navigate, notify]);
+
+  useEffect(() => {
+    if (proctorToast) {
+      const timer = setTimeout(() => setProctorToast(null), 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [proctorToast]);
 
   // Clock state
   const [timeLeftStr, setTimeLeftStr] = useState('');
@@ -376,6 +499,34 @@ export function ContestZoneLayout() {
 
   return (
     <div className="relative min-h-screen bg-black font-sans selection:bg-amber-500/20 selection:text-amber-400">
+      {/* TalentOS Warning Toast Banner Overlay */}
+      {proctorToast && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[999] max-w-xl w-[92%] bg-gradient-to-r from-red-600 via-amber-500 to-red-600 p-0.5 rounded-2xl shadow-2xl shadow-red-500/50 animate-bounce">
+          <div className="bg-zinc-950 rounded-[14px] p-4 flex items-center justify-between gap-4 border border-red-500/40 select-text">
+            <div className="flex items-center gap-3.5">
+              <span className="text-2xl animate-pulse">
+                {proctorToast.type === 'success' ? '✅' : proctorToast.type === 'info' ? '⏰' : '⚠️'}
+              </span>
+              <div>
+                <h4 className="font-extrabold text-white text-xs uppercase tracking-wider font-mono">
+                  {proctorToast.type === 'success'
+                    ? 'Waiver Granted'
+                    : proctorToast.type === 'info'
+                    ? 'Exam Time Updated'
+                    : 'Official Proctor Alert'}
+                </h4>
+                <p className="text-xs text-amber-200 font-bold mt-0.5">{proctorToast.message}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setProctorToast(null)}
+              className="text-gray-400 hover:text-white text-xs font-bold px-2 py-1 bg-white/10 rounded-lg shrink-0 cursor-pointer"
+            >
+              Dismiss ✕
+            </button>
+          </div>
+        </div>
+      )}
       <div className="w-full max-w-[2000px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header — always locked SEB header when in SEB */}
         {isSebBrowser ? sebHeader : (
@@ -691,17 +842,17 @@ export function OverviewTab() {
 
 
 
-      {/* ── No diagnostics needed (SEB not required, or not joined) ── */}
-      {effectivelyJoined && isLive && !contest.requireSeb && !isSebBrowser && (
+      {/* ── Exam Ready (Only if SEB is not required OR currently inside SEB) ── */}
+      {effectivelyJoined && isLive && (!contest.requireSeb || isSebBrowser) && (
         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 flex items-center gap-4">
           <span className="text-2xl">✅</span>
           <div>
             <p className="text-sm font-black text-emerald-400">Exam Ready</p>
-            <p className="text-xs text-gray-400">This contest does not require Safe Exam Browser. You may proceed to the Problems tab.</p>
+            <p className="text-xs text-gray-400">You may proceed directly to solve the contest problems.</p>
           </div>
           <button
-            onClick={() => navigate('problems')}
-            className="ml-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition shrink-0"
+            onClick={() => navigate(`/contests/${contest.id}/problems`)}
+            className="ml-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-xl transition shrink-0 cursor-pointer shadow-lg shadow-emerald-500/20"
           >
             Start Exam →
           </button>
@@ -757,11 +908,12 @@ export function ProblemsTab() {
 
   // Lock logic:
   // - Inside SEB: locked until diagnostics complete
-  // - Normal browser + requireSeb: always locked (must launch SEB)
+  // - Normal browser + requireSeb: locked unless seb_bypass is set in sessionStorage
   // - Normal browser + no requireSeb: always unlocked
+  const isBypassed = typeof window !== 'undefined' && sessionStorage.getItem(`seb_bypass_${contest.id}`) === '1';
   const isLocked = isSebBrowser
     ? diagnostics?.state !== 'entered'
-    : (contest.requireSeb === true);
+    : (contest.requireSeb === true && !isBypassed);
 
   // ── Exam Flow State ──
   const [showInstructions, setShowInstructions] = useState(() => {

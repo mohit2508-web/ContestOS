@@ -13,6 +13,7 @@ interface Contest {
   duration: number;
   difficulty: string;
   isPublic: boolean;
+  secretCode?: string;
   organization?: { name: string };
   _count?: { participants: number; problems: number };
 }
@@ -22,8 +23,8 @@ interface Registration {
   contestId: string;
   contest: Contest;
   score: number;
-  solvedCount: number;
-  joinedAt: string;
+  solvedCount?: number;
+  joinedAt?: string;
   status: string;
 }
 
@@ -96,47 +97,50 @@ function DifficultyBadge({ level }: { level: string }) {
   );
 }
 
-function ContestCard({
-  contest,
-  onJoin,
-  onEnter,
-  joining,
-}: {
+interface ContestCardProps {
   contest: Contest;
   onJoin: (id: string) => void;
   onEnter: (id: string) => void;
-  joining: string | null;
-}) {
+  joining?: string | null;
+  registration?: Registration | null;
+}
+
+function ContestCard({ contest, onJoin, onEnter, joining, registration }: ContestCardProps) {
   const status = getStatus(contest.startTime, contest.endTime);
-  const borderColor =
-    status === 'live'
-      ? 'border-emerald-500/40 hover:border-emerald-500/60'
-      : status === 'upcoming'
-      ? 'border-blue-500/30 hover:border-blue-500/50'
-      : 'border-white/10 hover:border-white/20';
+  const isCompleted =
+    status === 'ended' ||
+    registration?.status === 'COMPLETED' ||
+    registration?.status === 'AUTO_SUBMITTED' ||
+    registration?.status === 'DISQUALIFIED' ||
+    (registration?.solvedCount || 0) > 0;
+
+  const borderColor = isCompleted
+    ? 'border-emerald-500/30 hover:border-emerald-500/50'
+    : status === 'live'
+    ? 'border-emerald-500/40 hover:border-emerald-500/60'
+    : 'border-white/10 hover:border-white/20';
 
   return (
-    <div
-      className={`bg-zinc-950 border ${borderColor} rounded-2xl p-5 flex flex-col justify-between transition-all shadow-lg group`}
-    >
+    <div className={`bg-zinc-950 border ${borderColor} rounded-2xl p-5 transition flex flex-col justify-between space-y-4`}>
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <StatusBadge status={status} />
+          {isCompleted && (
+            <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-full border border-emerald-500/30">
+              ✓ COMPLETED
+            </span>
+          )}
           <DifficultyBadge level={contest.difficulty} />
         </div>
 
         <div>
-          <h3 className="text-base font-black text-white group-hover:text-emerald-400 transition tracking-tight">
-            {contest.title}
-          </h3>
-          <p className="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">
-            {contest.description || 'Coding assessment contest.'}
-          </p>
+          <h3 className="font-bold text-base text-white tracking-tight">{contest.title}</h3>
+          <p className="text-xs text-gray-400 mt-1 line-clamp-2">{contest.description || 'Live verified organization contest.'}</p>
         </div>
 
-        {contest.organization && (
-          <span className="text-[10px] text-gray-500 font-mono">
-            {contest.organization.name}
+        {contest.secretCode && (
+          <span className="inline-block text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-gray-400 border border-white/5 font-mono">
+            Secret Code Protected
           </span>
         )}
 
@@ -166,17 +170,17 @@ function ContestCard({
       </div>
 
       <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-end">
-        {status === 'ended' ? (
+        {isCompleted ? (
           <button
             onClick={() => onEnter(contest.id)}
-            className="px-4 py-2 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10 text-xs font-bold rounded-lg transition"
+            className="px-4 py-2 bg-emerald-500 text-black font-extrabold text-xs rounded-lg hover:bg-emerald-400 transition shadow-md shadow-emerald-500/20 cursor-pointer"
           >
-            View Results →
+            View Scorecard 📊
           </button>
         ) : status === 'live' ? (
           <button
             onClick={() => onEnter(contest.id)}
-            className="px-4 py-2 bg-emerald-500 text-black font-extrabold text-xs rounded-lg hover:bg-emerald-400 transition shadow-md shadow-emerald-500/20"
+            className="px-4 py-2 bg-emerald-500 text-black font-extrabold text-xs rounded-lg hover:bg-emerald-400 transition shadow-md shadow-emerald-500/20 cursor-pointer"
           >
             Enter Contest ⚡
           </button>
@@ -184,7 +188,7 @@ function ContestCard({
           <button
             onClick={() => onJoin(contest.id)}
             disabled={joining === contest.id}
-            className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold rounded-lg transition disabled:opacity-50"
+            className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold rounded-lg transition disabled:opacity-50 cursor-pointer"
           >
             {joining === contest.id ? 'Joining...' : 'Register →'}
           </button>
@@ -415,6 +419,29 @@ export function ParticipantDashboard() {
     if (tab === 'submissions') loadSubmissions();
   }, [tab, loadResults, loadSubmissions]);
 
+  const handleEnter = async (contestId: string) => {
+    const reg = registrations.find((r) => r.contestId === contestId);
+    const isFinished =
+      reg &&
+      (reg.status === 'COMPLETED' ||
+        reg.status === 'AUTO_SUBMITTED' ||
+        reg.status === 'DISQUALIFIED' ||
+        (reg.solvedCount || 0) > 0);
+
+    if (isFinished) {
+      notify.toast.info('Assessment already finalized. Displaying your scorecard.');
+      navigate(`/contests/${contestId}/report`);
+      return;
+    }
+
+    try {
+      await api.joinManagerContest(contestId);
+    } catch (_e) {
+      /* ignore if already joined */
+    }
+    navigate(`/contests/${contestId}`);
+  };
+
   const handleJoin = async (contestId: string) => {
     setJoiningId(contestId);
     try {
@@ -432,7 +459,7 @@ export function ParticipantDashboard() {
 
   const handleCodeSuccess = async (contestId: string) => {
     await loadRegistrations();
-    navigate(`/contests/${contestId}`);
+    handleEnter(contestId);
   };
 
   const registeredIds = new Set(registrations.map((r) => r.contestId));
@@ -453,6 +480,24 @@ export function ParticipantDashboard() {
   return (
     <div className="min-h-screen bg-black text-white p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
+        {/* Organizer Alert Banner if non-student visits student portal */}
+        {user && user.role !== 'STUDENT' && (
+          <div className="p-3.5 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-between gap-4 text-xs text-purple-300 shadow-xl select-text">
+            <div className="flex items-center gap-2.5">
+              <span className="text-lg">💡</span>
+              <span>
+                You are logged in as <strong className="text-white font-mono font-bold">{user.role}</strong>. You are currently previewing the Student Contest Portal.
+              </span>
+            </div>
+            <button
+              onClick={() => navigate(user.role === 'ORG_MEMBER' ? '/member/contests' : user.role === 'SUPER_ADMIN' ? '/admin/platform' : '/admin/org')}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl transition shrink-0 shadow-lg shadow-purple-600/30 cursor-pointer"
+            >
+              Go to Organizer Dashboard →
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-zinc-900 via-zinc-950 to-black border border-white/10 p-6 md:p-8 shadow-2xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
@@ -535,15 +580,19 @@ export function ParticipantDashboard() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {filteredContests.map((c) => (
-                      <ContestCard
-                        key={c.id}
-                        contest={c}
-                        onJoin={handleJoin}
-                        onEnter={(id) => navigate(`/contests/${id}`)}
-                        joining={joiningId}
-                      />
-                    ))}
+                    {filteredContests.map((c) => {
+                      const reg = registrations.find((r) => r.contestId === c.id);
+                      return (
+                        <ContestCard
+                          key={c.id}
+                          contest={c}
+                          registration={reg}
+                          onJoin={handleJoin}
+                          onEnter={handleEnter}
+                          joining={joiningId}
+                        />
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -589,32 +638,45 @@ export function ParticipantDashboard() {
                               {reg.contest.title}
                             </h4>
                             <div className="text-[10px] text-gray-500 font-mono">
-                              Joined: {new Date(reg.joinedAt).toLocaleDateString()} · Score:{' '}
+                              Joined: {reg.joinedAt ? new Date(reg.joinedAt).toLocaleDateString() : 'N/A'} · Score:{' '}
                               <span className="text-emerald-400 font-bold">
                                 {reg.score}
                               </span>{' '}
                               · Solved:{' '}
                               <span className="text-white font-bold">
-                                {reg.solvedCount}
+                                {reg.solvedCount || 0}
                               </span>
                             </div>
                           </div>
-                          <button
-                            onClick={() => navigate(`/contests/${reg.contestId}`)}
-                            className={`px-4 py-2 text-xs font-bold rounded-lg transition whitespace-nowrap ${
-                              status === 'live'
-                                ? 'bg-emerald-500 text-black hover:bg-emerald-400'
-                                : status === 'upcoming'
-                                ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20'
-                                : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
-                            }`}
-                          >
-                            {status === 'live'
-                              ? 'Enter Contest'
-                              : status === 'upcoming'
-                              ? 'View Details'
-                              : 'View Results →'}
-                          </button>
+                          {(() => {
+                            const isDone =
+                              status === 'ended' ||
+                              reg.status === 'COMPLETED' ||
+                              reg.status === 'AUTO_SUBMITTED' ||
+                              (reg.solvedCount || 0) > 0;
+                            return (
+                              <button
+                                onClick={() =>
+                                  isDone
+                                    ? navigate(`/contests/${reg.contestId}/report`)
+                                    : handleEnter(reg.contestId)
+                                }
+                                className={`px-4 py-2 text-xs font-bold rounded-lg transition whitespace-nowrap cursor-pointer ${
+                                  isDone
+                                    ? 'bg-emerald-500 text-black hover:bg-emerald-400'
+                                    : status === 'live'
+                                    ? 'bg-emerald-500 text-black hover:bg-emerald-400'
+                                    : 'bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20'
+                                }`}
+                              >
+                                {isDone
+                                  ? 'View Scorecard 📊'
+                                  : status === 'live'
+                                  ? 'Enter Contest'
+                                  : 'View Details'}
+                              </button>
+                            );
+                          })()}
                         </div>
                       );
                     })}
@@ -690,21 +752,11 @@ export function ParticipantDashboard() {
                             <div className="flex items-center gap-2 shrink-0">
                               <button
                                 onClick={() =>
-                                  navigate(`/contests/${r.contestId}`)
+                                  navigate(`/contests/${r.contestId}/report`)
                                 }
-                                className="px-4 py-2 bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 text-xs font-bold rounded-lg transition"
+                                className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black rounded-lg transition cursor-pointer shadow-md shadow-emerald-500/20"
                               >
-                                Details
-                              </button>
-                              <button
-                                onClick={() =>
-                                  notify.toast.success(
-                                    'Certificate download will be available soon.'
-                                  )
-                                }
-                                className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold rounded-lg transition"
-                              >
-                                🎓 Certificate
+                                View Scorecard 📊
                               </button>
                             </div>
                           </div>

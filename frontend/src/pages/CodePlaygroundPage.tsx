@@ -12,6 +12,7 @@ import { useSidebar } from '../contexts/SidebarContext';
 import { useNotify } from '../components/notifications';
 import { SecureContestWrapper } from '../components/SecureContestWrapper';
 import { ProgressRing } from '../components/ProgressRing';
+import { formatProblemDescriptionWithImages } from '../utils/formatProblemDescription';
 
 export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: boolean } = {}) {
   const notify = useNotify();
@@ -682,7 +683,11 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
       if (opts?.skip) params.set('skip', opts.skip.toString());
       if (opts?.search) params.set('search', opts.search);
       const response = await api.get(`/problems?${params}`);
-      const newProblems = response.problems || [];
+      // Strictly filter for code/algorithmic problems only — never show SQL or web problems
+      const newProblems = (response.problems || []).filter((p: any) => {
+        const pt = p.problemType?.toLowerCase() || 'code';
+        return pt === 'code' || pt === 'algorithm' || pt === 'algorithmic' || pt === '';
+      });
       const total = response.total || 0;
       setTotalProblems(total);
       if (opts?.skip && opts.skip > 0) {
@@ -841,7 +846,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     setRunStatus('running');
     setOutput("");
     setShowOutput(true);
-    setActiveTab("tests");
+    setActiveTab("output");
     setBottomPanelHeight(35);
     setTestResults([]);
     setTestSummary(null);
@@ -850,13 +855,17 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     try {
       const problemTests = selectedProblem?.testCases || testCases;
       const validTestCases = problemTests.filter((tc: TestCase) => tc.input || tc.expectedOutput);
-      const sampleTests = validTestCases.filter((tc: TestCase) => !tc.isHidden);
+      let sampleTests = validTestCases.filter((tc: TestCase) => !tc.isHidden);
 
+      // Permanent Solution Fallback:
+      // 1. If all test cases are marked as hidden (isHidden=true), use the first 2 available test cases
+      if (sampleTests.length === 0 && validTestCases.length > 0) {
+        sampleTests = validTestCases.slice(0, 2);
+      }
+
+      // 2. If no test cases are defined at all, create a default sample test case from customInput or empty string
       if (sampleTests.length === 0) {
-        setOutput("No sample test cases available for this problem.");
-        setCustomOutput("No sample test cases available for this problem.");
-        setRunStatus('error');
-        return;
+        sampleTests = [{ input: customInput || "", expectedOutput: "", isHidden: false }];
       }
 
       const response = await api.post("/code/run-tests", {
@@ -978,13 +987,16 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     setRunStatus('idle');
     setOutput("");
     setShowOutput(true);
-    setActiveTab("tests");
+    setActiveTab("output");
     setBottomPanelHeight(35);
     setTestResults([]);
     setTestSummary(null);
 
     const problemTests = selectedProblem?.testCases || testCases;
-      const validTestCases = problemTests.filter((tc: TestCase) => tc.input || tc.expectedOutput);
+    const sampleTests = problemTests.filter((tc: TestCase) => !tc.isHidden && (tc.input || tc.expectedOutput));
+    const validTestCases = sampleTests.length > 0
+      ? sampleTests
+      : problemTests.filter((tc: TestCase) => tc.input || tc.expectedOutput);
 
       if (validTestCases.length === 0) {
         setTestResults([{
@@ -1151,6 +1163,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                           
                           await fetchSubmissions();
                           await loadProblemStatuses();
+                          setActiveTab("submissions");
                           shouldRender = true;
                         } else if (data.type === 'error') {
                           console.error("Stream error:", data.error);
@@ -1711,67 +1724,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                     <div className={`space-y-4 ${contestId ? 'select-none' : ''}`} onContextMenu={contestId ? e => e.preventDefault() : undefined}>
                       <div>
                         <h3 className="text-sm font-semibold text-white mb-2">Description</h3>
-                        <MarkdownRenderer content={(() => {
-                          let desc = selectedProblem.description || '';
-                          
-                          // Auto-wrap Input/Output/Explanation blocks into styled blockquotes with hard line breaks
-                          let lines = desc.split('\n');
-                          let inExampleBlock = false;
-                          let resultLines = [];
-                          for (let line of lines) {
-                              if (/^\s*(\*\*|\*)?(Input|Output|Explanation):/i.test(line)) {
-                                  inExampleBlock = true;
-                                  resultLines.push(`> ${line.replace(/\r$/, '')}  `); // two spaces force markdown hard break
-                              } else if (inExampleBlock && line.trim() === '') {
-                                  inExampleBlock = false;
-                                  resultLines.push(line);
-                              } else if (inExampleBlock) {
-                                  resultLines.push(`> ${line.replace(/\r$/, '')}  `);
-                              } else {
-                                  resultLines.push(line);
-                              }
-                          }
-                          desc = resultLines.join('\n');
-
-                          let images = selectedProblem.images || {};
-                          if (typeof images === 'string') {
-                              try { images = JSON.parse(images); } catch (e) {}
-                          }
-                          const isValidImageUrl = (url: any) => {
-                              if (typeof url !== 'string') return false;
-                              const u = url.trim();
-                              return u.length > 5 && (u.startsWith('http://') || u.startsWith('https://') || u.startsWith('data:image/') || u.startsWith('/uploads/') || u.startsWith('/api/uploads/') || u.startsWith('blob:'));
-                          };
-
-                          if (typeof images === 'object' && images !== null) {
-                              desc = desc.replace(/!\[(Example \d+|Main|Figure).*?\]\(.*?\)\n\n?/g, '');
-                              Object.entries(images).forEach(([key, imgUrl]) => {
-                                  if (isValidImageUrl(imgUrl) && !desc.includes(imgUrl as string)) {
-                                      if (key === 'example1') {
-                                          const regex = /(###\s*Example\s*1:?|\*\*Example\s*1:?\*\*|Example\s*1:?)/i;
-                                          if (regex.test(desc)) desc = desc.replace(regex, `$1\n\n![Example 1 Figure](${imgUrl})\n\n`);
-                                          else desc += `\n\n![Example 1 Figure](${imgUrl})\n\n`;
-                                      } else if (key === 'example2') {
-                                          const regex = /(###\s*Example\s*2:?|\*\*Example\s*2:?\*\*|Example\s*2:?)/i;
-                                          if (regex.test(desc)) desc = desc.replace(regex, `$1\n\n![Example 2 Figure](${imgUrl})\n\n`);
-                                          else desc += `\n\n![Example 2 Figure](${imgUrl})\n\n`;
-                                      } else if (key === 'example3') {
-                                          const regex = /(###\s*Example\s*3:?|\*\*Example\s*3:?\*\*|Example\s*3:?)/i;
-                                          if (regex.test(desc)) desc = desc.replace(regex, `$1\n\n![Example 3 Figure](${imgUrl})\n\n`);
-                                          else desc += `\n\n![Example 3 Figure](${imgUrl})\n\n`;
-                                      } else if (key === 'main') {
-                                          const constraintsRegex = /(###\s*Constraints:?|\*\*Constraints:?\*\*|Constraints:?)/i;
-                                          if (constraintsRegex.test(desc)) desc = desc.replace(constraintsRegex, `![Main Figure](${imgUrl})\n\n$1`);
-                                          else desc = `![Main Figure](${imgUrl})\n\n${desc}`;
-                                      } else {
-                                          desc += `\n\n![Figure](${imgUrl})\n\n`;
-                                      }
-                                  }
-                              });
-                          }
-                          
-                          return desc;
-                        })()} />
+                        <MarkdownRenderer content={formatProblemDescriptionWithImages(selectedProblem.description || '', selectedProblem.images)} />
                       </div>
 
                       {/* Examples rendered via description markdown if present */}
@@ -2310,7 +2263,11 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         <span className="text-sm text-red-400 font-medium">
-                          {testResults.length > 0 && testResults[0].error ? 'Compilation Error' : 'Wrong Answer'}
+                          {testResults.length > 0 && testResults[0].error
+                            ? (testResults[0].error.toLowerCase().includes('compil') || testResults[0].error.toLowerCase().includes('syntax')
+                              ? 'Compilation Error'
+                              : 'Runtime Error')
+                            : 'Wrong Answer'}
                         </span>
                       </div>
                     )}
@@ -2428,6 +2385,15 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                 {activeTab === "tests" && (
                   <div className="space-y-4">
                     {testSummary && (
+                      <button
+                        onClick={() => setActiveTab("output")}
+                        className="w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs hover:bg-emerald-500/20 transition flex items-center justify-between cursor-pointer"
+                      >
+                        <span>📊 Execution Results Ready ({testSummary.passed}/{testSummary.total} Test Cases Passed)</span>
+                        <span className="underline">View Test Result Tab →</span>
+                      </button>
+                    )}
+                    {testSummary && (
                       <div className={`flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1a1f2e] border border-white/5`}>
                         {submitStatus === 'running' && testSummary ? (
                           <>
@@ -2499,21 +2465,31 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                               <div className="p-3 space-y-2 font-mono text-xs">
                                 <div>
                                   <span className="text-gray-500">Input: </span>
-                                  <span className="text-gray-300 whitespace-pre-wrap">{formatInputDisplay(result?.input)}</span>
+                                  <span className="text-gray-300 whitespace-pre-wrap">
+                                    {formatInputDisplay(result?.input) || '(Sample stdin input)'}
+                                  </span>
                                 </div>
                                 <div>
                                   <span className="text-gray-500">Output: </span>
-                                  <span className={result?.passed ? "text-green-400" : "text-red-400"}>{result?.actualOutput}</span>
+                                  <span className={result?.passed ? "text-green-400" : "text-red-400"}>
+                                    {result?.actualOutput && result.actualOutput.trim() !== ''
+                                      ? result.actualOutput
+                                      : (result?.error ? `(No output - ${result.error})` : '(No output)')}
+                                  </span>
                                 </div>
                                 <div>
                                   <span className="text-gray-500">Expected: </span>
-                                  <span className="text-green-400">{result?.expectedOutput}</span>
+                                  <span className="text-green-400">
+                                    {result?.expectedOutput && result.expectedOutput.trim() !== '' ? result.expectedOutput : '(Sample stdout expected)'}
+                                  </span>
                                   {((selectedProblem?.testCases?.some((tc: TestCase) => tc?.orderIndependent)) || selectedProblem?.evaluationStrategy === 'UNORDERED_MATCH') && (
                                     <span className="text-xs text-gray-500 italic ml-2">(Any order is accepted)</span>
                                   )}
                                 </div>
                                 {result?.error && (
-                                  <div className="text-red-400">Error: {result.error}</div>
+                                  <div className="text-red-400 bg-red-500/10 border border-red-500/20 p-2 rounded text-xs font-mono">
+                                    Execution Exception: {result.error}
+                                  </div>
                                 )}
                               </div>
                             </div>

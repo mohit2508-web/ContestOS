@@ -2,10 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../services/api';
 import MarkdownRenderer from '../../components/MarkdownRenderer';
+import { formatProblemDescriptionWithImages } from '../../utils/formatProblemDescription';
 import axios from 'axios';
 import { generateStarterCode, generateDriverCode } from '../../utils/signatureBuilder';
 import { useNotify } from '../../components/notifications';
 import { useAuth } from '../../contexts/AuthContext';
+import { SqlProblemBuilder } from '../../components/admin/SqlProblemBuilder';
 
 interface TestCaseEntry {
   input: string;
@@ -77,6 +79,44 @@ Now parse the following problem:
 
 [PASTE YOUR PROBLEM HERE]`;
 
+const SQL_AI_PROMPT_TEMPLATE = `You are a SQL problem import assistant for ContestOS.
+Your task is to convert any SQL problem description (from LeetCode, HackerRank, StrataScratch, or custom exams) into a structured JSON configuration block matching the following schema.
+
+Requirements:
+1. "problemType" MUST be "sql".
+2. "schema" MUST be a string containing valid CREATE TABLE DDL statements for all entities mentioned in the problem (e.g. CREATE TABLE Person (personId INT PRIMARY KEY, firstName VARCHAR(50)...);).
+3. "testCases" MUST contain:
+   - "setup": INSERT INTO statements to seed sample data into the tables (e.g. INSERT INTO Person VALUES (1, 'Wang', 'Allen');).
+   - "expectedOutput": Tab-separated tabular string matching the expected result table format (e.g. "firstName\tlastName\tcity\tstate\nAllen\tWang\tNULL\tNULL").
+   - "isHidden": false for public sample cases, true for hidden test cases.
+4. "starterCode": { "sql": "-- Write your SQL query below\n" }
+5. "referenceSolution": The complete working SQL query solution.
+6. Return ONLY a valid JSON object matching the schema below. Do not include markdown or extra commentary outside the JSON.
+
+{
+  "title": "Problem Title",
+  "difficulty": "Easy | Medium | Hard",
+  "category": "Database",
+  "problemType": "sql",
+  "description": "Markdown formatted problem statement explaining table structures, required result columns, and order requirements.",
+  "schema": "CREATE TABLE Person (personId INT PRIMARY KEY, lastName VARCHAR(50), firstName VARCHAR(50)); CREATE TABLE Address (addressId INT PRIMARY KEY, personId INT, city VARCHAR(50), state VARCHAR(50));",
+  "referenceSolution": "SELECT p.firstName, p.lastName, a.city, a.state FROM Person p LEFT JOIN Address a ON p.personId = a.personId;",
+  "starterCode": {
+    "sql": "-- Write your SQL query below\n"
+  },
+  "testCases": [
+    {
+      "setup": "INSERT INTO Person VALUES (1, 'Wang', 'Allen'); INSERT INTO Address VALUES (1, 2, 'New York City', 'New York');",
+      "expectedOutput": "firstName\tlastName\tcity\tstate\nAllen\tWang\tNULL\tNULL",
+      "isHidden": false
+    }
+  ]
+}
+
+Now convert the following SQL problem into JSON:
+
+[PASTE YOUR SQL PROBLEM QUESTION HERE]`;
+
 
 
 interface ParsedColumn {
@@ -98,8 +138,31 @@ function parseTableStructure(schemaDdl: string): ParsedTable[] {
     const tableName = tableMatch[1];
     const columnsBody = tableMatch[2];
     const columns: ParsedColumn[] = [];
-    const colLines = columnsBody.split('\n').map(l => l.trim()).filter(l => l && !l.toUpperCase().startsWith('PRIMARY') && !l.toUpperCase().startsWith('UNIQUE') && !l.toUpperCase().startsWith('INDEX') && !l.toUpperCase().startsWith('KEY') && !l.toUpperCase().startsWith('CONSTRAINT') && !l.toUpperCase().startsWith('FOREIGN'));
-    for (const line of colLines) {
+
+    // Split column definitions by comma/newline outside parentheses (e.g. DECIMAL(10,2))
+    const colLines: string[] = [];
+    let current = '';
+    let parenDepth = 0;
+    for (let i = 0; i < columnsBody.length; i++) {
+      const char = columnsBody[i];
+      if (char === '(') parenDepth++;
+      else if (char === ')') parenDepth--;
+
+      if ((char === ',' || char === '\n') && parenDepth === 0) {
+        if (current.trim()) colLines.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    if (current.trim()) colLines.push(current.trim());
+
+    const filteredLines = colLines.filter(l => {
+      const u = l.toUpperCase();
+      return l && !u.startsWith('PRIMARY') && !u.startsWith('UNIQUE') && !u.startsWith('INDEX') && !u.startsWith('KEY') && !u.startsWith('CONSTRAINT') && !u.startsWith('FOREIGN');
+    });
+
+    for (const line of filteredLines) {
       const clean = line.replace(/,$/, '').trim();
       if (!clean) continue;
       const parts = clean.split(/\s+/);
@@ -109,10 +172,11 @@ function parseTableStructure(schemaDdl: string): ParsedTable[] {
         const constraintParts: string[] = [];
         for (let i = 1; i < parts.length; i++) {
           const p = parts[i];
-          if (p === 'NOT' || p === 'NULL' || p === 'PRIMARY' || p === 'KEY' || p === 'UNIQUE' || p === 'AUTO_INCREMENT' || p === 'DEFAULT') {
+          const pu = p.toUpperCase();
+          if (pu === 'NOT' || pu === 'NULL' || pu === 'PRIMARY' || pu === 'KEY' || pu === 'UNIQUE' || pu === 'AUTO_INCREMENT' || pu === 'DEFAULT') {
             constraintParts.push(p);
-          } else if (p === 'REFERENCES') {
-            constraintParts.push(p + ' ' + parts.slice(i + 1).join(' '));
+          } else if (pu.startsWith('REFERENCES')) {
+            constraintParts.push(parts.slice(i).join(' '));
             break;
           } else {
             type += (type ? ' ' : '') + p;
@@ -304,11 +368,12 @@ export function TeacherProblemEditorPage() {
 
   const handleCopyPrompt = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(AI_PROMPT_TEMPLATE);
+      const templateToCopy = problemType === 'sql' ? SQL_AI_PROMPT_TEMPLATE : AI_PROMPT_TEMPLATE;
+      await navigator.clipboard.writeText(templateToCopy);
       setAiCopied(true);
       setTimeout(() => setAiCopied(false), 2000);
     } catch (err) { console.error('Operation failed:', err); }
-  }, []);
+  }, [problemType]);
 
   const handleAutofill = useCallback(async () => {
     if (!aiJsonInput.trim()) {
@@ -372,13 +437,20 @@ export function TeacherProblemEditorPage() {
       if (data.problemType) setProblemType(data.problemType);
       if (data.evaluationStrategy) setEvaluationStrategy(data.evaluationStrategy);
       if (data.referenceSolution) setReferenceSolution(data.referenceSolution);
-      if (data.schema) setSchema(data.schema);
+      if (data.schema) {
+        const schemaStr = typeof data.schema === 'string' ? data.schema : (data.schema.setup || '');
+        setSchema(schemaStr);
+        if (data.problemType === 'sql') {
+          const parsed = parseTableStructure(schemaStr);
+          setParsedTables(parsed);
+        }
+      }
       if (data.images) setImages(data.images);
       
       if (data.starterCode) {
         setStarterCode(prev => ({
           ...prev,
-          ...data.starterCode
+          ...(typeof data.starterCode === 'object' ? data.starterCode : { sql: data.starterCode })
         }));
       }
 
@@ -405,7 +477,6 @@ export function TeacherProblemEditorPage() {
       console.error(err);
       await notify.alert("JSON Parse Failure", {
         description: `Failed to parse JSON: ${err instanceof Error ? err.message : String(err)}`,
-        variant: "error"
       });
     }
   }, [aiJsonInput]);
@@ -925,7 +996,7 @@ export function TeacherProblemEditorPage() {
             </div>
             {showPreview ? (
               <div className="bg-[var(--bg-primary)] border border-white/10 rounded-lg p-4 min-h-[160px]">
-                <MarkdownRenderer content={description || '*No content*'} />
+                <MarkdownRenderer content={formatProblemDescriptionWithImages(description || '*No content*', images)} />
               </div>
             ) : (
               <textarea
@@ -1006,13 +1077,28 @@ export function TeacherProblemEditorPage() {
           </div>
 
           {problemType === 'sql' && (
-            <div className="mt-4">
-              <label className="block text-sm text-gray-400 mb-1">Database Schema (CREATE TABLE statements shown to students)</label>
+            <div className="mt-4 space-y-4">
+              <SqlProblemBuilder
+                initialSql={starterCode.sql || ''}
+                onSave={({ starterCode: newStarter, expectedOutput }) => {
+                  setSchema(newStarter.schema.setup);
+                  setStarterCode({ sql: newStarter.sql });
+                  if (testCases.length > 0) {
+                    setTestCases(prev => [
+                      { ...prev[0], setup: newStarter.schema.setup, expectedOutput }
+                    ]);
+                  } else {
+                    setTestCases([{ input: '', expectedOutput, isHidden: false, setup: newStarter.schema.setup }]);
+                  }
+                  notify.toast.success('SQL Problem schema and expected output synchronized!');
+                }}
+              />
+              <label className="block text-sm text-gray-400 mb-1 font-semibold">Raw Database Setup DDL (CREATE TABLE + INSERT Statements)</label>
               <textarea
                 value={schema}
                 onChange={e => setSchema(e.target.value)}
-                rows={8}
-                placeholder={`CREATE TABLE Cinema (\n  id INT PRIMARY KEY,\n  movie VARCHAR(255),\n  description VARCHAR(255),\n  rating FLOAT\n);\n\nCREATE TABLE Ticket (\n  id INT PRIMARY KEY,\n  movie_id INT,\n  price DECIMAL(10,2)\n);`}
+                rows={6}
+                placeholder={`CREATE TABLE Cinema (\n  id INT PRIMARY KEY,\n  movie VARCHAR(255),\n  rating FLOAT\n);\n\nINSERT INTO Cinema VALUES (1, 'Inception', 8.8);`}
                 className="w-full px-3 py-2 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-[var(--accent-blue)] resize-y"
               />
               {parsedTables.length > 0 && (
@@ -1625,7 +1711,7 @@ export function TeacherProblemEditorPage() {
                 </div>
                 <div className="relative">
                   <pre className="w-full bg-black/40 border border-white/10 rounded-lg p-4 text-gray-300 font-mono text-xs leading-relaxed overflow-x-auto max-h-80 overflow-y-auto whitespace-pre-wrap">
-                    {AI_PROMPT_TEMPLATE}
+                    {problemType === 'sql' ? SQL_AI_PROMPT_TEMPLATE : AI_PROMPT_TEMPLATE}
                   </pre>
                 </div>
               </div>

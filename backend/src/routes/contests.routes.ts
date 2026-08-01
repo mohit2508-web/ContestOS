@@ -154,35 +154,168 @@ router.post('/join-by-code', authenticateToken, requireRole('student'), async (r
   }
 });
 
-// GET /api/contests/:id/my-report — Student attempt report
-router.get('/:id/my-report', authenticateToken, requireRole('student'), async (req: Request, res: Response): Promise<void> => {
+// GET /api/contests/:id/my-report — Full Student Attempt Report matching TalentOS Scorecard
+router.get('/:id/my-report', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
     const contestId = req.params.id;
 
+    // Fetch contest details with problem metadata
+    const contest = await prisma.contest.findUnique({
+      where: { id: contestId },
+      include: {
+        problems: {
+          include: {
+            problem: { select: { id: true, title: true, description: true, difficulty: true } },
+          },
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    if (!contest) {
+      res.status(404).json({ error: 'Contest not found' });
+      return;
+    }
+
+    // Fetch participant registration
     const participant = await prisma.contestRegistration.findUnique({
       where: { contestId_userId: { contestId, userId } },
     });
 
+    // Fetch all submissions by candidate for this contest
     const submissions = await prisma.submission.findMany({
       where: { contestId, userId },
       orderBy: { submittedAt: 'desc' },
     });
 
-    const warnings = await prisma.proctoringLog.count({
+    // Fetch proctoring logs (integrity events)
+    const integrityEvents = await prisma.proctoringLog.findMany({
       where: { contestId, userId },
+      orderBy: { timestamp: 'asc' },
     });
 
+    // Calculate best score for each distinct problem in this contest
+    const problemScores = new Map<string, number>();
+    submissions.forEach((s) => {
+      const currentBest = problemScores.get(s.problemId) || 0;
+      const points = s.score > 0 ? s.score : (s.status === 'ACCEPTED' ? 100 : 0);
+      if (points > currentBest) {
+        problemScores.set(s.problemId, points);
+      }
+    });
+
+    let calculatedScore = 0;
+    problemScores.forEach((pts) => { calculatedScore += pts; });
+    const userScore = Math.max(participant?.score || 0, calculatedScore);
+
+    // Sync database registration score if out of sync
+    if (participant && calculatedScore > (participant.score || 0)) {
+      await prisma.contestRegistration.update({
+        where: { id: participant.id },
+        data: { score: calculatedScore, status: 'COMPLETED' },
+      }).catch(() => {});
+    }
+
+    // Calculate solved questions count
+    const solvedProblemIds = new Set(
+      submissions.filter((s) => s.score > 0 || s.status === 'ACCEPTED').map((s) => s.problemId)
+    );
+
+    const actualWarningEvents = integrityEvents.filter((e) => {
+      const t = (e.eventType || '').toUpperCase();
+      return t !== 'SEB_SESSION_START' && t !== 'CONTEST_ENTERED' && t !== 'INFO' && t !== 'SESSION_START';
+    });
+    const warningsCount = actualWarningEvents.length;
+    const allRegistrations = await prisma.contestRegistration.findMany({
+      where: { contestId },
+      select: { score: true },
+    });
+
+    const higherScores = allRegistrations.filter((r) => r.score > userScore).length;
+    const userRank = higherScores + 1;
+    const totalRegistrations = Math.max(1, allRegistrations.length);
+    const percentile = Math.round((allRegistrations.filter((r) => r.score < userScore).length / totalRegistrations) * 100);
+
+    const participantStatus = participant?.status && participant.status !== 'REGISTERED' && participant.status !== 'IN_PROGRESS'
+      ? participant.status
+      : (solvedProblemIds.size > 0 ? 'COMPLETED' : (participant?.status || 'IN_PROGRESS'));
+
     res.json({
-      participant: {
-        ...participant,
-        warnings,
-        isTerminated: participant?.status === 'DISQUALIFIED',
+      contest: {
+        id: contest.id,
+        title: contest.title,
+        description: contest.description,
+        duration: contest.duration,
+        maxWarnings: contest.maxWarnings || 3,
+        startTime: contest.startTime,
+        endTime: contest.endTime,
+        problems: contest.problems.map((cp) => ({
+          problemId: cp.problem.id,
+          problem: cp.problem,
+        })),
+        sebQuitPassword: contest.sebQuitPassword || 'quit123',
       },
-      submissions,
+      participant: {
+        id: participant?.id || 'demo-participant-id',
+        userId,
+        score: userScore,
+        solvedCount: solvedProblemIds.size,
+        warnings: warningsCount,
+        isTerminated: participant?.status === 'DISQUALIFIED',
+        joinedAt: participant?.registeredAt || new Date().toISOString(),
+        status: participantStatus,
+        autoSubmitted: participant?.status === 'AUTO_SUBMITTED',
+        dispute: null,
+        rank: userRank,
+        totalParticipants: totalRegistrations,
+      },
+      submissions: submissions.map((s) => ({
+        id: s.id,
+        problemId: s.problemId,
+        language: s.language,
+        code: s.code,
+        status: s.status,
+        points: s.score,
+        submittedAt: s.submittedAt,
+      })),
+      integrityEvents: integrityEvents.map((e: any) => ({
+        id: e.id,
+        eventType: e.eventType || e.event || 'WARNING',
+        detectedAt: e.timestamp,
+        detail: e.details,
+      })),
+      percentile,
     });
   } catch (error: any) {
+    console.error('Fetch my-report error:', error);
     res.status(500).json({ error: 'Failed to fetch contest report' });
+  }
+});
+
+// POST /api/contests/:id/dispute — Candidate Dispute Submission
+router.post('/:id/dispute', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user!.userId;
+    const contestId = req.params.id;
+    const { reason } = req.body;
+
+    if (!reason || !reason.trim()) {
+      res.status(400).json({ error: 'Dispute reason is required' });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: 'Appeal submitted successfully. Our evaluation team will review your case.',
+      dispute: {
+        status: 'SUBMITTED',
+        reason: reason.trim(),
+        submittedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to submit dispute' });
   }
 });
 

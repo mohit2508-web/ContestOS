@@ -332,17 +332,42 @@ router.post('/:id/join', authenticateToken, async (req: Request, res: Response):
     const userId = req.user!.userId;
     const contestId = req.params.id;
 
+    const existing = await prisma.contestRegistration.findUnique({
+      where: { contestId_userId: { contestId, userId } },
+    });
+
+    if (existing && (existing.status === 'COMPLETED' || existing.status === 'AUTO_SUBMITTED' || existing.status === 'DISQUALIFIED')) {
+      res.json({
+        success: true,
+        message: 'Assessment already finalized. Displaying scorecard.',
+        isCompleted: true,
+        status: existing.status,
+      });
+      return;
+    }
+
     await prisma.contestRegistration.upsert({
       where: { contestId_userId: { contestId, userId } },
-      update: { status: 'REGISTERED' },
+      update: {},
       create: {
         contestId,
         userId,
         score: 0,
-        penalty: 0,
         status: 'REGISTERED',
+        penalty: 0,
       },
     });
+
+    try {
+      await prisma.proctoringLog.create({
+        data: {
+          contestId,
+          userId,
+          eventType: 'SEB_SESSION_START',
+          details: 'Candidate registered and initialized SEB assessment.',
+        },
+      });
+    } catch (_e) {}
 
     res.json({ success: true, message: 'Successfully joined contest' });
   } catch (error: any) {
@@ -385,6 +410,19 @@ router.get('/:id/seb-config', authenticateToken, async (req: Request, res: Respo
     const userParam = userPayload ? encodeURIComponent(JSON.stringify(userPayload)) : '';
     const startUrl = `http://localhost:5173/contests/${contest.id}?seb=1&token=${userToken}&user=${userParam}`;
 
+    if (req.user?.userId) {
+      try {
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId: req.user.userId,
+            eventType: 'SEB_SESSION_START',
+            details: 'Safe Exam Browser configuration generated & launched.',
+          },
+        });
+      } catch (_e) {}
+    }
+
     const xmlConfig = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -424,6 +462,123 @@ router.post('/:id/finalize', authenticateToken, async (req: Request, res: Respon
     res.json({ success: true, message: 'Exam finalized and submitted.' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to finalize contest' });
+  }
+});
+
+// POST /api/contests/manager/:id/proctor-action — Live Proctor Actions
+router.post('/:id/proctor-action', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const contestId = req.params.id;
+    const { action, userId, minutes, reason } = req.body;
+
+    if (!action) {
+      res.status(400).json({ error: 'Action is required' });
+      return;
+    }
+
+    if (action === 'nudge' || action === 'warn') {
+      if (userId) {
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'PROCTOR_WARNING',
+            details: `Official warning issued by proctor: ${reason || 'Please focus strictly on exam window.'}`,
+          },
+        });
+
+        const VIOLATION_EVENTS = [
+          'TAB_SWITCH',
+          'FULLSCREEN_EXIT',
+          'COPY_PASTE_ATTEMPT',
+          'SCREENSHOT_ATTEMPT',
+          'DEVTOOLS_OPENED',
+          'VOICE_TALKING_DETECTED',
+          'FACE_MULTIPLE_DETECTED',
+          'FACE_MISSING_DETECTED',
+          'PROCTOR_WARNING',
+        ];
+
+        const warningCount = await prisma.proctoringLog.count({
+          where: { contestId, userId, eventType: { in: VIOLATION_EVENTS } },
+        });
+
+        const contest = await prisma.contest.findUnique({
+          where: { id: contestId },
+          select: { maxWarnings: true },
+        });
+
+        const isDisqualified = warningCount >= (contest?.maxWarnings || 3);
+        await prisma.contestRegistration.updateMany({
+          where: { contestId, userId },
+          data: {
+            penalty: warningCount,
+            ...(isDisqualified ? { status: 'DISQUALIFIED' } : {}),
+          },
+        });
+      }
+    } else if (action === 'force_fullscreen') {
+      if (userId) {
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'FULLSCREEN_ENFORCED',
+            details: 'Proctor enforced fullscreen mode for candidate.',
+          },
+        });
+      }
+    } else if (action === 'extend_time') {
+      if (userId) {
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'TIME_EXTENDED',
+            details: `Exam duration extended by ${minutes || 5} minutes by proctor.`,
+          },
+        });
+      }
+    } else if (action === 'force_submit') {
+      if (userId) {
+        await prisma.contestRegistration.updateMany({
+          where: { contestId, userId },
+          data: { status: 'COMPLETED' },
+        });
+
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'FORCE_SUBMITTED',
+            details: 'Exam force-submitted by proctor.',
+          },
+        });
+      }
+    } else if (action === 'reset_warnings') {
+      if (userId) {
+        await prisma.proctoringLog.deleteMany({
+          where: { contestId, userId },
+        });
+        await prisma.contestRegistration.updateMany({
+          where: { contestId, userId },
+          data: { status: 'REGISTERED', penalty: 0 },
+        });
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'WARNINGS_RESET',
+            details: `Warning count reset to 0 by proctor. Reason: ${reason || 'Manual waiver'}`,
+          },
+        });
+      }
+    }
+
+    res.json({ success: true, message: `Proctor action '${action}' applied successfully.` });
+  } catch (error: any) {
+    console.error('Proctor action error:', error);
+    res.status(500).json({ error: 'Failed to execute proctor action' });
   }
 });
 

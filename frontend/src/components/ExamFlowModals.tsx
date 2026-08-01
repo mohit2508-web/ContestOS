@@ -894,10 +894,13 @@ export function PostSubmitSummary({
                 </button>
 
                 <button
-                  onClick={() => setShowExitModal(false)}
-                  className="w-full py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-extrabold text-sm rounded-2xl transition-all cursor-pointer"
+                  onClick={() => {
+                    setShowExitModal(false);
+                    window.location.href = `/contests/${contestId}/report`;
+                  }}
+                  className="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/30 transition-all cursor-pointer"
                 >
-                  <span>📊 Continue Analyzing Results</span>
+                  <span>📊 View Contest Scorecard & Submitted Code</span>
                 </button>
               </div>
             </motion.div>

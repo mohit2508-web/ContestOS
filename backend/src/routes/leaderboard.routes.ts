@@ -316,7 +316,11 @@ router.get('/contest/:contestId', async (req: Request, res: Response): Promise<v
         let warningCount = 0;
         try {
           warningCount = await prisma.proctoringLog.count({
-            where: { contestId, userId: p.userId },
+            where: {
+              contestId,
+              userId: p.userId,
+              eventType: { notIn: ['SEB_SESSION_START', 'CONTEST_ENTERED', 'INFO', 'SESSION_START'] }
+            },
           });
         } catch (_e) {}
 

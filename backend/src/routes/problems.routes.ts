@@ -5,17 +5,109 @@ import { requireRole } from '../middlewares/rbac';
 
 const router = Router();
 
+function parseTableStructure(schemaDdl: string) {
+  if (!schemaDdl || typeof schemaDdl !== 'string') return [];
+  const tables: Array<{ name: string; columns: Array<{ name: string; type: string; constraints?: string }> }> = [];
+  const tableRegex = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:`?\w+`?\.)?`?(\w+)`?\s*\(([\s\S]*?)\);/gi;
+  let tableMatch;
+  while ((tableMatch = tableRegex.exec(schemaDdl)) !== null) {
+    const tableName = tableMatch[1];
+    const columnsBody = tableMatch[2];
+    const columns: Array<{ name: string; type: string; constraints?: string }> = [];
+
+    const colLines: string[] = [];
+    let current = '';
+    let parenDepth = 0;
+    for (let i = 0; i < columnsBody.length; i++) {
+      const char = columnsBody[i];
+      if (char === '(') parenDepth++;
+      else if (char === ')') parenDepth--;
+
+      if ((char === ',' || char === '\n') && parenDepth === 0) {
+        if (current.trim()) colLines.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    if (current.trim()) colLines.push(current.trim());
+
+    const filteredLines = colLines.filter(l => {
+      const u = l.toUpperCase();
+      return l && !u.startsWith('PRIMARY') && !u.startsWith('UNIQUE') && !u.startsWith('INDEX') && !u.startsWith('KEY') && !u.startsWith('CONSTRAINT') && !u.startsWith('FOREIGN');
+    });
+
+    for (const line of filteredLines) {
+      const clean = line.replace(/,$/, '').trim();
+      if (!clean) continue;
+      const parts = clean.split(/\s+/);
+      if (parts.length >= 2) {
+        const name = parts[0].replace(/`/g, '');
+        let type = '';
+        const constraintParts: string[] = [];
+        for (let i = 1; i < parts.length; i++) {
+          const p = parts[i];
+          const pu = p.toUpperCase();
+          if (pu === 'NOT' || pu === 'NULL' || pu === 'PRIMARY' || pu === 'KEY' || pu === 'UNIQUE' || pu === 'AUTO_INCREMENT' || pu === 'DEFAULT') {
+            constraintParts.push(p);
+          } else if (pu.startsWith('REFERENCES')) {
+            constraintParts.push(parts.slice(i).join(' '));
+            break;
+          } else {
+            type += (type ? ' ' : '') + p;
+          }
+        }
+        columns.push({ name, type: type || 'VARCHAR', constraints: constraintParts.join(' ') });
+      }
+    }
+    tables.push({ name: tableName, columns });
+  }
+  return tables;
+}
+
+function formatCanonicalSchema(schemaRaw: any): { setup: string; tables: any[] } | null {
+  if (!schemaRaw) return null;
+  let setupStr = '';
+  if (typeof schemaRaw === 'string') {
+    setupStr = schemaRaw;
+  } else if (typeof schemaRaw === 'object' && schemaRaw !== null) {
+    if (typeof schemaRaw.setup === 'string') setupStr = schemaRaw.setup;
+  }
+  if (!setupStr) return null;
+  const tables = parseTableStructure(setupStr);
+  return { setup: setupStr, tables };
+}
+
 // GET /api/problems — List problems with Public vs Private bank filtering & RBAC scoping
 router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { bank, category, difficulty, search, page = '1', limit = '50' } = req.query;
+    const { bank, category, difficulty, search, page = '1', limit = '50', type, take, skip: skipQuery } = req.query;
     const user = req.user;
     const userHierarchy = user?.hierarchyLevel ?? 5; // 1 = super_admin, 2 = org_admin, 3 = teacher/member, 5 = student
     const userOrgId = user?.organizationId || null;
 
     const pageNum = Math.max(1, parseInt(String(page), 10) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(String(limit), 10) || 50));
-    const skip = (pageNum - 1) * limitNum;
+    // Support 'take' param as alias for 'limit' (used by frontend playgrounds)
+    const limitNum = take
+      ? Math.min(200, Math.max(1, parseInt(String(take), 10) || 50))
+      : Math.min(100, Math.max(1, parseInt(String(limit), 10) || 50));
+    const skip = skipQuery !== undefined
+      ? Math.max(0, parseInt(String(skipQuery), 10) || 0)
+      : (pageNum - 1) * limitNum;
+
+    // Build problemType filter from 'type' query param
+    // Normalize: 'web' and 'web-dev' both map to web-dev problems
+    let problemTypeFilter: any = undefined;
+    if (type && String(type) !== 'all') {
+      const t = String(type).toLowerCase();
+      if (t === 'sql') {
+        problemTypeFilter = { problemType: 'sql' };
+      } else if (t === 'web' || t === 'web-dev' || t === 'web_dev') {
+        problemTypeFilter = { problemType: { in: ['web', 'web-dev'] } };
+      } else if (t === 'code') {
+        problemTypeFilter = { problemType: { in: ['code', 'algorithm', 'algorithmic'] } };
+      }
+    }
 
     // Build RBAC Bank Scope Condition
     let bankCondition: any = {};
@@ -69,6 +161,7 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
 
     const whereCondition: any = {
       ...bankCondition,
+      ...(problemTypeFilter || {}),
       ...(category && category !== 'all' && { category: String(category) }),
       ...(difficulty && difficulty !== 'all' && { difficulty: String(difficulty) }),
       ...(search && {
@@ -192,6 +285,7 @@ router.post('/', authenticateToken, requireRole('super_admin', 'org_admin', 'org
       isPublic = false,
       testCases,
       images,
+      schema,
     } = req.body;
 
     if (!title || !description) {
@@ -216,8 +310,13 @@ router.post('/', authenticateToken, requireRole('super_admin', 'org_admin', 'org
         return;
       }
     }
-
     const generatedSlug = slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') + '-' + Date.now();
+
+    let finalStarterCode: any = typeof starterCode === 'object' && starterCode !== null ? { ...starterCode } : { sql: starterCode || '' };
+    const canonicalSchema = formatCanonicalSchema(schema || finalStarterCode.schema);
+    if (canonicalSchema) {
+      finalStarterCode.schema = canonicalSchema;
+    }
 
     const problem = await prisma.problem.create({
       data: {
@@ -229,7 +328,7 @@ router.post('/', authenticateToken, requireRole('super_admin', 'org_admin', 'org
         problemType: problemType || 'code',
         evaluationStrategy: evaluationStrategy || 'EXACT_MATCH',
         referenceSolution: referenceSolution || null,
-        starterCode: starterCode || {},
+        starterCode: finalStarterCode,
         driverCode: driverCode || null,
         images: images || null,
         isPublic: targetIsPublic,
@@ -317,11 +416,21 @@ router.put('/:id', authenticateToken, requireRole('super_admin', 'org_admin', 'o
       driverCode,
       testCases,
       images,
+      schema,
     } = req.body;
 
     // Replace testcases if provided
     if (Array.isArray(testCases)) {
       await prisma.testCase.deleteMany({ where: { problemId: id } });
+    }
+
+    let finalStarterCode: any = starterCode !== undefined 
+      ? (typeof starterCode === 'object' && starterCode !== null ? { ...starterCode } : { sql: starterCode || '' })
+      : (typeof existingProblem.starterCode === 'object' && existingProblem.starterCode !== null ? { ...(existingProblem.starterCode as object) } : {});
+
+    const canonicalSchema = formatCanonicalSchema(schema || finalStarterCode.schema);
+    if (canonicalSchema) {
+      finalStarterCode.schema = canonicalSchema;
     }
 
     const updatedProblem = await prisma.problem.update({
@@ -334,7 +443,7 @@ router.put('/:id', authenticateToken, requireRole('super_admin', 'org_admin', 'o
         ...(problemType && { problemType }),
         ...(evaluationStrategy && { evaluationStrategy }),
         ...(referenceSolution !== undefined && { referenceSolution }),
-        ...(starterCode !== undefined && { starterCode }),
+        starterCode: finalStarterCode,
         ...(driverCode !== undefined && { driverCode }),
         ...(images !== undefined && { images }),
         ...(Array.isArray(testCases) && {

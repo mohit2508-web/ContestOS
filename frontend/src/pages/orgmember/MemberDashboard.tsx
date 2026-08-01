@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotify } from '../../components/notifications';
+import { ProctorActionModal, ProctorActionType } from '../../components/ProctorActionModal';
 
 interface Contest {
   id: string;
@@ -178,33 +180,39 @@ export function MemberDashboard() {
     }
   };
 
+  const notify = useNotify();
+
   const proctorAction = async (action: string, userId?: string, extra?: Record<string, any>) => {
     if (!selectedContest) return;
     try {
-      await api.client.post(`/contests/manager/${selectedContest.id}/proctor-action`, {
+      const res = await api.client.post(`/contests/manager/${selectedContest.id}/proctor-action`, {
         action,
         userId,
         ...extra,
       });
+      notify.toast.success(res.data?.message || 'Proctor action executed successfully!');
       await refreshMonitor();
     } catch (err: any) {
-      console.error('Proctor action failed:', err.message);
+      notify.toast.error(err.response?.data?.error || 'Proctor action failed.');
     }
   };
 
-  const nudgeUser = (userId: string) => proctorAction('nudge', userId);
-  const forceFullscreen = (userId: string) => proctorAction('force_fullscreen', userId);
-  const extendTime = (userId: string) => {
-    const mins = prompt('Extend time by (minutes):');
-    if (mins && !isNaN(Number(mins))) {
-      proctorAction('extend_time', userId, { minutes: Number(mins) });
-    }
+  const [modalAction, setModalAction] = useState<ProctorActionType | null>(null);
+  const [targetCandidate, setTargetCandidate] = useState<{ id: string; name: string; email: string } | null>(null);
+
+  const openActionModal = (action: ProctorActionType, p: Participant) => {
+    setTargetCandidate({
+      id: p.user.id,
+      name: p.user.name || p.user.fullName || 'Participant',
+      email: p.user.email,
+    });
+    setModalAction(action);
   };
-  const forceSubmit = (userId: string) => {
-    if (window.confirm('Force submit this participant\'s attempt?')) {
-      proctorAction('force_submit', userId);
-    }
-  };
+
+  const nudgeUser = (p: Participant) => openActionModal('nudge', p);
+  const forceFullscreen = (p: Participant) => proctorAction('force_fullscreen', p.user.id);
+  const extendTime = (p: Participant) => openActionModal('extend_time', p);
+  const forceSubmit = (p: Participant) => openActionModal('force_submit', p);
 
   const renderContestCards = () => {
     if (loading) {
@@ -399,40 +407,40 @@ export function MemberDashboard() {
                               <td className="p-3 text-right">
                                 <div className="flex justify-end gap-1">
                                   <button
-                                    onClick={() => nudgeUser(p.user.id)}
+                                    onClick={() => nudgeUser(p)}
                                     disabled={!isLive}
                                     title="Nudge"
-                                    className="p-1.5 bg-white/5 hover:bg-yellow-500/20 text-yellow-400 rounded transition disabled:opacity-30 disabled:cursor-not-allowed border border-white/5"
+                                    className="p-1.5 bg-white/5 hover:bg-yellow-500/20 text-yellow-400 rounded transition disabled:opacity-30 disabled:cursor-not-allowed border border-white/5 cursor-pointer"
                                   >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                     </svg>
                                   </button>
                                   <button
-                                    onClick={() => forceFullscreen(p.user.id)}
+                                    onClick={() => forceFullscreen(p)}
                                     disabled={!isLive}
                                     title="Force Fullscreen"
-                                    className="p-1.5 bg-white/5 hover:bg-blue-500/20 text-blue-400 rounded transition disabled:opacity-30 disabled:cursor-not-allowed border border-white/5"
+                                    className="p-1.5 bg-white/5 hover:bg-blue-500/20 text-blue-400 rounded transition disabled:opacity-30 disabled:cursor-not-allowed border border-white/5 cursor-pointer"
                                   >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                     </svg>
                                   </button>
                                   <button
-                                    onClick={() => extendTime(p.user.id)}
+                                    onClick={() => extendTime(p)}
                                     disabled={!isLive}
                                     title="Extend Time"
-                                    className="p-1.5 bg-white/5 hover:bg-purple-500/20 text-purple-400 rounded transition disabled:opacity-30 disabled:cursor-not-allowed border border-white/5"
+                                    className="p-1.5 bg-white/5 hover:bg-purple-500/20 text-purple-400 rounded transition disabled:opacity-30 disabled:cursor-not-allowed border border-white/5 cursor-pointer"
                                   >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                   </button>
                                   <button
-                                    onClick={() => forceSubmit(p.user.id)}
+                                    onClick={() => forceSubmit(p)}
                                     disabled={!isLive}
                                     title="Force Submit"
-                                    className="p-1.5 bg-white/5 hover:bg-red-500/20 text-red-400 rounded transition disabled:opacity-30 disabled:cursor-not-allowed border border-white/5"
+                                    className="p-1.5 bg-white/5 hover:bg-red-500/20 text-red-400 rounded transition disabled:opacity-30 disabled:cursor-not-allowed border border-white/5 cursor-pointer"
                                   >
                                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -707,6 +715,14 @@ export function MemberDashboard() {
         {activeTab === 'contests' && renderContestCards()}
         {activeTab === 'command' && renderCommandCenter()}
         {activeTab === 'results' && renderResults()}
+
+        <ProctorActionModal
+          isOpen={!!modalAction}
+          actionType={modalAction}
+          candidate={targetCandidate}
+          onClose={() => setModalAction(null)}
+          onSubmit={(action, userId, payload) => proctorAction(action, userId, payload)}
+        />
       </div>
     </div>
   );

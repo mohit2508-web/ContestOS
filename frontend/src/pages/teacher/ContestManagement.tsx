@@ -296,7 +296,14 @@ export function ContestManagementPage() {
     const exportSebReport = () => {
       const headers = ['Candidate Name', 'Email', 'Score', 'Solved Problems', 'Warnings', 'SEB Launch Count', 'Status'];
       const rows = participants.map(p => {
-        const launchCount = contestLogs.filter(log => log.userId === p.user.id && log.eventType === 'SEB_SESSION_START').length;
+        const recordedLaunches = contestLogs.filter(
+          (log) =>
+            log.userId === p.user.id &&
+            (log.eventType === 'SEB_SESSION_START' || log.eventType === 'CONTEST_ENTERED')
+        ).length;
+        const hasAttemptData =
+          (p.score || 0) > 0 || (p.solvedCount || 0) > 0 || (p.warnings || 0) > 0 || !!p.isTerminated;
+        const launchCount = Math.max(recordedLaunches, hasAttemptData ? 1 : 0);
         const status = p.isTerminated 
           ? 'DISQUALIFIED (MANUAL)' 
           : (p.warnings || 0) >= (selectedContest?.maxWarnings || 3)
@@ -411,7 +418,27 @@ export function ContestManagementPage() {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {displayParticipants.map(p => {
-                        const launchCount = displayLogs.filter(log => log.userId === p.user.id && log.eventType === 'SEB_SESSION_START').length;
+                        const userSebLogs = displayLogs
+                          .filter((log) => log.userId === p.user.id && (log.eventType === 'SEB_SESSION_START' || log.eventType === 'CONTEST_ENTERED'))
+                          .sort((a, b) => new Date(a.createdAt || a.timestamp).getTime() - new Date(b.createdAt || b.timestamp).getTime());
+
+                        let launchSessions = 0;
+                        let lastLaunchTime = 0;
+                        userSebLogs.forEach(l => {
+                          const t = new Date(l.createdAt || l.timestamp).getTime();
+                          if (t - lastLaunchTime > 2 * 60 * 1000) {
+                            launchSessions++;
+                            lastLaunchTime = t;
+                          }
+                        });
+
+                        const hasAttemptData =
+                          (p.score || 0) > 0 ||
+                          (p.solvedCount || 0) > 0 ||
+                          (p.warnings || 0) > 0 ||
+                          !!p.isTerminated;
+                        const launchCount = Math.max(launchSessions, hasAttemptData ? 1 : 0);
+
                         const isDisqualified = p.isTerminated || (p.warnings || 0) >= (selectedContest?.maxWarnings || 3);
                         const isSuspected = (p.warnings || 0) > 0 && !isDisqualified;
 
@@ -524,7 +551,21 @@ export function ContestManagementPage() {
               ) : contestLogs.length === 0 ? (
                 <p className="text-gray-500 text-xs italic text-center py-20 font-mono">No security logs recorded for this contest.</p>
               ) : (
-                contestLogs.map((log: any) => {
+                contestLogs
+                  .filter((log: any, index: number, arr: any[]) => {
+                    if (index === 0) return true;
+                    const prev = arr[index - 1];
+                    if (
+                      log.userId === prev.userId &&
+                      log.eventType === prev.eventType &&
+                      (log.eventType === 'SEB_SESSION_START' || log.eventType === 'CONTEST_ENTERED')
+                    ) {
+                      const timeDiff = Math.abs(new Date(log.createdAt || log.timestamp).getTime() - new Date(prev.createdAt || prev.timestamp).getTime());
+                      if (timeDiff < 60000) return false;
+                    }
+                    return true;
+                  })
+                  .map((log: any) => {
                   const isBreach = log.eventType.startsWith('SEB_') || log.eventType === 'warnings_exceeded' || log.eventType === 'TAB_SWITCH' || log.eventType === 'SCREENSHOT_ATTEMPT';
                   const isSuccess = log.eventType === 'SEB_SESSION_START' || log.eventType === 'warnings_reset' || log.eventType === 'contest_resumed';
                   
@@ -859,10 +900,8 @@ export function ContestManagementPage() {
 
   const blockStudent = async (userId: string) => {
     if (!selectedContest) return;
-    const note = window.prompt("Enter reason for manual block (optional):");
-    if (note === null) return;
     try {
-      await api.blockContestParticipant(selectedContest.id, userId, note);
+      await api.blockContestParticipant(selectedContest.id, userId, 'Manual proctor disqualification');
       notify.toast.success("Student blocked successfully.");
       openMonitor(selectedContest);
     } catch (err: any) {
@@ -872,10 +911,8 @@ export function ContestManagementPage() {
 
   const unblockStudent = async (userId: string) => {
     if (!selectedContest) return;
-    const note = window.prompt("Enter reason for unblocking (optional):");
-    if (note === null) return;
     try {
-      await api.unblockContestParticipant(selectedContest.id, userId, note);
+      await api.unblockContestParticipant(selectedContest.id, userId, 'Manual proctor unblock');
       notify.toast.success("Student unblocked successfully.");
       openMonitor(selectedContest);
     } catch (err: any) {
@@ -885,10 +922,12 @@ export function ContestManagementPage() {
 
   const handleResetWarnings = async (userId: string, fullName: string) => {
     if (!selectedContest) return;
-    const reason = window.prompt(`Enter reason for resetting warning count for ${fullName}:`);
-    if (reason === null) return;
     try {
-      await api.client.post(`/contests/${selectedContest.id}/attempts/${userId}/reset-warnings`, { reason });
+      await api.client.post(`/contests/manager/${selectedContest.id}/proctor-action`, {
+        action: 'reset_warnings',
+        userId,
+        reason: 'Manual waiver by instructor',
+      });
       notify.toast.success(`Warnings reset successfully for ${fullName}.`);
       openMonitor(selectedContest);
     } catch (err: any) {
@@ -1452,36 +1491,56 @@ export function ContestManagementPage() {
               {selectedUserLogs.length === 0 ? (
                 <p className="text-zinc-500 text-sm italic text-center py-6">No proctoring violations logged for this candidate.</p>
               ) : (
-                selectedUserLogs.map((log: any) => {
-                  const isAppIntegrity = log.description && log.description.startsWith("App Integrity");
-                  let detailObj: any = null;
-                  let cleanDescription = log.description;
-                  
-                  if (isAppIntegrity) {
-                    try {
-                      const jsonPart = log.description.substring(log.description.indexOf('{'));
-                      detailObj = JSON.parse(jsonPart);
-                      cleanDescription = log.description.substring(0, log.description.indexOf('{') - 3);
-                    } catch (e) {
-                      // fallback
+                selectedUserLogs
+                  .filter((log: any, index: number, arr: any[]) => {
+                    if (index === 0) return true;
+                    const prev = arr[index - 1];
+                    if (
+                      log.eventType === prev.eventType &&
+                      (log.eventType === 'SEB_SESSION_START' || log.eventType === 'CONTEST_ENTERED')
+                    ) {
+                      const logTime = new Date(log.timestamp || log.createdAt || log.created_at || Date.now()).getTime();
+                      const prevTime = new Date(prev.timestamp || prev.createdAt || prev.created_at || Date.now()).getTime();
+                      if (Math.abs(logTime - prevTime) < 60000) return false;
                     }
-                  }
+                    return true;
+                  })
+                  .map((log: any) => {
+                    const logDateRaw = log.timestamp || log.createdAt || log.created_at;
+                    const formattedDate = logDateRaw ? new Date(logDateRaw).toLocaleString() : 'Just now';
+                    const isAppIntegrity = log.description && log.description.startsWith("App Integrity");
+                    let detailObj: any = null;
+                    let cleanDescription = log.details || log.description || 'Proctoring security log';
+                    
+                    if (typeof cleanDescription === 'object') {
+                      cleanDescription = JSON.stringify(cleanDescription);
+                    }
 
-                  const suspectedCause = detailObj?.suspectedCause || (log.eventType === 'space_switch_or_gesture' ? 'space_switch_or_gesture' : null);
-                  const awayDurationMs = detailObj?.awayDurationMs;
+                    if (isAppIntegrity) {
+                      try {
+                        const jsonPart = log.description.substring(log.description.indexOf('{'));
+                        detailObj = JSON.parse(jsonPart);
+                        cleanDescription = log.description.substring(0, log.description.indexOf('{') - 3);
+                      } catch (e) {
+                        // fallback
+                      }
+                    }
 
-                  return (
-                    <div key={log.id} className="p-3 bg-white/5 border border-white/5 rounded-xl flex flex-col gap-1">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-xs font-bold uppercase tracking-wider font-mono ${
-                          log.eventType === 'warnings_reset' 
-                            ? 'text-green-400' 
-                            : log.eventType === 'contest_resumed' 
-                              ? 'text-blue-400' 
-                              : 'text-red-400'
-                        }`}>{log.eventType}</span>
-                        <span className="text-[10px] text-zinc-500 font-mono">{new Date(log.createdAt).toLocaleString()}</span>
-                      </div>
+                    const suspectedCause = detailObj?.suspectedCause || (log.eventType === 'space_switch_or_gesture' ? 'space_switch_or_gesture' : null);
+                    const awayDurationMs = detailObj?.awayDurationMs;
+
+                    return (
+                      <div key={log.id} className="p-3 bg-white/5 border border-white/5 rounded-xl flex flex-col gap-1">
+                        <div className="flex items-center justify-between">
+                          <span className={`text-xs font-bold uppercase tracking-wider font-mono ${
+                            log.eventType === 'warnings_reset' 
+                              ? 'text-green-400' 
+                              : log.eventType === 'contest_resumed' 
+                                ? 'text-blue-400' 
+                                : 'text-red-400'
+                          }`}>{log.eventType}</span>
+                          <span className="text-[10px] text-zinc-500 font-mono">{formattedDate}</span>
+                        </div>
                       <p className="text-xs text-zinc-300 font-mono mt-1 break-words">{cleanDescription}</p>
                       
                       {suspectedCause && (

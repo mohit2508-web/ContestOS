@@ -11,6 +11,7 @@ import type { TestCase, TestResult, Problem } from "./playground/types";
 import { useSidebar } from '../contexts/SidebarContext';
 import { useNotify } from '../components/notifications';
 import { SecureContestWrapper } from '../components/SecureContestWrapper';
+import { formatProblemDescriptionWithImages } from '../utils/formatProblemDescription';
 
 export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: boolean } = {}) {
   const notify = useNotify();
@@ -490,7 +491,8 @@ ${bodyContent}
       if (opts?.skip) params.set('skip', opts.skip.toString());
       if (opts?.search) params.set('search', opts.search);
       const response = await api.get(`/problems?${params}`);
-      const newProblems = response.problems || [];
+      // Strictly filter for web/web-dev problems only — never show code or SQL problems
+      const newProblems = (response.problems || []).filter((p: any) => p.problemType === 'web' || p.problemType === 'web-dev');
       const total = response.total || 0;
       setTotalProblems(total);
       if (opts?.skip && opts.skip > 0) {
@@ -807,280 +809,234 @@ ${bodyContent}
     <div ref={containerRef} className="h-screen md:h-[calc(100vh-4rem)] flex bg-[var(--bg-primary)] select-none">
       {/* Left Panel - Problem Description */}
       {playMode !== "free" && (
-      <div
-        ref={leftPanelRef}
-        className={`flex-col border-r border-white/10 relative overflow-hidden ${
-          showLeftPanel ? "flex" : "hidden"
-        } lg:flex flex-shrink-0`}
-        style={{ width: showLeftPanel ? `${leftPanelWidth}%` : "0%" }}
-      >
-        {/* Problem Header */}
-        <div className="p-3 border-b border-white/10 bg-[var(--bg-card)] flex-shrink-0">
-          <div className="flex items-center gap-2 mb-2">
-            <button
-              onClick={() => setShowLeftPanel(false)}
-              className="text-gray-400 hover:text-white p-1 shrink-0 lg:hidden"
-              title="Close panel"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-             {playMode === "problem" && !contestId && (
+        <div
+          ref={leftPanelRef}
+          className={`flex-col border-r border-white/10 relative overflow-hidden ${
+            showLeftPanel ? "flex" : "hidden"
+          } lg:flex flex-shrink-0`}
+          style={{ width: showLeftPanel ? `${leftPanelWidth}%` : "0%" }}
+        >
+          {/* Problem Header */}
+          <div className="p-3 border-b border-white/10 bg-[var(--bg-card)] flex-shrink-0">
+            <div className="flex items-center gap-2 mb-2">
               <button
-                onClick={() => setShowProblems(true)}
-                className="text-sm text-gray-400 hover:text-white transition-colors"
+                onClick={() => setShowLeftPanel(false)}
+                className="text-gray-400 hover:text-white p-1 shrink-0 lg:hidden"
+                title="Close panel"
               >
-                Problems
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
-            )}
-          </div>
-              {selectedProblem && playMode === "problem" ? (
-                <>
-                  <div className="flex items-center gap-2 mb-2">
-                    {selectedProblem.difficulty === "Solved" && (
-                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              {playMode === "problem" && !contestId && (
+                <button
+                  onClick={() => setShowProblems(true)}
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                >
+                  Problems
+                </button>
+              )}
+            </div>
+            {selectedProblem && playMode === "problem" ? (
+              <>
+                <div className="flex items-center gap-2 mb-2">
+                  {selectedProblem.difficulty === "Solved" && (
+                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                  {!contestId ? (
+                    <button
+                      onClick={() => setShowProblems(!showProblems)}
+                      className="flex items-center gap-2 hover:bg-white/10 rounded-lg px-2 py-1 transition-colors"
+                    >
+                      <h2 className="text-lg font-bold text-white">{selectedProblem.title}</h2>
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
-                    )}
-                    {!contestId ? (
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-2 px-2 py-1">
                       <button
-                        onClick={() => setShowProblems(!showProblems)}
-                        className="flex items-center gap-2 hover:bg-white/10 rounded-lg px-2 py-1 transition-colors"
+                        onClick={() => navigate(`/contests/${contestId}`)}
+                        className="flex items-center gap-1 px-2 py-1 text-xs font-bold text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                        title="Back to Contest"
                       >
-                        <h2 className="text-lg font-bold text-white">{selectedProblem.title}</h2>
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Back
+                      </button>
+                      <h2 className="text-lg font-bold text-white">{selectedProblem.title}</h2>
+                    </div>
+                  )}
+                  {!contestId && (
+                    <div className="flex items-center gap-1 ml-auto">
+                      <button
+                        onClick={() => {
+                          const idx = problems.findIndex(p => p.id === selectedProblem.id);
+                          if (idx > 0) selectProblem(problems[idx - 1]);
+                        }}
+                        disabled={problems.findIndex(p => p.id === selectedProblem.id) <= 0}
+                        className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Previous Problem"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                       </button>
-                    ) : (
-                      <div className="flex items-center gap-2 px-2 py-1">
-                        <button
-                          onClick={() => navigate(`/contests/${contestId}`)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs font-bold text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                          title="Back to Contest"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                          </svg>
-                          Back
-                        </button>
-                        <h2 className="text-lg font-bold text-white">{selectedProblem.title}</h2>
-                      </div>
-                    )}
-                    {!contestId && (
-                      <div className="flex items-center gap-1 ml-auto">
-                    <button
-                      onClick={() => {
-                        const idx = problems.findIndex(p => p.id === selectedProblem.id);
-                        if (idx > 0) selectProblem(problems[idx - 1]);
-                      }}
-                      disabled={problems.findIndex(p => p.id === selectedProblem.id) <= 0}
-                      className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                      title="Previous Problem"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => {
-                        const idx = problems.findIndex(p => p.id === selectedProblem.id);
-                        if (idx < problems.length - 1) selectProblem(problems[idx + 1]);
-                      }}
-                      disabled={problems.findIndex(p => p.id === selectedProblem.id) >= problems.length - 1}
-                      className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                      title="Next Problem"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`text-xs px-2 py-0.5 rounded ${
-                  selectedProblem.difficulty === "Easy" ? "bg-green-500/20 text-green-400" :
-                  selectedProblem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
-                  selectedProblem.difficulty === "Hard" ? "bg-red-500/20 text-red-400" :
-                  "bg-green-500/20 text-green-400"
-                }`}>
-                  {selectedProblem.difficulty === "Solved" ? "Solved" : selectedProblem.difficulty}
-                </span>
-                {selectedProblem.acceptanceRate !== undefined && (
-                  <span className="text-xs text-gray-500">
-                    {selectedProblem.acceptanceRate}% acceptance
-                  </span>
-                )}
-                {selectedProblem.totalSubmissions !== undefined && (
-                  <span className="text-xs text-gray-500">
-                    {selectedProblem.totalSubmissions.toLocaleString()} submissions
-                  </span>
-                )}
-              </div>
-              {selectedProblem.topics && selectedProblem.topics.length > 0 && (
-                <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  {selectedProblem.topics.map((topic, idx) => (
-                    <span key={idx} className="text-xs px-2 py-0.5 bg-white/5 text-gray-400 rounded">
-                      {topic}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {selectedProblem.companies && selectedProblem.companies.length > 0 && (
-                <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  {selectedProblem.companies.slice(0, 3).map((company, idx) => (
-                    <span key={idx} className="text-xs px-2 py-0.5 bg-yellow-500/10 text-yellow-400 rounded">
-                      {company}
-                    </span>
-                  ))}
-                  {selectedProblem.companies.length > 3 && (
-                    <span className="text-xs text-gray-500">+{selectedProblem.companies.length - 3} more</span>
-                  )}
-                </div>
-              )}
-            </>
-          ) : playMode === "problem" ? (
-            <p className="text-gray-500 text-sm">Select a problem to get started</p>
-          ) : null}
-        </div>
-
-        {/* Problem Content */}
-        <div 
-          className={`flex-1 overflow-auto p-4 space-y-4 ${contestId ? 'select-none' : ''}`}
-          onContextMenu={contestId ? e => e.preventDefault() : undefined}
-          style={contestId ? { userSelect: 'none' } : undefined}
-        >
-          {selectedProblem && playMode === "problem" ? (
-            <>
-              {/* Description */}
-              <div>
-                <h3 className="text-sm font-semibold text-white mb-2">Description</h3>
-                <MarkdownRenderer content={(() => {
-                          let desc = selectedProblem.description || '';
-                          let images = selectedProblem.images || {};
-                          if (typeof images === 'string') {
-                              try { images = JSON.parse(images); } catch (e) {}
-                          }
-                          const isValidImageUrl = (url: any) => typeof url === 'string' && url.startsWith('http');
-
-                          if (isValidImageUrl(images.example1)) {
-                              const regex = /(###\s*Example\s*1:?|\*\*Example\s*1:?\*\*|Example\s*1:?)/i;
-                              if (regex.test(desc)) desc = desc.replace(regex, `$1\n\n![Example 1 Figure](${images.example1})\n\n`);
-                              else desc += `\n\n![Example 1 Figure](${images.example1})\n\n`;
-                          }
-                          if (isValidImageUrl(images.example2)) {
-                              const regex = /(###\s*Example\s*2:?|\*\*Example\s*2:?\*\*|Example\s*2:?)/i;
-                              if (regex.test(desc)) desc = desc.replace(regex, `$1\n\n![Example 2 Figure](${images.example2})\n\n`);
-                              else desc += `\n\n![Example 2 Figure](${images.example2})\n\n`;
-                          }
-                          if (isValidImageUrl(images.example3)) {
-                              const regex = /(###\s*Example\s*3:?|\*\*Example\s*3:?\*\*|Example\s*3:?)/i;
-                              if (regex.test(desc)) desc = desc.replace(regex, `$1\n\n![Example 3 Figure](${images.example3})\n\n`);
-                              else desc += `\n\n![Example 3 Figure](${images.example3})\n\n`;
-                          }
-
-                          if (isValidImageUrl(images.main)) {
-                              const constraintsRegex = /(###\s*Constraints:?|\*\*Constraints:?\*\*|Constraints:?)/i;
-                              if (constraintsRegex.test(desc)) {
-                                  desc = desc.replace(constraintsRegex, `![Main Figure](${images.main})\n\n$1`);
-                              } else {
-                                  desc = `![Main Figure](${images.main})\n\n${desc}`;
-                              }
-                          }
-                          
-                          return desc;
-                        })()} />
-              </div>
-
-              {/* Examples */}
-              {parseExamples(selectedProblem).length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-white mb-2">Examples</h3>
-                  <div className="space-y-3">
-                    {parseExamples(selectedProblem).map((example, idx) => (
-                      <div key={idx} className="bg-white/5 rounded-lg p-3">
-                        <div className="text-xs text-gray-500 mb-1">Example {idx + 1}</div>
-                        <div className="font-mono text-xs space-y-1">
-                          <div className="flex gap-2">
-                            <span className="text-gray-400 min-w-[60px]">Input:</span>
-                            <span className="text-gray-300">{example.input}</span>
-                          </div>
-                          <div className="flex gap-2">
-                            <span className="text-gray-400 min-w-[60px]">Output:</span>
-                            <span className="text-gray-300">{example.output}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Constraints */}
-              {parseConstraints(selectedProblem).length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-white mb-2">Constraints</h3>
-                  <ul className="space-y-1">
-                    {parseConstraints(selectedProblem).map((constraint, idx) => (
-                      <li key={idx} className="text-xs text-gray-400 flex gap-2">
-                        <span className="text-gray-500">•</span>
-                        <span className="font-mono">{constraint}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Hints */}
-              {selectedProblem.hints && (
-                <div>
-                  <button
-                    onClick={() => setShowHints(!showHints)}
-                    className="text-sm font-semibold text-white mb-2 flex items-center gap-2"
-                  >
-                    <svg className={`w-4 h-4 transition-transform ${showHints ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                    Hint{selectedProblem.hints.includes('|') ? 's' : ''}
-                  </button>
-                  {showHints && (
-                    <div className="space-y-2">
-                      {selectedProblem.hints.split('|').map((hint, idx) => (
-                        <div key={idx} className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
-                          <span className="text-xs text-yellow-400 font-medium">Hint {idx + 1}</span>
-                          <p className="text-sm text-gray-300 mt-1">{hint.trim()}</p>
-                        </div>
-                      ))}
+                      <button
+                        onClick={() => {
+                          const idx = problems.findIndex(p => p.id === selectedProblem.id);
+                          if (idx < problems.length - 1) selectProblem(problems[idx + 1]);
+                        }}
+                        disabled={problems.findIndex(p => p.id === selectedProblem.id) >= problems.length - 1}
+                        className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Next Problem"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
                     </div>
                   )}
                 </div>
-              )}
-            </>
-          ) : playMode === "problem" ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500 text-sm mb-4">No problem selected</p>
-              <button
-                onClick={() => setShowProblems(true)}
-                className="px-4 py-2 bg-[var(--accent-blue)] text-white rounded-lg text-sm hover:opacity-90 transition-opacity"
-              >
-                Select Problem
-              </button>
-            </div>
-          ) : null}
-        </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`text-xs px-2 py-0.5 rounded ${
+                    selectedProblem.difficulty === "Easy" ? "bg-green-500/20 text-green-400" :
+                    selectedProblem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
+                    selectedProblem.difficulty === "Hard" ? "bg-red-500/20 text-red-400" :
+                    "bg-green-500/20 text-green-400"
+                  }`}>
+                    {selectedProblem.difficulty === "Solved" ? "Solved" : selectedProblem.difficulty}
+                  </span>
+                  {selectedProblem.acceptanceRate !== undefined && (
+                    <span className="text-xs text-gray-500">
+                      {selectedProblem.acceptanceRate}% acceptance
+                    </span>
+                  )}
+                  {selectedProblem.totalSubmissions !== undefined && (
+                    <span className="text-xs text-gray-500">
+                      {selectedProblem.totalSubmissions.toLocaleString()} submissions
+                    </span>
+                  )}
+                </div>
+                {selectedProblem.topics && selectedProblem.topics.length > 0 && (
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    {selectedProblem.topics.map((topic, idx) => (
+                      <span key={idx} className="text-xs px-2 py-0.5 bg-white/5 text-gray-400 rounded">
+                        {topic}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : playMode === "problem" ? (
+              <p className="text-gray-500 text-sm">Select a problem to get started</p>
+            ) : null}
+          </div>
 
-        {/* Left Resize Handle */}
-        <div
-          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize bg-transparent hover:bg-[var(--accent-blue)] transition-colors z-20 group"
-          onMouseDown={startResizeLeft}
-        >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-12 bg-white/20 rounded-full group-hover:bg-[var(--accent-blue)] transition-colors" />
-        </div>
-      </div>
+          {/* Problem Content */}
+          <div
+            className={`flex-1 overflow-auto p-4 space-y-4 ${contestId ? 'select-none' : ''}`}
+            onContextMenu={contestId ? e => e.preventDefault() : undefined}
+            style={contestId ? { userSelect: 'none' } : undefined}
+          >
+            {selectedProblem && playMode === "problem" ? (
+              <>
+                {/* Description */}
+                <div>
+                  <h3 className="text-sm font-semibold text-white mb-2">Description</h3>
+                  <MarkdownRenderer content={formatProblemDescriptionWithImages(selectedProblem.description || '', selectedProblem.images)} />
+                </div>
 
-    )}
+                {/* Examples */}
+                {parseExamples(selectedProblem).length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-white mb-2">Examples</h3>
+                    <div className="space-y-3">
+                      {parseExamples(selectedProblem).map((example, idx) => (
+                        <div key={idx} className="bg-white/5 rounded-lg p-3">
+                          <div className="text-xs text-gray-500 mb-1">Example {idx + 1}</div>
+                          <div className="font-mono text-xs space-y-1">
+                            <div className="flex gap-2">
+                              <span className="text-gray-400 min-w-[60px]">Input:</span>
+                              <span className="text-gray-300">{example.input}</span>
+                            </div>
+                            <div className="flex gap-2">
+                              <span className="text-gray-400 min-w-[60px]">Output:</span>
+                              <span className="text-gray-300">{example.output}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Constraints */}
+                {parseConstraints(selectedProblem).length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-white mb-2">Constraints</h3>
+                    <ul className="space-y-1">
+                      {parseConstraints(selectedProblem).map((constraint, idx) => (
+                        <li key={idx} className="text-xs text-gray-400 flex gap-2">
+                          <span className="text-gray-500">•</span>
+                          <span className="font-mono">{constraint}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Hints */}
+                {selectedProblem.hints && (
+                  <div>
+                    <button
+                      onClick={() => setShowHints(!showHints)}
+                      className="text-sm font-semibold text-white mb-2 flex items-center gap-2"
+                    >
+                      <svg className={`w-4 h-4 transition-transform ${showHints ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                      Hint{selectedProblem.hints.includes('|') ? 's' : ''}
+                    </button>
+                    {showHints && (
+                      <div className="space-y-2">
+                        {selectedProblem.hints.split('|').map((hint, idx) => (
+                          <div key={idx} className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                            <span className="text-xs text-yellow-400 font-medium">Hint {idx + 1}</span>
+                            <p className="text-sm text-gray-300 mt-1">{hint.trim()}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : playMode === "problem" ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 text-sm mb-4">No problem selected</p>
+                <button
+                  onClick={() => setShowProblems(true)}
+                  className="px-4 py-2 bg-[var(--accent-blue)] text-white rounded-lg text-sm hover:opacity-90 transition-opacity"
+                >
+                  Select Problem
+                </button>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Left Resize Handle */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize bg-transparent hover:bg-[var(--accent-blue)] transition-colors z-20 group"
+            onMouseDown={startResizeLeft}
+          >
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-12 bg-white/20 rounded-full group-hover:bg-[var(--accent-blue)] transition-colors" />
+          </div>
+        </div>
+      )}
+
       {/* Right Panel - IDE and Output */}
       <div ref={rightPanelRef} className="flex-1 flex flex-col min-w-0">
         {/* Toolbar */}
@@ -1119,9 +1075,6 @@ ${bodyContent}
                 </button>
               </>
             )}
-
-            {/* Settings button */}
-            <div className="relative" ref={settingsRef}>
               <button
                 onClick={() => setShowSettings(!showSettings)}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
@@ -1661,8 +1614,6 @@ ${bodyContent}
             </div>
           </div>
         )}
-      </div>
-
       <ProblemsModal
         isOpen={showProblems && playMode === "problem"}
         onClose={() => setShowProblems(false)}

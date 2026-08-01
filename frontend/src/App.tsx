@@ -24,6 +24,7 @@ import { PlatformDashboard } from './pages/superadmin/PlatformDashboard';
 import { OrgDashboard } from './pages/orgadmin/OrgDashboard';
 import { MemberDashboard } from './pages/orgmember/MemberDashboard';
 import { ParticipantDashboard } from './pages/participant/ParticipantDashboard';
+import { ContestReport } from './pages/participant/ContestReport';
 import { EvaluatorDashboard } from './pages/evaluator/EvaluatorDashboard';
 
 import LandingPageApp from './landing/LandingPageApp';
@@ -139,6 +140,9 @@ export default function App() {
                 </RoleRoute>
               } />
               <Route path="/leaderboard" element={<Leaderboard />} />
+
+              {/* ========== TalentOS Style Contest Scorecard / Report ========== */}
+              <Route path="/contests/:id/report" element={<ContestReport />} />
 
               {/* ========== Immersive Contest Zone / IDE ========== */}
               <Route

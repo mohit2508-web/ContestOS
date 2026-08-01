@@ -452,6 +452,10 @@ export const api = {
     const res = await apiAxios.get(`/assignments/${contestId}`);
     return res.data;
   },
+  updateSubmission: async (id: string, data: any) => {
+    const res = await apiAxios.put(`/submissions/${id}`, data);
+    return res.data;
+  },
 };
 
 export default api;

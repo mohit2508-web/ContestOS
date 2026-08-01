@@ -6,7 +6,7 @@ import { requireRole } from '../middlewares/rbac';
 const router = Router();
 
 // POST /api/guard/log — Log security proctoring event (Tab switch, Fullscreen exit, Webcam warning)
-router.post('/log', authenticateToken, requireRole('student'), async (req: Request, res: Response): Promise<void> => {
+router.post('/log', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user!.userId;
     const { contestId, eventType, details } = req.body;
@@ -26,9 +26,25 @@ router.post('/log', authenticateToken, requireRole('student'), async (req: Reque
       },
     });
 
-    // Check warning threshold
+    const VIOLATION_EVENTS = [
+      'TAB_SWITCH',
+      'FULLSCREEN_EXIT',
+      'COPY_PASTE_ATTEMPT',
+      'SCREENSHOT_ATTEMPT',
+      'DEVTOOLS_OPENED',
+      'VOICE_TALKING_DETECTED',
+      'FACE_MULTIPLE_DETECTED',
+      'FACE_MISSING_DETECTED',
+      'PROCTOR_WARNING',
+    ];
+
+    // Count only actual security violation events towards the warning threshold
     const warningCount = await prisma.proctoringLog.count({
-      where: { contestId, userId },
+      where: {
+        contestId,
+        userId,
+        eventType: { in: VIOLATION_EVENTS },
+      },
     });
 
     const contest = await prisma.contest.findUnique({
@@ -39,12 +55,15 @@ router.post('/log', authenticateToken, requireRole('student'), async (req: Reque
     const maxWarnings = contest?.maxWarnings || 3;
     const isDisqualified = warningCount >= maxWarnings;
 
-    if (isDisqualified) {
+    try {
       await prisma.contestRegistration.updateMany({
         where: { contestId, userId },
-        data: { status: 'DISQUALIFIED' },
+        data: {
+          penalty: warningCount,
+          ...(isDisqualified ? { status: 'DISQUALIFIED' } : {}),
+        },
       });
-    }
+    } catch (_e) {}
 
     res.json({
       success: true,
@@ -60,7 +79,7 @@ router.post('/log', authenticateToken, requireRole('student'), async (req: Reque
 });
 
 // GET /api/guard/logs/:contestId — Fetch proctoring logs for a contest (Teacher / Admin)
-router.get('/logs/:contestId', authenticateToken, requireRole('super_admin', 'org_admin', 'org_member'), async (req: Request, res: Response): Promise<void> => {
+router.get('/logs/:contestId', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
     const { contestId } = req.params;
 
