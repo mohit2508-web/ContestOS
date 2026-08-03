@@ -24,6 +24,41 @@ export function cleanStarterCode(code: string, lang: string): string {
   return code;
 }
 
+// Scoped draft storage key — contest work must never bleed into free mode or other contests
+export function getWebCodeStorageKey(problemId: string, contestId?: string | null): string {
+  return contestId
+    ? `web_playground_${contestId}_${problemId}_web`
+    : `web_playground_${problemId}_web`;
+}
+
+// Scoped "last selected problem" key
+export function getSelectedProblemStorageKey(contestId?: string | null): string {
+  return contestId
+    ? `web_playground_selected_problem_${contestId}`
+    : 'web_playground_selected_problem';
+}
+
+export type PreviewDevice = 'desktop' | 'tablet' | 'mobile';
+
+export const PREVIEW_DEVICES: Record<PreviewDevice, { label: string; width: number | null }> = {
+  desktop: { label: 'Desktop', width: null },
+  tablet: { label: 'Tablet', width: 768 },
+  mobile: { label: 'Mobile', width: 375 },
+};
+
+export function getPreviewDeviceStorageKey(): string {
+  return 'web_playground_previewDevice';
+}
+
+export type WebFileId = 'html' | 'css' | 'javascript';
+
+// Multi-file explorer tabs — id matches the Monaco language id used by the editor
+export const WEB_FILES: { id: WebFileId; label: string; monacoLanguage: string; dotColor: string }[] = [
+  { id: 'html', label: 'index.html', monacoLanguage: 'html', dotColor: 'bg-orange-400' },
+  { id: 'css', label: 'styles.css', monacoLanguage: 'css', dotColor: 'bg-blue-400' },
+  { id: 'javascript', label: 'script.js', monacoLanguage: 'javascript', dotColor: 'bg-yellow-400' },
+];
+
 export function formatInputDisplay(input: string): string {
   if (!input) return "";
   const lines = input.split("\n").filter(s => s);

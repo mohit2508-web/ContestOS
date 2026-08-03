@@ -2,10 +2,39 @@ import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middlewares/auth';
 import { evaluateCodeSubmission } from '../services/languageAdapter';
+import { evaluateWebDev } from '../services/webDevEvaluator';
 
 
 
 const router = Router();
+
+async function evaluateWebDevSubmission(
+  problem: any,
+  body: any,
+  _res: Response
+) {
+  const evaluation = await evaluateWebDev({
+    html: body.htmlCode || body.code || '',
+    css: body.cssCode || '',
+    js: body.jsCode || '',
+    testCases: (problem.testCases || []).map((tc: any) => ({
+      id: tc.id,
+      input: tc.input,
+      expectedOutput: tc.expectedOutput,
+      isHidden: tc.isHidden,
+    })),
+  });
+
+  return {
+    status: evaluation.summary.failed === 0 ? 'ACCEPTED' : 'WRONG_ANSWER',
+    score: evaluation.rubric.total,
+    executionTime: evaluation.executionTime,
+    memoryUsed: 128,
+    testResults: evaluation.results,
+    passedCount: evaluation.summary.passed,
+    totalCount: evaluation.summary.total,
+  };
+}
 
 // GET /api/submissions — Fetch submissions list
 router.get('/', authenticateToken, async (req: Request, res: Response): Promise<void> => {
@@ -79,23 +108,26 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
     }
 
     // Evaluate code test cases via Codeforces-style languageAdapter
-    const evalResult = await evaluateCodeSubmission({
-      problemId: problem.id,
-      code,
-      language,
-      testCases: problem.testCases.map((tc) => ({
-        id: tc.id,
-        input: tc.input,
-        expectedOutput: tc.expectedOutput,
-        isHidden: tc.isHidden,
-      })),
-      referenceSolution: problem.referenceSolution,
-      onProgress: (tcResult) => {
-        if (isStream) {
-          res.write(`data: ${JSON.stringify({ type: 'progress', result: tcResult })}\n\n`);
-        }
-      },
-    });
+    const isWebDev = language === 'web-dev' || language === 'web';
+    const evalResult = isWebDev
+      ? await evaluateWebDevSubmission(problem, req.body, res)
+      : await evaluateCodeSubmission({
+          problemId: problem.id,
+          code,
+          language,
+          testCases: problem.testCases.map((tc) => ({
+            id: tc.id,
+            input: tc.input,
+            expectedOutput: tc.expectedOutput,
+            isHidden: tc.isHidden,
+          })),
+          referenceSolution: problem.referenceSolution,
+          onProgress: (tcResult) => {
+            if (isStream) {
+              res.write(`data: ${JSON.stringify({ type: 'progress', result: tcResult })}\n\n`);
+            }
+          },
+        });
 
     // Update submission record
     const finalSubmission = await prisma.submission.update({

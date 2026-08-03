@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { api } from "../services/api";
 import { FREE_MODE_DEFAULT } from "./playground/constants";
-import { formatInputDisplay } from "./playground/helpers";
+import { formatInputDisplay, getWebCodeStorageKey, getSelectedProblemStorageKey, getPreviewDeviceStorageKey, PREVIEW_DEVICES, WEB_FILES } from "./playground/helpers";
+import type { PreviewDevice, WebFileId } from "./playground/helpers";
 import { ProblemsModal } from "./playground/ProblemsModal";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import type { TestCase, TestResult, Problem } from "./playground/types";
@@ -12,6 +13,16 @@ import { useSidebar } from '../contexts/SidebarContext';
 import { useNotify } from '../components/notifications';
 import { SecureContestWrapper } from '../components/SecureContestWrapper';
 import { formatProblemDescriptionWithImages } from '../utils/formatProblemDescription';
+
+interface NetworkRequest {
+  id: number;
+  method: string;
+  url: string;
+  status: number;
+  type: 'fetch' | 'xhr';
+  size: number;
+  duration: number;
+}
 
 export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: boolean } = {}) {
   const notify = useNotify();
@@ -74,7 +85,15 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   const [htmlCode, setHtmlCode] = useState(FREE_MODE_DEFAULT);
   const [cssCode, setCssCode] = useState("");
   const [jsCode, setJsCode] = useState("");
-  const [webLanguage, setWebLanguage] = useState<"html" | "css" | "javascript">("html");
+  const [webLanguage, setWebLanguage] = useState<WebFileId>("html");
+
+  // Last known "saved" snapshot of each file — used to derive dirty indicators
+  const [savedCode, setSavedCode] = useState<{ html: string; css: string; js: string }>({ html: "", css: "", js: "" });
+  const dirtyFiles: Record<WebFileId, boolean> = {
+    html: htmlCode !== savedCode.html,
+    css: cssCode !== savedCode.css,
+    javascript: jsCode !== savedCode.js,
+  };
 
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,6 +102,11 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [testSummary, setTestSummary] = useState<{ passed: number; failed: number; total: number } | null>(null);
   const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
+  const [networkRequests, setNetworkRequests] = useState<NetworkRequest[]>([]);
+  const networkCounterRef = useRef(0);
+
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [commandPaletteQuery, setCommandPaletteQuery] = useState("");
 
   const [problems, setProblems] = useState<Problem[]>([]);
   const [totalProblems, setTotalProblems] = useState(0);
@@ -91,7 +115,7 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   const [showProblems, setShowProblems] = useState(false);
   const [showHints, setShowHints] = useState(false);
   const [isLoadingProblems, setIsLoadingProblems] = useState(false);
-  const [activeTab, setActiveTab] = useState<"tests" | "output">("tests");
+  const [activeTab, setActiveTab] = useState<"tests" | "output" | "console" | "network">("tests");
   const [showSettings, setShowSettings] = useState(false);
   const [problemStatuses, setProblemStatuses] = useState<Record<string, 'solved' | 'attempted' | 'none'>>({});
 
@@ -112,13 +136,76 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
     return saved !== 'false';
   });
 
-  const [leftPanelWidth, setLeftPanelWidth] = useState(35);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(24);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
   const [bottomPanelHeight, setBottomPanelHeight] = useState(30);
-  const [showOutput, setShowOutput] = useState(false);
-  const [showWebPreview, setShowWebPreview] = useState(false);
+  const [showOutput, setShowOutput] = useState(true);
+  const [showWebPreview, setShowWebPreview] = useState(true);
   const [previewKey, setPreviewKey] = useState(0);
   const [previewSnapshot, setPreviewSnapshot] = useState<{htmlCode: string; cssCode: string; jsCode: string} | null>(null);
+  type ViewMode = 'split' | 'editor' | 'preview' | 'rubric' | 'problem';
+  const [viewMode, setViewMode] = useState<ViewMode>('split');
+  const [isInspectActive, setIsInspectActive] = useState(false);
+  const [inspectedElement, setInspectedElement] = useState<{
+    tagName: string; id: string; className: string;
+    width: number; height: number; color: string;
+    backgroundColor: string; fontSize: string; fontFamily: string;
+    display: string; margin: string; padding: string;
+  } | null>(null);
+  const [rubricData, setRubricData] = useState<{ functionality: number; styling: number; accessibility: number; codeQuality: number; total: number } | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const highlightLinkedCode = (selectorOrInput: string) => {
+    if (!htmlCode) return;
+
+    let lineNumber = 1;
+    const lines = htmlCode.split('\n');
+    const cleanTarget = selectorOrInput.replace(/^count:/, '').replace(/@.*$/, '').replace(/\..*$/, '');
+    const idMatch = cleanTarget.match(/#([\w-]+)/);
+    const classMatch = cleanTarget.match(/\.([\w-]+)/);
+    const tagMatch = cleanTarget.match(/^([a-zA-Z1-6]+)/);
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (idMatch && line.includes(`id="${idMatch[1]}"`)) {
+        lineNumber = i + 1;
+        break;
+      }
+      if (classMatch && line.includes(`class="${classMatch[1]}"`)) {
+        lineNumber = i + 1;
+        break;
+      }
+      if (tagMatch && line.includes(`<${tagMatch[1]}`)) {
+        lineNumber = i + 1;
+        break;
+      }
+    }
+
+    if (editorRef.current) {
+      editorRef.current.revealLineInCenter(lineNumber);
+      editorRef.current.setSelection({
+        startLineNumber: lineNumber,
+        startColumn: 1,
+        endLineNumber: lineNumber,
+        endColumn: (lines[lineNumber - 1]?.length || 50) + 1,
+      });
+    }
+
+    const iframe = document.querySelector('iframe[title="Web Preview"]') as HTMLIFrameElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage({
+        type: 'highlight-selector',
+        selector: cleanTarget
+      }, '*');
+    }
+
+    notify.toast.info(`Linked: Line ${lineNumber} & '${cleanTarget}' highlighted`);
+  };
+
+  const [previewDevice, setPreviewDevice] = useState<PreviewDevice>(() => {
+    const saved = localStorage.getItem(getPreviewDeviceStorageKey());
+    return saved === 'tablet' || saved === 'mobile' ? saved : 'desktop';
+  });
 
   const leftPanelRef = useRef<HTMLDivElement>(null);
   const rightPanelRef = useRef<HTMLDivElement>(null);
@@ -204,6 +291,10 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   }, [editorMinimap]);
 
   useEffect(() => {
+    localStorage.setItem(getPreviewDeviceStorageKey(), previewDevice);
+  }, [previewDevice]);
+
+  useEffect(() => {
     const init = async () => {
       await fetchAllProblems("web-dev");
       loadProblemStatuses();
@@ -215,12 +306,13 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
     const params = new URLSearchParams(window.location.search);
     const problemId = params.get('problem');
     const cid = params.get('contestId');
-    const savedProblemId = localStorage.getItem('web_playground_selected_problem');
+    const savedProblemId = localStorage.getItem(getSelectedProblemStorageKey(cid || contestId));
 
     if (playMode === "free" && !cid) {
       setHtmlCode(FREE_MODE_DEFAULT);
       setCssCode("");
       setJsCode("");
+      setSavedCode({ html: FREE_MODE_DEFAULT, css: "", js: "" });
       return;
     }
 
@@ -250,13 +342,13 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
             });
             selectProblem(prob);
           } else if (!cid && problems.length > 0) {
-            localStorage.removeItem('web_playground_selected_problem');
+            localStorage.removeItem(getSelectedProblemStorageKey(cid));
             selectProblem(problems[0]);
           }
         } catch (err) {
           console.error("Failed to fetch target web-dev problem:", err);
           if (!cid && problems.length > 0) {
-            localStorage.removeItem('web_playground_selected_problem');
+            localStorage.removeItem(getSelectedProblemStorageKey(cid));
             selectProblem(problems[0]);
           }
         }
@@ -270,14 +362,16 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   useEffect(() => {
     if (!selectedProblem || playMode === "free") return;
     if (selectedProblem.problemType === "web-dev") {
-      const savedKey = `web_playground_${selectedProblem.id}_web`;
+      const savedKey = getWebCodeStorageKey(selectedProblem.id, contestId);
       const savedWebCode = localStorage.getItem(savedKey);
       if (savedWebCode) {
         try {
           const parsed = JSON.parse(savedWebCode);
-          setHtmlCode(parsed.htmlCode || "");
-          setCssCode(parsed.cssCode || "");
-          setJsCode(parsed.jsCode || "");
+          const loaded = { html: parsed.htmlCode || "", css: parsed.cssCode || "", js: parsed.jsCode || "" };
+          setHtmlCode(loaded.html);
+          setCssCode(loaded.css);
+          setJsCode(loaded.js);
+          setSavedCode(loaded);
         } catch (err) { console.error('Operation failed:', err); }
       } else {
         const htmlStarter = selectedProblem.starterCode?.html || "";
@@ -289,7 +383,7 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
           const styleTag = doc.querySelector('style');
           const scriptTag = doc.querySelector('script');
           const bodyContent = doc.body.innerHTML;
-          setHtmlCode(`<!DOCTYPE html>
+          const builtHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -299,11 +393,15 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
 <body>
 ${bodyContent}
 </body>
-</html>`);
-          setCssCode(styleTag ? styleTag.innerHTML : cssStarter);
-          setJsCode(scriptTag ? scriptTag.innerHTML : jsStarter);
+</html>`;
+          const builtCss = styleTag ? styleTag.innerHTML : cssStarter;
+          const builtJs = scriptTag ? scriptTag.innerHTML : jsStarter;
+          setHtmlCode(builtHtml);
+          setCssCode(builtCss);
+          setJsCode(builtJs);
+          setSavedCode({ html: builtHtml, css: builtCss, js: builtJs });
         } else {
-          setHtmlCode(`<!DOCTYPE html>
+          const defaultHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -319,13 +417,15 @@ ${bodyContent}
         // Add your JavaScript here
     </script>
 </body>
-</html>`);
+</html>`;
+          setHtmlCode(defaultHtml);
           setCssCode("");
           setJsCode("");
+          setSavedCode({ html: defaultHtml, css: "", js: "" });
         }
       }
     }
-  }, [selectedProblem?.id]);
+  }, [selectedProblem?.id, contestId]);
 
   useEffect(() => {
     if (!selectedProblem) return;
@@ -335,8 +435,9 @@ ${bodyContent}
     }
 
     saveTimeoutRef.current = setTimeout(() => {
-      const key = `web_playground_${selectedProblem.id}_web`;
+      const key = getWebCodeStorageKey(selectedProblem.id, contestId);
       localStorage.setItem(key, JSON.stringify({ htmlCode, cssCode, jsCode }));
+      setSavedCode({ html: htmlCode, css: cssCode, js: jsCode });
       saveDraftToServer();
     }, 2000);
 
@@ -345,7 +446,7 @@ ${bodyContent}
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [htmlCode, cssCode, jsCode, selectedProblem]);
+  }, [htmlCode, cssCode, jsCode, selectedProblem, contestId]);
 
   const saveDraftToServer = useCallback(async () => {
     if (!selectedProblem?.id) return;
@@ -368,9 +469,11 @@ ${bodyContent}
         if (!selectedProblem) return;
         setIsSubmitting(true);
         setSubmitStatus('running');
+        setShowOutput(true);
+        setActiveTab('tests');
         (async () => {
           try {
-            const key = `web_playground_${selectedProblem.id}_web`;
+            const key = getWebCodeStorageKey(selectedProblem.id, contestId);
             localStorage.setItem(key, JSON.stringify({ htmlCode, cssCode, jsCode }));
             const res = await api.post("/webdev/submit", {
               htmlCode, cssCode, jsCode,
@@ -380,6 +483,7 @@ ${bodyContent}
             if (evaluation?.results) {
               setTestResults(evaluation.results);
               setTestSummary(evaluation.summary);
+              if (evaluation.rubric) setRubricData(evaluation.rubric);
             }
             setSubmitStatus(evaluation?.summary?.failed === 0 ? 'success' : 'error');
           } catch (err) {
@@ -392,6 +496,13 @@ ${bodyContent}
       } else if (e.ctrlKey && !e.shiftKey && e.key === "'") {
         e.preventDefault();
         runWebCode();
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setShowCommandPalette((prev) => !prev);
+      } else if (e.key === "Escape") {
+        setShowOutput(false);
+        setIsInspectActive(false);
+        setInspectedElement(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -551,13 +662,14 @@ ${bodyContent}
 
     setShowWebPreview(false);
     setConsoleOutput([]);
+    setNetworkRequests([]);
     setPreviewSnapshot(null);
     setHtmlCode("");
     setCssCode("");
     setJsCode("");
 
     setSelectedProblem(problem);
-    localStorage.setItem('web_playground_selected_problem', problem.id);
+    localStorage.setItem(getSelectedProblemStorageKey(contestId), problem.id);
     setRunStatus('idle');
     setSubmitStatus('idle');
 
@@ -567,15 +679,17 @@ ${bodyContent}
     window.history.pushState({}, '', newUrl);
 
     if (problem.problemType === "web-dev") {
-      const savedKey = `web_playground_${problem.id}_web`;
+      const savedKey = getWebCodeStorageKey(problem.id, contestId);
       const savedWebCode = localStorage.getItem(savedKey);
 
       if (savedWebCode) {
         try {
           const parsed = JSON.parse(savedWebCode);
-          setHtmlCode(parsed.htmlCode || "");
-          setCssCode(parsed.cssCode || "");
-          setJsCode(parsed.jsCode || "");
+          const loaded = { html: parsed.htmlCode || "", css: parsed.cssCode || "", js: parsed.jsCode || "" };
+          setHtmlCode(loaded.html);
+          setCssCode(loaded.css);
+          setJsCode(loaded.js);
+          setSavedCode(loaded);
         } catch (err) { console.error('Operation failed:', err); }
       } else {
         const htmlStarter = problem.starterCode?.html || "";
@@ -590,7 +704,7 @@ ${bodyContent}
           const bodyContent = doc.body.innerHTML;
           const extractedCss = styleTag ? styleTag.innerHTML : cssStarter;
           const extractedJs = scriptTag ? scriptTag.innerHTML : jsStarter;
-          setHtmlCode(`<!DOCTYPE html>
+          const builtHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -600,11 +714,13 @@ ${bodyContent}
 <body>
 ${bodyContent}
 </body>
-</html>`);
+</html>`;
+          setHtmlCode(builtHtml);
           setCssCode(extractedCss);
           setJsCode(extractedJs);
+          setSavedCode({ html: builtHtml, css: extractedCss, js: extractedJs });
         } else {
-          setHtmlCode(`<!DOCTYPE html>
+          const defaultHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -620,9 +736,11 @@ ${bodyContent}
         // Add your JavaScript here
     </script>
 </body>
-</html>`);
+</html>`;
+          setHtmlCode(defaultHtml);
           setCssCode("");
           setJsCode("");
+          setSavedCode({ html: defaultHtml, css: "", js: "" });
         }
       }
     }
@@ -633,35 +751,15 @@ ${bodyContent}
     setShowProblems(false);
   };
 
-  const runWebCode = async () => {
+  const runWebCode = () => {
     setConsoleOutput([]);
+    setNetworkRequests([]);
     setShowWebPreview(true);
+    setShowOutput(false);
     setPreviewKey(prev => prev + 1);
     setPreviewSnapshot({ htmlCode, cssCode, jsCode });
-    setIsRunning(true);
-    setRunStatus('running');
-
-    if (selectedProblem?.id) {
-      setShowOutput(true);
-      try {
-        const res = await api.post("/webdev/evaluate", {
-          htmlCode, cssCode, jsCode,
-          problemId: selectedProblem.id
-        });
-        setTestResults(res.results || []);
-        setTestSummary(res.summary || null);
-        setSubmitStatus(res.summary?.failed === 0 ? 'success' : 'error');
-        setRunStatus('success');
-      } catch (err) {
-        console.error("Web evaluation error:", err);
-        setRunStatus('error');
-      } finally {
-        setIsRunning(false);
-      }
-    } else {
-      setIsRunning(false);
-      setRunStatus('success');
-    }
+    setIsRunning(false);
+    setRunStatus('success');
   };
 
   const getWebPreview = () => {
@@ -687,7 +785,7 @@ ${bodyContent}
         });
       </script>
     `;
-    html = html.replace('</body>', `${anchorFixScript}</body>`);
+    html = html.replace('</body>', () => `${anchorFixScript}</body>`);
 
     const blockExternalLinksScript = `
       <script>
@@ -700,7 +798,7 @@ ${bodyContent}
         });
       </script>
     `;
-    html = html.replace('</body>', `${blockExternalLinksScript}</body>`);
+    html = html.replace('</body>', () => `${blockExternalLinksScript}</body>`);
 
     const consoleCapture = `
       <script>
@@ -753,23 +851,186 @@ ${bodyContent}
       </script>
     `;
 
+    const networkCapture = `
+      <script>
+        (function() {
+          function sendReq(method, url, status, type, size, duration) {
+            try {
+              window.parent.postMessage({
+                type: 'network',
+                method: String(method || 'GET'),
+                url: String(url || ''),
+                status: status || 0,
+                requestType: type,
+                size: size || 0,
+                duration: duration || 0
+              }, '*');
+            } catch(e) {}
+          }
+          try {
+            var origFetch = window.fetch;
+            if (origFetch) {
+              window.fetch = function(input, init) {
+                var url = typeof input === 'string' ? input : (input && input.url) || String(input);
+                var method = (init && init.method) || (input && input.method) || 'GET';
+                var start = performance.now();
+                return origFetch.apply(this, arguments).then(function(res) {
+                  var size = 0;
+                  try { var ct = res.headers.get('content-length'); size = ct ? parseInt(ct, 10) : 0; } catch(e) {}
+                  sendReq(method, url, res.status, 'fetch', size, Math.round(performance.now() - start));
+                  return res;
+                }, function(err) {
+                  sendReq(method, url, 0, 'fetch', 0, Math.round(performance.now() - start));
+                  throw err;
+                });
+              };
+            }
+          } catch(e) {}
+          try {
+            var origOpen = XMLHttpRequest.prototype.open;
+            var origSend = XMLHttpRequest.prototype.send;
+            XMLHttpRequest.prototype.open = function(method, url) {
+              this.__netMethod = method;
+              this.__netUrl = url;
+              this.__netStart = performance.now();
+              return origOpen.apply(this, arguments);
+            };
+            XMLHttpRequest.prototype.send = function() {
+              var xhr = this;
+              xhr.addEventListener('load', function() {
+                var size = 0;
+                try { var ct = xhr.getResponseHeader('content-length'); size = ct ? parseInt(ct, 10) : 0; } catch(e) {}
+                sendReq(xhr.__netMethod, xhr.__netUrl, xhr.status, 'xhr', size, Math.round(performance.now() - (xhr.__netStart || performance.now())));
+              });
+              xhr.addEventListener('error', function() {
+                sendReq(xhr.__netMethod, xhr.__netUrl, 0, 'xhr', 0, Math.round(performance.now() - (xhr.__netStart || performance.now())));
+              });
+              return origSend.apply(this, arguments);
+            };
+          } catch(e) {}
+        })();
+      </script>
+    `;
+
+    const inspectorCapture = `
+      <script>
+        (function() {
+          var active = false;
+          var highlightBox = document.createElement('div');
+          highlightBox.style.position = 'fixed';
+          highlightBox.style.pointerEvents = 'none';
+          highlightBox.style.border = '2px solid #3b82f6';
+          highlightBox.style.backgroundColor = 'rgba(59, 130, 246, 0.25)';
+          highlightBox.style.zIndex = '9999999';
+          highlightBox.style.display = 'none';
+          highlightBox.style.borderRadius = '3px';
+          highlightBox.style.transition = 'all 0.05s ease';
+          
+          if (document.body) {
+            document.body.appendChild(highlightBox);
+          } else {
+            document.addEventListener('DOMContentLoaded', function() {
+              document.body.appendChild(highlightBox);
+            });
+          }
+
+          window.addEventListener('message', function(e) {
+            if (e.data && e.data.type === 'toggle-inspector') {
+              active = Boolean(e.data.active);
+              if (!active) highlightBox.style.display = 'none';
+            } else if (e.data && e.data.type === 'highlight-selector') {
+              var sel = e.data.selector;
+              try {
+                var el = document.querySelector(sel);
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  var rect = el.getBoundingClientRect();
+                  highlightBox.style.left = rect.left + 'px';
+                  highlightBox.style.top = rect.top + 'px';
+                  highlightBox.style.width = rect.width + 'px';
+                  highlightBox.style.height = rect.height + 'px';
+                  highlightBox.style.display = 'block';
+                  highlightBox.style.border = '3px solid #f59e0b';
+                  highlightBox.style.backgroundColor = 'rgba(245, 158, 11, 0.35)';
+                  setTimeout(function() {
+                    highlightBox.style.display = 'none';
+                    highlightBox.style.border = '2px solid #3b82f6';
+                    highlightBox.style.backgroundColor = 'rgba(59, 130, 246, 0.25)';
+                  }, 2500);
+                }
+              } catch(err) {}
+            }
+          });
+
+          // Capture phase listener to prevent candidate handler conflicts
+          document.addEventListener('mousemove', function(e) {
+            if (!active) return;
+            var el = document.elementFromPoint(e.clientX, e.clientY);
+            if (!el || el === highlightBox || el === document.body || el === document.documentElement) {
+              highlightBox.style.display = 'none';
+              return;
+            }
+            var rect = el.getBoundingClientRect();
+            highlightBox.style.left = rect.left + 'px';
+            highlightBox.style.top = rect.top + 'px';
+            highlightBox.style.width = rect.width + 'px';
+            highlightBox.style.height = rect.height + 'px';
+            highlightBox.style.display = 'block';
+          }, true);
+
+          document.addEventListener('click', function(e) {
+            if (!active) return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            var el = document.elementFromPoint(e.clientX, e.clientY);
+            if (el) {
+              var computed = window.getComputedStyle(el);
+              var rect = el.getBoundingClientRect();
+              window.parent.postMessage({
+                type: 'element-inspected',
+                tagName: el.tagName.toLowerCase(),
+                id: el.id || '',
+                className: typeof el.className === 'string' ? el.className : '',
+                width: Math.round(rect.width),
+                height: Math.round(rect.height),
+                color: computed.color,
+                backgroundColor: computed.backgroundColor,
+                fontSize: computed.fontSize,
+                fontFamily: computed.fontFamily,
+                display: computed.display,
+                margin: computed.margin,
+                padding: computed.padding
+              }, '*');
+            }
+          }, true);
+        })();
+      </script>
+    `;
+
     if (cssToUse) {
-      html = html.replace('</head>', `<style>${cssToUse}</style></head>`);
+      html = html.replace('</head>', () => `<style>${cssToUse}</style></head>`);
     }
 
-    html = html.replace('<head>', `<head>${consoleCapture}`);
+    html = html.replace('<head>', () => `<head>${consoleCapture}${networkCapture}${inspectorCapture}`);
 
     if (jsToUse) {
-      const wrappedJs = `
-        try {
-          document.addEventListener('DOMContentLoaded', function() {
-            ${jsToUse}
-          });
-        } catch(e) {
-          console.warn('[JS Error] ' + e.message);
-        }
+      const safeJs = `
+        (function() {
+          function runUserScript() {
+            try {
+              ${jsToUse}
+            } catch(err) {
+              console.error('[Runtime Error] ' + (err && err.message ? err.message : String(err)));
+            }
+          }
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runUserScript);
+          } else {
+            runUserScript();
+          }
+        })();
       `;
-      html = html.replace('</body>', `<script>${wrappedJs}</script></body>`);
+      html = html.replace('</body>', () => `<script>${safeJs}</script></body>`);
     }
 
     return html;
@@ -777,12 +1038,42 @@ ${bodyContent}
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'console') {
+      if (!event.data) return;
+      if (event.data.type === 'console') {
         const timestamp = new Date().toLocaleTimeString();
         const prefix = `[${timestamp}]`;
         const method = event.data.method;
         const args = event.data.args.join(' ');
         setConsoleOutput(prev => [...prev.slice(-99), `${prefix} ${method === 'log' ? '' : method.toUpperCase()}: ${args}`]);
+      } else if (event.data.type === 'network') {
+        networkCounterRef.current += 1;
+        setNetworkRequests(prev => [
+          ...prev.slice(-199),
+          {
+            id: networkCounterRef.current,
+            method: event.data.method,
+            url: event.data.url,
+            status: event.data.status,
+            type: event.data.requestType === 'xhr' ? 'xhr' : 'fetch',
+            size: event.data.size || 0,
+            duration: event.data.duration || 0,
+          },
+        ]);
+      } else if (event.data.type === 'element-inspected') {
+        setInspectedElement({
+          tagName: event.data.tagName,
+          id: event.data.id,
+          className: event.data.className,
+          width: event.data.width,
+          height: event.data.height,
+          color: event.data.color,
+          backgroundColor: event.data.backgroundColor,
+          fontSize: event.data.fontSize,
+          fontFamily: event.data.fontFamily,
+          display: event.data.display,
+          margin: event.data.margin,
+          padding: event.data.padding,
+        });
       }
     };
 
@@ -813,12 +1104,31 @@ ${bodyContent}
           ref={leftPanelRef}
           className={`flex-col border-r border-white/10 relative overflow-hidden ${
             showLeftPanel ? "flex" : "hidden"
-          } lg:flex flex-shrink-0`}
+          } flex-shrink-0`}
           style={{ width: showLeftPanel ? `${leftPanelWidth}%` : "0%" }}
         >
           {/* Problem Header */}
           <div className="p-3 border-b border-white/10 bg-[var(--bg-card)] flex-shrink-0">
             <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={() => navigate('/playground')}
+                className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-all border border-white/10"
+                title="Back to Playgrounds Hub"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Back to Hub</span>
+              </button>
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-md transition-all"
+                title="Back to Dashboard"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </button>
               <button
                 onClick={() => setShowLeftPanel(false)}
                 className="text-gray-400 hover:text-white p-1 shrink-0 lg:hidden"
@@ -1043,6 +1353,16 @@ ${bodyContent}
         <div className="flex items-start gap-2 p-2 bg-[var(--bg-card)] border-b border-white/10 flex-shrink-0 flex-wrap">
           {/* Free Mode / Problems toggle + Settings */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/playground')}
+              className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-all border border-white/10"
+              title="Back to Playgrounds Hub"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>Hub</span>
+            </button>
             {!contestId && (
               <>
                 <button
@@ -1051,6 +1371,7 @@ ${bodyContent}
                     setHtmlCode(FREE_MODE_DEFAULT);
                     setCssCode("");
                     setJsCode("");
+                    setSavedCode({ html: FREE_MODE_DEFAULT, css: "", js: "" });
                     setSelectedProblem(null);
                     window.history.pushState({}, '', '/playground/web-dev');
                   }}
@@ -1066,6 +1387,7 @@ ${bodyContent}
                     setHtmlCode("");
                     setCssCode("");
                     setJsCode("");
+                    setSavedCode({ html: "", css: "", js: "" });
                   }}
                   className={`px-3 py-1.5 text-sm rounded-md transition-all ${
                     playMode === "problem" ? "bg-[var(--accent-blue)] text-white" : "text-gray-400 hover:text-white"
@@ -1075,6 +1397,61 @@ ${bodyContent}
                 </button>
               </>
             )}
+            {playMode === "problem" && (
+              <button
+                onClick={() => setShowLeftPanel((prev) => !prev)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${
+                  showLeftPanel ? "bg-white/10 text-white" : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                }`}
+                title="Toggle Problem Statement Panel"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+                {showLeftPanel ? "Hide Problem" : "Show Problem"}
+              </button>
+            )}
+
+            {/* Segmented View Switcher */}
+            <div className="flex items-center bg-white/5 p-1 rounded-xl border border-white/10 ml-auto">
+              {[
+                { id: 'split', label: 'Split View', icon: '⚡' },
+                { id: 'editor', label: 'Code Focus', icon: '💻' },
+                { id: 'preview', label: 'Live Canvas', icon: '🌐' },
+                { id: 'rubric', label: '4D Rubric', icon: '📊' },
+              ].map((mode) => {
+                const active = viewMode === mode.id;
+                return (
+                  <button
+                    key={mode.id}
+                    onClick={() => {
+                      setViewMode(mode.id as ViewMode);
+                      if (mode.id === 'editor') {
+                        setShowWebPreview(false);
+                        setShowLeftPanel(false);
+                      } else if (mode.id === 'preview') {
+                        setShowWebPreview(true);
+                        setShowLeftPanel(false);
+                      } else if (mode.id === 'split') {
+                        setShowWebPreview(true);
+                        setShowLeftPanel(true);
+                      } else if (mode.id === 'rubric') {
+                        setShowOutput(true);
+                        setActiveTab('tests');
+                      }
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+                      active
+                        ? 'bg-amber-500 text-black shadow-md shadow-amber-500/20 font-black'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <span>{mode.icon}</span>
+                    <span className="hidden sm:inline">{mode.label}</span>
+                  </button>
+                );
+              })}
+            </div>
               <button
                 onClick={() => setShowSettings(!showSettings)}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
@@ -1150,53 +1527,24 @@ ${bodyContent}
             <button
               onClick={() => {
                 if (selectedProblem?.starterCode) {
-                  setHtmlCode(selectedProblem.starterCode.html || "");
-                  setCssCode(selectedProblem.starterCode.css || "");
-                  setJsCode(selectedProblem.starterCode.js || "");
+                  const htmlVal = selectedProblem.starterCode.html || "";
+                  const cssVal = selectedProblem.starterCode.css || "";
+                  const jsVal = selectedProblem.starterCode.js || "";
+                  setHtmlCode(htmlVal);
+                  setCssCode(cssVal);
+                  setJsCode(jsVal);
+                  setSavedCode({ html: htmlVal, css: cssVal, js: jsVal });
                 } else {
                   setHtmlCode(FREE_MODE_DEFAULT);
                   setCssCode("");
                   setJsCode("");
+                  setSavedCode({ html: FREE_MODE_DEFAULT, css: "", js: "" });
                 }
               }}
               className="px-3 py-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all text-sm"
             >
               Reset
             </button>
-
-            {/* HTML/CSS/JS file selector */}
-            <div className="flex items-center bg-white/5 rounded-lg p-1">
-              <button
-                onClick={() => setWebLanguage("html")}
-                className={`px-3 py-1.5 text-sm rounded-md transition-all ${
-                  webLanguage === "html"
-                    ? "bg-orange-500 text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                HTML
-              </button>
-              <button
-                onClick={() => setWebLanguage("css")}
-                className={`px-3 py-1.5 text-sm rounded-md transition-all ${
-                  webLanguage === "css"
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                CSS
-              </button>
-              <button
-                onClick={() => setWebLanguage("javascript")}
-                className={`px-3 py-1.5 text-sm rounded-md transition-all ${
-                  webLanguage === "javascript"
-                    ? "bg-yellow-500 text-black"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                JS
-              </button>
-            </div>
 
             {/* Run Preview */}
             <button
@@ -1241,7 +1589,7 @@ ${bodyContent}
                       notify.toast.error(`Submission Failed: Passed ${res.passedTests}/${res.totalTests} tests.`);
                     }
                   } else {
-                    const key = `web_playground_${selectedProblem.id}_web`;
+                    const key = getWebCodeStorageKey(selectedProblem.id, contestId);
                     localStorage.setItem(key, JSON.stringify({ htmlCode, cssCode, jsCode }));
                     const res = await api.post("/webdev/submit", {
                       htmlCode, cssCode, jsCode,
@@ -1293,12 +1641,58 @@ ${bodyContent}
 
         {/* Editor */}
         <div
-          className="min-h-0 transition-all duration-75 flex"
+          className="min-h-0 transition-all duration-75 flex flex-col"
           style={{ flex: showOutput ? `1 1 ${100 - bottomPanelHeight}%` : '1 1 100%' }}
         >
+          {/* File explorer tabs */}
+          <div className="flex items-stretch bg-[var(--bg-card)] border-b border-white/10 overflow-x-auto flex-shrink-0">
+            {WEB_FILES.map((file) => {
+              const active = webLanguage === file.id;
+              return (
+                <button
+                  key={file.id}
+                  onClick={() => setWebLanguage(file.id)}
+                  title={file.label}
+                  className={`flex items-center gap-2 px-4 py-2 text-xs font-medium border-r border-white/10 whitespace-nowrap transition-colors ${
+                    active ? "bg-[var(--bg-primary)] text-white" : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${file.dotColor}`} />
+                  {file.label}
+                  {dirtyFiles[file.id] && (
+                    <span className="w-2 h-2 rounded-full bg-amber-400" title="Unsaved changes" />
+                  )}
+                </button>
+              );
+            })}
+            <div className="ml-auto flex items-center gap-2 px-2">
+              <button
+                onClick={() => {
+                  if (!showWebPreview) {
+                    setShowWebPreview(true);
+                    runWebCode();
+                  } else {
+                    setShowWebPreview(false);
+                  }
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-md font-medium transition-all ${
+                  showWebPreview
+                    ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
+                    : "bg-white/5 text-gray-400 hover:text-white border border-white/10"
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {showWebPreview ? "Hide Preview" : "Show Preview"}
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 flex min-h-0">
           {/* Code Editor - half width in web mode with preview */}
           <div
-            className={`flex-1 min-h-0 ${showWebPreview ? "w-1/2 border-r border-white/10" : ""}`}
+            className={`flex-1 min-h-0 min-w-[380px] md:min-w-[420px] ${showWebPreview ? "w-1/2 border-r border-white/10" : ""}`}
           >
             <Editor
               key="web-contest-editor"
@@ -1332,10 +1726,44 @@ ${bodyContent}
               <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
                 <h3 className="text-sm font-semibold text-white">Live Preview</h3>
                 <div className="flex items-center gap-2">
+                  {/* Device viewport switcher */}
+                  <div className="flex items-center bg-white/5 rounded-lg p-0.5">
+                    {(Object.keys(PREVIEW_DEVICES) as PreviewDevice[]).map((device) => {
+                      const active = previewDevice === device;
+                      const cfg = PREVIEW_DEVICES[device];
+                      return (
+                        <button
+                          key={device}
+                          onClick={() => setPreviewDevice(device)}
+                          title={`${cfg.label}${cfg.width ? ` (${cfg.width}px)` : ' (Full width)'}`}
+                          className={`p-1.5 rounded-md transition-all ${
+                            active ? "bg-[var(--accent-blue)] text-white" : "text-gray-400 hover:text-white"
+                          }`}
+                        >
+                          {device === "desktop" && (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                          {device === "tablet" && (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                          {device === "mobile" && (
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <button
                     onClick={() => {
                       setShowWebPreview(false);
                       setConsoleOutput([]);
+                      setNetworkRequests([]);
                       setPreviewSnapshot(null);
                     }}
                     className="text-gray-400 hover:text-white ml-2"
@@ -1346,14 +1774,19 @@ ${bodyContent}
                   </button>
                 </div>
               </div>
-              <div className="flex-1 bg-white rounded-lg m-2 overflow-hidden mb-2">
-                <iframe
-                  key={previewKey}
-                  srcDoc={getWebPreview()}
-                  className="w-full h-full"
-                  sandbox="allow-scripts allow-modals allow-forms allow-same-origin"
-                  title="Web Preview"
-                />
+              <div className="flex-1 m-2 mb-2 overflow-auto rounded-lg bg-[#1c1c26] min-h-0">
+                <div
+                  className="bg-white h-full rounded-lg overflow-hidden"
+                  style={{ width: PREVIEW_DEVICES[previewDevice].width ? `${PREVIEW_DEVICES[previewDevice].width}px` : "100%", marginInline: "auto" }}
+                >
+                  <iframe
+                    key={previewKey}
+                    srcDoc={getWebPreview()}
+                    className="w-full h-full block"
+                    sandbox="allow-scripts allow-modals allow-forms allow-same-origin"
+                    title="Web Preview"
+                  />
+                </div>
               </div>
               {/* Console Output */}
               <div className="mx-2 mb-2 flex flex-col border border-white/10 rounded-lg bg-black/90 max-h-32">
@@ -1380,10 +1813,11 @@ ${bodyContent}
               </div>
             </div>
           )}
+          </div>
         </div>
 
-        {/* Output Panel - test results for web mode */}
-        {showOutput && testResults.length > 0 && (
+        {/* Output Panel - test results / console / network for web mode */}
+        {showOutput && (
           <div
             ref={outputPanelRef}
             className="bg-[var(--bg-card)] border-t border-white/10 flex flex-col flex-shrink-0 relative"
@@ -1482,6 +1916,36 @@ ${bodyContent}
                   >
                     Test Result
                   </button>
+                  <button
+                    onClick={() => setActiveTab("console")}
+                    className={`px-3 py-1 text-sm font-medium transition-all ${
+                      activeTab === "console"
+                        ? "text-white border-b-2 border-[var(--accent-green)]"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Console
+                    {consoleOutput.length > 0 && (
+                      <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-gray-500/20 text-gray-400">
+                        {consoleOutput.length}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("network")}
+                    className={`px-3 py-1 text-sm font-medium transition-all ${
+                      activeTab === "network"
+                        ? "text-white border-b-2 border-[var(--accent-green)]"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    Network
+                    {networkRequests.length > 0 && (
+                      <span className="ml-2 text-xs px-1.5 py-0.5 rounded bg-gray-500/20 text-gray-400">
+                        {networkRequests.length}
+                      </span>
+                    )}
+                  </button>
                 </div>
               </div>
               <button
@@ -1502,6 +1966,57 @@ ${bodyContent}
             <div className="flex-1 overflow-auto p-4">
               {activeTab === "tests" && (
                 <div className="space-y-4">
+                  {rubricData && (
+                    <div className="bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border border-white/15 rounded-xl p-3.5 space-y-2.5 shadow-xl">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-black text-white uppercase tracking-wider">4D Evaluation Rubric</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">
+                            Grade: {rubricData.total}/100
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-gray-400 font-mono">Weighted Assessment Score</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div onClick={() => highlightLinkedCode('body')} title="Click to inspect Functionality" className="bg-white/5 border border-white/10 p-2 rounded-lg space-y-1 cursor-pointer hover:border-emerald-400/50 transition-all">
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-emerald-400">🟢 Functionality (40%)</span>
+                            <span className="text-white">{Math.round(rubricData.functionality * 100)}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-400 transition-all duration-500" style={{ width: `${rubricData.functionality * 100}%` }} />
+                          </div>
+                        </div>
+                        <div onClick={() => highlightLinkedCode('style')} title="Click to inspect Styling" className="bg-white/5 border border-white/10 p-2 rounded-lg space-y-1 cursor-pointer hover:border-blue-400/50 transition-all">
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-blue-400">🔵 Styling (20%)</span>
+                            <span className="text-white">{Math.round(rubricData.styling * 100)}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-400 transition-all duration-500" style={{ width: `${rubricData.styling * 100}%` }} />
+                          </div>
+                        </div>
+                        <div onClick={() => highlightLinkedCode('img')} title="Click to inspect Accessibility" className="bg-white/5 border border-white/10 p-2 rounded-lg space-y-1 cursor-pointer hover:border-purple-400/50 transition-all">
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-purple-400">🟣 Accessibility (20%)</span>
+                            <span className="text-white">{Math.round(rubricData.accessibility * 100)}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
+                            <div className="h-full bg-purple-400 transition-all duration-500" style={{ width: `${rubricData.accessibility * 100}%` }} />
+                          </div>
+                        </div>
+                        <div onClick={() => highlightLinkedCode('script')} title="Click to inspect Code Quality" className="bg-white/5 border border-white/10 p-2 rounded-lg space-y-1 cursor-pointer hover:border-amber-400/50 transition-all">
+                          <div className="flex justify-between text-[11px] font-bold">
+                            <span className="text-amber-400">🟡 Code Quality (20%)</span>
+                            <span className="text-white">{Math.round(rubricData.codeQuality * 100)}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
+                            <div className="h-full bg-amber-400 transition-all duration-500" style={{ width: `${rubricData.codeQuality * 100}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {testSummary && (
                     <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
                       testSummary.passed === testSummary.total
@@ -1537,16 +2052,23 @@ ${bodyContent}
                         return (
                           <div
                             key={idx}
-                            className={`rounded-lg border ${
+                            onClick={() => highlightLinkedCode(result.input)}
+                            title="Click to reveal line in Code Editor & highlight DOM element in Live Preview"
+                            className={`rounded-lg border cursor-pointer hover:border-amber-400/60 transition-all ${
                               result.passed
                                 ? "bg-green-500/5 border-green-500/20"
                                 : "bg-red-500/5 border-red-500/20"
                             }`}
                           >
                             <div className="flex items-center justify-between px-3 py-2 border-b border-white/5">
-                              <span className="text-sm font-medium text-white">
-                                {result.isHidden ? `Hidden ${idx + 1}` : `Case ${idx + 1}`}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-white">
+                                  {result.isHidden ? `Hidden ${idx + 1}` : `Case ${idx + 1}`}
+                                </span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono">
+                                  🔗 3-Way Linked
+                                </span>
+                              </div>
                               <span className={`text-xs px-2 py-0.5 rounded ${
                                 result.passed
                                   ? "bg-green-500/20 text-green-400"
@@ -1605,6 +2127,95 @@ ${bodyContent}
                   Select a test case to view details.
                 </div>
               )}
+
+              {activeTab === "console" && (
+                <div className="font-mono text-xs space-y-0.5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-500">Console output from the preview</span>
+                    <button
+                      onClick={() => setConsoleOutput([])}
+                      className="text-xs text-gray-500 hover:text-white"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  {consoleOutput.length === 0 ? (
+                    <div className="text-gray-600 text-sm text-center py-6">
+                      Console output will appear here when you run the preview...
+                    </div>
+                  ) : (
+                    consoleOutput.map((line, idx) => (
+                      <div key={idx} className={`${line.includes('error') ? 'text-red-400' : line.includes('warn') ? 'text-yellow-400' : line.includes('info') ? 'text-blue-400' : 'text-gray-300'}`}>
+                        {line}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeTab === "network" && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-500">
+                      {networkRequests.length === 0
+                        ? "Requests made by the preview (fetch/XHR) will appear here"
+                        : `${networkRequests.length} request${networkRequests.length === 1 ? '' : 's'}`}
+                    </span>
+                    <button
+                      onClick={() => setNetworkRequests([])}
+                      className="text-xs text-gray-500 hover:text-white"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  {networkRequests.length === 0 ? (
+                    <div className="text-gray-600 text-sm text-center py-6">
+                      No network activity detected.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="text-gray-500 border-b border-white/10">
+                            <th className="py-2 pr-4 font-medium">Status</th>
+                            <th className="py-2 pr-4 font-medium">Method</th>
+                            <th className="py-2 pr-4 font-medium">Type</th>
+                            <th className="py-2 pr-4 font-medium">URL</th>
+                            <th className="py-2 pr-4 font-medium text-right">Size</th>
+                            <th className="py-2 pr-4 font-medium text-right">Time</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {networkRequests.map((req) => (
+                            <tr key={req.id} className="border-b border-white/5 hover:bg-white/5">
+                              <td className="py-1.5 pr-4">
+                                <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                                  req.status >= 200 && req.status < 300
+                                    ? "bg-green-500/20 text-green-400"
+                                    : req.status >= 400
+                                      ? "bg-red-500/20 text-red-400"
+                                      : req.status === 0
+                                        ? "bg-gray-500/20 text-gray-400"
+                                        : "bg-yellow-500/20 text-yellow-400"
+                                }`}>
+                                  {req.status || "—"}
+                                </span>
+                              </td>
+                              <td className="py-1.5 pr-4 text-gray-300 font-medium">{req.method}</td>
+                              <td className="py-1.5 pr-4 text-gray-500">{req.type}</td>
+                              <td className="py-1.5 pr-4 text-gray-300 max-w-[320px] truncate" title={req.url}>{req.url}</td>
+                              <td className="py-1.5 pr-4 text-right text-gray-400">
+                                {req.size > 0 ? `${(req.size / 1024).toFixed(1)} KB` : "—"}
+                              </td>
+                              <td className="py-1.5 pr-4 text-right text-gray-400">{req.duration} ms</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Keyboard Shortcuts */}
@@ -1614,6 +2225,152 @@ ${bodyContent}
             </div>
           </div>
         )}
+      {/* Floating Glassmorphic HUD Action Dock */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[8000] bg-zinc-900/90 backdrop-blur-md border border-white/15 shadow-2xl rounded-full px-5 py-2 flex items-center gap-3 select-none">
+        {/* Run Preview */}
+        <button
+          onClick={runWebCode}
+          disabled={isRunning || isSubmitting}
+          className="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-full transition-all flex items-center gap-2 text-xs shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+          title="Run Preview (Ctrl + ')"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+          </svg>
+          {isRunning ? "Running..." : "Run Preview"}
+        </button>
+
+        {/* Submit Solution */}
+        {selectedProblem && (
+          <button
+            onClick={async () => {
+              if (!selectedProblem) return;
+              setIsSubmitting(true);
+              setSubmitStatus('running');
+              setShowOutput(true);
+              setActiveTab('tests');
+              try {
+                if (contestId) {
+                  const res = await api.submitContestCode(contestId, {
+                    problemId: selectedProblem.id,
+                    code: htmlCode, htmlCode, cssCode, jsCode,
+                    language: "web-dev"
+                  });
+                  if (res.passed) {
+                    setSubmitStatus('success');
+                    setPendingLockProblem({ id: selectedProblem.id, title: selectedProblem.title, score: res.currentScore ?? 0 });
+                    setShowFinalLockModal(true);
+                  } else {
+                    setSubmitStatus('error');
+                    notify.toast.error(`Submission Failed: Passed ${res.passedTests}/${res.totalTests} tests.`);
+                  }
+                } else {
+                  const key = getWebCodeStorageKey(selectedProblem.id, contestId);
+                  localStorage.setItem(key, JSON.stringify({ htmlCode, cssCode, jsCode }));
+                  const res = await api.post("/webdev/submit", { htmlCode, cssCode, jsCode, problemId: selectedProblem.id });
+                  const evaluation = res.evaluation;
+                  if (evaluation?.results) {
+                    setTestResults(evaluation.results);
+                    setTestSummary(evaluation.summary);
+                    if (evaluation.rubric) setRubricData(evaluation.rubric);
+                  }
+                  setSubmitStatus(evaluation?.summary?.failed === 0 ? 'success' : 'error');
+                }
+              } catch (err) {
+                console.error("Web submission error:", err);
+                setSubmitStatus('error');
+              } finally {
+                setIsSubmitting(false);
+              }
+            }}
+            disabled={isSubmitting || isRunning}
+            className="px-4 py-1.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-black font-black rounded-full transition-all flex items-center gap-2 text-xs shadow-lg shadow-amber-500/20 disabled:opacity-50"
+            title="Submit Solution (Ctrl + Shift + Enter)"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+            {isSubmitting ? "Submitting..." : "Submit Solution"}
+          </button>
+        )}
+
+        <div className="w-px h-5 bg-white/15 mx-1" />
+
+        {/* Device Viewport Toggle */}
+        <div className="flex items-center bg-white/5 rounded-full p-0.5 border border-white/10">
+          {(Object.keys(PREVIEW_DEVICES) as PreviewDevice[]).map((device) => {
+            const active = previewDevice === device;
+            const cfg = PREVIEW_DEVICES[device];
+            return (
+              <button
+                key={device}
+                onClick={() => {
+                  setPreviewDevice(device);
+                  if (!showWebPreview) setShowWebPreview(true);
+                }}
+                title={`${cfg.label}${cfg.width ? ` (${cfg.width}px)` : ' (Full width)'}`}
+                className={`p-1.5 rounded-full transition-all ${
+                  active ? "bg-blue-500 text-white shadow-md shadow-blue-500/30" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {device === "desktop" && (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                )}
+                {device === "tablet" && (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                )}
+                {device === "mobile" && (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Live Element Inspector Toggle */}
+        <button
+          onClick={() => {
+            const nextState = !isInspectActive;
+            setIsInspectActive(nextState);
+            const iframe = document.querySelector('iframe[title="Web Preview"]') as HTMLIFrameElement;
+            if (iframe && iframe.contentWindow) {
+              iframe.contentWindow.postMessage({ type: 'toggle-inspector', active: nextState }, '*');
+            }
+          }}
+          className={`p-1.5 rounded-full transition-all flex items-center gap-1 text-xs font-bold ${
+            isInspectActive ? "bg-blue-500 text-white animate-pulse" : "text-gray-400 hover:text-white hover:bg-white/10"
+          }`}
+          title="Toggle Element Inspector"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <span className="hidden lg:inline">{isInspectActive ? "Inspecting..." : "Inspect"}</span>
+        </button>
+      </div>
+
+      {/* Live Element Inspector Card */}
+      {inspectedElement && isInspectActive && (
+        <div className="fixed top-20 right-6 z-[8500] bg-zinc-900/95 border border-blue-500/40 rounded-xl p-3 shadow-2xl max-w-xs text-xs font-mono text-white space-y-1.5 backdrop-blur-md">
+          <div className="flex items-center justify-between border-b border-white/10 pb-1">
+            <span className="font-bold text-blue-400">&lt;{inspectedElement.tagName}&gt;</span>
+            <button onClick={() => setInspectedElement(null)} className="text-gray-400 hover:text-white text-xs">✕</button>
+          </div>
+          {inspectedElement.id && <div><span className="text-gray-400">id:</span> <span className="text-amber-300">#{inspectedElement.id}</span></div>}
+          {inspectedElement.className && <div><span className="text-gray-400">class:</span> <span className="text-green-300">.{inspectedElement.className}</span></div>}
+          <div><span className="text-gray-400">bounds:</span> <span className="text-white">{inspectedElement.width}px × {inspectedElement.height}px</span></div>
+          <div><span className="text-gray-400">display:</span> <span className="text-purple-300">{inspectedElement.display}</span></div>
+          <div><span className="text-gray-400">color:</span> <span className="text-white">{inspectedElement.color}</span></div>
+          <div><span className="text-gray-400">font:</span> <span className="text-white">{inspectedElement.fontSize} ({inspectedElement.fontFamily.split(',')[0]})</span></div>
+        </div>
+      )}
+
       <ProblemsModal
         isOpen={showProblems && playMode === "problem"}
         onClose={() => setShowProblems(false)}
@@ -1672,6 +2429,58 @@ ${bodyContent}
                 </svg>
                 Lock &amp; Go Back
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Command Palette Modal (Ctrl+K) */}
+      {showCommandPalette && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowCommandPalette(false)}
+        >
+          <div
+            className="bg-zinc-900 border border-white/10 rounded-2xl max-w-lg w-full mx-4 shadow-2xl overflow-hidden space-y-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center px-4 py-3 border-b border-white/10 bg-white/5">
+              <svg className="w-5 h-5 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                autoFocus
+                placeholder="Type a command or action (Ctrl+K)..."
+                value={commandPaletteQuery}
+                onChange={(e) => setCommandPaletteQuery(e.target.value)}
+                className="w-full bg-transparent text-white text-sm focus:outline-none placeholder-gray-500"
+              />
+              <kbd className="px-2 py-0.5 text-xs bg-white/10 text-gray-400 rounded flex-shrink-0">ESC</kbd>
+            </div>
+            <div className="max-h-72 overflow-auto p-2 space-y-1">
+              {[
+                { title: 'Run Web Preview', shortcut: "Ctrl + '", action: () => { runWebCode(); setShowCommandPalette(false); } },
+                { title: 'Switch to HTML Editor Tab', shortcut: 'HTML', action: () => { setWebLanguage('html'); setShowCommandPalette(false); } },
+                { title: 'Switch to CSS Editor Tab', shortcut: 'CSS', action: () => { setWebLanguage('css'); setShowCommandPalette(false); } },
+                { title: 'Switch to JavaScript Editor Tab', shortcut: 'JS', action: () => { setWebLanguage('javascript'); setShowCommandPalette(false); } },
+                { title: 'Viewport: Desktop (100% Fluid)', shortcut: 'Desktop', action: () => { setPreviewDevice('desktop'); setShowCommandPalette(false); } },
+                { title: 'Viewport: Tablet (768px)', shortcut: '768px', action: () => { setPreviewDevice('tablet'); setShowCommandPalette(false); } },
+                { title: 'Viewport: Mobile (375px)', shortcut: '375px', action: () => { setPreviewDevice('mobile'); setShowCommandPalette(false); } },
+                { title: 'Toggle Editor Settings', shortcut: 'Settings', action: () => { setShowSettings((prev) => !prev); setShowCommandPalette(false); } },
+                { title: 'Reset Code to Problem Starter', shortcut: 'Reset', action: () => { if (selectedProblem?.starterCode) { setHtmlCode(selectedProblem.starterCode.html || ''); setCssCode(selectedProblem.starterCode.css || ''); setJsCode(selectedProblem.starterCode.js || ''); } setShowCommandPalette(false); } },
+              ]
+                .filter((cmd) => cmd.title.toLowerCase().includes(commandPaletteQuery.toLowerCase()))
+                .map((cmd, idx) => (
+                  <button
+                    key={idx}
+                    onClick={cmd.action}
+                    className="w-full flex items-center justify-between px-3 py-2 text-left rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+                  >
+                    <span>{cmd.title}</span>
+                    <span className="text-xs text-gray-500 font-mono">{cmd.shortcut}</span>
+                  </button>
+                ))}
             </div>
           </div>
         </div>

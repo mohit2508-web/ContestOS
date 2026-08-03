@@ -29,6 +29,8 @@ import billingRoutes from './routes/billing.routes';
 import evaluatorRoutes from './routes/evaluator.routes';
 import assignmentRoutes from './routes/assignment.routes';
 import orgRequestRoutes from './routes/org-request.routes';
+import webDevRoutes from './routes/webdev.routes';
+import playgroundRoutes from './routes/playground.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -215,6 +217,8 @@ app.use('/api/problems', problemsRoutes);
 app.use('/api/guard', guardRoutes);
 app.use('/api/code', codeRoutes);
 app.use('/api/plagiarism', plagiarismRoutes);
+app.use('/api/webdev', webDevRoutes);
+app.use('/api/playground', playgroundRoutes);
 
 // Start Server
 app.listen(PORT, () => {

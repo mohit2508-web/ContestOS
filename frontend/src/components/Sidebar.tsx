@@ -1,4 +1,4 @@
-import { useState, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ROLE_LABELS, ROLE_COLORS } from '../config/roles';
@@ -120,12 +120,18 @@ export function Sidebar({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  useEffect(() => {
+    if (location.pathname.startsWith('/playground')) {
+      setIsCollapsed(true);
+    }
+  }, [location.pathname]);
+
   const isSeb =
     navigator.userAgent.toLowerCase().includes('seb') ||
     navigator.userAgent.toLowerCase().includes('safeexambrowser') ||
     new URLSearchParams(window.location.search).get('seb') === '1';
 
-  if (isSeb || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/' || location.pathname === '/landing') {
+  if (isSeb || location.pathname.startsWith('/playground/web-dev') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/' || location.pathname === '/landing') {
     return <>{children}</>;
   }
 
