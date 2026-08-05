@@ -110,6 +110,37 @@ router.post('/:id/score', async (req, res) => {
   }
 });
 
+// POST /api/evaluator/:id/signoff - ORG_ADMIN Sign-off and Final Result Approval
+router.post('/:id/signoff', async (req, res) => {
+  try {
+    const userRole = String(req.user!.role || '').toUpperCase();
+    if (userRole !== 'ORG_ADMIN' && userRole !== 'SUPER_ADMIN') {
+      return res.status(403).json({ error: 'Only ORG_ADMIN or SUPER_ADMIN can sign-off and finalize evaluator scores.' });
+    }
+
+    const submission = await prisma.submission.update({
+      where: { id: req.params.id },
+      data: {
+        evaluatedAt: new Date(),
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user!.userId,
+        action: 'ADMIN_RESULT_SIGNOFF',
+        resource: 'submission',
+        resourceId: submission.id,
+        details: { approvedBy: req.user!.userId, approvedAt: new Date() },
+      },
+    });
+
+    res.json({ success: true, submission, status: 'RESULT_APPROVED_BY_ADMIN' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to signoff submission score' });
+  }
+});
+
 router.get('/stats', async (req, res) => {
   try {
     const userRole = String(req.user!.role || '').toUpperCase();

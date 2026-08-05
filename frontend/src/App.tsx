@@ -20,12 +20,20 @@ import { LeaderboardPage as Leaderboard } from './pages/Leaderboard';
 import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
 import { WebPlaygroundPage } from './pages/WebPlaygroundPage';
 import { SqlPlaygroundPage } from './pages/SqlPlaygroundPage';
+import { QuizPlaygroundPage } from './pages/QuizPlaygroundPage';
+import { QuizAnalyticsPage } from './pages/teacher/QuizAnalyticsPage';
 import { PlatformDashboard } from './pages/superadmin/PlatformDashboard';
 import { OrgDashboard } from './pages/orgadmin/OrgDashboard';
 import { MemberDashboard } from './pages/orgmember/MemberDashboard';
 import { ParticipantDashboard } from './pages/participant/ParticipantDashboard';
 import { ContestReport } from './pages/participant/ContestReport';
 import { EvaluatorDashboard } from './pages/evaluator/EvaluatorDashboard';
+import { QuestionBankPage } from './pages/teacher/QuestionBankPage';
+import { QuestionReviewDashboard } from './pages/teacher/QuestionReviewDashboard';
+import { QuestionAuthoringForm } from './components/teacher/QuestionAuthoringForm';
+import { ContestAssemblyBuilder } from './components/teacher/ContestAssemblyBuilder';
+import { ProctorConsolePage } from './pages/proctor/ProctorConsole';
+import { SmeGlobalRepositoryPage } from './pages/governance/SmeGlobalRepositoryPage';
 
 import LandingPageApp from './landing/LandingPageApp';
 
@@ -37,7 +45,9 @@ function PortalRedirect() {
 
   switch (user.role) {
     case 'SUPER_ADMIN': return <Navigate to="/admin/platform" replace />;
+    case 'PLATFORM_CONTENT_AUTHOR': return <Navigate to="/governance/sme-bank" replace />;
     case 'ORG_ADMIN': return <Navigate to="/admin/org" replace />;
+    case 'PROCTOR': return <Navigate to="/proctor/live" replace />;
     case 'ORG_MEMBER': return <Navigate to="/member/contests" replace />;
     case 'EVALUATOR': return <Navigate to="/evaluator/assigned" replace />;
     default: return <Navigate to="/browse" replace />;
@@ -108,6 +118,11 @@ export default function App() {
                   <ContestManagement />
                 </RoleRoute>
               } />
+              <Route path="/admin/quiz-analytics" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'ORG_ADMIN', 'ORG_MEMBER']}>
+                  <QuizAnalyticsPage />
+                </RoleRoute>
+              } />
 
               {/* ========== ORG_MEMBER: Assigned Contests ========== */}
               <Route path="/member/contests" element={
@@ -123,7 +138,7 @@ export default function App() {
 
               {/* ========== EVALUATOR: Grading Queue ========== */}
               <Route path="/evaluator/assigned" element={
-                <RoleRoute allowedRoles={['EVALUATOR']}>
+                <RoleRoute allowedRoles={['EVALUATOR', 'SUPER_ADMIN', 'ORG_ADMIN']}>
                   <EvaluatorDashboard />
                 </RoleRoute>
               } />
@@ -160,10 +175,44 @@ export default function App() {
                 <Route path="rules" element={<OverviewTab />} />
               </Route>
 
+              {/* ========== Content Governance & Question Banks ========== */}
+              {/* SME Dedicated Global Repository Portal */}
+              <Route path="/governance/sme-bank" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR']}>
+                  <SmeGlobalRepositoryPage />
+                </RoleRoute>
+              } />
+              <Route path="/governance/banks" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'ORG_MEMBER']}>
+                  <QuestionBankPage />
+                </RoleRoute>
+              } />
+              <Route path="/governance/reviews" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'ORG_MEMBER']}>
+                  <QuestionReviewDashboard />
+                </RoleRoute>
+              } />
+              <Route path="/governance/authoring" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'ORG_MEMBER']}>
+                  <QuestionAuthoringForm />
+                </RoleRoute>
+              } />
+              <Route path="/governance/assembly" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'ORG_MEMBER']}>
+                  <ContestAssemblyBuilder />
+                </RoleRoute>
+              } />
+              <Route path="/proctor/live" element={
+                <RoleRoute allowedRoles={['PROCTOR', 'SUPER_ADMIN', 'ORG_ADMIN', 'ORG_MEMBER']}>
+                  <ProctorConsolePage />
+                </RoleRoute>
+              } />
+
               {/* ========== Interactive Problem Playgrounds ========== */}
               <Route path="/playground/logic" element={<CodePlaygroundPage />} />
               <Route path="/playground/web-dev" element={<WebPlaygroundPage />} />
               <Route path="/playground/sql" element={<SqlPlaygroundPage />} />
+              <Route path="/playground/quiz" element={<QuizPlaygroundPage />} />
               <Route path="/playground" element={<CodePlaygroundPage />} />
 
               <Route path="*" element={<Navigate to="/contests" replace />} />

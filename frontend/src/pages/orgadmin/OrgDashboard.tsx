@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { QuestionBankPage } from '../teacher/QuestionBankPage';
 
 type TabId = 'overview' | 'contests' | 'team' | 'problems' | 'participants' | 'billing';
 
@@ -374,15 +375,7 @@ export function OrgDashboard() {
           />
         )}
         {activeTab === 'problems' && (
-          <ProblemsTab
-            problems={filteredProblems}
-            search={problemSearch}
-            setSearch={setProblemSearch}
-            filterDiff={problemFilterDiff}
-            setFilterDiff={setProblemFilterDiff}
-            filterType={problemFilterType}
-            setFilterType={setProblemFilterType}
-          />
+          <QuestionBankPage />
         )}
         {activeTab === 'participants' && (
           <ParticipantsTab contests={contests} />

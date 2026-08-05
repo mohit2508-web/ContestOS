@@ -497,7 +497,7 @@ export function EvaluatorDashboard() {
                             Submitting...
                           </>
                         ) : (
-                          'Submit Grade'
+                          'Submit Grade for Admin Sign-Off →'
                         )}
                       </button>
                     </div>

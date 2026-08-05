@@ -44,33 +44,45 @@ function getNavSections(role: string): NavSection[] {
   switch ((role || 'STUDENT').toUpperCase()) {
     case 'SUPER_ADMIN':
       return [
-        { title: 'Platform', items: [
-          { path: '/admin/platform', label: 'Platform Dashboard', icon: icons.dashboard },
-          { path: '/admin/platform?tab=organizations', label: 'All Organizations', icon: icons.globe },
-          { path: '/admin/platform?tab=users', label: 'All Users', icon: icons.users },
-          { path: '/admin/platform?tab=audit', label: 'Audit Logs', icon: icons.doc },
-          { path: '/admin/platform?tab=billing', label: 'Billing & Tiers', icon: icons.credit },
+        { title: 'Tenant Command', items: [
+          { path: '/admin/platform', label: 'Tenant Command', icon: icons.globe },
+          { path: '/admin/platform?tab=billing', label: 'Revenue & Billing', icon: icons.chart },
           { path: '/admin/platform?tab=features', label: 'Feature Flags', icon: icons.flag },
         ]},
-        { title: 'Contests & Bank', items: [
-          { path: '/admin/contests', label: 'Contest Management', icon: icons.trophy },
-          { path: '/problems', label: 'Question Bank', icon: icons.code },
+        { title: 'Identity & Access', items: [
+          { path: '/admin/platform?tab=users', label: 'Users & IAM', icon: icons.users },
+          { path: '/admin/platform?tab=audit', label: 'Security & Audit', icon: icons.shield },
+        ]},
+        { title: 'Observability', items: [
+          { path: '/admin/platform?tab=health', label: 'Platform Health', icon: icons.chart },
+          { path: '/admin/platform?tab=announcements', label: 'Announcements', icon: icons.flag },
         ]},
       ];
+
+    case 'PLATFORM_CONTENT_AUTHOR':
+      return [
+        { title: 'Platform Content Curation', items: [
+          { path: '/governance/sme-bank', label: 'Global Item Repository', icon: icons.doc },
+          { path: '/governance/authoring?scope=PLATFORM_GLOBAL', label: '+ Author New Global Item', icon: icons.code },
+          { path: '/governance/reviews', label: 'Peer Review Queue', icon: icons.check },
+        ]},
+        { title: 'Psychometrics & IRT', items: [
+          { path: '/governance/sme-bank?filter=PUBLISHED', label: 'Live Item Telemetry', icon: icons.chart },
+          { path: '/governance/sme-bank?filter=PEER_REVIEW', label: 'Awaiting My Review', icon: icons.eye },
+        ]},
+      ];
+
 
     case 'ORG_ADMIN':
       return [
         { title: 'Organization', items: [
-          { path: '/admin/org', label: 'Dashboard', icon: icons.dashboard },
-          { path: '/admin/org?tab=contests', label: 'Contests', icon: icons.trophy },
-          { path: '/admin/org?tab=team', label: 'Team Members', icon: icons.users },
-          { path: '/problems', label: 'Question Bank', icon: icons.code },
-          { path: '/admin/org?tab=participants', label: 'Participants', icon: icons.eye },
-          { path: '/admin/org?tab=billing', label: 'Billing', icon: icons.credit },
+          { path: '/admin/org', label: 'Dashboard & Command', icon: icons.dashboard },
+          { path: '/admin/contests', label: 'Contest Management', icon: icons.trophy },
         ]},
-        { title: 'Manage', items: [
-          { path: '/admin/contests', label: 'Full Contest Manager', icon: icons.trophy },
-          { path: '/problems/new', label: '+ Create New Question', icon: icons.code },
+        { title: 'Content & Governance', items: [
+          { path: '/governance/banks', label: 'Question Banks Repository', icon: icons.doc },
+          { path: '/governance/reviews', label: 'Four-Eyes Review Queue', icon: icons.check },
+          { path: '/governance/authoring', label: '+ Author Question (Draft)', icon: icons.code },
         ]},
       ];
 
@@ -79,12 +91,19 @@ function getNavSections(role: string): NavSection[] {
         { title: 'My Work', items: [
           { path: '/member/contests', label: 'Assigned Contests', icon: icons.clipboard },
           { path: '/member/contests?tab=command-center', label: 'Live Command Center', icon: icons.eye },
-          { path: '/member/contests?tab=results', label: 'Results', icon: icons.chart },
         ]},
-        { title: 'Contest & Question Management', items: [
-          { path: '/admin/contests', label: 'Full Contest & Question Manager', icon: icons.trophy },
-          { path: '/problems', label: 'Question Bank', icon: icons.code },
-          { path: '/problems/new', label: '+ Create New Question', icon: icons.code },
+        { title: 'Content & Governance', items: [
+          { path: '/governance/banks', label: 'Question Banks Repository', icon: icons.doc },
+          { path: '/governance/reviews', label: 'Four-Eyes Review Queue', icon: icons.check },
+          { path: '/governance/authoring', label: '+ Author Question (Draft)', icon: icons.code },
+        ]},
+      ];
+
+    case 'PROCTOR':
+      return [
+        { title: 'Invigilation', items: [
+          { path: '/proctor/live', label: 'Live Exam Proctor Console', icon: icons.eye },
+          { path: '/proctor/live?tab=incidents', label: 'Security Incident Logs', icon: icons.flag },
         ]},
       ];
 
@@ -96,6 +115,7 @@ function getNavSections(role: string): NavSection[] {
         ]},
       ];
 
+    case 'CANDIDATE':
     case 'STUDENT':
     default:
       return [
@@ -104,10 +124,11 @@ function getNavSections(role: string): NavSection[] {
           { path: '/contests', label: 'My Contests', icon: icons.trophy },
           { path: '/leaderboard', label: 'Leaderboard', icon: icons.chart },
         ]},
-        { title: 'Practice', items: [
+        { title: 'Practice & Skills', items: [
           { path: '/playground', label: 'Code Playground', icon: icons.code },
           { path: '/playground/web-dev', label: 'Web Dev Playground', icon: icons.flag },
           { path: '/playground/sql', label: 'SQL Playground', icon: icons.doc },
+          { path: '/playground/quiz', label: 'MCQ Quiz Playground', icon: icons.clipboard },
         ]},
       ];
   }

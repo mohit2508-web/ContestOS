@@ -81,7 +81,7 @@ export function TeacherProblemListPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (!(await notify.confirm(`Delete "${title}"? This cannot be undone.`, { variant: 'error' }))) return;
+    if (!(await notify.confirm(`Delete "${title}"? This cannot be undone.`))) return;
     try {
       await api.deleteProblem(id);
       setProblems(prev => prev.filter(p => p.id !== id));

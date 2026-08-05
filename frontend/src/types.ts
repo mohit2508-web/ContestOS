@@ -16,7 +16,7 @@ export interface LeaderboardEntry {
   stats?: any;
 }
 
-export type UserRole = 'SUPER_ADMIN' | 'ORG_ADMIN' | 'ORG_MEMBER' | 'EVALUATOR' | 'STUDENT';
+export type UserRole = 'SUPER_ADMIN' | 'PLATFORM_CONTENT_AUTHOR' | 'ORG_ADMIN' | 'PROCTOR' | 'ORG_MEMBER' | 'EVALUATOR' | 'STUDENT' | 'CANDIDATE';
 
 export interface User {
   id: string;

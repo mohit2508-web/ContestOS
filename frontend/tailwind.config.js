@@ -7,8 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        bgPrimary: '#090d16',
-        bgCard: '#111827',
+        canvas: '#080c14',
+        surface: '#0f172a',
+        'surface-raised': '#1e293b',
+        'accent-mint': '#2dd4bf',
+        'accent-amber': '#f59e0b',
+        'accent-emerald': '#10b981',
+        bgPrimary: '#080c14',
+        bgCard: '#0f172a',
       }
     },
   },

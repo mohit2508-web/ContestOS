@@ -4,26 +4,31 @@ import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 
 const HIERARCHY_MAP: Record<string, number> = {
-  SUPER_ADMIN: 1, ORG_ADMIN: 2, ORG_MEMBER: 3, EVALUATOR: 4, STUDENT: 5,
+  SUPER_ADMIN: 1, PLATFORM_CONTENT_AUTHOR: 2, ORG_ADMIN: 3, PROCTOR: 4, ORG_MEMBER: 5, EVALUATOR: 6, STUDENT: 7, CANDIDATE: 7,
 };
 
 function roleToPath(role: string): string {
   switch (role) {
     case 'SUPER_ADMIN': return '/admin/platform';
+    case 'PLATFORM_CONTENT_AUTHOR': return '/governance/banks?scope=PLATFORM_GLOBAL';
     case 'ORG_ADMIN': return '/admin/org';
+    case 'PROCTOR': return '/proctor/live';
     case 'ORG_MEMBER': return '/member/contests';
     case 'EVALUATOR': return '/evaluator/assigned';
     case 'STUDENT': return '/contests';
+    case 'CANDIDATE': return '/contests';
     default: return '/contests';
   }
 }
 
 const DEMO_ACCOUNTS = [
   { label: 'Super Admin', role: 'SUPER_ADMIN', email: 'admin@contestos.io', password: 'Admin@123456', color: 'from-red-500 to-red-600' },
+  { label: 'Platform Content SME', role: 'PLATFORM_CONTENT_AUTHOR', email: 'sme@contestos.io', password: 'Sme@123456', color: 'from-indigo-500 to-indigo-600' },
   { label: 'Org Admin', role: 'ORG_ADMIN', email: 'admin@iitd.ac.in', password: 'Admin@123456', color: 'from-purple-500 to-purple-600' },
+  { label: 'Proctor', role: 'PROCTOR', email: 'proctor@iitd.ac.in', password: 'Proctor@123456', color: 'from-rose-500 to-rose-600' },
   { label: 'Org Member', role: 'ORG_MEMBER', email: 'teacher@iitd.ac.in', password: 'Teacher@123456', color: 'from-blue-500 to-blue-600' },
   { label: 'Evaluator', role: 'EVALUATOR', email: 'evaluator@iitd.ac.in', password: 'Evaluator@123456', color: 'from-teal-500 to-teal-600' },
-  { label: 'Student', role: 'STUDENT', email: 'student@iitd.ac.in', password: 'Student@123456', color: 'from-emerald-500 to-emerald-600' },
+  { label: 'Candidate', role: 'CANDIDATE', email: 'student@iitd.ac.in', password: 'Student@123456', color: 'from-emerald-500 to-emerald-600' },
 ];
 
 export function LoginPageComponent() {

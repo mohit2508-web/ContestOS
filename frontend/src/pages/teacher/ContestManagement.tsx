@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useNotify } from '../../components/notifications';
+import { ContestAssemblyBuilder } from '../../components/teacher/ContestAssemblyBuilder';
 
 interface Contest {
   id: string;
@@ -652,7 +653,10 @@ export function ContestManagementPage() {
     );
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-8">
+        {/* Contest Assembly Engine for this Contest */}
+        <ContestAssemblyBuilder />
+
         {/* Quick Attach Header Bar */}
         <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>

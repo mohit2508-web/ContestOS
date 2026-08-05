@@ -31,6 +31,9 @@ import assignmentRoutes from './routes/assignment.routes';
 import orgRequestRoutes from './routes/org-request.routes';
 import webDevRoutes from './routes/webdev.routes';
 import playgroundRoutes from './routes/playground.routes';
+import quizRoutes from './routes/quiz.routes';
+import questionGovernanceRoutes from './routes/question-governance.routes';
+import proctorRoutes from './routes/proctor.routes';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -219,6 +222,9 @@ app.use('/api/code', codeRoutes);
 app.use('/api/plagiarism', plagiarismRoutes);
 app.use('/api/webdev', webDevRoutes);
 app.use('/api/playground', playgroundRoutes);
+app.use('/api/quiz', quizRoutes);
+app.use('/api/governance', questionGovernanceRoutes);
+app.use('/api/proctor', proctorRoutes);
 
 // Start Server
 app.listen(PORT, () => {

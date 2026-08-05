@@ -10,10 +10,19 @@ datasource db {
 
 enum Role {
   SUPER_ADMIN
+  PLATFORM_CONTENT_AUTHOR
   ORG_ADMIN
+  PROCTOR
   ORG_MEMBER
   STUDENT
+  CANDIDATE
   EVALUATOR
+}
+
+enum EvaluationStatus {
+  UNGRADED
+  EVALUATION_SUBMITTED
+  RESULT_APPROVED
 }
 
 enum OrgStatus {
@@ -64,6 +73,22 @@ enum SubmissionStatus {
   RUNNING
 }
 
+enum SectionType {
+  QUIZ
+  CODING
+  WEB_DEV
+}
+
+enum QuestionType {
+  SINGLE_SELECT
+  MULTI_SELECT
+  TRUE_FALSE
+  NUMERIC
+  CODE_OUTPUT
+  FILL_BLANK
+  IMAGE_PATTERN
+}
+
 model Organization {
   id              String           @id @default(uuid())
   name            String
@@ -83,6 +108,7 @@ model Organization {
   problems        Problem[]
   invitations     TeamInvitation[]
   auditLogs       AuditLog[]
+  questionBanks   QuestionBank[]
 }
 
 model User {
@@ -115,6 +141,10 @@ model User {
   refreshTokens      RefreshToken[]
   scoredSubmissions  Submission[]          @relation("ScoredSubmissions")
   reviewedRequests   OrganizationRequest[] @relation("ReviewedBy")
+  quizAttemptQuestions QuizAttemptQuestion[]
+  quizResponses      QuizResponse[]
+  questionReviews    QuestionReviewLog[]
+  breakGlassLogs     BreakGlassAuditLog[]  @relation("SuperAdminBreakGlass")
 }
 
 model Problem {
@@ -192,6 +222,8 @@ model Contest {
   proctoringLogs     ProctoringLog[]
   plagiarismReports  PlagiarismReport[]
   assignments        ContestAssignment[]
+  sections           ContestSection[]
+  quizAttemptQuestions QuizAttemptQuestion[]
 }
 
 model ContestProblem {
@@ -337,4 +369,219 @@ model OrganizationRequest {
   reviewNotes    String?
   reviewedAt     DateTime?
   createdAt      DateTime          @default(now())
+}
+
+model ContestSection {
+  id            String      @id @default(uuid())
+  contestId     String
+  contest       Contest     @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  title         String
+  sectionType   SectionType @default(QUIZ)
+  order         Int         @default(0)
+  duration      Int         @default(30)
+  sectionLocked Boolean     @default(true)
+  weight        Float       @default(1.0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  passages  QuizPassage[]
+  questions QuizQuestion[]
+  assemblyRules ContestAssemblyRule[]
+
+  @@index([contestId, order])
+}
+
+enum BankScope {
+  PLATFORM_GLOBAL
+  TENANT_PRIVATE
+  SHARED_CONTRIBUTED
+}
+
+enum QuestionReviewStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  PUBLISHED
+  REJECTED
+}
+
+model QuestionBank {
+  id                   String       @id @default(uuid())
+  name                 String
+  description          String?
+  scope                BankScope    @default(TENANT_PRIVATE)
+  organizationId       String?
+  organization         Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById          String
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+
+  questions QuizQuestion[]
+
+  @@index([scope, organizationId])
+}
+
+model QuizPassage {
+  id          String         @id @default(uuid())
+  sectionId   String
+  section     ContestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title       String?
+  passageType String         @default("reading_comprehension")
+  content     String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  questions QuizQuestion[]
+}
+
+model QuizQuestion {
+  id                    String               @id @default(uuid())
+  sectionId             String?
+  section               ContestSection?      @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  passageId             String?
+  passage               QuizPassage?         @relation(fields: [passageId], references: [id], onDelete: SetNull)
+  bankId                String?
+  bank                  QuestionBank?        @relation(fields: [bankId], references: [id], onDelete: SetNull)
+  questionType          QuestionType         @default(SINGLE_SELECT)
+  reviewStatus          QuestionReviewStatus @default(PUBLISHED)
+  content               String
+  imageUrl              String?
+  difficulty            Int                  @default(3)
+  category              String               @default("general")
+  topic                 String?
+  subtopic              String?
+  points                Float                @default(4.0)
+  negativeMarking       Float                @default(1.0)
+  randomizeOptions      Boolean              @default(true)
+  explanation           String?
+  version               Int                  @default(1)
+  parentQuestionId      String?
+  allowPlatformSharing  Boolean              @default(false)
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  options          QuizOption[]
+  attemptQuestions QuizAttemptQuestion[]
+  analytics        QuizItemAnalytics?
+  reviewLogs       QuestionReviewLog[]
+  versions         QuestionVersion[]    @relation("QuestionVersions")
+
+  @@index([sectionId, category])
+  @@index([bankId, reviewStatus])
+}
+
+model QuestionVersion {
+  id              String       @id @default(uuid())
+  questionId      String
+  question        QuizQuestion @relation("QuestionVersions", fields: [questionId], references: [id], onDelete: Cascade)
+  versionNumber   Int
+  contentSnapshot Json
+  changeSummary   String?
+  createdById     String
+  createdAt       DateTime     @default(now())
+}
+
+model QuestionReviewLog {
+  id          String               @id @default(uuid())
+  questionId  String
+  question    QuizQuestion         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  reviewerId  String
+  reviewer    User                 @relation(fields: [reviewerId], references: [id])
+  fromStatus  QuestionReviewStatus
+  toStatus    QuestionReviewStatus
+  comments    String?
+  createdAt   DateTime             @default(now())
+}
+
+model ContestAssemblyRule {
+  id            String         @id @default(uuid())
+  sectionId     String
+  section       ContestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  category      String
+  topic         String?
+  minDifficulty Int            @default(1)
+  maxDifficulty Int            @default(5)
+  sampleCount   Int            @default(5)
+  points        Float          @default(4.0)
+  createdAt     DateTime       @default(now())
+
+  @@index([sectionId])
+}
+
+model QuizOption {
+  id           String       @id @default(uuid())
+  questionId   String
+  question     QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  content      String
+  imageUrl     String?
+  isCorrect    Boolean      @default(false)
+  displayOrder Int          @default(0)
+}
+
+model QuizAttemptQuestion {
+  id                    String       @id @default(uuid())
+  userId                String
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contestId             String
+  contest               Contest      @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  sectionId             String
+  questionId            String
+  question              QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  presentedOrder        Int
+  optionOrderMap        Json
+  imageTransformApplied Json?
+  servedAt              DateTime     @default(now())
+
+  responses QuizResponse[]
+
+  @@unique([userId, contestId, questionId])
+}
+
+model QuizResponse {
+  id                String              @id @default(uuid())
+  attemptQuestionId String
+  attemptQuestion   QuizAttemptQuestion @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  selectedOptionIds String[]            @default([])
+  numericAnswer     Float?
+  textAnswer        String?
+  scratchpadData    Json?
+  timeSpentMs       Int                 @default(0)
+  flaggedForReview  Boolean             @default(false)
+  isCorrect         Boolean             @default(false)
+  scoreAwarded      Float               @default(0.0)
+  evaluationStatus  EvaluationStatus    @default(UNGRADED)
+  evaluatedById     String?
+  evaluatorNotes    String?
+  approvedById      String?
+  answeredAt        DateTime            @default(now())
+
+  @@index([userId, attemptQuestionId])
+}
+
+model QuizItemAnalytics {
+  id                   String       @id @default(uuid())
+  questionId           String       @unique
+  question             QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  totalAttempts        Int          @default(0)
+  correctAttempts      Int          @default(0)
+  avgTimeSpentMs       Int          @default(0)
+  pointBiserialCorr    Float        @default(0.0)
+  calibratedDifficulty Float        @default(3.0)
+  updatedAt            DateTime     @updatedAt
+}
+
+model BreakGlassAuditLog {
+  id             String   @id @default(uuid())
+  superAdminId   String
+  superAdmin     User     @relation("SuperAdminBreakGlass", fields: [superAdminId], references: [id], onDelete: Cascade)
+  organizationId String?
+  resourcePath   String
+  actionType     String
+  reason         String
+  createdAt      DateTime @default(now())
+
+  @@index([superAdminId])
+  @@index([organizationId])
 }

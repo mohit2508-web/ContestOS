@@ -1,6 +1,8 @@
 import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
+declare const process: any;
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -78,6 +80,36 @@ async function main() {
     } as any,
   });
   console.log(`Org Member: ${orgMember.email}`);
+
+  const smePassword = await bcrypt.hash('Sme@123456', 12);
+  const proctorPassword = await bcrypt.hash('Proctor@123456', 12);
+
+  const smeUser = await prisma.user.upsert({
+    where: { email: 'sme@contestos.io' },
+    update: {},
+    create: {
+      name: 'Dr. Ananya Sharma (SME)',
+      email: 'sme@contestos.io',
+      password: smePassword,
+      role: 'PLATFORM_CONTENT_AUTHOR' as Role,
+      status: 'ACTIVE',
+    } as any,
+  });
+  console.log(`Platform SME: ${smeUser.email}`);
+
+  const proctorUser = await prisma.user.upsert({
+    where: { email: 'proctor@iitd.ac.in' },
+    update: {},
+    create: {
+      name: 'Rohan Sharma (Proctor)',
+      email: 'proctor@iitd.ac.in',
+      password: proctorPassword,
+      role: 'PROCTOR' as Role,
+      organizationId: org.id,
+      status: 'ACTIVE',
+    } as any,
+  });
+  console.log(`Proctor: ${proctorUser.email}`);
 
   const evaluator = await prisma.user.upsert({
     where: { email: 'evaluator@iitd.ac.in' },

@@ -1,29 +1,126 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 html {
   scroll-behavior: smooth;
 }
 
 :root {
-  --bg-primary: #090d16;
-  --bg-card: #111827;
-  --bg-card-hover: #1f293d;
-  --accent-blue: #3b82f6;
-  --accent-green: #10b981;
-  --accent-green-hover: #059669;
-  --accent-yellow: #f59e0b;
-  --accent-purple: #8b5cf6;
-  --accent-gold: #eab308;
-  --border-color: rgba(255, 255, 255, 0.12);
+  --bg:            #14161A;
+  --bg-grid:       #191C21;
+  --panel:         #1B1E23;
+  --panel-raised:  #21252B;
+  --line:          #2B2F37;
+  --line-bright:   #3A3F49;
+  --ink:           #ECE8E0;
+  --ink-dim:       #8C9099;
+  --ink-faint:     #5B5F68;
+  --brass:         #C6A15B;
+  --brass-dim:     #8A7343;
+  --brass-glow:    rgba(198,161,91,0.16);
+  --signal-red:    #C1543A;
+  --signal-green:  #6F9C7E;
+  --radius:        3px;
+  --font-display:  'Fraunces', serif;
+  --font-body:     'Inter', sans-serif;
+  --font-mono:     'IBM Plex Mono', monospace;
+
+  --bg-obsidian: #14161A;
+  --bg-surface: #1B1E23;
+  --bg-surface-raised: #21252B;
+  --accent-teal: #C6A15B;
+  --accent-warn: #C6A15B;
+  --accent-danger: #C1543A;
+  --accent-success: #6F9C7E;
+  --text-primary: #ECE8E0;
+  --text-muted: #8C9099;
+  --border-hairline: #2B2F37;
+  --bg-canvas: #14161A;
+  --bg-primary: #14161A;
+  --bg-card: #1B1E23;
+  --bg-card-hover: #21252B;
+  --accent-blue: #C6A15B;
+  --accent-green: #6F9C7E;
+  --accent-yellow: #C6A15B;
+  --border-color: #2B2F37;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 body {
   margin: 0;
-  background-color: var(--bg-primary);
-  color: #f3f4f6;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0) 0 0/24px 24px,
+    var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
+
+/* Brass Corner Bracket Frame Motif */
+.bracket-panel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 20px;
+  border-radius: 2px;
+}
+.bracket-panel::before, .bracket-panel::after,
+.bracket-panel .bl::before, .bracket-panel .br::before {
+  content: ""; position: absolute; width: 10px; height: 10px;
+  border: 1.5px solid var(--brass-dim); opacity: 0.7;
+}
+.bracket-panel::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.bracket-panel::after { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.bracket-panel .bl::before { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+.bracket-panel .br::before { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+.bracket-panel.active::before, .bracket-panel.active::after,
+.bracket-panel.active .bl::before, .bracket-panel.active .br::before {
+  border-color: var(--brass); opacity: 1;
+}
+
+@keyframes bracketPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.bracket-panel.active::before, .bracket-panel.active::after,
+.bracket-panel.active .bl::before, .bracket-panel.active .br::before {
+  animation: bracketPulse 2.6s ease-in-out infinite;
+}
+
+/* Option 45° Diamond Marker */
+.option-marker {
+  width: 26px; height: 26px; border: 1.5px solid var(--ink-faint); border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint);
+  flex-shrink: 0; transform: rotate(45deg);
+  transition: border-color .15s ease, color .15s ease, background .15s ease, transform .2s ease;
+}
+.option-marker span { transform: rotate(-45deg); }
+.option.selected .option-marker {
+  border-color: var(--brass); color: var(--brass); background: var(--brass-glow); transform: rotate(45deg) scale(1.08);
+}
+
+.btn-submit {
+  padding: 10px 20px;
+  background: linear-gradient(180deg, #D4B36F, var(--brass));
+  color: #161311; font-weight: 600; font-size: 13px;
+  border: none; border-radius: var(--radius);
+  font-family: var(--font-body);
+  cursor: pointer; letter-spacing: 0.2px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset, 0 4px 14px rgba(198,161,91,0.18);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset, 0 8px 20px rgba(198,161,91,0.28);
+}
+.btn-submit:active { transform: translateY(0); }
+
+:focus-visible { outline: 1.5px solid var(--brass); outline-offset: 2px; }
