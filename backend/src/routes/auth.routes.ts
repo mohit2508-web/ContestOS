@@ -8,7 +8,18 @@ import { rateLimit } from '../middlewares/rateLimit';
 const router = Router();
 
 const HIERARCHY_MAP: Record<string, number> = {
-  SUPER_ADMIN: 1, ORG_ADMIN: 2, ORG_MEMBER: 3, EVALUATOR: 4, STUDENT: 5,
+  SUPER_ADMIN: 1,
+  PLATFORM_CONTENT_AUTHOR: 2,
+  ORG_ADMIN: 3,
+  PROCTOR: 4,
+  ORG_MEMBER: 4,
+  EVALUATOR: 4,
+  CONTEST_MODERATOR: 4,    // Chief examiner — same operational tier as EVALUATOR/PROCTOR
+  COMPLIANCE_OFFICER: 4,   // Compliance officer — same operational tier
+  ANALYTICS_VIEWER: 5,     // Read-only HR viewer — lowest org-level privilege
+  STUDENT: 6,
+  CANDIDATE: 6,
+  GUEST_CANDIDATE: 7,      // External invite-only — most restricted
 };
 
 function validatePasswordStrength(password: string): string | null {

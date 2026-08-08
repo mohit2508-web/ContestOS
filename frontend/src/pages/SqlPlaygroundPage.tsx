@@ -15,6 +15,7 @@ import { SchemaViewer } from '../components/sql-playground/SchemaViewer';
 import { SchemaViewerModal } from '../components/sql-playground/SchemaViewerModal';
 import { parseSchemaToGraph } from '../components/sql-playground/utils/parseSchema';
 import { formatProblemDescriptionWithImages } from '../utils/formatProblemDescription';
+import { ProblemLockConfirmationModal } from '../components/ExamFlowModals';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 interface QueryTab {
@@ -753,37 +754,36 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
     const problemId = params.get('problem');
     const cid = params.get('contestId');
     const savedProblemId = localStorage.getItem('sql_playground_selected_problem');
+
     if (playMode === "free" && !cid) {
       setSqlCode(DEFAULT_CODE.sql); setSqlFreeSchema(SQL_FREE_SCHEMA); setSqlResult(null); setSelectedProblem(null); return;
     }
-    const targetProblemId = problemId || (cid && contestProblems.length > 0 ? contestProblems[0].problem.id : savedProblemId);
+
+    const targetProblemId = problemId || (cid && contestProblems.length > 0 ? contestProblems[0].problem?.id : savedProblemId);
+
     if (targetProblemId) {
-      if (selectedProblem && selectedProblem.id === targetProblemId && selectedProblem.description && selectedProblem.problemType === 'sql' && (selectedProblem.testCases?.length || (selectedProblem as any).schema || (selectedProblem.starterCode as any)?.schema)) return;
+      if (selectedProblem && selectedProblem.id === targetProblemId && selectedProblem.description) return;
       const fetch = async () => {
         try {
           const res = await api.getProblem(targetProblemId);
           const prob = res.problem || res;
-          if (prob?.id && prob.problemType === 'sql') {
+          if (prob?.id) {
             setProblems(prev => prev.some(p => p.id === prob.id) ? prev.map(p => p.id === prob.id ? prob : p) : [prob, ...prev]);
             setSelectedProblem(prob);
             localStorage.setItem('sql_playground_selected_problem', prob.id);
           } else {
-            localStorage.removeItem('sql_playground_selected_problem');
-            const sqlOnly = problems.filter(p => p.problemType === 'sql');
-            if (sqlOnly.length > 0) selectProblem(sqlOnly[0]);
+            const fallback = problems.find(p => p.id === targetProblemId) || contestProblems.find(cp => cp.problem?.id === targetProblemId)?.problem;
+            if (fallback) setSelectedProblem(fallback as any);
           }
         } catch {
-          if (problems.length > 0) {
-            localStorage.removeItem('sql_playground_selected_problem');
-            const sqlOnly = problems.filter(p => p.problemType === 'sql');
-            if (sqlOnly.length > 0) selectProblem(sqlOnly[0]);
-          }
+          const fallback = problems.find(p => p.id === targetProblemId) || contestProblems.find(cp => cp.problem?.id === targetProblemId)?.problem;
+          if (fallback) setSelectedProblem(fallback as any);
         }
       };
       fetch();
-    } else if (!selectedProblem && problems.length > 0) {
-      const sqlOnly = problems.filter(p => p.problemType === 'sql');
-      if (sqlOnly.length > 0) selectProblem(sqlOnly[0]);
+    } else if (!selectedProblem && (problems.length > 0 || contestProblems.length > 0)) {
+      const first = problems[0] || contestProblems[0]?.problem;
+      if (first) selectProblem(first as any);
     }
   }, [problems, playMode, selectedProblem, contestProblems]);
 
@@ -1044,6 +1044,29 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
         return { input: (tc as any).input || '', expectedOutput: tc.expectedOutput, setup: finalSetup };
       });
 
+      if (contestId && selectedProblem?.id) {
+        const res = await api.submitContestCode(contestId, {
+          problemId: selectedProblem.id,
+          code: sqlCode,
+          language: 'sql'
+        });
+
+        if (res.passed) {
+          setSubmitStatus('success');
+          setSolvedProblems(prev => new Set(prev).add(selectedProblem.id));
+          setPendingLockProblem({
+            id: selectedProblem.id,
+            title: selectedProblem.title,
+            score: res.currentScore ?? 0
+          });
+          setShowFinalLockModal(true);
+        } else {
+          setSubmitStatus('error');
+          notify.toast.error(`Submission Failed: Passed ${res.passedTests}/${res.totalTests} tests.`);
+        }
+        return;
+      }
+
       const response = await api.post("/code/run-tests", {
         language: "sql",
         code: sqlCode,
@@ -1069,6 +1092,7 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
                 problemId: selectedProblem.id,
                 language: 'sql',
                 code: sqlCode,
+                contestId: contestId || undefined,
                 status: 'passed',
               });
             } catch (e) { console.error("Failed to record submission", e); }
@@ -1159,32 +1183,65 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
     <div ref={containerRef} className="h-screen md:h-[calc(100vh-4rem)] flex flex-col bg-[#0d0d12] select-none">
 
       {/* ── Contest Progress Bar ── */}
-      {contestId && sqlContestProblems.length > 0 && (
+      {contestId && (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-[#0a0a0f] border-b border-white/10 flex-shrink-0 overflow-x-auto">
-          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest shrink-0 mr-1">Contest</span>
-          <div className="flex items-center gap-1.5">
-            {sqlContestProblems.map((cp, idx) => {
-              const isSolved = solvedProblems.has(cp.problem.id);
-              const isCurrent = selectedProblem?.id === cp.problem.id;
-              return (
-                <button key={cp.problem.id} onClick={() => { const prob = problems.find(p => p.id === cp.problem.id); if (prob) selectProblem(prob); }} title={cp.problem.title}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border transition-all shrink-0 ${isCurrent ? 'bg-amber-500/20 border-amber-400 text-amber-300' : isSolved ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-white/5 border-white/20 text-gray-400 hover:border-white/40 hover:text-white'}`}>
-                  {isSolved && <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
-                  {String.fromCharCode(65 + idx)}
-                </button>
-              );
-            })}
-          </div>
-          <div className="ml-auto flex items-center gap-2 shrink-0">
-            <span className="text-xs font-semibold text-gray-400">
-              <span className={solvedProblems.size > 0 ? 'text-emerald-400' : 'text-gray-500'}>{solvedProblems.size}</span>
-              <span className="text-gray-600">/{sqlContestProblems.length}</span>
-              <span className="text-gray-500 ml-1">solved</span>
-            </span>
-            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${sqlContestProblems.length > 0 ? (solvedProblems.size / sqlContestProblems.length) * 100 : 0}%` }} />
-            </div>
-          </div>
+          <button
+            onClick={() => navigate(`/contests/${contestId}`)}
+            className="flex items-center gap-1.5 px-3 py-1 text-xs font-black text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all shadow-sm shrink-0 mr-2 cursor-pointer"
+            title="Back to Contest Overview"
+          >
+            <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>← Back to Contest</span>
+          </button>
+          {sqlContestProblems.length > 0 && (
+            <>
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest shrink-0 mr-1">Contest</span>
+              <div className="flex items-center gap-1.5">
+                {sqlContestProblems.map((cp, idx) => {
+                  const isSolved = solvedProblems.has(cp.problem.id);
+                  const isCurrent = selectedProblem?.id === cp.problem.id;
+                  return (
+                    <button key={cp.problem.id} onClick={() => { const prob = problems.find(p => p.id === cp.problem.id); if (prob) selectProblem(prob); }} title={cp.problem.title}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border transition-all shrink-0 ${isCurrent ? 'bg-amber-500/20 border-amber-400 text-amber-300' : isSolved ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-white/5 border-white/20 text-gray-400 hover:border-white/40 hover:text-white'}`}>
+                      {isSolved && <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                      {String.fromCharCode(65 + idx)}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="ml-auto flex items-center gap-2 shrink-0">
+                <span className="text-xs font-semibold text-gray-400">
+                  <span className={solvedProblems.size > 0 ? 'text-emerald-400' : 'text-gray-500'}>{solvedProblems.size}</span>
+                  <span className="text-gray-600">/{sqlContestProblems.length}</span>
+                  <span className="text-gray-500 ml-1">solved</span>
+                </span>
+                <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${sqlContestProblems.length > 0 ? (solvedProblems.size / sqlContestProblems.length) * 100 : 0}%` }} />
+                </div>
+                {selectedProblem && (
+                  <button
+                    onClick={() => {
+                      const earnedScore = sqlTestSummary && sqlTestSummary.total > 0
+                        ? Math.round((sqlTestSummary.passed / sqlTestSummary.total) * (selectedProblem.points || 100))
+                        : 0;
+                      setPendingLockProblem({
+                        id: selectedProblem.id,
+                        title: selectedProblem.title,
+                        score: earnedScore
+                      });
+                      setShowFinalLockModal(true);
+                    }}
+                    className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-amber-400 text-black text-[11px] font-black rounded-lg transition-all shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-300 flex items-center gap-1 cursor-pointer shrink-0 ml-2"
+                    title="Final lock and submit this problem"
+                  >
+                    🔒 Lock Problem
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -1214,9 +1271,6 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
                   <div className="flex items-center gap-2 mb-2">
                     {contestId ? (
                       <div className="flex items-center gap-2 w-full">
-                        <button onClick={() => navigate(`/contests/${contestId}`)} className="flex items-center gap-1 px-2 py-1 text-xs font-bold text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg> Back
-                        </button>
                         <h2 className="text-base font-bold text-white truncate">{selectedProblem.title}</h2>
                       </div>
                     ) : (
@@ -1408,13 +1462,6 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
             {playMode !== "free" && !showLeftPanel && (
               <button onClick={() => setShowLeftPanel(true)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all shrink-0">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              </button>
-            )}
-
-            {contestId && (
-              <button onClick={async () => { const ok = window.confirm('End contest and exit?'); if (ok) { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); navigate('/contests'); } }}
-                className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold rounded-lg transition-all text-sm shrink-0">
-                End Contest
               </button>
             )}
 
@@ -1938,6 +1985,34 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
           </div>
         </div>
       )}
+
+      {/* Problem Final Lock Confirmation Modal */}
+      <ProblemLockConfirmationModal
+        isOpen={showFinalLockModal}
+        problemTitle={pendingLockProblem?.title || selectedProblem?.title || 'Problem'}
+        scoreEarned={pendingLockProblem?.score}
+        maxPoints={selectedProblem?.points || 100}
+        onConfirm={() => {
+          if (!pendingLockProblem?.id || !contestId) return;
+          const pid = pendingLockProblem.id;
+          const newSolved = new Set([...solvedProblems, pid]);
+          setSolvedProblems(newSolved);
+          sessionStorage.setItem(`solvedProblems_${contestId}`, JSON.stringify([...newSolved]));
+          const newLocked = new Set([...lockedProblems, pid]);
+          setLockedProblems(newLocked);
+          sessionStorage.setItem(`lockedProblems_${contestId}`, JSON.stringify([...newLocked]));
+          sessionStorage.setItem(`locked_prob_${userStorageId}_${contestId}_${pid}`, '1');
+          localStorage.setItem(`locked_prob_${userStorageId}_${contestId}_${pid}`, '1');
+          setShowFinalLockModal(false);
+          setPendingLockProblem(null);
+          notify.toast.success(`🔒 Problem "${pendingLockProblem.title}" locked & submitted!`);
+          navigate(`/contests/${contestId}`);
+        }}
+        onCancel={() => {
+          setShowFinalLockModal(false);
+          setPendingLockProblem(null);
+        }}
+      />
     </div>
   );
 
@@ -1945,39 +2020,6 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
     return (
       <SecureContestWrapper contestId={contestId} flags={contestFlags}>
         {playgroundLayout}
-
-        {/* Final Lock Modal */}
-        {showFinalLockModal && pendingLockProblem && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-            <div className="bg-[#16161f] border border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl space-y-4">
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 mx-auto bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
-                </div>
-                <h3 className="text-lg font-black text-white">Problem Solved!</h3>
-                <p className="text-sm text-gray-400">Do you want to <span className="text-amber-400 font-bold">final lock</span> <span className="text-white font-bold">"{pendingLockProblem.title}"</span>?</p>
-                <p className="text-xs text-gray-500">Once locked, you cannot edit this problem again.</p>
-              </div>
-              <div className="flex gap-3">
-                <button onClick={() => { setShowFinalLockModal(false); setPendingLockProblem(null); }} className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-bold rounded-xl border border-white/10 transition-all">Keep Editing</button>
-                <button onClick={() => {
-                  if (!pendingLockProblem || !contestId) return;
-                  const newSolved = new Set([...solvedProblems, pendingLockProblem.id]);
-                  setSolvedProblems(newSolved);
-                  sessionStorage.setItem(`solvedProblems_${contestId}`, JSON.stringify([...newSolved]));
-                  const newLocked = new Set([...lockedProblems, pendingLockProblem.id]);
-                  setLockedProblems(newLocked);
-                  sessionStorage.setItem(`lockedProblems_${contestId}`, JSON.stringify([...newLocked]));
-                  setShowFinalLockModal(false); setPendingLockProblem(null);
-                  navigate(`/contests/${contestId}`);
-                }} className="flex-1 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                  Lock &amp; Go Back
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </SecureContestWrapper>
     );
   }

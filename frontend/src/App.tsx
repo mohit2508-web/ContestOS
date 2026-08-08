@@ -34,6 +34,11 @@ import { QuestionAuthoringForm } from './components/teacher/QuestionAuthoringFor
 import { ContestAssemblyBuilder } from './components/teacher/ContestAssemblyBuilder';
 import { ProctorConsolePage } from './pages/proctor/ProctorConsole';
 import { SmeGlobalRepositoryPage } from './pages/governance/SmeGlobalRepositoryPage';
+import { AnalyticsDashboard } from './pages/analytics/AnalyticsDashboard';
+import { GuestContestEntry } from './pages/guest/GuestContestEntry';
+import { GuestResultView } from './pages/guest/GuestResultView';
+import { ComplianceDashboard } from './pages/compliance/ComplianceDashboard';
+import { ModeratorDashboard } from './pages/moderator/ModeratorDashboard';
 
 import LandingPageApp from './landing/LandingPageApp';
 
@@ -50,7 +55,10 @@ function PortalRedirect() {
     case 'PROCTOR': return <Navigate to="/proctor/live" replace />;
     case 'ORG_MEMBER': return <Navigate to="/member/contests" replace />;
     case 'EVALUATOR': return <Navigate to="/evaluator/assigned" replace />;
-    default: return <Navigate to="/browse" replace />;
+    case 'ANALYTICS_VIEWER': return <Navigate to="/analytics/dashboard" replace />;
+    case 'COMPLIANCE_OFFICER': return <Navigate to="/compliance/audit-logs" replace />;
+    case 'CONTEST_MODERATOR': return <Navigate to="/moderator/dashboard" replace />;
+    default: return <Navigate to="/dashboard" replace />;
   }
 }
 
@@ -72,6 +80,46 @@ export default function App() {
               {/* Auth Pages */}
               <Route path="/login" element={<LoginPageComponent />} />
               <Route path="/register" element={<RegisterPage />} />
+
+              {/* Guest Routes */}
+              <Route path="/guest/join/:token" element={<GuestContestEntry />} />
+              <Route path="/guest/result/:token" element={<GuestResultView />} />
+
+              {/* ========== ANALYTICS_VIEWER: Performance & Leaderboard ========== */}
+              <Route path="/analytics/dashboard" element={
+                <RoleRoute allowedRoles={['ANALYTICS_VIEWER', 'ORG_ADMIN', 'SUPER_ADMIN']}>
+                  <AnalyticsDashboard />
+                </RoleRoute>
+              } />
+              <Route path="/analytics/contests" element={
+                <RoleRoute allowedRoles={['ANALYTICS_VIEWER', 'ORG_ADMIN', 'SUPER_ADMIN']}>
+                  <AnalyticsDashboard />
+                </RoleRoute>
+              } />
+
+              {/* ========== COMPLIANCE_OFFICER: Audit & GDPR Cockpit ========== */}
+              <Route path="/compliance/audit-logs" element={
+                <RoleRoute allowedRoles={['COMPLIANCE_OFFICER', 'SUPER_ADMIN']}>
+                  <ComplianceDashboard />
+                </RoleRoute>
+              } />
+              <Route path="/compliance/gdpr" element={
+                <RoleRoute allowedRoles={['COMPLIANCE_OFFICER', 'SUPER_ADMIN']}>
+                  <ComplianceDashboard />
+                </RoleRoute>
+              } />
+
+              {/* ========== CONTEST_MODERATOR: Chief Examiner Console ========== */}
+              <Route path="/moderator/dashboard" element={
+                <RoleRoute allowedRoles={['CONTEST_MODERATOR', 'ORG_ADMIN', 'SUPER_ADMIN']}>
+                  <ModeratorDashboard />
+                </RoleRoute>
+              } />
+              <Route path="/moderator/queue" element={
+                <RoleRoute allowedRoles={['CONTEST_MODERATOR', 'ORG_ADMIN', 'SUPER_ADMIN']}>
+                  <ModeratorDashboard />
+                </RoleRoute>
+              } />
 
               {/* ========== SUPER_ADMIN: Platform Dashboard ========== */}
               <Route path="/admin/platform" element={
@@ -144,6 +192,11 @@ export default function App() {
               } />
 
               {/* ========== PARTICIPANT: Browse & Participate ========== */}
+              <Route path="/dashboard" element={
+                <RoleRoute allowedRoles={['STUDENT', 'SUPER_ADMIN', 'ORG_ADMIN', 'ORG_MEMBER']}>
+                  <ParticipantDashboard />
+                </RoleRoute>
+              } />
               <Route path="/browse" element={
                 <RoleRoute allowedRoles={['STUDENT', 'SUPER_ADMIN', 'ORG_ADMIN', 'ORG_MEMBER']}>
                   <ParticipantDashboard />
@@ -168,7 +221,7 @@ export default function App() {
                   </ContestProtectedRoute>
                 }
               >
-                <Route index element={<Navigate to="overview" replace />} />
+                <Route index element={<Navigate to="problems" replace />} />
                 <Route path="overview" element={<OverviewTab />} />
                 <Route path="problems" element={<ProblemsTab />} />
                 <Route path="leaderboard" element={<Leaderboard />} />
@@ -215,7 +268,7 @@ export default function App() {
               <Route path="/playground/quiz" element={<QuizPlaygroundPage />} />
               <Route path="/playground" element={<CodePlaygroundPage />} />
 
-              <Route path="*" element={<Navigate to="/contests" replace />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Sidebar>
         </Router>

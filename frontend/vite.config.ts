@@ -13,4 +13,18 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'monaco-editor': ['@monaco-editor/react'],
+          'framer': ['framer-motion'],
+          'charts': ['d3-delaunay'],
+        },
+      },
+    },
+  },
 });
+

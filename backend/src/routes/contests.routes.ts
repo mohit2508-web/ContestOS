@@ -213,7 +213,7 @@ router.get('/:id/my-report', authenticateToken, async (req: Request, res: Respon
     if (participant && calculatedScore > (participant.score || 0)) {
       await prisma.contestRegistration.update({
         where: { id: participant.id },
-        data: { score: calculatedScore, status: 'COMPLETED' },
+        data: { score: calculatedScore },
       }).catch(() => {});
     }
 
@@ -237,9 +237,7 @@ router.get('/:id/my-report', authenticateToken, async (req: Request, res: Respon
     const totalRegistrations = Math.max(1, allRegistrations.length);
     const percentile = Math.round((allRegistrations.filter((r) => r.score < userScore).length / totalRegistrations) * 100);
 
-    const participantStatus = participant?.status && participant.status !== 'REGISTERED' && participant.status !== 'IN_PROGRESS'
-      ? participant.status
-      : (solvedProblemIds.size > 0 ? 'COMPLETED' : (participant?.status || 'IN_PROGRESS'));
+    const participantStatus = participant?.status || 'IN_PROGRESS';
 
     res.json({
       contest: {

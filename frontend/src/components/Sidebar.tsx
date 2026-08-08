@@ -90,7 +90,6 @@ function getNavSections(role: string): NavSection[] {
       return [
         { title: 'My Work', items: [
           { path: '/member/contests', label: 'Assigned Contests', icon: icons.clipboard },
-          { path: '/member/contests?tab=command-center', label: 'Live Command Center', icon: icons.eye },
         ]},
         { title: 'Content & Governance', items: [
           { path: '/governance/banks', label: 'Question Banks Repository', icon: icons.doc },
@@ -107,6 +106,33 @@ function getNavSections(role: string): NavSection[] {
         ]},
       ];
 
+    case 'ANALYTICS_VIEWER':
+      return [
+        { title: 'Analytics Hub', items: [
+          { path: '/analytics/dashboard', label: 'Performance Dashboard', icon: icons.chart },
+          { path: '/analytics/contests', label: 'Contest Results', icon: icons.trophy },
+        ]},
+      ];
+
+    case 'CONTEST_MODERATOR':
+      return [
+        { title: 'Moderation', items: [
+          { path: '/moderator/dashboard', label: 'Assigned Contests', icon: icons.clipboard },
+          { path: '/moderator/queue', label: 'Evaluation Queue', icon: icons.check },
+        ]},
+      ];
+
+    case 'COMPLIANCE_OFFICER':
+      return [
+        { title: 'Compliance & Audit', items: [
+          { path: '/compliance/audit-logs', label: 'Audit Log Viewer', icon: icons.shield },
+          { path: '/compliance/gdpr', label: 'GDPR Erasure Queue', icon: icons.doc },
+        ]},
+      ];
+
+    case 'GUEST_CANDIDATE':
+      return [];
+
     case 'EVALUATOR':
       return [
         { title: 'Evaluation', items: [
@@ -119,10 +145,11 @@ function getNavSections(role: string): NavSection[] {
     case 'STUDENT':
     default:
       return [
-        { title: 'Assessment', items: [
-          { path: '/browse', label: 'Browse Contests', icon: icons.globe },
-          { path: '/contests', label: 'My Contests', icon: icons.trophy },
-          { path: '/leaderboard', label: 'Leaderboard', icon: icons.chart },
+        { title: 'Assessment & Exams', items: [
+          { path: '/dashboard', label: '🎯 Exam Hall & Drives', icon: icons.dashboard },
+          { path: '/dashboard?tab=skills', label: '📊 Skill Analytics & Radar', icon: icons.chart },
+          { path: '/dashboard?tab=credentials', label: '📜 Verified Credentials', icon: icons.doc },
+          { path: '/dashboard?tab=scorecards', label: '📁 My Scorecards', icon: icons.clipboard },
         ]},
         { title: 'Practice & Skills', items: [
           { path: '/playground', label: 'Code Playground', icon: icons.code },
@@ -152,7 +179,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
     navigator.userAgent.toLowerCase().includes('safeexambrowser') ||
     new URLSearchParams(window.location.search).get('seb') === '1';
 
-  if (isSeb || location.pathname.startsWith('/playground/web-dev') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/' || location.pathname === '/landing') {
+  if (isSeb || location.pathname.startsWith('/playground/web-dev') || location.pathname.startsWith('/guest') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/' || location.pathname === '/landing') {
     return <>{children}</>;
   }
 

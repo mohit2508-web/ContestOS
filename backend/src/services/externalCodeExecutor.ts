@@ -199,9 +199,7 @@ export class ExternalCodeExecutor {
         compile_timeout: 10000,
         run_timeout: 5000,
       };
-      if (PISTON_VERSION_MAP[request.language]) {
-        payload.version = PISTON_VERSION_MAP[request.language];
-      }
+      payload.version = PISTON_VERSION_MAP[request.language] || "*";
 
       const response = await axios.post(`${PISTON_API_URL}/execute`, payload, {
         headers: { "Content-Type": "application/json" }

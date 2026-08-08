@@ -1,4 +1,7 @@
-import { Server as SocketIOServer, Socket } from 'socket.io';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SocketIOServer = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Socket = any;
 import { isQuizSessionFrozen, setQuizSessionFreeze } from '../services/proctoringService';
 
 interface TimerSession {
@@ -16,7 +19,7 @@ export function setupQuizTimerSocket(io: SocketIOServer) {
   quizNamespace.on('connection', (socket: Socket) => {
     let currentKey = '';
 
-    socket.on('timer:join', ({ contestId, sectionId, userId, durationMinutes }) => {
+    socket.on('timer:join', ({ contestId, sectionId, userId, durationMinutes }: { contestId: string; sectionId: string; userId: string; durationMinutes: number }) => {
       currentKey = `${userId}:${contestId}:${sectionId}`;
       socket.join(currentKey);
 
@@ -37,12 +40,12 @@ export function setupQuizTimerSocket(io: SocketIOServer) {
       });
     });
 
-    socket.on('proctor:freeze_session', ({ targetUserId, contestId }) => {
+    socket.on('proctor:freeze_session', ({ targetUserId, contestId }: { targetUserId: string; contestId: string }) => {
       setQuizSessionFreeze(targetUserId, contestId, true);
       quizNamespace.to(`${targetUserId}:${contestId}`).emit('session:frozen', { isFrozen: true });
     });
 
-    socket.on('proctor:unfreeze_session', ({ targetUserId, contestId }) => {
+    socket.on('proctor:unfreeze_session', ({ targetUserId, contestId }: { targetUserId: string; contestId: string }) => {
       setQuizSessionFreeze(targetUserId, contestId, false);
       quizNamespace.to(`${targetUserId}:${contestId}`).emit('session:frozen', { isFrozen: false });
     });

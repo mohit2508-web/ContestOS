@@ -38,8 +38,9 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Query real users from database
+    // Query real student candidates from database (exclude admins/moderators)
     const users = await prisma.user.findMany({
+      where: { role: { in: ['STUDENT', 'CANDIDATE', 'GUEST_CANDIDATE'] } },
       take: 100,
       select: {
         id: true,
@@ -140,7 +141,10 @@ router.get('/global', async (req: Request, res: Response): Promise<void> => {
   req.query.scope = 'global';
   const limit = Math.min(100, parseInt(req.query.limit as string) || 50);
   
-  const users = await prisma.user.findMany({ take: limit });
+  const users = await prisma.user.findMany({
+    where: { role: { in: ['STUDENT', 'CANDIDATE', 'GUEST_CANDIDATE'] } },
+    take: limit
+  });
   const leaderboard = users.map((u, i) => ({
     rank: i + 1,
     id: u.id,
@@ -161,7 +165,10 @@ router.get('/global', async (req: Request, res: Response): Promise<void> => {
 // ── GET /api/leaderboard/platform/:platform — Platform Specific ──
 router.get('/platform/:platform', async (req: Request, res: Response): Promise<void> => {
   const { platform } = req.params;
-  const users = await prisma.user.findMany({ take: 50 });
+  const users = await prisma.user.findMany({
+    where: { role: { in: ['STUDENT', 'CANDIDATE', 'GUEST_CANDIDATE'] } },
+    take: 50
+  });
 
   const leaderboard = users.map((u, i) => ({
     rank: i + 1,
@@ -192,7 +199,10 @@ router.get('/platform/:platform', async (req: Request, res: Response): Promise<v
 // ── GET /api/leaderboard/category/:category — Category Specific ──
 router.get('/category/:category', async (req: Request, res: Response): Promise<void> => {
   const { category } = req.params;
-  const users = await prisma.user.findMany({ take: 30 });
+  const users = await prisma.user.findMany({
+    where: { role: { in: ['STUDENT', 'CANDIDATE', 'GUEST_CANDIDATE'] } },
+    take: 30
+  });
 
   const leaderboard = users.map((u, i) => ({
     rank: i + 1,
@@ -214,7 +224,10 @@ router.get('/category/:category', async (req: Request, res: Response): Promise<v
 // ── GET /api/leaderboard/department/:department — Department Specific ──
 router.get('/department/:department', async (req: Request, res: Response): Promise<void> => {
   const { department } = req.params;
-  const users = await prisma.user.findMany({ take: 30 });
+  const users = await prisma.user.findMany({
+    where: { role: { in: ['STUDENT', 'CANDIDATE', 'GUEST_CANDIDATE'] } },
+    take: 30
+  });
 
   const leaderboard = users.map((u, i) => ({
     rank: i + 1,
@@ -248,7 +261,10 @@ router.get('/departments', async (_req: Request, res: Response): Promise<void> =
 
 // ── GET /api/leaderboard/leetcode — LeetCode Specific Rankings ──
 router.get('/leetcode', async (_req: Request, res: Response): Promise<void> => {
-  const users = await prisma.user.findMany({ take: 25 });
+  const users = await prisma.user.findMany({
+    where: { role: { in: ['STUDENT', 'CANDIDATE', 'GUEST_CANDIDATE'] } },
+    take: 25
+  });
   const leaderboard = users.map((u, i) => ({
     id: i + 1,
     rank: i + 1,

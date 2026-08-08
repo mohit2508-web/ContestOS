@@ -4,17 +4,31 @@ import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 
 const HIERARCHY_MAP: Record<string, number> = {
-  SUPER_ADMIN: 1, PLATFORM_CONTENT_AUTHOR: 2, ORG_ADMIN: 3, PROCTOR: 4, ORG_MEMBER: 5, EVALUATOR: 6, STUDENT: 7, CANDIDATE: 7,
+  SUPER_ADMIN: 1,
+  PLATFORM_CONTENT_AUTHOR: 2,
+  ORG_ADMIN: 3,
+  PROCTOR: 4,
+  ORG_MEMBER: 4,
+  EVALUATOR: 4,
+  CONTEST_MODERATOR: 4,
+  COMPLIANCE_OFFICER: 4,
+  ANALYTICS_VIEWER: 5,
+  STUDENT: 6,
+  CANDIDATE: 6,
+  GUEST_CANDIDATE: 7,
 };
 
 function roleToPath(role: string): string {
   switch (role) {
     case 'SUPER_ADMIN': return '/admin/platform';
-    case 'PLATFORM_CONTENT_AUTHOR': return '/governance/banks?scope=PLATFORM_GLOBAL';
+    case 'PLATFORM_CONTENT_AUTHOR': return '/governance/sme-bank';
     case 'ORG_ADMIN': return '/admin/org';
     case 'PROCTOR': return '/proctor/live';
     case 'ORG_MEMBER': return '/member/contests';
     case 'EVALUATOR': return '/evaluator/assigned';
+    case 'ANALYTICS_VIEWER': return '/analytics/dashboard';
+    case 'COMPLIANCE_OFFICER': return '/compliance/audit-logs';
+    case 'CONTEST_MODERATOR': return '/moderator/dashboard';
     case 'STUDENT': return '/contests';
     case 'CANDIDATE': return '/contests';
     default: return '/contests';
@@ -28,6 +42,9 @@ const DEMO_ACCOUNTS = [
   { label: 'Proctor', role: 'PROCTOR', email: 'proctor@iitd.ac.in', password: 'Proctor@123456', color: 'from-rose-500 to-rose-600' },
   { label: 'Org Member', role: 'ORG_MEMBER', email: 'teacher@iitd.ac.in', password: 'Teacher@123456', color: 'from-blue-500 to-blue-600' },
   { label: 'Evaluator', role: 'EVALUATOR', email: 'evaluator@iitd.ac.in', password: 'Evaluator@123456', color: 'from-teal-500 to-teal-600' },
+  { label: 'Analytics Viewer (HR)', role: 'ANALYTICS_VIEWER', email: 'analytics@iitd.ac.in', password: 'Analytics@123456', color: 'from-cyan-500 to-cyan-600' },
+  { label: 'Chief Examiner / Moderator', role: 'CONTEST_MODERATOR', email: 'moderator@iitd.ac.in', password: 'Moderator@123456', color: 'from-orange-500 to-orange-600' },
+  { label: 'Compliance & GDPR Officer', role: 'COMPLIANCE_OFFICER', email: 'compliance@iitd.ac.in', password: 'Compliance@123456', color: 'from-red-600 to-rose-700' },
   { label: 'Candidate', role: 'CANDIDATE', email: 'student@iitd.ac.in', password: 'Student@123456', color: 'from-emerald-500 to-emerald-600' },
 ];
 

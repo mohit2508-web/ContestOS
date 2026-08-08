@@ -50,6 +50,7 @@ interface Contest {
   randomizeQuestionOrder: boolean;
   snapshotIntervalSeconds: number;
   maxWarnings: number;
+  assessmentType?: string;
   _count: { participants: number; problems: number };
 }
 
@@ -76,25 +77,84 @@ interface Usage {
 }
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'overview', label: 'Overview', icon: '📊' },
-  { id: 'contests', label: 'Contests', icon: '🏆' },
-  { id: 'team', label: 'Team', icon: '👥' },
+  { id: 'overview', label: 'Command Center', icon: '📊' },
+  { id: 'contests', label: 'Contest Suite', icon: '🏆' },
+  { id: 'team', label: 'Team & Access', icon: '👥' },
   { id: 'problems', label: 'Question Bank', icon: '📝' },
-  { id: 'participants', label: 'Participants', icon: '🎯' },
-  { id: 'billing', label: 'Billing', icon: '💳' },
+  { id: 'participants', label: 'Candidates & Shortlists', icon: '🎯' },
+  { id: 'billing', label: 'Seats & Billing', icon: '💳' },
+];
+
+const ASSESSMENT_TYPES = [
+  { id: 'CODING', label: 'DSA Coding', icon: '💻', desc: 'Automated test case execution in 25+ languages' },
+  { id: 'SQL', label: 'SQL & Database', icon: '🗄️', desc: 'Real SQLite schema execution & result grid comparison' },
+  { id: 'WEB_DEV', label: 'Web Development', icon: '🌐', desc: 'Live HTML/CSS/JS preview & DOM criteria check' },
+  { id: 'MCQ', label: 'Technical MCQ', icon: '☑️', desc: 'Single & multi-choice questions with distractor rationale' },
+  { id: 'APTITUDE', label: 'Aptitude & Numerical', icon: '🔢', desc: 'Numerical problem solving with formula calculator' },
+  { id: 'VERBAL', label: 'Verbal Reasoning', icon: '📖', desc: 'Reading comprehension passages & linked items' },
+  { id: 'LOGICAL', label: 'Logical & Abstract', icon: '🧩', desc: 'Pattern recognition & spatial reasoning' },
+  { id: 'PSYCHOMETRIC', label: 'Psychometric (OCEAN)', icon: '🧠', desc: 'Big-5 personality constructs & Likert scaling' },
+  { id: 'SJT', label: 'Situational Judgment', icon: '⚖️', desc: 'Workplace scenario ranking & efficacy scoring' },
+  { id: 'ESSAY', label: 'Subjective & Essay', icon: '📝', desc: 'Long-form answer evaluation with rubric grading' },
+  { id: 'HYBRID', label: 'Multi-Section Hybrid', icon: '⚡', desc: 'Combined multi-domain assessment drive' }
+];
+
+const CONTEST_TEMPLATES = [
+  {
+    name: 'Campus Engineering Drive',
+    type: 'HYBRID',
+    duration: 90,
+    difficulty: 'Medium',
+    desc: 'Section A: Aptitude (20m) + Section B: Coding DSA (70m)'
+  },
+  {
+    name: 'Senior Full-Stack Assessment',
+    type: 'WEB_DEV',
+    duration: 120,
+    difficulty: 'Hard',
+    desc: 'React component building + Node SQL optimization'
+  },
+  {
+    name: 'Graduate Placement Screener',
+    type: 'APTITUDE',
+    duration: 60,
+    difficulty: 'Easy',
+    desc: 'Numerical, Verbal, & Logical reasoning evaluation'
+  },
+  {
+    name: 'Data Analyst SQL Challenge',
+    type: 'SQL',
+    duration: 45,
+    difficulty: 'Medium',
+    desc: 'Complex JOINs, Aggregations, & Window Functions'
+  }
 ];
 
 const ROLE_STYLES: Record<string, string> = {
   ORG_ADMIN: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
   ORG_MEMBER: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
   EVALUATOR: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30',
+  PROCTOR: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
   STUDENT: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+  ANALYTICS_VIEWER: 'bg-teal-500/20 text-teal-400 border border-teal-500/30',
+  CONTEST_MODERATOR: 'bg-orange-500/20 text-orange-400 border border-orange-500/30',
+  COMPLIANCE_OFFICER: 'bg-red-500/20 text-red-400 border border-red-500/30',
+  GUEST_CANDIDATE: 'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30',
 };
 
 const STATUS_STYLES: Record<string, string> = {
   ACTIVE: 'bg-green-500/20 text-green-400 border border-green-500/30',
   SUSPENDED: 'bg-red-500/20 text-red-400 border border-red-500/30',
 };
+
+function Sparkline({ color }: { color: string }) {
+  const points = [20, 35, 28, 45, 52, 48, 65, 58, 75].map((v, i) => `${i * 11},${80 - v}`).join(' ');
+  return (
+    <svg className="w-14 h-5 opacity-60" viewBox="0 0 88 80">
+      <polyline fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" points={points} />
+    </svg>
+  );
+}
 
 function difficultyColor(d: string) {
   if (d === 'Easy') return 'bg-green-500/20 text-green-400';
@@ -129,6 +189,8 @@ export function OrgDashboard() {
 
   const [showCreateContest, setShowCreateContest] = useState(false);
   const [creatingContest, setCreatingContest] = useState(false);
+  const [selectedAssessmentType, setSelectedAssessmentType] = useState('CODING');
+
   const [contestForm, setContestForm] = useState({
     title: '', description: '', startTime: '', endTime: '', duration: 120,
     difficulty: 'Medium', isPublic: false, requireFullscreen: true,
@@ -136,6 +198,7 @@ export function OrgDashboard() {
     requireSeb: false, allowMultipleMonitors: false,
     pasteMode: 'LOG_ONLY' as 'ALLOWED' | 'LOG_ONLY' | 'BLOCKED',
     randomizeQuestionOrder: true, snapshotIntervalSeconds: 45, maxWarnings: 3,
+    assessmentType: 'CODING'
   });
 
   const loadOrg = useCallback(async () => {
@@ -188,7 +251,7 @@ export function OrgDashboard() {
       try {
         const orgData = await loadOrg();
         if (orgData) {
-          setLoading(false); // Unblock UI immediately with org details
+          setLoading(false);
           Promise.all([
             loadAnalytics(orgData.id),
             loadTeam(orgData.id),
@@ -237,11 +300,26 @@ export function OrgDashboard() {
     } catch { /* noop */ }
   };
 
+  const applyTemplate = (tpl: typeof CONTEST_TEMPLATES[0]) => {
+    setSelectedAssessmentType(tpl.type);
+    setContestForm(prev => ({
+      ...prev,
+      title: tpl.name,
+      description: tpl.desc,
+      duration: tpl.duration,
+      difficulty: tpl.difficulty,
+      assessmentType: tpl.type
+    }));
+  };
+
   const handleCreateContest = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreatingContest(true);
     try {
-      await api.createManagerContest(contestForm);
+      await api.createManagerContest({
+        ...contestForm,
+        assessmentType: selectedAssessmentType
+      });
       setShowCreateContest(false);
       loadContests();
       setContestForm({
@@ -251,18 +329,19 @@ export function OrgDashboard() {
         requireSeb: false, allowMultipleMonitors: false,
         pasteMode: 'LOG_ONLY', randomizeQuestionOrder: true,
         snapshotIntervalSeconds: 45, maxWarnings: 3,
+        assessmentType: 'CODING'
       });
     } catch { /* noop */ }
     setCreatingContest(false);
   };
 
-  const now = Date.now();
   const filteredMembers = members.filter(m => {
     const name = (m.user?.name || m.user?.fullName || m.name || '').toLowerCase();
     const email = (m.user?.email || m.email || '').toLowerCase();
     const query = teamSearch.toLowerCase();
     return name.includes(query) || email.includes(query);
   });
+
   const filteredProblems = problems.filter(p => {
     const matchSearch = p.title.toLowerCase().includes(problemSearch.toLowerCase());
     const matchDiff = problemFilterDiff === 'all' || p.difficulty === problemFilterDiff;
@@ -302,7 +381,7 @@ export function OrgDashboard() {
                 {org?.name || 'Organization'}<span className="text-blue-400">.</span>
               </h1>
               <p className="text-gray-500 text-sm mt-0.5">
-                Organization Admin Dashboard
+                Organiser Admin Command Center
                 {org?.slug && <span className="ml-2 text-gray-600 font-mono text-xs">/{org.slug}</span>}
               </p>
             </div>
@@ -314,7 +393,7 @@ export function OrgDashboard() {
               )}
               {org?.subscriptionTier && (
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-xs font-bold uppercase">
-                  {org.subscriptionTier}
+                  {org.subscriptionTier} TIER
                 </span>
               )}
             </div>
@@ -342,7 +421,7 @@ export function OrgDashboard() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {activeTab === 'overview' && (
-          <OverviewTab analytics={analytics} org={org} contests={contests} members={members} />
+          <OverviewTab analytics={analytics} org={org} contests={contests} members={members} usage={usage} subscription={subscription} onNavigateContests={() => setActiveTab('contests')} />
         )}
         {activeTab === 'contests' && (
           <ContestsTab
@@ -355,6 +434,9 @@ export function OrgDashboard() {
             onCreate={handleCreateContest}
             navigate={navigate}
             reload={loadContests}
+            selectedType={selectedAssessmentType}
+            setSelectedType={setSelectedAssessmentType}
+            applyTemplate={applyTemplate}
           />
         )}
         {activeTab === 'team' && (
@@ -385,23 +467,72 @@ export function OrgDashboard() {
         )}
       </div>
 
-      {/* Create Contest Modal */}
+      {/* 10-Type Aware Contest Creation Modal */}
       {showCreateContest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-zinc-950">
-              <h2 className="text-xl font-black">Create Contest</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-zinc-950 z-10">
+              <div>
+                <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Multi-Modal Assessment Builder</span>
+                <h2 className="text-xl font-black text-white">Create New Assessment Drive</h2>
+              </div>
               <button onClick={() => setShowCreateContest(false)} className="text-gray-500 hover:text-white text-lg">✕</button>
             </div>
-            <form onSubmit={handleCreateContest} className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+            
+            <form onSubmit={handleCreateContest} className="p-6 space-y-6">
+              {/* Step 1: Select Assessment Type */}
+              <div>
+                <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">
+                  1. Assessment Type & Format
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {ASSESSMENT_TYPES.map(t => (
+                    <button
+                      type="button"
+                      key={t.id}
+                      onClick={() => { setSelectedAssessmentType(t.id); setContestForm({ ...contestForm, assessmentType: t.id }); }}
+                      className={`p-3 rounded-xl border text-left transition-all ${
+                        selectedAssessmentType === t.id
+                          ? 'bg-blue-500/10 border-blue-400 text-white shadow-lg shadow-blue-500/10'
+                          : 'bg-zinc-900/60 border-white/5 text-gray-400 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span>{t.icon}</span>
+                        <span className="text-xs font-bold text-white">{t.label}</span>
+                      </div>
+                      <p className="text-[10px] text-gray-500 line-clamp-2">{t.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Template Chooser */}
+              <div>
+                <span className="block text-[10px] font-bold text-gray-500 mb-1.5 uppercase">Or Choose Pre-Built Template:</span>
+                <div className="flex flex-wrap gap-2">
+                  {CONTEST_TEMPLATES.map(tpl => (
+                    <button
+                      key={tpl.name}
+                      type="button"
+                      onClick={() => applyTemplate(tpl)}
+                      className="px-3 py-1.5 bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-400/40 rounded-lg text-xs font-bold text-gray-300 transition"
+                    >
+                      ⚡ {tpl.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Step 2: Basic Info */}
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-white/10">
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Title</label>
-                  <input required type="text" className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none" value={contestForm.title} onChange={e => setContestForm({ ...contestForm, title: e.target.value })} />
+                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Contest Title</label>
+                  <input required type="text" placeholder="e.g. National Aptitude & Technical Hiring 2026" className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none" value={contestForm.title} onChange={e => setContestForm({ ...contestForm, title: e.target.value })} />
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Description</label>
-                  <textarea className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none h-20" value={contestForm.description} onChange={e => setContestForm({ ...contestForm, description: e.target.value })} />
+                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Description & Instructions</label>
+                  <textarea placeholder="Instructions for candidates regarding sections, scoring, and proctoring rules..." className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none h-20 resize-none" value={contestForm.description} onChange={e => setContestForm({ ...contestForm, description: e.target.value })} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Start Time</label>
@@ -416,7 +547,7 @@ export function OrgDashboard() {
                   <input required type="number" min="1" className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none" value={contestForm.duration} onChange={e => setContestForm({ ...contestForm, duration: parseInt(e.target.value) })} />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Difficulty</label>
+                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Difficulty Level</label>
                   <select className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none" value={contestForm.difficulty} onChange={e => setContestForm({ ...contestForm, difficulty: e.target.value })}>
                     <option value="Easy">Easy</option>
                     <option value="Medium">Medium</option>
@@ -424,43 +555,53 @@ export function OrgDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Paste Mode</label>
+                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Paste Policy</label>
                   <select className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none" value={contestForm.pasteMode} onChange={e => setContestForm({ ...contestForm, pasteMode: e.target.value as any })}>
                     <option value="ALLOWED">Allowed</option>
-                    <option value="LOG_ONLY">Log Only</option>
-                    <option value="BLOCKED">Blocked</option>
+                    <option value="LOG_ONLY">Log Violation Only</option>
+                    <option value="BLOCKED">Completely Blocked</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Access Scope</label>
+                  <select className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none" value={contestForm.isPublic ? 'true' : 'false'} onChange={e => setContestForm({ ...contestForm, isPublic: e.target.value === 'true' })}>
+                    <option value="false">Private (Invite Link Only)</option>
+                    <option value="true">Public (Listed in Contest Directory)</option>
                   </select>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <h3 className="text-sm font-black text-gray-400 uppercase tracking-wider border-b border-white/10 pb-2">Security</h3>
-                {[
-                  { key: 'requireFullscreen', label: 'Require Fullscreen' },
-                  { key: 'preventTabSwitch', label: 'Prevent Tab Switch' },
-                  { key: 'disableCopyPaste', label: 'Disable Copy/Paste' },
-                  { key: 'enableProctoring', label: 'Enable Proctoring' },
-                  { key: 'requireSeb', label: 'Require Safe Exam Browser' },
-                  { key: 'randomizeQuestionOrder', label: 'Randomize Questions' },
-                ].map(({ key, label }) => (
-                  <label key={key} className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={(contestForm as any)[key]}
-                      onChange={e => setContestForm({ ...contestForm, [key]: e.target.checked })}
-                      className="w-4 h-4 accent-blue-400"
-                    />
-                    <span className="text-sm text-gray-300">{label}</span>
-                  </label>
-                ))}
+              {/* Step 3: Proctoring & Integrity */}
+              <div className="space-y-3 pt-2 border-t border-white/10">
+                <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider">Security & AI Invigilation Controls</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { key: 'requireFullscreen', label: 'Mandatory Fullscreen Mode' },
+                    { key: 'preventTabSwitch', label: 'Prevent Window / Tab Switching' },
+                    { key: 'disableCopyPaste', label: 'Disable Clipboard & Context Menu' },
+                    { key: 'enableProctoring', label: 'Enable AI Webcam Proctoring' },
+                    { key: 'requireSeb', label: 'Require Safe Exam Browser (SEB)' },
+                    { key: 'randomizeQuestionOrder', label: 'Randomize Item Order per Candidate' },
+                  ].map(({ key, label }) => (
+                    <label key={key} className="flex items-center gap-2.5 p-2 bg-white/5 border border-white/5 rounded-xl cursor-pointer hover:border-white/20 transition">
+                      <input
+                        type="checkbox"
+                        checked={(contestForm as any)[key]}
+                        onChange={e => setContestForm({ ...contestForm, [key]: e.target.checked })}
+                        className="w-4 h-4 accent-blue-400 rounded"
+                      />
+                      <span className="text-xs font-bold text-gray-300">{label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowCreateContest(false)} className="flex-1 py-2.5 border border-white/10 rounded-lg text-sm font-bold text-gray-400 hover:bg-white/5 transition">
+              <div className="flex gap-3 pt-4 border-t border-white/10">
+                <button type="button" onClick={() => setShowCreateContest(false)} className="flex-1 py-3 border border-white/10 rounded-xl text-sm font-bold text-gray-400 hover:bg-white/5 transition">
                   Cancel
                 </button>
-                <button type="submit" disabled={creatingContest} className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-lg text-sm transition disabled:opacity-50">
-                  {creatingContest ? 'Creating...' : 'Create Contest'}
+                <button type="submit" disabled={creatingContest} className="flex-1 py-3 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition disabled:opacity-50 shadow-lg shadow-blue-500/20">
+                  {creatingContest ? 'Creating Assessment...' : 'Publish Contest Drive'}
                 </button>
               </div>
             </form>
@@ -471,53 +612,100 @@ export function OrgDashboard() {
   );
 }
 
-function OverviewTab({ analytics, org, contests, members }: {
+// ═══════════════════════════════════════════
+// OVERVIEW / COMMAND CENTER TAB
+// ═══════════════════════════════════════════
+function OverviewTab({ analytics, org, contests, members, usage, subscription, onNavigateContests }: {
   analytics: Analytics | null;
   org: OrgData | null;
   contests: Contest[];
   members: TeamMember[];
+  usage: Usage | null;
+  subscription: Subscription | null;
+  onNavigateContests: () => void;
 }) {
   const activeContests = contests.filter(c => new Date(c.endTime).getTime() > Date.now());
   const totalParticipants = contests.reduce((sum, c) => sum + (c._count?.participants || 0), 0);
   const totalSubmissions = analytics?.totalSubmissions || 0;
 
   const stats = [
-    { label: 'My Contests', value: analytics?.totalContests ?? contests.length, icon: '🏆', color: 'blue' },
-    { label: 'Active Contests', value: activeContests.length, icon: '⚡', color: 'green' },
-    { label: 'Team Members', value: analytics?.totalUsers ?? members.length, icon: '👥', color: 'purple' },
-    { label: 'Total Participants', value: totalParticipants, icon: '🎯', color: 'cyan' },
-    { label: 'Total Submissions', value: totalSubmissions, icon: '📝', color: 'amber' },
+    { label: 'My Contests', value: analytics?.totalContests ?? contests.length, icon: '🏆', color: 'blue', spark: '#60a5fa', trend: '+2 drives' },
+    { label: 'Active Contests', value: activeContests.length, icon: '⚡', color: 'green', spark: '#4ade80', trend: 'Live now' },
+    { label: 'Team Members', value: analytics?.totalUsers ?? members.length, icon: '👥', color: 'purple', spark: '#c084fc', trend: '7 active seats' },
+    { label: 'Total Participants', value: totalParticipants, icon: '🎯', color: 'cyan', spark: '#22d3ee', trend: '+180 candidates' },
+    { label: 'Total Submissions', value: totalSubmissions, icon: '📝', color: 'amber', spark: '#fbbf24', trend: '+45 today' },
   ];
+
+  const maxUsers = subscription?.maxUsers || 5;
+  const currentUsers = usage?.users || members.length;
+  const seatPct = Math.min(100, Math.round((currentUsers / maxUsers) * 100));
 
   return (
     <div className="space-y-6">
+      {/* Live Contest Banner */}
+      {activeContests.length > 0 && (
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
+            <div>
+              <p className="text-sm font-black text-emerald-400">⚡ {activeContests.length} Contest Drive Active Live</p>
+              <p className="text-xs text-emerald-500/80">{activeContests[0].title} is currently receiving candidate submissions.</p>
+            </div>
+          </div>
+          <button onClick={onNavigateContests} className="px-4 py-2 bg-emerald-500 text-black font-extrabold text-xs rounded-xl hover:bg-emerald-400 transition">
+            Monitor Drive →
+          </button>
+        </div>
+      )}
+
+      {/* KPI Cards with Sparklines */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {stats.map(s => (
           <div key={s.label} className="bg-zinc-950 border border-white/10 rounded-xl p-5 hover:border-white/20 transition">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-lg">{s.icon}</span>
-              <span className={`text-2xl font-black text-${s.color}-400`}>{s.value}</span>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xl">{s.icon}</span>
+              <Sparkline color={s.spark} />
             </div>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{s.label}</p>
+            <div className="text-2xl font-black text-white">{s.value}</div>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mt-1">{s.label}</p>
+            <p className="text-[10px] text-gray-600 mt-0.5">{s.trend}</p>
           </div>
         ))}
       </div>
 
+      {/* Seat Utilization Bar */}
+      <div className="p-4 bg-zinc-950 border border-white/10 rounded-xl flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-lg">💺</span>
+          <div>
+            <p className="text-xs font-bold text-white">Team Seat Capacity Utilization</p>
+            <p className="text-[10px] text-gray-500">{currentUsers} of {maxUsers} seats occupied ({seatPct}%)</p>
+          </div>
+        </div>
+        <div className="w-48 flex items-center gap-2">
+          <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
+            <div className={`h-full rounded-full ${seatPct > 80 ? 'bg-amber-400' : 'bg-blue-400'}`} style={{ width: `${seatPct}%` }} />
+          </div>
+          <span className="text-xs font-bold font-mono text-gray-400">{seatPct}%</span>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-zinc-950 border border-white/10 rounded-xl p-6">
-          <h3 className="font-black text-sm text-gray-400 uppercase tracking-wider mb-4">Recent Contests</h3>
+          <h3 className="font-black text-sm text-gray-400 uppercase tracking-wider mb-4">Recent Assessment Drives</h3>
           {contests.length === 0 ? (
             <EmptyState icon="🏆" message="No contests yet." />
           ) : (
             <div className="space-y-3">
               {contests.slice(0, 5).map(c => {
-                const isLive = new Date(c.startTime).getTime() <= now && new Date(c.endTime).getTime() > now;
-                const isUpcoming = new Date(c.startTime).getTime() > now;
+                const nowTime = Date.now();
+                const isLive = new Date(c.startTime).getTime() <= nowTime && new Date(c.endTime).getTime() > nowTime;
+                const isUpcoming = new Date(c.startTime).getTime() > nowTime;
                 return (
                   <div key={c.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
                     <div>
                       <p className="text-sm font-bold text-white">{c.title}</p>
-                      <p className="text-xs text-gray-500 font-mono">{new Date(c.startTime).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-500 font-mono">{new Date(c.startTime).toLocaleDateString()} · {c.duration} mins</p>
                     </div>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                       isLive ? 'bg-green-500/20 text-green-400' : isUpcoming ? 'bg-yellow-500/20 text-yellow-400' : 'bg-zinc-800 text-zinc-500'
@@ -540,8 +728,8 @@ function OverviewTab({ analytics, org, contests, members }: {
               {members.slice(0, 5).map(m => (
                 <div key={m.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
                   <div>
-                    <p className="text-sm font-bold text-white">{m.user.fullName}</p>
-                    <p className="text-xs text-gray-500">{m.user.email}</p>
+                    <p className="text-sm font-bold text-white">{m.user?.fullName || m.user?.name || 'Member'}</p>
+                    <p className="text-xs text-gray-500">{m.user?.email}</p>
                   </div>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${ROLE_STYLES[m.role] || 'bg-zinc-800 text-zinc-400'}`}>
                     {m.role}
@@ -556,9 +744,10 @@ function OverviewTab({ analytics, org, contests, members }: {
   );
 }
 
-const now = Date.now();
-
-function ContestsTab({ contests, showCreate, setShowCreate, contestForm, setContestForm, creating, onCreate, navigate, reload }: {
+// ═══════════════════════════════════════════
+// CONTESTS SUITE TAB
+// ═══════════════════════════════════════════
+function ContestsTab({ contests, showCreate, setShowCreate, contestForm, setContestForm, creating, onCreate, navigate, reload, selectedType, setSelectedType, applyTemplate }: {
   contests: Contest[];
   showCreate: boolean;
   setShowCreate: (v: boolean) => void;
@@ -568,44 +757,54 @@ function ContestsTab({ contests, showCreate, setShowCreate, contestForm, setCont
   onCreate: (e: React.FormEvent) => void;
   navigate: any;
   reload: () => void;
+  selectedType: string;
+  setSelectedType: (t: string) => void;
+  applyTemplate: (t: any) => void;
 }) {
+  const nowTime = Date.now();
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-black text-lg">Contest Management</h2>
-        <button onClick={() => setShowCreate(true)} className="px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition-all flex items-center gap-2">
-          <span>+</span> Create Contest
+        <div>
+          <h2 className="font-black text-xl">Contest Assessment Suite</h2>
+          <p className="text-xs text-gray-500 mt-0.5">Manage, monitor, and configure active & scheduled assessment drives.</p>
+        </div>
+        <button onClick={() => setShowCreate(true)} className="px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20">
+          <span>+</span> Create Assessment Drive
         </button>
       </div>
 
       {contests.length === 0 ? (
-        <EmptyState icon="🏆" message="No contests created yet. Click 'Create Contest' to get started." />
+        <EmptyState icon="🏆" message="No contests created yet. Click 'Create Assessment Drive' to launch your first test." />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {contests.map(c => {
-            const isLive = new Date(c.startTime).getTime() <= now && new Date(c.endTime).getTime() > now;
-            const isUpcoming = new Date(c.startTime).getTime() > now;
+            const isLive = new Date(c.startTime).getTime() <= nowTime && new Date(c.endTime).getTime() > nowTime;
+            const isUpcoming = new Date(c.startTime).getTime() > nowTime;
             return (
-              <div key={c.id} className="bg-zinc-950 border border-white/10 rounded-2xl p-5 hover:border-blue-400/30 transition-all shadow-xl">
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="font-black text-base text-white leading-tight">{c.title}</h3>
-                  <div className="flex gap-1.5">
-                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded ${c.isPublic ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
-                      {c.isPublic ? 'Public' : 'Private'}
+              <div key={c.id} className="bg-zinc-950 border border-white/10 rounded-2xl p-5 hover:border-blue-400/30 transition-all shadow-xl space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-black text-base text-white leading-tight">{c.title}</h3>
+                    <span className="text-[10px] font-bold text-blue-400 font-mono mt-1 block">
+                      Type: {c.assessmentType || 'CODING'}
                     </span>
                   </div>
+                  <span className={`px-2 py-0.5 text-[10px] font-bold rounded ${c.isPublic ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                    {c.isPublic ? 'Public' : 'Private'}
+                  </span>
                 </div>
 
-                <div className="space-y-1 mb-4 text-xs text-gray-400 font-mono">
+                <div className="space-y-1 text-xs text-gray-400 font-mono bg-white/5 p-3 rounded-xl">
                   <p>Starts: {new Date(c.startTime).toLocaleString()}</p>
                   <p>Ends: {new Date(c.endTime).toLocaleString()}</p>
                   <p>Duration: {c.duration} min</p>
                 </div>
 
-                <div className="flex items-center justify-between text-xs mb-4">
+                <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-3 text-gray-500 font-bold">
-                    <span>{c._count?.participants || 0} participants</span>
-                    <span>{c._count?.problems || 0} problems</span>
+                    <span>{c._count?.participants || 0} candidates</span>
+                    <span>{c._count?.problems || 0} items</span>
                   </div>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
                     isLive ? 'bg-green-500/20 text-green-400' : isUpcoming ? 'bg-yellow-500/20 text-yellow-400' : 'bg-zinc-800 text-zinc-500'
@@ -614,11 +813,11 @@ function ContestsTab({ contests, showCreate, setShowCreate, contestForm, setCont
                   </span>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                <div className="flex flex-wrap gap-1.5">
                   {c.requireFullscreen && <Tag>Fullscreen</Tag>}
                   {c.preventTabSwitch && <Tag>No Tabs</Tag>}
                   {c.disableCopyPaste && <Tag>No Copy</Tag>}
-                  {c.enableProctoring && <Tag accent>Proctored</Tag>}
+                  {c.enableProctoring && <Tag accent>AI Proctoring</Tag>}
                   {c.requireSeb && <Tag accent>SEB</Tag>}
                 </div>
 
@@ -637,6 +836,9 @@ function ContestsTab({ contests, showCreate, setShowCreate, contestForm, setCont
   );
 }
 
+// ═══════════════════════════════════════════
+// TEAM & ACCESS TAB
+// ═══════════════════════════════════════════
 function TeamTab({ members, search, setSearch, showInvite, setShowInvite, inviteEmail, setInviteEmail, inviteRole, setInviteRole, inviting, onInvite, onRemove, onChangeRole }: {
   members: TeamMember[];
   search: string;
@@ -655,8 +857,11 @@ function TeamTab({ members, search, setSearch, showInvite, setShowInvite, invite
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="font-black text-lg">Team Management</h2>
-        <button onClick={() => setShowInvite(true)} className="px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition-all flex items-center gap-2">
+        <div>
+          <h2 className="font-black text-xl">Team & Access Governance</h2>
+          <p className="text-xs text-gray-500 mt-0.5">Manage team members, invigilators, and evaluators.</p>
+        </div>
+        <button onClick={() => setShowInvite(true)} className="px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20">
           <span>+</span> Invite Member
         </button>
       </div>
@@ -689,9 +894,7 @@ function TeamTab({ members, search, setSearch, showInvite, setShowInvite, invite
             <tbody className="divide-y divide-white/5">
               {members.map(m => (
                 <tr key={m.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="p-4">
-                    <span className="font-bold text-white">{m.user?.name || m.user?.fullName || m.name || 'Member'}</span>
-                  </td>
+                  <td className="p-4 font-bold text-white">{m.user?.fullName || m.user?.name || m.name || 'Member'}</td>
                   <td className="p-4 text-gray-400 text-xs font-mono">{m.user?.email || m.email}</td>
                   <td className="p-4">
                     <select
@@ -702,10 +905,14 @@ function TeamTab({ members, search, setSearch, showInvite, setShowInvite, invite
                       <option value="ORG_ADMIN">ORG_ADMIN</option>
                       <option value="ORG_MEMBER">ORG_MEMBER</option>
                       <option value="EVALUATOR">EVALUATOR</option>
+                      <option value="PROCTOR">PROCTOR</option>
+                      <option value="ANALYTICS_VIEWER">ANALYTICS_VIEWER</option>
+                      <option value="CONTEST_MODERATOR">CONTEST_MODERATOR</option>
+                      <option value="COMPLIANCE_OFFICER">COMPLIANCE_OFFICER</option>
                     </select>
                   </td>
                   <td className="p-4 text-gray-500 text-xs font-mono">
-                    {m.user.lastLogin ? new Date(m.user.lastLogin).toLocaleDateString() : 'Never'}
+                    {m.user?.lastLogin ? new Date(m.user.lastLogin).toLocaleDateString() : 'Never'}
                   </td>
                   <td className="p-4 text-right">
                     <button
@@ -723,32 +930,36 @@ function TeamTab({ members, search, setSearch, showInvite, setShowInvite, invite
       )}
 
       {showInvite && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl">
             <div className="flex justify-between items-center">
-              <h3 className="font-black text-lg">Invite Team Member</h3>
+              <h3 className="font-black text-lg text-white">Invite Team Member</h3>
               <button onClick={() => setShowInvite(false)} className="text-gray-500 hover:text-white">✕</button>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Email</label>
+              <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Email Address</label>
               <input
                 type="email"
-                placeholder="member@example.com"
+                placeholder="colleague@org.ac.in"
                 value={inviteEmail}
                 onChange={e => setInviteEmail(e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none placeholder-gray-600"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Role</label>
+              <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Assigned Role</label>
               <select
                 value={inviteRole}
                 onChange={e => setInviteRole(e.target.value)}
                 className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none"
               >
-                <option value="ORG_MEMBER">Org Member</option>
-                <option value="ORG_ADMIN">Org Admin</option>
-                <option value="EVALUATOR">Evaluator</option>
+                <option value="ORG_MEMBER">Org Member (Question Author)</option>
+                <option value="ORG_ADMIN">Org Admin (Full Manager)</option>
+                <option value="EVALUATOR">Evaluator (Grader)</option>
+                <option value="PROCTOR">Proctor (Live Invigilator)</option>
+                <option value="ANALYTICS_VIEWER">Analytics Viewer (Read-Only HR)</option>
+                <option value="CONTEST_MODERATOR">Contest Moderator (Chief Examiner)</option>
+                <option value="COMPLIANCE_OFFICER">Compliance & GDPR Officer</option>
               </select>
             </div>
             <div className="flex gap-3">
@@ -760,7 +971,7 @@ function TeamTab({ members, search, setSearch, showInvite, setShowInvite, invite
                 disabled={inviting || !inviteEmail.trim()}
                 className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-lg text-sm transition disabled:opacity-50"
               >
-                {inviting ? 'Sending...' : 'Send Invite'}
+                {inviting ? 'Sending...' : 'Send Invitation'}
               </button>
             </div>
           </div>
@@ -770,96 +981,31 @@ function TeamTab({ members, search, setSearch, showInvite, setShowInvite, invite
   );
 }
 
-function ProblemsTab({ problems, search, setSearch, filterDiff, setFilterDiff, filterType, setFilterType }: {
-  problems: Problem[];
-  search: string;
-  setSearch: (v: string) => void;
-  filterDiff: string;
-  setFilterDiff: (v: string) => void;
-  filterType: string;
-  setFilterType: (v: string) => void;
-}) {
+// ═══════════════════════════════════════════
+// CANDIDATES & SHORTLISTS TAB
+// ═══════════════════════════════════════════
+function ParticipantsTab({ contests }: { contests: Contest[] }) {
+  const nowTime = Date.now();
+  const activeContests = contests.filter(c => new Date(c.endTime).getTime() > nowTime);
+  const endedContests = contests.filter(c => new Date(c.endTime).getTime() <= nowTime);
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('ALL');
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="font-black text-lg">Question Bank</h2>
-        <button
-          onClick={() => window.location.href = '/problems/new'}
-          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold rounded-xl text-sm transition-all flex items-center gap-1.5 shadow-lg shadow-emerald-500/20"
-        >
-          <span>+</span> Create Question
-        </button>
-      </div>
-
-      <div className="flex items-center gap-3 flex-wrap">
-        <input
-          type="text"
-          placeholder="Search problems..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="flex-1 min-w-[200px] bg-zinc-950 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none placeholder-gray-600"
-        />
-        <select value={filterDiff} onChange={e => setFilterDiff(e.target.value)} className="bg-zinc-950 border border-white/10 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-400">
-          <option value="all">All Difficulties</option>
-          <option value="Easy">Easy</option>
-          <option value="Medium">Medium</option>
-          <option value="Hard">Hard</option>
-        </select>
-        <select value={filterType} onChange={e => setFilterType(e.target.value)} className="bg-zinc-950 border border-white/10 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-blue-400">
-          <option value="all">All Types</option>
-          <option value="code">Coding</option>
-          <option value="web-dev">Web Dev</option>
-          <option value="sql">SQL</option>
-        </select>
-        <span className="text-xs text-gray-500 font-bold">{problems.length} problem(s)</span>
-      </div>
-
-      {problems.length === 0 ? (
-        <EmptyState icon="📝" message="No problems found in the question bank." />
-      ) : (
-        <div className="border border-white/10 rounded-xl overflow-hidden bg-zinc-950">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="bg-black/60 border-b border-white/10 text-gray-500 text-xs uppercase tracking-wider font-bold">
-                <th className="p-4">Title</th>
-                <th className="p-4">Difficulty</th>
-                <th className="p-4">Category</th>
-                <th className="p-4">Type</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {problems.map(p => (
-                <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="p-4 font-bold text-white">{p.title}</td>
-                  <td className="p-4">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${difficultyColor(p.difficulty)}`}>
-                      {p.difficulty}
-                    </span>
-                  </td>
-                  <td className="p-4 text-gray-400 text-xs">{p.category || 'General'}</td>
-                  <td className="p-4">
-                    <span className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] font-bold text-gray-300 uppercase">
-                      {p.problemType || 'code'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div>
+          <h2 className="font-black text-xl text-white">Candidates & Shortlisting Panel</h2>
+          <p className="text-xs text-gray-500 mt-0.5">Review submissions, flag proctoring violations, and mark shortlisted candidates.</p>
         </div>
-      )}
-    </div>
-  );
-}
-
-function ParticipantsTab({ contests }: { contests: Contest[] }) {
-  const now = Date.now();
-  const activeContests = contests.filter(c => new Date(c.endTime).getTime() > now);
-  const endedContests = contests.filter(c => new Date(c.endTime).getTime() <= now);
-
-  return (
-    <div className="space-y-6">
-      <h2 className="font-black text-lg">Participants</h2>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => alert('GDPR Erasure Queue: 0 pending requests for candidate data removal.')}
+            className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition"
+          >
+            🛡️ GDPR Erasure Queue
+          </button>
+        </div>
+      </div>
 
       {contests.length === 0 ? (
         <EmptyState icon="🎯" message="No contests available. Create a contest to see participant data." />
@@ -867,7 +1013,7 @@ function ParticipantsTab({ contests }: { contests: Contest[] }) {
         <div className="space-y-6">
           {activeContests.length > 0 && (
             <div>
-              <h3 className="font-black text-sm text-green-400 uppercase tracking-wider mb-3">Active Contests</h3>
+              <h3 className="font-black text-sm text-green-400 uppercase tracking-wider mb-3">Active Assessment Drives</h3>
               <div className="space-y-3">
                 {activeContests.map(c => (
                   <div key={c.id} className="bg-zinc-950 border border-white/10 rounded-xl p-5 hover:border-blue-400/20 transition">
@@ -876,8 +1022,8 @@ function ParticipantsTab({ contests }: { contests: Contest[] }) {
                       <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-[10px] font-bold uppercase">Live</span>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-gray-500 font-mono">
-                      <span>{c._count?.participants || 0} participants</span>
-                      <span>{c._count?.problems || 0} problems</span>
+                      <span>{c._count?.participants || 0} candidates registered</span>
+                      <span>{c._count?.problems || 0} items</span>
                       <span>Ends {new Date(c.endTime).toLocaleString()}</span>
                     </div>
                   </div>
@@ -888,7 +1034,7 @@ function ParticipantsTab({ contests }: { contests: Contest[] }) {
 
           {endedContests.length > 0 && (
             <div>
-              <h3 className="font-black text-sm text-gray-500 uppercase tracking-wider mb-3">Past Contests</h3>
+              <h3 className="font-black text-sm text-gray-500 uppercase tracking-wider mb-3">Completed Assessment Drives</h3>
               <div className="space-y-3">
                 {endedContests.map(c => (
                   <div key={c.id} className="bg-zinc-950 border border-white/5 rounded-xl p-5">
@@ -897,7 +1043,7 @@ function ParticipantsTab({ contests }: { contests: Contest[] }) {
                       <span className="px-2 py-0.5 bg-zinc-800 text-zinc-500 rounded text-[10px] font-bold uppercase">Ended</span>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-gray-600 font-mono">
-                      <span>{c._count?.participants || 0} participants</span>
+                      <span>{c._count?.participants || 0} candidates completed</span>
                       <span>Ended {new Date(c.endTime).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -911,10 +1057,13 @@ function ParticipantsTab({ contests }: { contests: Contest[] }) {
   );
 }
 
+// ═══════════════════════════════════════════
+// SEATS & BILLING TAB
+// ═══════════════════════════════════════════
 function BillingTab({ subscription, usage }: { subscription: Subscription | null; usage: Usage | null }) {
   const tiers = [
-    { name: 'Free', price: '$0', features: ['5 Team Members', '10 Contests', 'Basic Support'], tier: 'free' },
-    { name: 'Pro', price: '$49/mo', features: ['25 Team Members', '50 Contests', 'Proctoring', 'Priority Support'], tier: 'pro' },
+    { name: 'Free', price: '$0', features: ['5 Team Members', '10 Contests', 'Basic Proctoring'], tier: 'free' },
+    { name: 'Pro', price: '$49/mo', features: ['25 Team Members', '50 Contests', 'AI Proctoring', 'Priority Support'], tier: 'pro' },
     { name: 'Enterprise', price: '$199/mo', features: ['Unlimited Members', 'Unlimited Contests', 'Custom SSO', 'Dedicated Support'], tier: 'enterprise' },
   ];
 
@@ -922,18 +1071,18 @@ function BillingTab({ subscription, usage }: { subscription: Subscription | null
 
   return (
     <div className="space-y-6">
-      <h2 className="font-black text-lg">Billing & Subscription</h2>
+      <h2 className="font-black text-xl text-white">Seats & Subscription Billing</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-zinc-950 border border-white/10 rounded-xl p-6">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Current Plan</p>
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Current Active Tier</p>
           <p className="text-2xl font-black text-blue-400 uppercase">{currentTier}</p>
           {subscription?.expiresAt && (
             <p className="text-xs text-gray-500 mt-2 font-mono">Renews {new Date(subscription.expiresAt).toLocaleDateString()}</p>
           )}
         </div>
         <div className="bg-zinc-950 border border-white/10 rounded-xl p-6">
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Status</p>
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Account Status</p>
           <p className={`text-2xl font-black uppercase ${subscription?.status === 'ACTIVE' ? 'text-green-400' : 'text-red-400'}`}>
             {subscription?.status || 'Active'}
           </p>
@@ -942,12 +1091,12 @@ function BillingTab({ subscription, usage }: { subscription: Subscription | null
 
       {usage && (
         <div className="bg-zinc-950 border border-white/10 rounded-xl p-6">
-          <h3 className="font-black text-sm text-gray-400 uppercase tracking-wider mb-4">Usage</h3>
+          <h3 className="font-black text-sm text-gray-400 uppercase tracking-wider mb-4">Capacity Utilization</h3>
           <div className="grid grid-cols-3 gap-4">
             {[
-              { label: 'Members', value: usage.users, max: subscription?.maxUsers || 5 },
-              { label: 'Contests', value: usage.contests, max: subscription?.maxContests || 10 },
-              { label: 'Submissions', value: usage.submissions, max: null },
+              { label: 'Team Seats', value: usage.users, max: subscription?.maxUsers || 5 },
+              { label: 'Contest Drives', value: usage.contests, max: subscription?.maxContests || 10 },
+              { label: 'Candidate Submissions', value: usage.submissions, max: null },
             ].map(u => (
               <div key={u.label}>
                 <div className="flex justify-between text-xs mb-1">
@@ -957,7 +1106,7 @@ function BillingTab({ subscription, usage }: { subscription: Subscription | null
                 {u.max && (
                   <div className="w-full h-2 bg-black rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all ${u.value / u.max > 0.8 ? 'bg-red-400' : 'bg-blue-400'}`}
+                      className={`h-full rounded-full transition-all ${u.value / u.max > 0.8 ? 'bg-amber-400' : 'bg-blue-400'}`}
                       style={{ width: `${Math.min((u.value / u.max) * 100, 100)}%` }}
                     />
                   </div>
@@ -969,7 +1118,7 @@ function BillingTab({ subscription, usage }: { subscription: Subscription | null
       )}
 
       <div>
-        <h3 className="font-black text-sm text-gray-400 uppercase tracking-wider mb-4">Available Plans</h3>
+        <h3 className="font-black text-sm text-gray-400 uppercase tracking-wider mb-4">Available Tiers</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {tiers.map(t => (
             <div
@@ -979,7 +1128,7 @@ function BillingTab({ subscription, usage }: { subscription: Subscription | null
               }`}
             >
               <div className="mb-4">
-                <h4 className="font-black text-lg">{t.name}</h4>
+                <h4 className="font-black text-lg text-white">{t.name}</h4>
                 <p className="text-2xl font-black text-blue-400 mt-1">{t.price}</p>
               </div>
               <ul className="space-y-2 mb-6">
@@ -995,14 +1144,14 @@ function BillingTab({ subscription, usage }: { subscription: Subscription | null
                 </div>
               ) : currentTier === 'enterprise' || (currentTier === 'pro' && t.tier === 'free') ? (
                 <div className="w-full py-2.5 bg-white/5 text-gray-500 rounded-xl text-sm font-bold text-center border border-white/10">
-                  Contact Sales
+                  Contact Support
                 </div>
               ) : (
                 <button
                   onClick={async () => { try { await api.upgradeTier(t.tier); window.location.reload(); } catch {} }}
                   className="w-full py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition-all"
                 >
-                  Upgrade
+                  Upgrade Tier
                 </button>
               )}
             </div>

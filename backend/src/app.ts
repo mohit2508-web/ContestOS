@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+// Reload env parameters for CockroachDB & Compliance DSAR & Retention endpoints
+
 // Fail loud — crash if critical env vars missing
 dotenv.config();
 if (!process.env.JWT_SECRET) {
@@ -34,9 +36,25 @@ import playgroundRoutes from './routes/playground.routes';
 import quizRoutes from './routes/quiz.routes';
 import questionGovernanceRoutes from './routes/question-governance.routes';
 import proctorRoutes from './routes/proctor.routes';
+import analyticsViewerRoutes from './routes/analytics-viewer.routes';
+import guestRoutes from './routes/guest.routes';
+import complianceRoutes from './routes/compliance.routes';
+import { closeBrowser } from './services/webDevEvaluatorV2';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Graceful shutdown — close Playwright browser on process exit
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received — shutting down Playwright browser...');
+  await closeBrowser();
+  process.exit(0);
+});
+process.on('SIGINT', async () => {
+  await closeBrowser();
+  process.exit(0);
+});
+
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -47,14 +65,24 @@ const allowedOrigins = [
   'http://127.0.0.1:5175',
 ];
 
+// Support comma-separated list for FRONTEND_URL (e.g. Vercel preview URLs)
 if (process.env.FRONTEND_URL) {
-  allowedOrigins.push(process.env.FRONTEND_URL);
+  const urls = process.env.FRONTEND_URL.split(',').map((u) => u.trim());
+  allowedOrigins.push(...urls);
 }
 
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+    // Allow localhost in any form
+    if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+    // Allow vercel.app and your custom domains
+    if (/\.vercel\.app$/.test(origin) || /\.render\.com$/.test(origin)) {
+      return callback(null, true);
+    }
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     return callback(new Error(`CORS blocked for origin: ${origin}`));
@@ -225,6 +253,15 @@ app.use('/api/playground', playgroundRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/governance', questionGovernanceRoutes);
 app.use('/api/proctor', proctorRoutes);
+
+// Analytics Viewer — read-only org results & scorecards
+app.use('/api/analytics', analyticsViewerRoutes);
+
+// Guest Candidate — invite-only external contest participation
+app.use('/api/guest', guestRoutes);
+
+// Compliance Officer — GDPR erasure + audit log access
+app.use('/api/compliance', complianceRoutes);
 
 // Start Server
 app.listen(PORT, () => {

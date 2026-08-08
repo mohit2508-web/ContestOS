@@ -978,3 +978,92 @@ export function PostSubmitSummary({
     </div>
   );
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   Phase 6 — ProblemLockConfirmationModal ("Submit & Lock Problem" Gate)
+   ═══════════════════════════════════════════════════════════════════ */
+
+export function ProblemLockConfirmationModal({
+  isOpen,
+  problemTitle,
+  scoreEarned,
+  maxPoints,
+  onConfirm,
+  onCancel,
+}: {
+  isOpen: boolean;
+  problemTitle: string;
+  scoreEarned?: number;
+  maxPoints?: number;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[220] flex items-center justify-center backdrop-blur-md bg-black/80 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="w-full max-w-md bg-zinc-950 border border-amber-500/30 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl relative overflow-hidden"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+      >
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 via-emerald-400 to-teal-500" />
+
+        <div className="flex justify-between items-center border-b border-white/10 pb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🔒</span>
+            <div>
+              <span className="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                Final Problem Lock
+              </span>
+              <h3 className="text-lg font-black text-white mt-0.5">Submit & Lock Problem?</h3>
+            </div>
+          </div>
+          <button onClick={onCancel} className="text-gray-400 hover:text-white font-bold text-sm">✕</button>
+        </div>
+
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-2">
+          <p className="text-xs text-gray-300 font-medium">
+            Are you sure you want to lock and submit <strong className="text-white font-extrabold">{problemTitle}</strong>?
+          </p>
+          {typeof scoreEarned === 'number' && typeof maxPoints === 'number' && (
+            <div className="pt-2 border-t border-white/5 flex justify-between items-center text-xs font-mono">
+              <span className="text-gray-400">Score Recorded:</span>
+              <span className="text-emerald-400 font-extrabold text-sm">{scoreEarned} / {maxPoints} pts</span>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-amber-950/30 border border-amber-500/30 rounded-2xl p-4 text-[11px] text-amber-300/80 leading-relaxed space-y-1">
+          <p className="font-extrabold text-amber-400">⚠️ Important Notice:</p>
+          <p>
+            Once locked, you will <strong>NOT be able to edit, re-submit, or change</strong> your solution for this problem during this contest session.
+          </p>
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <button
+            onClick={onCancel}
+            type="button"
+            className="flex-1 py-3 rounded-2xl font-extrabold text-xs bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10 transition"
+          >
+            Keep Editing
+          </button>
+          <button
+            onClick={onConfirm}
+            type="button"
+            className="flex-1 py-3 rounded-2xl font-extrabold text-xs text-black bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 shadow-lg shadow-amber-500/20 transition cursor-pointer"
+          >
+            🔒 Yes, Lock & Submit
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}

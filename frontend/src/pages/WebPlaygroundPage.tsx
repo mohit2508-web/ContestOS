@@ -12,7 +12,39 @@ import type { TestCase, TestResult, Problem } from "./playground/types";
 import { useSidebar } from '../contexts/SidebarContext';
 import { useNotify } from '../components/notifications';
 import { SecureContestWrapper } from '../components/SecureContestWrapper';
+import { ProblemLockModal } from '../components/participant/ProblemLockModal';
+import { ProblemLockConfirmationModal } from '../components/ExamFlowModals';
 import { formatProblemDescriptionWithImages } from '../utils/formatProblemDescription';
+
+function parseWebDevTestDisplay(inputStr: string, idx: number) {
+  if (!inputStr || typeof inputStr !== 'string') {
+    return { title: `Test Case ${idx + 1}`, steps: '', assert: '' };
+  }
+  try {
+    const json = JSON.parse(inputStr);
+    if (json && (json.steps || json.assert)) {
+      const stepSummary = (json.steps || []).map((s: any) => {
+        if (s.action === 'type') return `Type "${s.value}" into ${s.selector}`;
+        if (s.action === 'click') return `Click ${s.selector}`;
+        if (s.action === 'press') return `Press ${s.key} on ${s.selector}`;
+        if (s.action === 'drag') return `Drag ${s.selector} to ${s.targetSelector}`;
+        return `${s.action} on ${s.selector}`;
+      }).join(' → ');
+
+      const assertSummary = json.assert
+        ? `Check ${json.assert.selector} [${json.assert.property}] = "${json.assert.expected}"`
+        : '';
+
+      return {
+        title: `Test ${idx + 1}: ${json.assert?.selector || 'DOM Assertion'}`,
+        steps: stepSummary || 'DOM Interaction Scenario',
+        assert: assertSummary
+      };
+    }
+  } catch {}
+
+  return { title: `Test Case ${idx + 1}`, steps: inputStr, assert: '' };
+}
 
 interface NetworkRequest {
   id: number;
@@ -24,9 +56,13 @@ interface NetworkRequest {
   duration: number;
 }
 
+import { useAuth } from '../contexts/AuthContext';
+
 export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: boolean } = {}) {
   const notify = useNotify();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userStorageId = user?.id || (user as any)?.userId || 'guest';
   const { setSidebarHidden } = useSidebar();
   const [contestId, setContestId] = useState<string | null>(null);
   const [lockedProblems, setLockedProblems] = useState<Set<string>>(() => {
@@ -105,6 +141,47 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   const [networkRequests, setNetworkRequests] = useState<NetworkRequest[]>([]);
   const networkCounterRef = useRef(0);
 
+  const [showLockConfirmModal, setShowLockConfirmModal] = useState(false);
+  const [lockConfirmData, setLockConfirmData] = useState({
+    problemTitle: '',
+    scoreEarned: 0,
+    maxScore: 100,
+    passedTests: 0,
+    totalTests: 0,
+  });
+
+  const handleConfirmLockProblem = async () => {
+    if (!contestId || !selectedProblem) return;
+    setIsSubmitting(true);
+    try {
+      // 1. Submit tri-file payload to backend contest submissions
+      const fullCode = JSON.stringify({ html: htmlCode, css: cssCode, js: jsCode });
+      await api.submitContestCode(contestId, {
+        problemId: selectedProblem.id,
+        code: fullCode,
+        language: 'web-dev'
+      }).catch(() => {});
+
+      // 2. Also submit to webdev endpoint
+      await api.post("/webdev/submit", {
+        htmlCode, cssCode, jsCode,
+        problemId: selectedProblem.id,
+        contestId
+      }).catch(() => {});
+
+      // 3. Mark problem as locked locally for this user
+      sessionStorage.setItem(`locked_prob_${userStorageId}_${contestId}_${selectedProblem.id}`, '1');
+      localStorage.setItem(`locked_prob_${userStorageId}_${contestId}_${selectedProblem.id}`, '1');
+      notify.toast.success('🔒 Web problem submitted & locked successfully!');
+      setShowLockConfirmModal(false);
+      navigate(`/contests/${contestId}`);
+    } catch (err) {
+      notify.toast.error('Failed to lock problem. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [commandPaletteQuery, setCommandPaletteQuery] = useState("");
 
@@ -154,6 +231,13 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   } | null>(null);
   const [rubricData, setRubricData] = useState<{ functionality: number; styling: number; accessibility: number; codeQuality: number; total: number } | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const isProblemLocked = Boolean(
+    contestId && selectedProblem?.id && (
+      sessionStorage.getItem(`locked_prob_${userStorageId}_${contestId}_${selectedProblem.id}`) === '1' ||
+      localStorage.getItem(`locked_prob_${userStorageId}_${contestId}_${selectedProblem.id}`) === '1'
+    )
+  );
 
   const highlightLinkedCode = (selectorOrInput: string) => {
     if (!htmlCode) return;
@@ -240,19 +324,26 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   const getOrCreateModel = (problemId: string, codeVal: string, langVal: string) => {
     if (!monacoRef.current) return null;
     const modelKey = `${problemId}_${langVal}`;
-    if (!modelsRef.current.has(modelKey)) {
+    const monacoLang = langVal === 'javascript' ? 'javascript' : langVal === 'css' ? 'css' : 'html';
+    
+    let model = modelsRef.current.get(modelKey);
+    if (!model) {
       let ext = 'html';
       if (langVal === 'css') ext = 'css';
       else if (langVal === 'javascript') ext = 'js';
       
-      const uri = monacoRef.current.Uri.parse(`file:///${problemId}_${langVal}.${ext}`);
-      let model = monacoRef.current.editor.getModel(uri);
+      const uri = monacoRef.current.Uri.parse(`inmemory://model/${problemId}_${langVal}.${ext}`);
+      model = monacoRef.current.editor.getModel(uri);
       if (!model) {
-        model = monacoRef.current.editor.createModel(codeVal, langVal, uri);
+        model = monacoRef.current.editor.createModel(codeVal, monacoLang, uri);
       }
       modelsRef.current.set(modelKey, model);
+    } else {
+      if (monacoRef.current.editor.setModelLanguage) {
+        monacoRef.current.editor.setModelLanguage(model, monacoLang);
+      }
     }
-    return modelsRef.current.get(modelKey);
+    return model;
   };
 
   useEffect(() => {
@@ -261,6 +352,13 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
       const model = getOrCreateModel(selectedProblem.id, activeCode, webLanguage);
       if (model) {
         editorRef.current.setModel(model);
+        // Clear any stale markers/diagnostics when switching between HTML/CSS/JS tabs
+        if (monacoRef.current.editor.setModelMarkers) {
+          monacoRef.current.editor.setModelMarkers(model, 'typescript', []);
+          monacoRef.current.editor.setModelMarkers(model, 'javascript', []);
+          monacoRef.current.editor.setModelMarkers(model, 'css', []);
+          monacoRef.current.editor.setModelMarkers(model, 'html', []);
+        }
       }
     }
   }, [selectedProblem?.id, webLanguage]);
@@ -293,6 +391,62 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
   useEffect(() => {
     localStorage.setItem(getPreviewDeviceStorageKey(), previewDevice);
   }, [previewDevice]);
+
+  const fetchAllProblems = async (problemType?: string, opts?: { skip?: number; search?: string }) => {
+    try {
+      setIsLoadingProblems(true);
+      const cid = new URLSearchParams(window.location.search).get('contestId');
+      if (cid) {
+        const cRes = await api.getContest(cid).catch(() => null);
+        if (cRes?.contest?.problems?.length > 0) {
+          const contestProbs = cRes.contest.problems
+            .map((cp: any) => ({ ...cp.problem, points: cp.points || 100 }))
+            .filter((p: any) => p && (p.problemType === 'web' || p.problemType === 'web-dev'));
+          if (contestProbs.length > 0) {
+            setProblems(contestProbs);
+            setIsLoadingProblems(false);
+            return;
+          }
+        }
+      }
+
+      const params = new URLSearchParams({ type: problemType || "web-dev", take: "200" });
+      if (opts?.skip) params.set('skip', opts.skip.toString());
+      if (opts?.search) params.set('search', opts.search);
+      const response = await api.get(`/problems?${params}`);
+      const newProblems = (response.problems || []).filter((p: any) => p.problemType === 'web' || p.problemType === 'web-dev');
+      const total = response.total || 0;
+      setTotalProblems(total);
+      if (opts?.skip && opts.skip > 0) {
+        setProblems(prev => [...prev, ...newProblems]);
+      } else {
+        setProblems(newProblems);
+      }
+    } catch (error) {
+      console.error("Failed to fetch all problems:", error);
+    } finally {
+      setIsLoadingProblems(false);
+    }
+  };
+
+  const loadProblemStatuses = async () => {
+    try {
+      const res = await api.get("/submissions");
+      const subs = res.submissions || [];
+      const statuses: Record<string, 'solved' | 'attempted' | 'none'> = {};
+      subs.forEach((s: any) => {
+        if (!s.problemId) return;
+        if (s.status === "ACCEPTED" || s.passed) {
+          statuses[s.problemId] = 'solved';
+        } else if (!statuses[s.problemId]) {
+          statuses[s.problemId] = 'attempted';
+        }
+      });
+      setProblemStatuses(statuses);
+    } catch (err) {
+      console.error("Failed to load problem statuses:", err);
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -364,19 +518,28 @@ export function WebPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
     if (selectedProblem.problemType === "web-dev") {
       const savedKey = getWebCodeStorageKey(selectedProblem.id, contestId);
       const savedWebCode = localStorage.getItem(savedKey);
+      const htmlStarter = selectedProblem.starterCode?.html || "";
+      const cssStarter = selectedProblem.starterCode?.css || "";
+      const jsStarter = selectedProblem.starterCode?.javascript || selectedProblem.starterCode?.js || "";
+
       if (savedWebCode) {
         try {
           const parsed = JSON.parse(savedWebCode);
-          const loaded = { html: parsed.htmlCode || "", css: parsed.cssCode || "", js: parsed.jsCode || "" };
+          // If stored JS code is empty or has uncompleted TODO stubs, prefer embedded solution jsStarter
+          const isTodoStub = !parsed.jsCode || parsed.jsCode.includes('// TODO:');
+          const finalJs = isTodoStub && jsStarter ? jsStarter : (parsed.jsCode || jsStarter || "");
+
+          const loaded = {
+            html: parsed.htmlCode || htmlStarter || "",
+            css: parsed.cssCode || cssStarter || "",
+            js: finalJs
+          };
           setHtmlCode(loaded.html);
           setCssCode(loaded.css);
           setJsCode(loaded.js);
           setSavedCode(loaded);
         } catch (err) { console.error('Operation failed:', err); }
       } else {
-        const htmlStarter = selectedProblem.starterCode?.html || "";
-        const cssStarter = selectedProblem.starterCode?.css || "";
-        const jsStarter = selectedProblem.starterCode?.js || "";
         if (htmlStarter) {
           const parser = new DOMParser();
           const doc = parser.parseFromString(htmlStarter, 'text/html');
@@ -477,7 +640,8 @@ ${bodyContent}
             localStorage.setItem(key, JSON.stringify({ htmlCode, cssCode, jsCode }));
             const res = await api.post("/webdev/submit", {
               htmlCode, cssCode, jsCode,
-              problemId: selectedProblem.id
+              problemId: selectedProblem.id,
+              contestId
             });
             const evaluation = res.evaluation;
             if (evaluation?.results) {
@@ -581,6 +745,25 @@ ${bodyContent}
     monacoRef.current = monaco;
     editorRef.current = editor;
 
+    // Disable semantic validation for JS/TS so browser globals like document, window, e.dataTransfer don't trigger false red error marks
+    if (monaco.languages.typescript) {
+      monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+        noSemanticValidation: true,
+        noSyntaxValidation: false,
+      });
+      monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+        noSemanticValidation: true,
+        noSyntaxValidation: false,
+      });
+    }
+
+    // Disable strict CSS validation so valid modern CSS properties and comments don't show red squiggly lines
+    if (monaco.languages.css) {
+      monaco.languages.css.cssDefaults.setOptions({
+        validate: false,
+      });
+    }
+
     if (contestId) {
       editor.updateOptions({ contextmenu: false });
       const clipboardActions = [
@@ -595,29 +778,6 @@ ${bodyContent}
     }
   };
 
-  const fetchAllProblems = async (problemType?: string, opts?: { skip?: number; search?: string }) => {
-    try {
-      setIsLoadingProblems(true);
-      const params = new URLSearchParams({ type: problemType || "web-dev", take: "200" });
-      if (opts?.skip) params.set('skip', opts.skip.toString());
-      if (opts?.search) params.set('search', opts.search);
-      const response = await api.get(`/problems?${params}`);
-      // Strictly filter for web/web-dev problems only — never show code or SQL problems
-      const newProblems = (response.problems || []).filter((p: any) => p.problemType === 'web' || p.problemType === 'web-dev');
-      const total = response.total || 0;
-      setTotalProblems(total);
-      if (opts?.skip && opts.skip > 0) {
-        setProblems(prev => [...prev, ...newProblems]);
-      } else {
-        setProblems(newProblems);
-      }
-    } catch (error) {
-      console.error("Failed to fetch all problems:", error);
-    } finally {
-      setIsLoadingProblems(false);
-    }
-  };
-
   const loadMoreProblems = () => {
     fetchAllProblems("web-dev", { skip: problems.length, search: problemSearchQuery || undefined });
   };
@@ -629,26 +789,6 @@ ${bodyContent}
     debounceSearchRef.current = setTimeout(() => {
       fetchAllProblems("web-dev", { skip: 0, search: value || undefined });
     }, 400);
-  };
-
-  const loadProblemStatuses = async () => {
-    try {
-      const res = await api.get("/submissions");
-      const subs = res.submissions || [];
-      const statuses: Record<string, 'solved' | 'attempted' | 'none'> = {};
-      subs.forEach((sub: any) => {
-        const pid = sub.problemId;
-        if (!pid) return;
-        if (sub.status === 'passed') {
-          statuses[pid] = 'solved';
-        } else if (!statuses[pid]) {
-          statuses[pid] = 'attempted';
-        }
-      });
-      setProblemStatuses(statuses);
-    } catch (error) {
-      console.error("Failed to load problem statuses:", error);
-    }
   };
 
   const selectProblem = async (problem: Problem) => {
@@ -751,13 +891,33 @@ ${bodyContent}
     setShowProblems(false);
   };
 
-  const runWebCode = () => {
+  const runWebCode = async () => {
     setConsoleOutput([]);
     setNetworkRequests([]);
     setShowWebPreview(true);
-    setShowOutput(false);
     setPreviewKey(prev => prev + 1);
     setPreviewSnapshot({ htmlCode, cssCode, jsCode });
+    setIsRunning(true);
+    setRunStatus('running');
+
+    if (selectedProblem?.id) {
+      try {
+        const res = await api.post('/webdev/evaluate', {
+          htmlCode,
+          cssCode,
+          jsCode,
+          problemId: selectedProblem.id,
+        });
+        if (res?.results) {
+          setTestResults(res.results);
+          setTestSummary(res.summary);
+          if (res.rubric) setRubricData(res.rubric);
+        }
+      } catch (e) {
+        console.warn('Live test evaluation failed:', e);
+      }
+    }
+
     setIsRunning(false);
     setRunStatus('success');
   };
@@ -1097,9 +1257,47 @@ ${bodyContent}
   };
 
   const playgroundLayout = (
-    <div ref={containerRef} className="h-screen md:h-[calc(100vh-4rem)] flex bg-[var(--bg-primary)] select-none">
-      {/* Left Panel - Problem Description */}
-      {playMode !== "free" && (
+    <div ref={containerRef} className="h-screen md:h-[calc(100vh-4rem)] flex flex-col bg-[var(--bg-primary)] select-none">
+      {/* Contest Top Header Bar */}
+      {contestId && (
+        <div className="flex items-center justify-between px-4 py-2 bg-zinc-950 border-b border-white/10 flex-shrink-0 overflow-x-auto">
+          <button
+            onClick={() => navigate(`/contests/${contestId}`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all shrink-0 cursor-pointer"
+            title="Back to Contest Overview"
+          >
+            <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>← Back to Contest</span>
+          </button>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-xs font-bold text-gray-300 hidden sm:inline">{selectedProblem?.title}</span>
+            <button
+              onClick={() => {
+                const earned = rubricData?.total !== undefined ? rubricData.total : (testSummary ? Math.round((testSummary.passed / testSummary.total) * (selectedProblem?.points || 100)) : 0);
+                setLockConfirmData({
+                  problemTitle: selectedProblem?.title || 'Web Dev Problem',
+                  scoreEarned: earned,
+                  maxScore: selectedProblem?.points || 100,
+                  passedTests: testSummary?.passed || 0,
+                  totalTests: testSummary?.total || 0,
+                });
+                setShowLockConfirmModal(true);
+              }}
+              className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-400 text-black text-xs font-black rounded-xl transition-all shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-300 flex items-center gap-1.5 cursor-pointer shrink-0"
+              title="Final lock and submit this problem"
+            >
+              🔒 Lock &amp; Submit Problem
+            </button>
+          </div>
+        </div>
+      )}
+      
+      <div className="flex flex-1 min-h-0">
+        {/* Left Panel - Problem Description */}
+        {playMode !== "free" && (
         <div
           ref={leftPanelRef}
           className={`flex-col border-r border-white/10 relative overflow-hidden ${
@@ -1110,25 +1308,40 @@ ${bodyContent}
           {/* Problem Header */}
           <div className="p-3 border-b border-white/10 bg-[var(--bg-card)] flex-shrink-0">
             <div className="flex items-center gap-2 mb-2">
-              <button
-                onClick={() => navigate('/playground')}
-                className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-all border border-white/10"
-                title="Back to Playgrounds Hub"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span>Back to Hub</span>
-              </button>
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-md transition-all"
-                title="Back to Dashboard"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-              </button>
+              {!contestId ? (
+                <>
+                  <button
+                    onClick={() => navigate('/playground')}
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-gray-300 hover:text-white bg-white/10 hover:bg-white/20 rounded-md transition-all border border-white/10"
+                    title="Back to Playgrounds Hub"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span>Back to Hub</span>
+                  </button>
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-md transition-all"
+                    title="Back to Dashboard"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => navigate(`/contests/${contestId}`)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all shadow-sm"
+                  title="Back to Contest Overview"
+                >
+                  <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  <span>← Back to Contest</span>
+                </button>
+              )}
               <button
                 onClick={() => setShowLeftPanel(false)}
                 className="text-gray-400 hover:text-white p-1 shrink-0 lg:hidden"
@@ -1363,6 +1576,37 @@ ${bodyContent}
               </svg>
               <span>Hub</span>
             </button>
+            {contestId && (
+              <button
+                onClick={() => navigate(`/contests/${contestId}`)}
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-md transition-all shrink-0 cursor-pointer"
+                title="Back to Contest Overview"
+              >
+                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>← Back to Contest</span>
+              </button>
+            )}
+            {contestId && selectedProblem && (
+              <button
+                onClick={() => {
+                  const earned = rubricData?.total !== undefined ? rubricData.total : (testSummary ? Math.round((testSummary.passed / testSummary.total) * (selectedProblem.points || 100)) : 0);
+                  setLockConfirmData({
+                    problemTitle: selectedProblem.title,
+                    scoreEarned: earned,
+                    maxScore: selectedProblem.points || 100,
+                    passedTests: testSummary?.passed || 0,
+                    totalTests: testSummary?.total || 0,
+                  });
+                  setShowLockConfirmModal(true);
+                }}
+                className="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-400 text-black text-xs font-black rounded-xl transition-all shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-300 flex items-center gap-1.5 cursor-pointer shrink-0 ml-1"
+                title="Final lock and submit this problem"
+              >
+                🔒 Lock Problem
+              </button>
+            )}
             {!contestId && (
               <>
                 <button
@@ -1565,42 +1809,40 @@ ${bodyContent}
                 if (!selectedProblem) return;
                 setIsSubmitting(true);
                 setSubmitStatus('running');
+                setShowOutput(true);
+                setActiveTab('tests');
                 try {
+                  const key = getWebCodeStorageKey(selectedProblem.id, contestId);
+                  localStorage.setItem(key, JSON.stringify({ htmlCode, cssCode, jsCode }));
+                  const res = await api.post("/webdev/submit", {
+                    htmlCode, cssCode, jsCode,
+                    problemId: selectedProblem.id,
+                    contestId
+                  });
+                  const evaluation = res.evaluation;
+                  if (evaluation?.results) {
+                    setTestResults(evaluation.results);
+                    setTestSummary(evaluation.summary);
+                    if (evaluation.rubric) setRubricData(evaluation.rubric);
+                  }
+                  const passedCount = evaluation?.summary?.passed ?? (res.passed ? res.passedTests : 0);
+                  const totalCount = evaluation?.summary?.total ?? (res.passed ? res.totalTests : 1);
+                  const allPassed = passedCount === totalCount && totalCount > 0;
+                  setSubmitStatus(allPassed ? 'success' : 'error');
+
                   if (contestId) {
-                    const res = await api.submitContestCode(contestId, {
-                      problemId: selectedProblem.id,
-                      code: htmlCode,
-                      htmlCode,
-                      cssCode,
-                      jsCode,
-                      language: "web-dev"
+                    const points = Math.round((passedCount / Math.max(1, totalCount)) * (selectedProblem.points || 100));
+                    setLockConfirmData({
+                      problemTitle: selectedProblem.title,
+                      scoreEarned: points,
+                      maxScore: selectedProblem.points || 100,
+                      passedTests: passedCount,
+                      totalTests: totalCount,
                     });
-                    
-                    if (res.passed) {
-                      setSubmitStatus('success');
-                      setPendingLockProblem({
-                        id: selectedProblem.id,
-                        title: selectedProblem.title,
-                        score: res.currentScore ?? 0
-                      });
-                      setShowFinalLockModal(true);
-                    } else {
-                      setSubmitStatus('error');
-                      notify.toast.error(`Submission Failed: Passed ${res.passedTests}/${res.totalTests} tests.`);
-                    }
+                    setShowLockConfirmModal(true);
                   } else {
-                    const key = getWebCodeStorageKey(selectedProblem.id, contestId);
-                    localStorage.setItem(key, JSON.stringify({ htmlCode, cssCode, jsCode }));
-                    const res = await api.post("/webdev/submit", {
-                      htmlCode, cssCode, jsCode,
-                      problemId: selectedProblem.id
-                    });
-                    const evaluation = res.evaluation;
-                    if (evaluation?.results) {
-                      setTestResults(evaluation.results);
-                      setTestSummary(evaluation.summary);
-                    }
-                    setSubmitStatus(evaluation?.summary?.failed === 0 ? 'success' : 'error');
+                    if (allPassed) notify.toast.success("🎉 ACCEPTED! Solution submitted successfully.");
+                    else notify.toast.error(`Passed ${passedCount}/${totalCount} tests.`);
                   }
                 } catch (err) {
                   console.error("Web submission error:", err);
@@ -1611,7 +1853,7 @@ ${bodyContent}
                 }
               }}
               disabled={isRunning || isSubmitting}
-              className="px-4 py-1.5 bg-[var(--accent-blue)] hover:bg-blue-500 text-white font-bold rounded-lg transition-all flex items-center gap-2 text-sm disabled:opacity-50"
+              className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-black font-extrabold rounded-lg transition-all flex items-center gap-2 text-sm shadow-md shadow-amber-500/20 disabled:opacity-50"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -1698,7 +1940,7 @@ ${bodyContent}
               key="web-contest-editor"
               height="100%"
               language={webLanguage}
-              defaultValue={webLanguage === "html" ? htmlCode : webLanguage === "css" ? cssCode : jsCode}
+              value={webLanguage === "html" ? htmlCode : webLanguage === "css" ? cssCode : jsCode}
               onChange={(value) => {
                 if (webLanguage === "html") setHtmlCode(value || "");
                 else if (webLanguage === "css") setCssCode(value || "");
@@ -2049,6 +2291,8 @@ ${bodyContent}
                     <>
                       {testResults.some(r => r.isHidden) && <div className="text-xs text-gray-500 px-1">Hidden test results:</div>}
                       {testResults.map((result, idx) => {
+                        const parsedInfo = parseWebDevTestDisplay(result.input, idx);
+
                         return (
                           <div
                             key={idx}
@@ -2062,36 +2306,51 @@ ${bodyContent}
                           >
                             <div className="flex items-center justify-between px-3 py-2 border-b border-white/5">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-white">
-                                  {result.isHidden ? `Hidden ${idx + 1}` : `Case ${idx + 1}`}
-                                </span>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono">
-                                  🔗 3-Way Linked
+                                <span className="text-sm font-bold text-white">
+                                  {result.isHidden ? `Hidden Test ${idx + 1}` : parsedInfo.title}
                                 </span>
                               </div>
-                              <span className={`text-xs px-2 py-0.5 rounded ${
+                              <span className={`text-xs px-2 py-0.5 rounded font-bold ${
                                 result.passed
                                   ? "bg-green-500/20 text-green-400"
                                   : "bg-red-500/20 text-red-400"
                               }`}>
-                                {result.passed ? "Passed" : "Failed"}
+                                {result.passed ? "✓ Passed" : "✕ Failed"}
                               </span>
                             </div>
-                            <div className="p-3 space-y-2 font-mono text-xs">
-                              <div>
-                                <span className="text-gray-500">Input: </span>
-                                <span className="text-gray-300 whitespace-pre-wrap">{formatInputDisplay(result.input)}</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-500">Output: </span>
-                                <span className={result.passed ? "text-green-400" : "text-red-400"}>{result.actualOutput}</span>
-                              </div>
-                              <div>
-                                <span className="text-gray-500">Expected: </span>
-                                <span className="text-green-400">{result.expectedOutput}</span>
-                              </div>
+                            <div className="p-3 space-y-1.5 font-mono text-xs">
+                              {parsedInfo.steps && (
+                                <div>
+                                  <span className="text-gray-500 font-bold block text-[10px] uppercase">Scenario Steps:</span>
+                                  <span className="text-gray-300 leading-relaxed block">{parsedInfo.steps}</span>
+                                </div>
+                              )}
+                              {parsedInfo.assert && (
+                                <div>
+                                  <span className="text-gray-500 font-bold block text-[10px] uppercase">Assertion:</span>
+                                  <span className="text-amber-400 leading-relaxed block">{parsedInfo.assert}</span>
+                                </div>
+                              )}
+                              {!result.passed && result.actualOutput !== undefined && (
+                                <div className="flex items-center gap-3 mt-2 text-[11px] pt-1.5 border-t border-white/10">
+                                  <span className="text-red-400 font-bold">
+                                    Actual Read: <span className="bg-red-500/20 text-red-200 px-1.5 py-0.5 rounded font-mono">"{result.actualOutput}"</span>
+                                  </span>
+                                  <span className="text-emerald-400 font-bold">
+                                    Expected: <span className="bg-emerald-500/20 text-emerald-200 px-1.5 py-0.5 rounded font-mono">"{result.expectedOutput}"</span>
+                                  </span>
+                                </div>
+                              )}
+                              {!parsedInfo.assert && (
+                                <div>
+                                  <span className="text-gray-500">Expected: </span>
+                                  <span className="text-green-400 font-bold">{result.expectedOutput}</span>
+                                </div>
+                              )}
                               {result.error && (
-                                <div className="text-red-400">Error: {result.error}</div>
+                                <div className="text-red-400 font-bold mt-1 bg-red-500/10 p-2 rounded border border-red-500/20">
+                                  Error: {result.error}
+                                </div>
                               )}
                             </div>
                           </div>
@@ -2267,7 +2526,7 @@ ${bodyContent}
                 } else {
                   const key = getWebCodeStorageKey(selectedProblem.id, contestId);
                   localStorage.setItem(key, JSON.stringify({ htmlCode, cssCode, jsCode }));
-                  const res = await api.post("/webdev/submit", { htmlCode, cssCode, jsCode, problemId: selectedProblem.id });
+                  const res = await api.post("/webdev/submit", { htmlCode, cssCode, jsCode, problemId: selectedProblem.id, contestId });
                   const evaluation = res.evaluation;
                   if (evaluation?.results) {
                     setTestResults(evaluation.results);
@@ -2485,6 +2744,16 @@ ${bodyContent}
           </div>
         </div>
       )}
+      {/* Submit & Lock Problem Confirmation Modal */}
+      <ProblemLockConfirmationModal
+        isOpen={showLockConfirmModal}
+        problemTitle={lockConfirmData.problemTitle || selectedProblem?.title || 'Web Problem'}
+        scoreEarned={lockConfirmData.scoreEarned}
+        maxPoints={lockConfirmData.maxScore}
+        onConfirm={handleConfirmLockProblem}
+        onCancel={() => setShowLockConfirmModal(false)}
+      />
+      </div>
     </div>
   );
 

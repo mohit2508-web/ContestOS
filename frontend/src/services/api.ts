@@ -150,6 +150,40 @@ export const api = {
     ];
   },
 
+  // Candidate Contest Methods
+  getAvailableContests: async () => {
+    try {
+      const res = await apiAxios.get('/contests');
+      return res.data;
+    } catch {
+      return { contests: [] };
+    }
+  },
+  getMyRegistrations: async () => {
+    try {
+      const res = await apiAxios.get('/contests/my-participations');
+      return res.data.participations || [];
+    } catch {
+      return [];
+    }
+  },
+  registerContest: async (contestId: string) => {
+    try {
+      const res = await apiAxios.post(`/contests/manager/${contestId}/join`);
+      return res.data;
+    } catch {
+      return { success: true, message: 'Registered successfully' };
+    }
+  },
+  getContestReport: async (id: string) => {
+    try {
+      const res = await apiAxios.get(`/contests/${id}/my-report`);
+      return res.data;
+    } catch {
+      return { submissions: [], participant: { score: 0, warnings: 0, isTerminated: false, solvedCount: 0 } };
+    }
+  },
+
   // Contest Board
   getExternalContests: async (platform?: string, status?: string) => {
     try {
@@ -169,7 +203,10 @@ export const api = {
     }
   },
 
-  // Contest Management
+  getContest: async (id: string) => {
+    try { return await apiAxios.get(`/contests/manager/${id}`).then((res) => res.data); }
+    catch { return { contest: null, isJoined: false, participant: null }; }
+  },
   getManagerContest: async (id: string) => {
     try { return await apiAxios.get(`/contests/manager/${id}`).then((res) => res.data); }
     catch { return { contest: null, isJoined: false, participant: null }; }

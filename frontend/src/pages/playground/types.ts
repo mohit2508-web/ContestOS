@@ -70,6 +70,7 @@ export interface Problem {
   solution?: string;
   acceptanceRate?: number;
   totalSubmissions?: number;
+  points?: number;
   schema?: DatabaseSchema;
   images?: Record<string, string>;
 }

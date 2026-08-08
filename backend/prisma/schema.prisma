@@ -17,6 +17,10 @@ enum Role {
   STUDENT
   CANDIDATE
   EVALUATOR
+  ANALYTICS_VIEWER      // HR Manager — read-only results & analytics
+  GUEST_CANDIDATE       // External invite-only participant (no persistent account)
+  COMPLIANCE_OFFICER    // GDPR + audit compliance officer
+  CONTEST_MODERATOR     // Chief examiner — grade approval & override
 }
 
 enum EvaluationStatus {
@@ -145,6 +149,7 @@ model User {
   quizResponses      QuizResponse[]
   questionReviews    QuestionReviewLog[]
   breakGlassLogs     BreakGlassAuditLog[]  @relation("SuperAdminBreakGlass")
+  moderatorAssignments ContestModerationAssignment[] @relation("ModeratorAssignments")
 }
 
 model Problem {
@@ -224,6 +229,8 @@ model Contest {
   assignments        ContestAssignment[]
   sections           ContestSection[]
   quizAttemptQuestions QuizAttemptQuestion[]
+  guestInvites       GuestInvite[]
+  moderationAssignments ContestModerationAssignment[]
 }
 
 model ContestProblem {
@@ -556,6 +563,11 @@ model QuizResponse {
   evaluatorNotes    String?
   approvedById      String?
   answeredAt        DateTime            @default(now())
+  // CONTEST_MODERATOR override fields
+  moderatorOverride  Boolean             @default(false)
+  moderatedById      String?
+  moderationReason   String?
+  moderatedAt        DateTime?
 
   @@index([userId, attemptQuestionId])
 }
@@ -584,4 +596,51 @@ model BreakGlassAuditLog {
 
   @@index([superAdminId])
   @@index([organizationId])
+}
+
+// ── GUEST_CANDIDATE: Invite-only external contest participant ──────────────
+model GuestInvite {
+  id          String   @id @default(uuid())
+  contestId   String
+  contest     Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  email       String
+  name        String?
+  token       String   @unique
+  guestUserId String?  // set after they join and ephemeral account is created
+  usedAt      DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([contestId])
+  @@index([token])
+}
+
+// ── COMPLIANCE_OFFICER: GDPR erasure request queue ────────────────────────
+model GdprErasureRequest {
+  id                  String   @id @default(uuid())
+  requestedByEmail    String   // Who made the request (may be the candidate themselves)
+  targetUserId        String?  // Whose data to erase (null = anonymous request)
+  reason              String
+  status              String   @default("PENDING") // PENDING | APPROVED | REJECTED | EXECUTED
+  reviewedById        String?  // COMPLIANCE_OFFICER who reviewed
+  reviewNotes         String?
+  executedAt          DateTime?
+  createdAt           DateTime @default(now())
+
+  @@index([status])
+  @@index([targetUserId])
+}
+
+// ── CONTEST_MODERATOR: Per-contest moderation assignment ──────────────────
+model ContestModerationAssignment {
+  id           String   @id @default(uuid())
+  contestId    String
+  contest      Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  moderatorId  String
+  moderator    User     @relation("ModeratorAssignments", fields: [moderatorId], references: [id], onDelete: Cascade)
+  assignedById String
+  createdAt    DateTime @default(now())
+
+  @@unique([contestId, moderatorId])
+  @@index([contestId])
 }

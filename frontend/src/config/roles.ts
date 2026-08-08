@@ -7,6 +7,10 @@ export const ROLES = {
   EVALUATOR: 'EVALUATOR',
   STUDENT: 'STUDENT',
   CANDIDATE: 'CANDIDATE',
+  ANALYTICS_VIEWER: 'ANALYTICS_VIEWER',
+  GUEST_CANDIDATE: 'GUEST_CANDIDATE',
+  COMPLIANCE_OFFICER: 'COMPLIANCE_OFFICER',
+  CONTEST_MODERATOR: 'CONTEST_MODERATOR',
 } as const;
 
 export type AppRole = typeof ROLES[keyof typeof ROLES];
@@ -16,10 +20,14 @@ export const HIERARCHY: Record<string, number> = {
   PLATFORM_CONTENT_AUTHOR: 2,
   ORG_ADMIN: 3,
   PROCTOR: 4,
-  ORG_MEMBER: 5,
-  EVALUATOR: 6,
-  STUDENT: 7,
-  CANDIDATE: 7,
+  ORG_MEMBER: 4,
+  EVALUATOR: 4,
+  CONTEST_MODERATOR: 4,
+  COMPLIANCE_OFFICER: 4,
+  ANALYTICS_VIEWER: 5,
+  STUDENT: 6,
+  CANDIDATE: 6,
+  GUEST_CANDIDATE: 7,
 };
 
 export const ROLE_LABELS: Record<string, string> = {
@@ -31,6 +39,10 @@ export const ROLE_LABELS: Record<string, string> = {
   EVALUATOR: 'Evaluator / Judge',
   STUDENT: 'Candidate',
   CANDIDATE: 'Candidate',
+  ANALYTICS_VIEWER: 'Analytics Viewer / HR Manager',
+  GUEST_CANDIDATE: 'Guest Candidate',
+  COMPLIANCE_OFFICER: 'Compliance & GDPR Officer',
+  CONTEST_MODERATOR: 'Chief Examiner / Contest Moderator',
 };
 
 export const ROLE_COLORS: Record<string, string> = {
@@ -42,6 +54,10 @@ export const ROLE_COLORS: Record<string, string> = {
   EVALUATOR: 'bg-cyan-600',
   STUDENT: 'bg-emerald-600',
   CANDIDATE: 'bg-emerald-600',
+  ANALYTICS_VIEWER: 'bg-teal-600',
+  GUEST_CANDIDATE: 'bg-zinc-600',
+  COMPLIANCE_OFFICER: 'bg-red-600',
+  CONTEST_MODERATOR: 'bg-orange-600',
 };
 
 export const ROLE_BADGE_COLORS: Record<string, string> = {
@@ -53,4 +69,8 @@ export const ROLE_BADGE_COLORS: Record<string, string> = {
   EVALUATOR: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
   STUDENT: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   CANDIDATE: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  ANALYTICS_VIEWER: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
+  GUEST_CANDIDATE: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
+  COMPLIANCE_OFFICER: 'bg-red-500/10 text-red-400 border-red-500/20',
+  CONTEST_MODERATOR: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
 };

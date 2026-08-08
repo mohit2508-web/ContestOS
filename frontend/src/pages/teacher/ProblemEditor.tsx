@@ -117,6 +117,47 @@ Now convert the following SQL problem into JSON:
 
 [PASTE YOUR SQL PROBLEM QUESTION HERE]`;
 
+const WEB_DEV_AI_PROMPT_TEMPLATE = `You are a Web Development problem import assistant for ContestOS.
+Your task is to convert any frontend web development challenge (HTML, CSS, JavaScript, DOM manipulation, React/Vue UI component) into a structured JSON configuration block matching the following schema.
+
+Requirements:
+1. "problemType" MUST be "web-dev".
+2. "starterCode" MUST contain:
+   - "html": Initial HTML markup template.
+   - "css": Initial CSS styles template.
+   - "javascript": Initial JavaScript logic template.
+3. "testCases" MUST contain:
+   - "input": Textual DOM test scenario or event sequence description.
+   - "expectedOutput": Expected DOM state, element text, or CSS property.
+   - "isHidden": false for public cases, true for hidden cases.
+4. "referenceSolution": Full working HTML/CSS/JS solution.
+5. Return ONLY a valid JSON object matching the schema below. Do not include markdown or extra commentary outside the JSON.
+
+{
+  "title": "Problem Title",
+  "difficulty": "Easy | Medium | Hard",
+  "category": "Frontend",
+  "problemType": "web-dev",
+  "description": "Markdown formatted problem statement explaining required HTML elements, CSS styling classes, and JavaScript DOM interaction rules.",
+  "referenceSolution": "<!-- HTML -->\n<button id=\"btn\">Click Me</button>\n\n/* CSS */\nbutton { color: red; }\n\n// JS\ndocument.getElementById('btn').addEventListener('click', () => alert('Clicked'));",
+  "starterCode": {
+    "html": "<div id=\"app\">\n  <!-- Build your HTML layout here -->\n</div>",
+    "css": "/* Write your custom CSS styles here */\n#app {\n  font-family: sans-serif;\n}",
+    "javascript": "// Write your DOM event handlers & JavaScript logic here\ndocument.addEventListener('DOMContentLoaded', () => {\n  console.log('App ready');\n});"
+  },
+  "testCases": [
+    {
+      "input": "Click button #btn",
+      "expectedOutput": "Button text changes to Active",
+      "isHidden": false
+    }
+  ]
+}
+
+Now convert the following Web-Dev problem into JSON:
+
+[PASTE YOUR WEB DEV PROBLEM HERE]`;
+
 
 
 interface ParsedColumn {
@@ -1711,7 +1752,7 @@ export function TeacherProblemEditorPage() {
                 </div>
                 <div className="relative">
                   <pre className="w-full bg-black/40 border border-white/10 rounded-lg p-4 text-gray-300 font-mono text-xs leading-relaxed overflow-x-auto max-h-80 overflow-y-auto whitespace-pre-wrap">
-                    {problemType === 'sql' ? SQL_AI_PROMPT_TEMPLATE : AI_PROMPT_TEMPLATE}
+                    {problemType === 'sql' ? SQL_AI_PROMPT_TEMPLATE : problemType === 'web-dev' ? WEB_DEV_AI_PROMPT_TEMPLATE : AI_PROMPT_TEMPLATE}
                   </pre>
                 </div>
               </div>

@@ -335,20 +335,8 @@ export function ContestManagementPage() {
       document.body.removeChild(link);
     };
 
-    const sampleMockParticipants: Participant[] = [
-      { user: { id: 'mock-1', fullName: 'Student Candidate (IITD)', email: 'student@iitd.ac.in' }, score: 100, solvedCount: 1, warnings: 1, isTerminated: false },
-      { user: { id: 'mock-2', fullName: 'Rohan Sharma (NSUT)', email: 'rohan.sharma@nsut.ac.in' }, score: 200, solvedCount: 2, warnings: 0, isTerminated: false },
-      { user: { id: 'mock-3', fullName: 'Priya Patel (DTU)', email: 'priya.p@dtu.ac.in' }, score: 0, solvedCount: 0, warnings: 3, isTerminated: true },
-    ];
-
-    const sampleMockLogs = [
-      { id: 'log-1', userId: 'mock-1', eventType: 'SEB_SESSION_START', description: 'SEB Session launched successfully', createdAt: new Date().toISOString(), user: { fullName: 'Student Candidate (IITD)', email: 'student@iitd.ac.in' } },
-      { id: 'log-2', userId: 'mock-1', eventType: 'TAB_SWITCH', description: 'Student switched browser tab', createdAt: new Date().toISOString(), user: { fullName: 'Student Candidate (IITD)', email: 'student@iitd.ac.in' } },
-      { id: 'log-3', userId: 'mock-3', eventType: 'FULLSCREEN_EXIT', description: 'Exited fullscreen mode 3 times', createdAt: new Date().toISOString(), user: { fullName: 'Priya Patel (DTU)', email: 'priya.p@dtu.ac.in' } },
-    ];
-
-    const displayParticipants = showSamplePreview ? sampleMockParticipants : participants;
-    const displayLogs = showSamplePreview ? sampleMockLogs : contestLogs;
+    const displayParticipants = participants;
+    const displayLogs = contestLogs;
 
     return (
       <div className="space-y-6">
@@ -381,7 +369,6 @@ export function ContestManagementPage() {
             <div className="flex justify-between items-center">
               <h3 className="font-bold text-sm text-gray-400 uppercase tracking-wider">
                 Candidate SEB &amp; Integrity Log ({displayParticipants.length})
-                {showSamplePreview && <span className="ml-2 text-amber-400 font-bold text-[10px] lowercase">(sample preview data)</span>}
               </h3>
               <button 
                 onClick={() => openMonitor(selectedContest!)}
@@ -396,13 +383,6 @@ export function ContestManagementPage() {
                 <span className="text-2xl block">🔒</span>
                 <p className="text-gray-300 font-bold text-sm">Awaiting Candidate Registration</p>
                 <p className="text-gray-500 text-xs max-w-sm mx-auto">No candidates have registered for this exam yet. Telemetry will record live as soon as students enter the contest.</p>
-                <button
-                  type="button"
-                  onClick={() => setShowSamplePreview(true)}
-                  className="mt-2 text-xs text-amber-400 hover:underline font-semibold"
-                >
-                  Click here to preview with sample data →
-                </button>
               </div>
             ) : (
               <div className="border border-white/10 rounded-xl overflow-hidden bg-white/5">
@@ -728,8 +708,11 @@ export function ContestManagementPage() {
                   return (
                     <tr key={cp.id || idx} className="hover:bg-white/5 transition-colors">
                       <td className="p-3 font-bold text-emerald-400">#{cp.order || idx + 1}</td>
-                      <td className="p-3 font-bold text-white font-sans text-sm">
-                        {prob.title || 'Untitled Problem'}
+                      <td className="p-3 font-bold text-white font-sans text-sm flex items-center gap-2">
+                        <span>{prob.title || 'Untitled Problem'}</span>
+                        <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded text-[9px] font-black uppercase font-mono">
+                          {prob.problemType || 'code'}
+                        </span>
                       </td>
                       <td className="p-3 text-gray-400">{prob.category || 'Algorithms'}</td>
                       <td className="p-3 text-center">

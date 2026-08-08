@@ -13,10 +13,15 @@ import { useNotify } from '../components/notifications';
 import { SecureContestWrapper } from '../components/SecureContestWrapper';
 import { ProgressRing } from '../components/ProgressRing';
 import { formatProblemDescriptionWithImages } from '../utils/formatProblemDescription';
+import { ProblemLockConfirmationModal } from '../components/ExamFlowModals';
+
+import { useAuth } from '../contexts/AuthContext';
 
 export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: boolean } = {}) {
   const notify = useNotify();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userStorageId = user?.id || (user as any)?.userId || 'guest';
   const { setSidebarHidden } = useSidebar();
   const [contestId, setContestId] = useState<string | null>(null);
   const [lockedProblems, setLockedProblems] = useState<Set<string>>(() => {
@@ -345,6 +350,83 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
       monacoRef.current = null;
     };
   }, []);
+
+  const fetchAllProblems = async (problemType: string, opts?: { skip?: number; search?: string }) => {
+    try {
+      setIsLoadingProblems(true);
+      const cid = new URLSearchParams(window.location.search).get('contestId');
+      if (cid) {
+        const cRes = await api.getContest(cid).catch(() => null);
+        if (cRes?.contest?.problems?.length > 0) {
+          const contestProbs = cRes.contest.problems
+            .map((cp: any) => ({ ...cp.problem, points: cp.points || 100 }))
+            .filter((p: any) => p && (!p.problemType || p.problemType === 'code' || p.problemType === 'algorithm'));
+          if (contestProbs.length > 0) {
+            setProblems(contestProbs);
+            setIsLoadingProblems(false);
+            return;
+          }
+        }
+      }
+
+      const params = new URLSearchParams({ type: problemType, take: "200" });
+      if (opts?.skip) params.set('skip', opts.skip.toString());
+      if (opts?.search) params.set('search', opts.search);
+      const response = await api.get(`/problems?${params}`);
+      const newProblems = (response.problems || []).filter((p: any) => {
+        const pt = p.problemType?.toLowerCase() || 'code';
+        return pt === 'code' || pt === 'algorithm' || pt === 'algorithmic' || pt === '';
+      });
+      const total = response.total || 0;
+      setTotalProblems(total);
+      if (opts?.skip && opts.skip > 0) {
+        setProblems(prev => [...prev, ...newProblems]);
+      } else {
+        setProblems(newProblems);
+      }
+    } catch (error) {
+      console.error("Failed to fetch all problems:", error);
+    } finally {
+      setIsLoadingProblems(false);
+    }
+  };
+
+  const loadLanguageAvailability = async () => {
+    try {
+      const response = await api.get("/code/languages");
+      const langData = response.languages || [];
+      const availability: Record<string, boolean> = {};
+      const ids = new Set<string>();
+      langData.forEach((lang: any) => {
+        availability[lang.id] = lang.isAvailable;
+        ids.add(lang.id);
+      });
+      setLanguageAvailability(availability);
+      setBackendLanguageIds(ids);
+    } catch (error) {
+      console.error("Failed to load language availability:", error);
+    }
+  };
+
+  const loadProblemStatuses = async () => {
+    try {
+      const res = await api.get("/submissions");
+      const subs = res.submissions || [];
+      const statuses: Record<string, 'solved' | 'attempted' | 'none'> = {};
+      subs.forEach((sub: any) => {
+        const pid = sub.problemId;
+        if (!pid) return;
+        if (sub.status === 'ACCEPTED' || sub.passed) {
+          statuses[pid] = 'solved';
+        } else if (!statuses[pid]) {
+          statuses[pid] = 'attempted';
+        }
+      });
+      setProblemStatuses(statuses);
+    } catch (error) {
+      console.error("Failed to load problem statuses:", error);
+    }
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -676,32 +758,6 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     };
   }, []);
 
-  const fetchAllProblems = async (problemType: string, opts?: { skip?: number; search?: string }) => {
-    try {
-      setIsLoadingProblems(true);
-      const params = new URLSearchParams({ type: problemType, take: "200" });
-      if (opts?.skip) params.set('skip', opts.skip.toString());
-      if (opts?.search) params.set('search', opts.search);
-      const response = await api.get(`/problems?${params}`);
-      // Strictly filter for code/algorithmic problems only — never show SQL or web problems
-      const newProblems = (response.problems || []).filter((p: any) => {
-        const pt = p.problemType?.toLowerCase() || 'code';
-        return pt === 'code' || pt === 'algorithm' || pt === 'algorithmic' || pt === '';
-      });
-      const total = response.total || 0;
-      setTotalProblems(total);
-      if (opts?.skip && opts.skip > 0) {
-        setProblems(prev => [...prev, ...newProblems]);
-      } else {
-        setProblems(newProblems);
-      }
-    } catch (error) {
-      console.error("Failed to fetch all problems:", error);
-    } finally {
-      setIsLoadingProblems(false);
-    }
-  };
-
   const loadMoreProblems = () => {
     fetchAllProblems("code", { skip: problems.length, search: problemSearchQuery || undefined });
   };
@@ -713,44 +769,6 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     debounceSearchRef.current = setTimeout(() => {
       fetchAllProblems("code", { skip: 0, search: value || undefined });
     }, 400);
-  };
-
-  const loadLanguageAvailability = async () => {
-    try {
-      const response = await api.get("/code/languages");
-      const langData = response.languages || [];
-      const availability: Record<string, boolean> = {};
-      const ids = new Set<string>();
-      langData.forEach((lang: any) => {
-        availability[lang.id] = lang.isAvailable;
-        ids.add(lang.id);
-      });
-      setLanguageAvailability(availability);
-      setBackendLanguageIds(ids);
-    } catch (error) {
-      console.error("Failed to load language availability:", error);
-    }
-  };
-
-  const loadProblemStatuses = async () => {
-    try {
-      const res = await api.get("/submissions");
-      const subs = res.submissions || [];
-      const statuses: Record<string, 'solved' | 'attempted' | 'none'> = {};
-      subs.forEach((sub: any) => {
-        const pid = sub.problemId;
-        if (!pid) return;
-        const isSolved = sub.status === 'ACCEPTED' || sub.status === 'Accepted' || sub.status === 'passed';
-        if (isSolved) {
-          statuses[pid] = 'solved';
-        } else if (statuses[pid] !== 'solved') {
-          statuses[pid] = 'attempted';
-        }
-      });
-      setProblemStatuses(statuses);
-    } catch (error) {
-      console.error("Failed to load problem statuses:", error);
-    }
   };
 
   const checkLanguageAvailable = (lang: string): boolean => {
@@ -993,25 +1011,29 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     setTestSummary(null);
 
     const problemTests = selectedProblem?.testCases || testCases;
-    const sampleTests = problemTests.filter((tc: TestCase) => !tc.isHidden && (tc.input || tc.expectedOutput));
-    const validTestCases = sampleTests.length > 0
+    const sampleTests = problemTests.filter((tc: TestCase) => tc && (tc.input || tc.expectedOutput));
+    let validTestCases = sampleTests.length > 0
       ? sampleTests
-      : problemTests.filter((tc: TestCase) => tc.input || tc.expectedOutput);
+      : problemTests.filter((tc: TestCase) => tc && (tc.input || tc.expectedOutput));
 
-      if (validTestCases.length === 0) {
-        setTestResults([{
-          testCase: 1,
-          passed: false,
-          input: "",
-          expectedOutput: "",
-          actualOutput: "",
-          executionTime: 0,
-          error: "No test cases available"
-        }]);
-        setTestSummary({ passed: 0, failed: 1, total: 1 });
-        setSubmitStatus('error');
-        return;
-      }
+    if (validTestCases.length === 0 && selectedProblem?.id) {
+      validTestCases = [{ input: "", expectedOutput: "" } as any];
+    }
+
+    if (validTestCases.length === 0 && !selectedProblem?.id) {
+      setTestResults([{
+        testCase: 1,
+        passed: false,
+        input: "",
+        expectedOutput: "",
+        actualOutput: "",
+        executionTime: 0,
+        error: "No test cases available"
+      }]);
+      setTestSummary({ passed: 0, failed: 1, total: 1 });
+      setSubmitStatus('error');
+      return;
+    }
 
       if (selectedProblem?.id) {
         try {
@@ -1586,6 +1608,22 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
             <span className="text-[10px] font-extrabold text-gray-500 tabular-nums">
               {codeContestProblems.length > 0 ? Math.round((solvedProblems.size / codeContestProblems.length) * 100) : 0}%
             </span>
+            {selectedProblem && (
+              <button
+                onClick={() => {
+                  setPendingLockProblem({
+                    id: selectedProblem.id,
+                    title: selectedProblem.title,
+                    score: contestScore
+                  });
+                  setShowFinalLockModal(true);
+                }}
+                className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-amber-400 text-black text-[11px] font-black rounded-lg transition-all shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-300 flex items-center gap-1 cursor-pointer shrink-0"
+                title="Final lock and submit this problem"
+              >
+                🔒 Lock Problem
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -2897,56 +2935,33 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
       )}
 
       {/* Final Lock Confirmation Modal */}
-      {showFinalLockModal && pendingLockProblem && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl space-y-4">
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 mx-auto bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-black text-white">Problem Solved!</h3>
-              <p className="text-sm text-gray-400">
-                Do you want to <span className="text-amber-400 font-bold">final lock</span> <span className="text-white font-bold">"{pendingLockProblem.title}"</span>?
-              </p>
-              <p className="text-xs text-gray-500">Once locked, you cannot edit this problem again.</p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setShowFinalLockModal(false);
-                  setPendingLockProblem(null);
-                }}
-                className="flex-1 px-4 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 text-sm font-bold rounded-xl border border-white/10 transition-all"
-              >
-                Keep Editing
-              </button>
-              <button
-                onClick={() => {
-                  if (!pendingLockProblem || !contestId) return;
-                  // Mark as solved and locked
-                  const newSolved = new Set([...solvedProblems, pendingLockProblem.id]);
-                  setSolvedProblems(newSolved);
-                  sessionStorage.setItem(`solvedProblems_${contestId}`, JSON.stringify([...newSolved]));
-                  const newLocked = new Set([...lockedProblems, pendingLockProblem.id]);
-                  setLockedProblems(newLocked);
-                  sessionStorage.setItem(`lockedProblems_${contestId}`, JSON.stringify([...newLocked]));
-                  setShowFinalLockModal(false);
-                  setPendingLockProblem(null);
-                  navigate(`/contests/${contestId}`);
-                }}
-                className="flex-1 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-black text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                Lock &amp; Go Back
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Problem Final Lock Confirmation Modal */}
+      <ProblemLockConfirmationModal
+        isOpen={showFinalLockModal}
+        problemTitle={pendingLockProblem?.title || selectedProblem?.title || 'Problem'}
+        scoreEarned={pendingLockProblem?.score}
+        maxPoints={selectedProblem?.points || 100}
+        onConfirm={() => {
+          if (!pendingLockProblem?.id || !contestId) return;
+          const pid = pendingLockProblem.id;
+          const newSolved = new Set([...solvedProblems, pid]);
+          setSolvedProblems(newSolved);
+          sessionStorage.setItem(`solvedProblems_${contestId}`, JSON.stringify([...newSolved]));
+          const newLocked = new Set([...lockedProblems, pid]);
+          setLockedProblems(newLocked);
+          sessionStorage.setItem(`lockedProblems_${contestId}`, JSON.stringify([...newLocked]));
+          sessionStorage.setItem(`locked_prob_${userStorageId}_${contestId}_${pid}`, '1');
+          localStorage.setItem(`locked_prob_${userStorageId}_${contestId}_${pid}`, '1');
+          setShowFinalLockModal(false);
+          setPendingLockProblem(null);
+          notify.toast.success(`🔒 Problem "${pendingLockProblem.title}" locked & submitted!`);
+          navigate(`/contests/${contestId}`);
+        }}
+        onCancel={() => {
+          setShowFinalLockModal(false);
+          setPendingLockProblem(null);
+        }}
+      />
     </div>
   );
 

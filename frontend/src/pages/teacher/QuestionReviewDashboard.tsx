@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { apiAxios } from '../../services/api';
 
 // ───────── Types ─────────
 type ItemType = 'CODING_DSA' | 'SQL' | 'WEB_DEV' | 'MCQ_TECHNICAL' | 'APTITUDE_NUMERICAL' | 'VERBAL_REASONING' | 'LOGICAL_ABSTRACT' | 'PSYCHOMETRIC' | 'SJT' | 'SUBJECTIVE_ESSAY';
@@ -35,105 +36,6 @@ const TYPE_META: Record<ItemType, { label: string; icon: string; color: string; 
   SJT: { label: 'SJT', icon: '⚖️', color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30' },
   SUBJECTIVE_ESSAY: { label: 'Essay', icon: '✍️', color: 'text-zinc-400', bg: 'bg-zinc-500/10', border: 'border-zinc-500/30' },
 };
-
-// ───────── Mock Data — All 10 Types ─────────
-const MOCK_REVIEW_QUEUE: ReviewQueueItem[] = [
-  {
-    id: 'q-review-1',
-    title: 'Stack LIFO Principle — MCQ',
-    content: 'Which of the following data structures operates on a Last-In, First-Out (LIFO) principle?',
-    type: 'MCQ_TECHNICAL',
-    category: 'Technical',
-    topic: 'Data Structures',
-    authorName: 'Rohan Sharma (Tech Lead)',
-    submittedAt: '2 hours ago',
-    hoursInReview: 2,
-    reviewStatus: 'UNDER_REVIEW',
-    options: [
-      { text: 'Queue', isCorrect: false },
-      { text: 'Stack', isCorrect: true },
-      { text: 'Heap', isCorrect: false },
-      { text: 'Linked List', isCorrect: false },
-    ],
-  },
-  {
-    id: 'q-review-2',
-    title: 'SQL GROUP BY HAVING Clause',
-    content: 'In SQL, which clause is used to filter aggregated groups after a GROUP BY statement?',
-    type: 'SQL',
-    category: 'Database',
-    topic: 'DBMS',
-    authorName: 'Priya Patel (Faculty)',
-    submittedAt: '5 hours ago',
-    hoursInReview: 5,
-    reviewStatus: 'UNDER_REVIEW',
-  },
-  {
-    id: 'q-review-3',
-    title: 'Two Sum — Hash Map Approach',
-    content: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.',
-    type: 'CODING_DSA',
-    category: 'Algorithms',
-    topic: 'Arrays & Hashing',
-    authorName: 'Dr. Ananya Sharma (SME)',
-    submittedAt: '12 hours ago',
-    hoursInReview: 12,
-    reviewStatus: 'UNDER_REVIEW',
-    testCasesCount: 8,
-  },
-  {
-    id: 'q-review-4',
-    title: 'Verbal Comprehension — Climate Change Passage',
-    content: 'The increasing concentration of greenhouse gases in the atmosphere has led to unprecedented changes in global temperature patterns...',
-    type: 'VERBAL_REASONING',
-    category: 'Verbal',
-    topic: 'Critical Reading',
-    authorName: 'Dr. Mehta (Language SME)',
-    submittedAt: '18 hours ago',
-    hoursInReview: 18,
-    reviewStatus: 'UNDER_REVIEW',
-    passageWordCount: 380,
-  },
-  {
-    id: 'q-review-5',
-    title: 'Conscientiousness Scale — Big-5',
-    content: 'Psychometric statement: I prefer to follow a structured plan rather than improvise.',
-    type: 'PSYCHOMETRIC',
-    category: 'Psychometric',
-    topic: 'OCEAN Big-5',
-    authorName: 'Dr. Kapoor (Psychometrician)',
-    submittedAt: '4 days ago',
-    hoursInReview: 96,
-    reviewStatus: 'UNDER_REVIEW',
-    construct: 'Conscientiousness (Big-5)',
-  },
-  {
-    id: 'q-review-6',
-    title: 'Team Deadline Conflict — SJT',
-    content: 'You are a junior engineer and your team lead asks you to skip unit tests to meet a client deadline tomorrow.',
-    type: 'SJT',
-    category: 'Behavioural',
-    topic: 'Workplace Dilemmas',
-    authorName: 'Suresh Kumar (I/O Psychologist)',
-    submittedAt: '6 hours ago',
-    hoursInReview: 6,
-    reviewStatus: 'UNDER_REVIEW',
-    scenarioText: 'Your team is under pressure to deliver by EOD. The team lead suggests skipping tests.',
-  },
-  {
-    id: 'q-review-7',
-    title: 'Microservices vs Monolith — Essay',
-    content: 'Discuss the trade-offs between microservices and monolithic architectures. When would you choose one over the other?',
-    type: 'SUBJECTIVE_ESSAY',
-    category: 'System Design',
-    topic: 'Architecture',
-    authorName: 'Dr. Ananya Sharma (SME)',
-    submittedAt: '1 hour ago',
-    hoursInReview: 1,
-    reviewStatus: 'UNDER_REVIEW',
-    minWords: 150,
-  },
-];
 
 // ───────── Reviewer Checklist ─────────
 const REVIEWER_CHECKLIST = [
@@ -260,27 +162,32 @@ export const QuestionReviewDashboard: React.FC = () => {
   const fetchQueue = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/governance/questions/review-queue');
-      const data = await res.json();
+      const res = await apiAxios.get('/governance/questions/review-queue');
+      const data = res.data;
       if (data.success && Array.isArray(data.questions) && data.questions.length > 0) {
-        const mapped = data.questions.map((q: any) => ({
-          id: q.id, title: q.title || q.content?.slice(0, 60),
-          content: q.content, type: q.type || 'MCQ_TECHNICAL',
-          category: q.category, topic: q.topic || 'General',
-          authorName: 'Question Setter',
+        const mapped: ReviewQueueItem[] = data.questions.map((q: any) => ({
+          id: q.id,
+          title: q.title || q.content?.slice(0, 60),
+          content: q.content,
+          type: q.type || 'MCQ_TECHNICAL',
+          category: q.category || 'General',
+          topic: q.topic || 'General',
+          authorName: q.authorName || 'Question Setter',
           submittedAt: new Date(q.createdAt).toLocaleDateString(),
           hoursInReview: Math.floor((Date.now() - new Date(q.createdAt).getTime()) / 3600000),
           reviewStatus: q.reviewStatus,
+          options: q.options ? q.options.map((o: any) => ({ text: o.text, isCorrect: o.isCorrect })) : undefined,
         }));
         setItems(mapped);
-        setSelectedItem(mapped[0]);
+        if (mapped.length > 0) setSelectedItem(mapped[0]);
+        else setSelectedItem(null);
       } else {
-        setItems(MOCK_REVIEW_QUEUE);
-        setSelectedItem(MOCK_REVIEW_QUEUE[0]);
+        setItems([]);
+        setSelectedItem(null);
       }
     } catch {
-      setItems(MOCK_REVIEW_QUEUE);
-      setSelectedItem(MOCK_REVIEW_QUEUE[0]);
+      setItems([]);
+      setSelectedItem(null);
     } finally {
       setLoading(false);
     }
@@ -302,12 +209,11 @@ export const QuestionReviewDashboard: React.FC = () => {
     let reviewerId = 'user-reviewer-id';
     try { if (userStr) reviewerId = JSON.parse(userStr).id || reviewerId; } catch {}
     try {
-      const res = await fetch(`/api/governance/questions/${id}/review`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewerId, targetStatus, comments: comments || `Status → ${targetStatus}` }),
+      await apiAxios.post(`/governance/questions/${id}/review`, {
+        reviewerId,
+        targetStatus,
+        comments: comments || `Status → ${targetStatus}`,
       });
-      await res.json();
     } catch {}
     // Optimistic update always
     setItems((prev) => prev.filter((i) => i.id !== id));

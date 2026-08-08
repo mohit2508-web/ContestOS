@@ -222,6 +222,22 @@ export function LeaderboardPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Candidate Scope Banner */}
+        <div className="mb-6 p-4 bg-zinc-950 border border-white/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🏆</span>
+              <h2 className="font-extrabold text-white text-base">Candidate Leaderboard & Performance Center</h2>
+              <span className="px-2.5 py-0.5 text-[9px] font-black rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">
+                VERIFIED CANDIDATE SCOPE ONLY
+              </span>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">
+              Displays student ratings, connected competitive handles, and relative cohort percentile performance. Non-student admin accounts are strictly excluded.
+            </p>
+          </div>
+        </div>
+
         {/* Tabs */}
         <div className="flex flex-wrap gap-3 mb-8">
           <button
