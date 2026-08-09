@@ -3,6 +3,8 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { ROLE_LABELS, ROLE_COLORS } from '../config/roles';
 
+import { NotificationBell } from './NotificationBell';
+
 const Icon = ({ d }: { d: string }) => (
   <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" d={d} />
@@ -10,6 +12,7 @@ const Icon = ({ d }: { d: string }) => (
 );
 
 const icons = {
+  bell: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9',
   dashboard: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
   trophy: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
   code: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
@@ -53,7 +56,8 @@ function getNavSections(role: string): NavSection[] {
           { path: '/admin/platform?tab=users', label: 'Users & IAM', icon: icons.users },
           { path: '/admin/platform?tab=audit', label: 'Security & Audit', icon: icons.shield },
         ]},
-        { title: 'Observability', items: [
+        { title: 'Observability & Communications', items: [
+          { path: '/notifications', label: '🔔 System Notifications & Alerts', icon: icons.bell },
           { path: '/admin/platform?tab=health', label: 'Platform Health', icon: icons.chart },
           { path: '/admin/platform?tab=announcements', label: 'Announcements', icon: icons.flag },
         ]},
@@ -66,12 +70,12 @@ function getNavSections(role: string): NavSection[] {
           { path: '/governance/authoring?scope=PLATFORM_GLOBAL', label: '+ Author New Global Item', icon: icons.code },
           { path: '/governance/reviews', label: 'Peer Review Queue', icon: icons.check },
         ]},
-        { title: 'Psychometrics & IRT', items: [
+        { title: 'Psychometrics & Alerts', items: [
+          { path: '/notifications', label: '🔔 Notifications & Alerts', icon: icons.bell },
           { path: '/governance/sme-bank?filter=PUBLISHED', label: 'Live Item Telemetry', icon: icons.chart },
           { path: '/governance/sme-bank?filter=PEER_REVIEW', label: 'Awaiting My Review', icon: icons.eye },
         ]},
       ];
-
 
     case 'ORG_ADMIN':
       return [
@@ -83,6 +87,9 @@ function getNavSections(role: string): NavSection[] {
           { path: '/governance/banks', label: 'Question Banks Repository', icon: icons.doc },
           { path: '/governance/reviews', label: 'Four-Eyes Review Queue', icon: icons.check },
           { path: '/governance/authoring', label: '+ Author Question (Draft)', icon: icons.code },
+        ]},
+        { title: 'Communications & Alerts', items: [
+          { path: '/notifications', label: '🔔 Notifications & Invitations', icon: icons.bell },
         ]},
       ];
 
@@ -96,6 +103,9 @@ function getNavSections(role: string): NavSection[] {
           { path: '/governance/reviews', label: 'Four-Eyes Review Queue', icon: icons.check },
           { path: '/governance/authoring', label: '+ Author Question (Draft)', icon: icons.code },
         ]},
+        { title: 'Alerts & Communications', items: [
+          { path: '/notifications', label: '🔔 Notifications & Invites', icon: icons.bell },
+        ]},
       ];
 
     case 'PROCTOR':
@@ -103,6 +113,9 @@ function getNavSections(role: string): NavSection[] {
         { title: 'Invigilation', items: [
           { path: '/proctor/live', label: 'Live Exam Proctor Console', icon: icons.eye },
           { path: '/proctor/live?tab=incidents', label: 'Security Incident Logs', icon: icons.flag },
+        ]},
+        { title: 'Alerts & Communications', items: [
+          { path: '/notifications', label: '🔔 Notifications & Invites', icon: icons.bell },
         ]},
       ];
 
@@ -112,6 +125,9 @@ function getNavSections(role: string): NavSection[] {
           { path: '/analytics/dashboard', label: 'Performance Dashboard', icon: icons.chart },
           { path: '/analytics/contests', label: 'Contest Results', icon: icons.trophy },
         ]},
+        { title: 'Alerts & Communications', items: [
+          { path: '/notifications', label: '🔔 Notifications', icon: icons.bell },
+        ]},
       ];
 
     case 'CONTEST_MODERATOR':
@@ -120,6 +136,9 @@ function getNavSections(role: string): NavSection[] {
           { path: '/moderator/dashboard', label: 'Assigned Contests', icon: icons.clipboard },
           { path: '/moderator/queue', label: 'Evaluation Queue', icon: icons.check },
         ]},
+        { title: 'Alerts & Communications', items: [
+          { path: '/notifications', label: '🔔 Notifications & Alerts', icon: icons.bell },
+        ]},
       ];
 
     case 'COMPLIANCE_OFFICER':
@@ -127,6 +146,9 @@ function getNavSections(role: string): NavSection[] {
         { title: 'Compliance & Audit', items: [
           { path: '/compliance/audit-logs', label: 'Audit Log Viewer', icon: icons.shield },
           { path: '/compliance/gdpr', label: 'GDPR Erasure Queue', icon: icons.doc },
+        ]},
+        { title: 'Alerts & Notices', items: [
+          { path: '/notifications', label: '🔔 Notifications & Offboard Notices', icon: icons.bell },
         ]},
       ];
 
@@ -138,6 +160,9 @@ function getNavSections(role: string): NavSection[] {
         { title: 'Evaluation', items: [
           { path: '/evaluator/assigned', label: 'Grading Queue', icon: icons.clipboard },
           { path: '/evaluator/assigned?tab=history', label: 'Graded History', icon: icons.check },
+        ]},
+        { title: 'Alerts & Invites', items: [
+          { path: '/notifications', label: '🔔 Notifications & Invites', icon: icons.bell },
         ]},
       ];
 
@@ -156,6 +181,9 @@ function getNavSections(role: string): NavSection[] {
           { path: '/playground/web-dev', label: 'Web Dev Playground', icon: icons.flag },
           { path: '/playground/sql', label: 'SQL Playground', icon: icons.doc },
           { path: '/playground/quiz', label: 'MCQ Quiz Playground', icon: icons.clipboard },
+        ]},
+        { title: 'Alerts & Communications', items: [
+          { path: '/notifications', label: '🔔 Notifications & Invites', icon: icons.bell },
         ]},
       ];
   }
@@ -248,12 +276,15 @@ export function Sidebar({ children }: { children: ReactNode }) {
               </span>
             </div>
           )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden md:flex text-gray-400 hover:text-white p-1.5 hover:bg-white/5 rounded-lg transition"
-          >
-            {isCollapsed ? '\u2192' : '\u2190'}
-          </button>
+          <div className="flex items-center gap-1">
+            <NotificationBell position="left" />
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="hidden md:flex text-gray-400 hover:text-white p-1.5 hover:bg-white/5 rounded-lg transition cursor-pointer"
+            >
+              {isCollapsed ? '\u2192' : '\u2190'}
+            </button>
+          </div>
           <button onClick={() => setIsOpen(false)} className="md:hidden text-gray-400 p-1">
             <Icon d={icons.close} />
           </button>

@@ -1052,6 +1052,7 @@ export function ProblemsTab() {
   };
 
   const [statusFilter, setStatusFilter] = useState<'all' | 'solved' | 'attempted' | 'unattempted'>('all');
+  const [activeSectionId, setActiveSectionId] = useState<string>('all');
   const [quickViewItem, setQuickViewItem] = useState<{ problem: any; points: number } | null>(null);
 
   const solvedCount = problems.filter((p: any) => {
@@ -1073,6 +1074,15 @@ export function ProblemsTab() {
     const isProblemLocked = typeof window !== 'undefined' && sessionStorage.getItem(`locked_prob_${contest.id}_${p.problem.id}`) === '1';
     const isSolved = isProblemLocked || (sub && ((sub.score || sub.points || 0) > 0 || sub.status === 'ACCEPTED' || sub.status === 'passed'));
     const isAttempted = !!sub && !isSolved;
+
+    // Section filtering
+    if (activeSectionId !== 'all' && contest.sections && contest.sections.length > 0) {
+      const sec = contest.sections.find((s: any) => s.id === activeSectionId);
+      const secProbIds: string[] = Array.isArray(sec?.problemIds) ? sec.problemIds : [];
+      if (secProbIds.length > 0 && !secProbIds.includes(p.problem?.id)) {
+        return false;
+      }
+    }
 
     if (statusFilter === 'solved') return isSolved;
     if (statusFilter === 'attempted') return isAttempted;
@@ -1128,6 +1138,54 @@ export function ProblemsTab() {
 
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
         
+        {/* 📚 Section Switcher Bar (shown when contest has configured sections) */}
+        {contest.sections && contest.sections.length > 0 && (
+          <div className="bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-zinc-950/80 border border-indigo-500/30 rounded-2xl p-4 shadow-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📚</span>
+                <div>
+                  <h3 className="text-sm font-black text-indigo-300">Exam Sections</h3>
+                  <p className="text-[10px] text-gray-400">Switch between sections to attempt assigned questions &amp; timed modules</p>
+                </div>
+              </div>
+              <span className="text-xs px-2.5 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-lg font-bold">
+                {contest.sections.length} Sections
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pt-1">
+              <button
+                onClick={() => setActiveSectionId('all')}
+                className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border ${
+                  activeSectionId === 'all'
+                    ? 'bg-indigo-500 text-white border-indigo-400 shadow-lg shadow-indigo-500/30'
+                    : 'bg-black/60 text-gray-400 border-white/10 hover:text-white'
+                }`}
+              >
+                All Sections ({problems.length})
+              </button>
+              {contest.sections.map((sec: any, idx: number) => {
+                const isSelected = activeSectionId === sec.id;
+                return (
+                  <button
+                    key={sec.id}
+                    onClick={() => setActiveSectionId(sec.id)}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border flex items-center gap-2 ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-300 shadow-lg shadow-indigo-500/30'
+                        : 'bg-black/60 text-gray-300 border-white/10 hover:border-indigo-500/30'
+                    }`}
+                  >
+                    <span>Section {idx + 1}: {sec.title}</span>
+                    {sec.duration > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-black/40 rounded">⏱️ {sec.duration}m</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* 🌟 Glassmorphic Performance Hero Header */}
         {!isLocked && (
           <ContestHeroHeader
@@ -1813,6 +1871,9 @@ function SebProblemsListInline({
   const problems = contest.problems || [];
   const [statusFilter, setStatusFilter] = useState<'all' | 'solved' | 'attempted' | 'unattempted'>('all');
   const [quickViewItem, setQuickViewItem] = useState<{ problem: any; points: number } | null>(null);
+  const { user } = useAuth();
+  const currentUid = user?.id || (user as any)?.userId || 'guest';
+  const [activeSectionId, setActiveSectionId] = useState<string>('all');
 
   // Fetch candidate's real submission report
   const { data: userReport } = useQuery({
@@ -1829,41 +1890,42 @@ function SebProblemsListInline({
   const participantScore = userReport?.participant?.score || 0;
   const maxContestScore = problems.reduce((acc: number, p: any) => acc + (p.points || 100), 0);
 
-  const { user } = useAuth();
-  const currentUid = user?.id || (user as any)?.userId || 'guest';
-
   const solvedCount = problems.filter((p: any) => {
     const sub = candidateSubmissions.find((s: any) => s.problemId === p.problem?.id);
-    const isLockedState = typeof window !== 'undefined' && (
-      sessionStorage.getItem(`locked_prob_${currentUid}_${contest.id}_${p.problem.id}`) === '1' ||
-      localStorage.getItem(`locked_prob_${currentUid}_${contest.id}_${p.problem.id}`) === '1'
-    );
-    return isLockedState || (sub && ((sub.score || sub.points || 0) > 0 || sub.status === 'ACCEPTED' || sub.status === 'passed'));
+    const maxPoints = p.points || 100;
+    const pts = sub?.score ?? sub?.points ?? 0;
+    return sub?.status === 'ACCEPTED' || sub?.status === 'passed' || (pts >= maxPoints && maxPoints > 0);
   }).length;
 
   const attemptedCount = problems.filter((p: any) => {
     const sub = candidateSubmissions.find((s: any) => s.problemId === p.problem?.id);
-    const isLockedState = typeof window !== 'undefined' && (
-      sessionStorage.getItem(`locked_prob_${currentUid}_${contest.id}_${p.problem.id}`) === '1' ||
-      localStorage.getItem(`locked_prob_${currentUid}_${contest.id}_${p.problem.id}`) === '1'
-    );
-    return !!sub && !isLockedState && (sub.score || sub.points || 0) === 0;
+    const maxPoints = p.points || 100;
+    const pts = sub?.score ?? sub?.points ?? 0;
+    const isFull = sub?.status === 'ACCEPTED' || sub?.status === 'passed' || (pts >= maxPoints && maxPoints > 0);
+    return !!sub && !isFull;
   }).length;
 
   const unattemptedCount = Math.max(0, problems.length - solvedCount - attemptedCount);
 
   const filteredProblems = problems.filter((p: any) => {
     const sub = candidateSubmissions.find((s: any) => s.problemId === p.problem?.id);
-    const isProblemLocked = typeof window !== 'undefined' && (
-      sessionStorage.getItem(`locked_prob_${currentUid}_${contest.id}_${p.problem.id}`) === '1' ||
-      localStorage.getItem(`locked_prob_${currentUid}_${contest.id}_${p.problem.id}`) === '1'
-    );
-    const isSolved = isProblemLocked || (sub && ((sub.score || sub.points || 0) > 0 || sub.status === 'ACCEPTED' || sub.status === 'passed'));
-    const isAttempted = !!sub && !isSolved;
+    const maxPoints = p.points || 100;
+    const pts = sub?.score ?? sub?.points ?? 0;
+    const isFull = sub?.status === 'ACCEPTED' || sub?.status === 'passed' || (pts >= maxPoints && maxPoints > 0);
+    const isAttempted = !!sub && !isFull;
 
-    if (statusFilter === 'solved') return isSolved;
+    // Section filtering in SEB mode
+    if (activeSectionId !== 'all' && contest.sections && contest.sections.length > 0) {
+      const sec = contest.sections.find((s: any) => s.id === activeSectionId);
+      const secProbIds: string[] = Array.isArray(sec?.problemIds) ? sec.problemIds : [];
+      if (secProbIds.length > 0 && !secProbIds.includes(p.problem?.id)) {
+        return false;
+      }
+    }
+
+    if (statusFilter === 'solved') return isFull;
     if (statusFilter === 'attempted') return isAttempted;
-    if (statusFilter === 'unattempted') return !isSolved && !isAttempted;
+    if (statusFilter === 'unattempted') return !isFull && !isAttempted;
     return true;
   });
 
@@ -1884,6 +1946,55 @@ function SebProblemsListInline({
       />
 
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
+
+        {/* 📚 Section Switcher Bar in SEB Mode */}
+        {contest.sections && contest.sections.length > 0 && (
+          <div className="bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-zinc-950/80 border border-indigo-500/30 rounded-2xl p-4 shadow-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📚</span>
+                <div>
+                  <h3 className="text-sm font-black text-indigo-300">Exam Sections</h3>
+                  <p className="text-[10px] text-gray-400">Switch between sections to attempt assigned questions &amp; timed modules</p>
+                </div>
+              </div>
+              <span className="text-xs px-2.5 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-lg font-bold">
+                {contest.sections.length} Sections
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pt-1">
+              <button
+                onClick={() => setActiveSectionId('all')}
+                className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border ${
+                  activeSectionId === 'all'
+                    ? 'bg-indigo-500 text-white border-indigo-400 shadow-lg shadow-indigo-500/30'
+                    : 'bg-black/60 text-gray-400 border-white/10 hover:text-white'
+                }`}
+              >
+                All Sections ({problems.length})
+              </button>
+              {contest.sections.map((sec: any, idx: number) => {
+                const isSelected = activeSectionId === sec.id;
+                return (
+                  <button
+                    key={sec.id}
+                    onClick={() => setActiveSectionId(sec.id)}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border flex items-center gap-2 ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-300 shadow-lg shadow-indigo-500/30'
+                        : 'bg-black/60 text-gray-300 border-white/10 hover:border-indigo-500/30'
+                    }`}
+                  >
+                    <span>Section {idx + 1}: {sec.title}</span>
+                    {sec.duration > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-black/40 rounded">⏱️ {sec.duration}m</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* 🌟 Glassmorphic Performance Hero Header */}
         <ContestHeroHeader
           contestTitle={contest.title}
@@ -1932,7 +2043,7 @@ function SebProblemsListInline({
                   : 'bg-white/5 hover:bg-white/10 text-emerald-400'
               }`}
             >
-              <span>🟢</span> Solved & Locked ({solvedCount})
+              <span>🟢</span> Solved ({solvedCount})
             </button>
             <button
               onClick={() => setStatusFilter('attempted')}
@@ -1978,21 +2089,24 @@ function SebProblemsListInline({
           <div className="grid grid-cols-1 gap-4">
             {filteredProblems.map((p: any, idx: number) => {
               const sub = candidateSubmissions.find((s: any) => s.problemId === p.problem?.id);
+              const maxPoints = p.points || 100;
+              const pointsEarned = sub?.score ?? sub?.points ?? 0;
               const isLockedState = typeof window !== 'undefined' && (
                 sessionStorage.getItem(`locked_prob_${currentUid}_${contest.id}_${p.problem.id}`) === '1' ||
                 localStorage.getItem(`locked_prob_${currentUid}_${contest.id}_${p.problem.id}`) === '1'
               );
 
-              const isSolved = isLockedState || (sub && ((sub.score || sub.points || 0) > 0 || sub.status === 'ACCEPTED' || sub.status === 'passed'));
-              const isAttempted = !!sub && !isSolved;
+              const isSolved = sub?.status === 'ACCEPTED' || sub?.status === 'passed' || (pointsEarned >= maxPoints && maxPoints > 0);
+              const isPartial = !isSolved && pointsEarned > 0;
+              const isAttempted = !!sub && !isSolved && !isPartial;
               const probType = p.problem?.problemType || 'code';
-              const maxPoints = p.points || 100;
-              const pointsEarned = isSolved ? maxPoints : (sub?.score || sub?.points || 0);
 
               const cardBorder = isSolved
                 ? 'border-emerald-500/40 bg-gradient-to-r from-emerald-950/20 via-zinc-950 to-zinc-950 hover:border-emerald-400/60'
-                : isAttempted
+                : isPartial
                 ? 'border-amber-500/40 bg-gradient-to-r from-amber-950/20 via-zinc-950 to-zinc-950 hover:border-amber-400/60'
+                : isAttempted
+                ? 'border-amber-400/30 bg-zinc-950 hover:border-amber-400/50'
                 : 'border-white/10 bg-zinc-950/80 hover:border-amber-500/30';
 
               const diffColor =
@@ -2024,7 +2138,7 @@ function SebProblemsListInline({
                       )}
                       {probType === 'code' && (
                         <span className="px-2.5 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-300 text-[10px] font-black uppercase tracking-wider rounded-lg flex items-center gap-1.5">
-                          <span>💻</span> DSA & Algorithm
+                          <span>💻</span> DSA &amp; Algorithm
                         </span>
                       )}
                       {(probType === 'quiz' || probType === 'mcq') && (
@@ -2041,12 +2155,17 @@ function SebProblemsListInline({
                       {/* Lock & Solved Status Pills */}
                       {isSolved && (
                         <span className="px-2.5 py-0.5 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-black rounded-lg flex items-center gap-1">
-                          <span>🔒</span> SOLVED & LOCKED
+                          <span>✓</span> SOLVED ({pointsEarned}/{maxPoints} pts)
+                        </span>
+                      )}
+                      {isPartial && (
+                        <span className="px-2.5 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black rounded-lg flex items-center gap-1">
+                          <span>⚡</span> PARTIAL ({pointsEarned}/{maxPoints} pts)
                         </span>
                       )}
                       {isAttempted && (
-                        <span className="px-2.5 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black rounded-lg flex items-center gap-1">
-                          <span>🟡</span> ATTEMPTED
+                        <span className="px-2.5 py-0.5 bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] font-black rounded-lg flex items-center gap-1">
+                          <span>🟡</span> ATTEMPTED (0/{maxPoints} pts)
                         </span>
                       )}
                     </div>
@@ -2081,6 +2200,8 @@ function SebProblemsListInline({
                       className={`px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 shadow-lg ${
                         isSolved
                           ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                          : isPartial
+                          ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
                           : isAttempted
                           ? 'bg-gradient-to-r from-amber-500 to-amber-400 text-black shadow-amber-500/20 hover:from-amber-400 hover:to-amber-300'
                           : 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-black shadow-emerald-500/20 hover:from-emerald-400 hover:to-emerald-300'
@@ -2088,7 +2209,11 @@ function SebProblemsListInline({
                     >
                       {isSolved ? (
                         <>
-                          <span>🔒</span> Locked ({pointsEarned}/{maxPoints} pts)
+                          <span>✓</span> Review Problem ({pointsEarned}/{maxPoints} pts)
+                        </>
+                      ) : isPartial ? (
+                        <>
+                          <span>⚡</span> Improve Score ({pointsEarned}/{maxPoints} pts)
                         </>
                       ) : isAttempted ? (
                         <>

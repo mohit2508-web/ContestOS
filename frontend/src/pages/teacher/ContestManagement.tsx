@@ -3,6 +3,7 @@ import { api } from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useNotify } from '../../components/notifications';
 import { ContestAssemblyBuilder } from '../../components/teacher/ContestAssemblyBuilder';
+import { EmptyState } from '../../components/common/EmptyState';
 
 interface Contest {
   id: string;
@@ -68,8 +69,51 @@ export function ContestManagementPage() {
     randomizeQuestionOrder: true,
     snapshotIntervalSeconds: 45,
     maxWarnings: 3,
-    problemIds: [] as string[]
+    problemIds: [] as string[],
+    // Scoring fields
+    scoringMode: 'PARTIAL' as 'PARTIAL' | 'BINARY' | 'ACM' | 'DYNAMIC',
+    negativeMarkingEnabled: false,
+    negativeMarkingValue: 0.25,
+    showLeaderboardDuringContest: true,
+    freezeLeaderboardMins: 0,
   });
+  // Per-problem custom marks map: { [problemId]: number }
+  const [problemScores, setProblemScores] = useState<Record<string, number>>({});
+
+  // Phase 2: Multi-Section Contest state
+  const [enableSections, setEnableSections] = useState(false);
+  const [sections, setSections] = useState<Array<{
+    id: string;
+    title: string;
+    sectionType: 'QUIZ' | 'CODING' | 'WEB_DEV';
+    duration: number;
+    negativeMarkingEnabled: boolean;
+    negativeMarkingValue: number;
+    problemIds: string[];
+    instructions?: string;
+  }>>([
+    {
+      id: 'sec-1',
+      title: 'Section A: Technical Aptitude & Logic',
+      sectionType: 'QUIZ',
+      duration: 30,
+      negativeMarkingEnabled: true,
+      negativeMarkingValue: 0.25,
+      problemIds: [],
+      instructions: 'Answer logic & quantitative questions.'
+    },
+    {
+      id: 'sec-2',
+      title: 'Section B: Hands-on Coding & DSA',
+      sectionType: 'CODING',
+      duration: 60,
+      negativeMarkingEnabled: false,
+      negativeMarkingValue: 0,
+      problemIds: [],
+      instructions: 'Solve algorithm & data structure problems.'
+    }
+  ]);
+
   const [creating, setCreating] = useState(false);
 
   // Monitor state
@@ -186,10 +230,11 @@ export function ContestManagementPage() {
     const list = Object.values(lobbyUsers);
     if (list.length === 0) {
       return (
-        <div className="text-center py-20 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-gray-400 font-medium text-sm">No candidates currently checking in at assessment lobby gates.</p>
-          <p className="text-[10px] text-gray-500 mt-1">Status changes will stream here in real time as candidates check in.</p>
-        </div>
+        <EmptyState
+          variant="proctor"
+          title="No candidates at boarding gate"
+          body="Status changes and device diagnostics will stream here in real time as soon as candidates enter the assessment lobby."
+        />
       );
     }
 
@@ -585,6 +630,7 @@ export function ContestManagementPage() {
   const [mappedProblemsLoading, setMappedProblemsLoading] = useState(false);
   const [addingProblemId, setAddingProblemId] = useState('');
   const [selectedBankProblemId, setSelectedBankProblemId] = useState('');
+  const [attachPoints, setAttachPoints] = useState(100);
 
   const loadMappedProblems = useCallback(async (contestId: string) => {
     setMappedProblemsLoading(true);
@@ -602,7 +648,7 @@ export function ContestManagementPage() {
     if (!selectedContest || !selectedBankProblemId) return;
     setAddingProblemId(selectedBankProblemId);
     try {
-      await api.attachContestProblem(selectedContest.id, { problemId: selectedBankProblemId, points: 100 });
+      await api.attachContestProblem(selectedContest.id, { problemId: selectedBankProblemId, points: attachPoints });
       notify.toast.success('Question attached to contest!');
       loadMappedProblems(selectedContest.id);
       loadContests();
@@ -658,6 +704,18 @@ export function ContestManagementPage() {
               ))}
             </select>
 
+            <div className="flex items-center gap-1 bg-black/60 border border-amber-500/30 rounded-xl px-2.5 py-1.5 shrink-0" title="Custom Marks / Points for this question in contest">
+              <span className="text-[11px] text-amber-400 font-bold">Pts:</span>
+              <input
+                type="number"
+                min="1"
+                max="1000"
+                value={attachPoints}
+                onChange={(e) => setAttachPoints(Math.max(1, parseInt(e.target.value) || 100))}
+                className="w-14 bg-transparent text-xs text-amber-300 font-extrabold focus:outline-none text-center"
+              />
+            </div>
+
             <button
               onClick={handleAttachProblemToCurrentContest}
               disabled={!selectedBankProblemId || Boolean(addingProblemId)}
@@ -682,13 +740,13 @@ export function ContestManagementPage() {
             <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-emerald-400"></div>
           </div>
         ) : mappedProblems.length === 0 ? (
-          <div className="text-center py-16 bg-white/5 border border-white/10 rounded-2xl space-y-2">
-            <span className="text-3xl block">📋</span>
-            <p className="text-gray-300 font-bold text-sm">No Questions Mapped Yet</p>
-            <p className="text-gray-500 text-xs max-w-sm mx-auto">
-              Select questions from the dropdown above or go to the Question Bank to map questions to this contest.
-            </p>
-          </div>
+          <EmptyState
+            variant="questionBank"
+            title="No questions mapped yet"
+            body="Select questions from the dropdown above or author questions in your Question Bank to attach them to this contest drive."
+            onAction={() => window.location.href = '/problems/new'}
+            actionLabel="Author Question"
+          />
         ) : (
           <div className="border border-white/10 rounded-2xl overflow-hidden bg-white/5">
             <table className="w-full text-left text-xs font-mono select-text border-collapse">
@@ -698,7 +756,7 @@ export function ContestManagementPage() {
                   <th className="p-3">Question Title</th>
                   <th className="p-3">Category</th>
                   <th className="p-3 text-center">Difficulty</th>
-                  <th className="p-3 text-center">Points</th>
+                  <th className="p-3 text-center">Points (Marks)</th>
                   <th className="p-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -724,7 +782,32 @@ export function ContestManagementPage() {
                           {prob.difficulty || 'Medium'}
                         </span>
                       </td>
-                      <td className="p-3 text-center font-bold text-white">{cp.points || 100} pts</td>
+                      <td className="p-3 text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <input
+                            type="number"
+                            min="1"
+                            max="1000"
+                            defaultValue={cp.points || 100}
+                            onBlur={async (e) => {
+                              const newPoints = Math.max(1, parseInt(e.target.value) || 100);
+                              if (newPoints !== cp.points) {
+                                try {
+                                  await api.reorderContestProblems(selectedContest!.id, [
+                                    { problemId: cp.problemId, points: newPoints, order: cp.order }
+                                  ]);
+                                  notify.toast.success(`Updated points for "${prob.title}" to ${newPoints} pts!`);
+                                  loadMappedProblems(selectedContest!.id);
+                                } catch {
+                                  notify.toast.error('Failed to update problem points');
+                                }
+                              }
+                            }}
+                            className="w-16 bg-black/60 border border-amber-500/30 text-amber-300 font-extrabold text-xs text-center py-1 rounded-lg focus:outline-none focus:border-amber-400 transition"
+                          />
+                          <span className="text-[10px] text-gray-400 font-bold">pts</span>
+                        </div>
+                      </td>
                       <td className="p-3 text-right">
                         <button
                           onClick={() => handleRemoveMappedProblem(cp.problemId)}
@@ -800,9 +883,15 @@ export function ContestManagementPage() {
     e.preventDefault();
     setCreating(true);
     try {
-      await api.createManagerContest(formData);
+      await api.createManagerContest({
+        ...formData,
+        problemScores,
+        sections: enableSections ? sections : [],
+      });
       setShowCreate(false);
       loadContests();
+      setProblemScores({});
+      setEnableSections(false);
       setFormData({
         title: '', 
         description: '', 
@@ -823,7 +912,12 @@ export function ContestManagementPage() {
         randomizeQuestionOrder: true,
         snapshotIntervalSeconds: 45,
         maxWarnings: 3,
-        problemIds: []
+        problemIds: [],
+        scoringMode: 'PARTIAL',
+        negativeMarkingEnabled: false,
+        negativeMarkingValue: 0.25,
+        showLeaderboardDuringContest: true,
+        freezeLeaderboardMins: 0,
       });
     } catch (err: any) {
       notify.toast.error(err.response?.data?.error || 'Failed to create contest');
@@ -963,42 +1057,67 @@ export function ContestManagementPage() {
       ) : error ? (
         <div className="text-red-400 text-center py-20">{error}</div>
       ) : contests.length === 0 ? (
-        <div className="text-center py-20 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-gray-400">You haven't created any contests yet.</p>
-        </div>
+        <EmptyState
+          variant="contest"
+          onAction={() => setShowCreate(true)}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {contests.map(c => (
-            <div key={c.id} className="bg-zinc-900 border border-white/10 rounded-2xl p-5 hover:border-emerald-400/50 transition-all shadow-xl">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="font-extrabold text-lg text-white">{c.title}</h3>
-                <span className={`px-2.5 py-0.5 text-xs font-bold rounded-lg ${c.isPublic ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'}`}>
-                  {c.isPublic ? 'Public' : 'Private'}
-                </span>
-              </div>
-              <div className="space-y-1 mb-4 text-sm text-gray-400 font-mono">
-                <p>Starts: {new Date(c.startTime).toLocaleString()}</p>
-                <p>Ends: {new Date(c.endTime).toLocaleString()}</p>
-                <p>Duration: {c.duration} mins</p>
-                <p>Participants: {c._count?.participants || 0}</p>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 mb-4">
-                {c.requireFullscreen && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">Fullscreen</span>}
-                {c.preventTabSwitch && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">No Tabs</span>}
-                {c.disableCopyPaste && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">No Copy</span>}
-                {c.enableProctoring && <span className="text-[10px] px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md font-bold">Proctored</span>}
-                {c.requireSeb && <span className="text-[10px] px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md font-bold">🔒 SEB</span>}
-              </div>
+          {contests.map(c => {
+            const scoringMode = (c as any).scoringMode || 'PARTIAL';
+            const negMarking = (c as any).negativeMarkingEnabled;
+            const problemCount = c._count?.problems || 0;
+            return (
+              <div key={c.id} className="bg-zinc-900 border border-white/10 rounded-2xl p-5 hover:border-emerald-400/50 transition-all shadow-xl group">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-extrabold text-lg text-white leading-tight flex-1 pr-2">{c.title}</h3>
+                  <span className={`shrink-0 px-2.5 py-0.5 text-xs font-bold rounded-lg ${c.isPublic ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'}`}>
+                    {c.isPublic ? 'Public' : 'Private'}
+                  </span>
+                </div>
 
-              <button 
-                onClick={() => openMonitor(c)}
-                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2"
-              >
-                <span>📊</span> Monitor &amp; Manage
-              </button>
-            </div>
-          ))}
+                {/* Stats row */}
+                <div className="flex items-center gap-3 mb-3 text-xs">
+                  <span className={`px-2 py-0.5 rounded font-black border text-[10px] ${
+                    scoringMode === 'PARTIAL' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' :
+                    scoringMode === 'BINARY'  ? 'bg-blue-500/15 text-blue-400 border-blue-500/30' :
+                    scoringMode === 'ACM'     ? 'bg-purple-500/15 text-purple-400 border-purple-500/30' :
+                    'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                  }`}>{
+                    scoringMode === 'PARTIAL' ? '📊 Partial' :
+                    scoringMode === 'BINARY' ? '🎯 Binary' :
+                    scoringMode === 'ACM' ? '⏱️ ACM' : '📉 Dynamic'
+                  }</span>
+                  {negMarking && <span className="text-[10px] px-2 py-0.5 bg-red-500/15 text-red-400 border border-red-500/30 rounded font-bold">–Neg</span>}
+                  <span className="text-gray-500 text-[10px] ml-auto">{problemCount} Q{problemCount !== 1 ? 's' : ''}</span>
+                </div>
+
+                <div className="space-y-1 mb-4 text-xs text-gray-400 font-mono">
+                  <p>Starts: {new Date(c.startTime).toLocaleString()}</p>
+                  <p>Ends: {new Date(c.endTime).toLocaleString()}</p>
+                  <div className="flex gap-3">
+                    <span>⏳ {c.duration} mins</span>
+                    <span>👥 {(c._count as any)?.registrations ?? (c._count as any)?.participants ?? 0} joined</span>
+                  </div>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {c.requireFullscreen && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">Fullscreen</span>}
+                  {c.preventTabSwitch && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">No Tabs</span>}
+                  {c.disableCopyPaste && <span className="text-[10px] px-2 py-1 bg-white/10 rounded-md text-gray-200 font-semibold border border-white/10">No Copy</span>}
+                  {c.enableProctoring && <span className="text-[10px] px-2 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md font-bold">Proctored</span>}
+                  {c.requireSeb && <span className="text-[10px] px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md font-bold">🔒 SEB</span>}
+                </div>
+
+                <button 
+                  onClick={() => openMonitor(c)}
+                  className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2"
+                >
+                  <span>📊</span> Monitor &amp; Manage
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -1007,10 +1126,14 @@ export function ContestManagementPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="bg-[var(--bg-card)] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-white/10 flex justify-between items-center">
-              <h2 className="text-xl font-bold">Create Secure Contest</h2>
-              <button onClick={() => setShowCreate(false)} className="text-gray-500 hover:text-white">✕</button>
+              <div>
+                <h2 className="text-xl font-bold">Create Contest</h2>
+                <p className="text-xs text-gray-500 mt-0.5">Configure scoring, marks, security & proctoring in one place</p>
+              </div>
+              <button onClick={() => setShowCreate(false)} className="text-gray-500 hover:text-white p-1 rounded-lg hover:bg-white/10 transition">✕</button>
             </div>
             <form onSubmit={handleCreate} className="p-6 space-y-6">
+              {/* ── Basic Info ── */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-400 mb-1">Title</label>
@@ -1019,23 +1142,46 @@ export function ContestManagementPage() {
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
-                  <textarea className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 focus:border-[var(--accent-green)] outline-none h-24" 
+                  <textarea className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 focus:border-[var(--accent-green)] outline-none h-20" 
                     value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Start Time</label>
                   <input required type="datetime-local" className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 focus:border-[var(--accent-green)] outline-none [color-scheme:dark]" 
-                    value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} />
+                    value={formData.startTime} onChange={e => {
+                      const newStart = e.target.value;
+                      let newDur = formData.duration;
+                      if (newStart && formData.endTime) {
+                        const diff = new Date(formData.endTime).getTime() - new Date(newStart).getTime();
+                        if (diff > 0) newDur = Math.round(diff / (1000 * 60));
+                      }
+                      setFormData({...formData, startTime: newStart, duration: newDur});
+                    }} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">End Time</label>
                   <input required type="datetime-local" className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 focus:border-[var(--accent-green)] outline-none [color-scheme:dark]" 
-                    value={formData.endTime} onChange={e => setFormData({...formData, endTime: e.target.value})} />
+                    value={formData.endTime} onChange={e => {
+                      const newEnd = e.target.value;
+                      let newDur = formData.duration;
+                      if (formData.startTime && newEnd) {
+                        const diff = new Date(newEnd).getTime() - new Date(formData.startTime).getTime();
+                        if (diff > 0) newDur = Math.round(diff / (1000 * 60));
+                      }
+                      setFormData({...formData, endTime: newEnd, duration: newDur});
+                    }} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-1">Duration (mins)</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-400">Duration (mins)</label>
+                    {formData.startTime && formData.endTime && (
+                      <span className="text-[10px] text-emerald-400 font-mono">
+                        Auto: {Math.round((new Date(formData.endTime).getTime() - new Date(formData.startTime).getTime()) / (1000 * 60))}m
+                      </span>
+                    )}
+                  </div>
                   <input required type="number" min="1" className="w-full bg-black border border-white/10 rounded-lg px-4 py-2 focus:border-[var(--accent-green)] outline-none" 
-                    value={formData.duration} onChange={e => setFormData({...formData, duration: parseInt(e.target.value)})} />
+                    value={formData.duration} onChange={e => setFormData({...formData, duration: parseInt(e.target.value) || 120})} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Visibility</label>
@@ -1047,23 +1193,328 @@ export function ContestManagementPage() {
                 </div>
               </div>
 
+              {/* ── SCORING RULES ── */}
+              <div className="bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/20 rounded-2xl p-5 space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">⚡</span>
+                  <h3 className="text-base font-extrabold text-amber-300 tracking-tight">Scoring Rules</h3>
+                  <span className="text-[10px] px-2 py-0.5 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded font-bold">NEW</span>
+                </div>
+
+                {/* Scoring Mode Cards */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Scoring Mode</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      { value: 'PARTIAL', icon: '📊', label: 'Partial Credit', desc: '% testcases × marks', color: 'emerald' },
+                      { value: 'BINARY',  icon: '🎯', label: 'Binary',         desc: 'All-or-nothing per problem', color: 'blue' },
+                      { value: 'ACM',     icon: '⏱️', label: 'ACM Style',      desc: 'Binary + time penalty', color: 'purple' },
+                      { value: 'DYNAMIC', icon: '📉', label: 'Dynamic Decay',  desc: 'Marks reduce as time passes', color: 'rose' },
+                    ] as const).map(mode => (
+                      <button
+                        key={mode.value}
+                        type="button"
+                        onClick={() => setFormData({...formData, scoringMode: mode.value})}
+                        className={`flex items-start gap-2.5 p-3 rounded-xl border text-left transition-all ${
+                          formData.scoringMode === mode.value
+                            ? mode.color === 'emerald' ? 'bg-emerald-500/15 border-emerald-500/40 ring-1 ring-emerald-500/30'
+                            : mode.color === 'blue' ? 'bg-blue-500/15 border-blue-500/40 ring-1 ring-blue-500/30'
+                            : mode.color === 'purple' ? 'bg-purple-500/15 border-purple-500/40 ring-1 ring-purple-500/30'
+                            : 'bg-rose-500/15 border-rose-500/40 ring-1 ring-rose-500/30'
+                            : 'bg-white/5 border-white/10 hover:border-white/20'
+                        }`}
+                      >
+                        <span className="text-base mt-0.5">{mode.icon}</span>
+                        <div className="flex-1">
+                          <div className={`text-xs font-extrabold ${formData.scoringMode === mode.value ? 'text-white' : 'text-gray-300'}`}>{mode.label}</div>
+                          <div className="text-[10px] text-gray-500 mt-0.5">{mode.desc}</div>
+                        </div>
+                        {formData.scoringMode === mode.value && (
+                          <div className="w-4 h-4 rounded-full bg-white/90 flex items-center justify-center shrink-0 mt-0.5">
+                            <div className="w-2 h-2 rounded-full bg-black" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {formData.scoringMode === 'ACM' && (
+                    <div className="mt-2 p-2.5 bg-purple-500/10 border border-purple-500/20 rounded-lg text-[11px] text-purple-300">
+                      ℹ️ Each wrong submission adds a <strong>20-min penalty</strong>. Ranked by problems solved, then total time.
+                    </div>
+                  )}
+                  {formData.scoringMode === 'DYNAMIC' && (
+                    <div className="mt-2 p-2.5 bg-rose-500/10 border border-rose-500/20 rounded-lg text-[11px] text-rose-300">
+                      ℹ️ Max marks decrease as contest time passes. Earlier correct submissions earn more.
+                    </div>
+                  )}
+                </div>
+
+                {/* Negative Marking Toggle */}
+                <div className="flex items-center gap-4 pt-3 border-t border-white/10">
+                  <label className="flex items-center gap-3 cursor-pointer flex-1">
+                    <div
+                      onClick={() => setFormData({...formData, negativeMarkingEnabled: !formData.negativeMarkingEnabled})}
+                      className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${formData.negativeMarkingEnabled ? 'bg-red-500' : 'bg-white/20'}`}
+                    >
+                      <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${formData.negativeMarkingEnabled ? 'left-5' : 'left-0.5'}`} />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-sm text-white flex items-center gap-2">
+                        Negative Marking
+                        {formData.negativeMarkingEnabled && <span className="text-[10px] px-1.5 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded font-bold">ACTIVE</span>}
+                      </div>
+                      <div className="text-[11px] text-gray-500">Deduct marks for every wrong attempt</div>
+                    </div>
+                  </label>
+                  {formData.negativeMarkingEnabled && (
+                    <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-1.5 shrink-0">
+                      <span className="text-xs text-red-400 font-bold">–</span>
+                      <input
+                        type="number"
+                        min="0.25" max="100" step="0.25"
+                        className="w-16 bg-transparent text-red-300 font-extrabold text-sm focus:outline-none text-center"
+                        value={formData.negativeMarkingValue}
+                        onChange={e => setFormData({...formData, negativeMarkingValue: parseFloat(e.target.value) || 0.25})}
+                      />
+                      <span className="text-xs text-red-400 font-bold">marks</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Leaderboard Controls */}
+                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-white/10">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked={formData.showLeaderboardDuringContest} onChange={e => setFormData({...formData, showLeaderboardDuringContest: e.target.checked})} className="w-4 h-4 accent-emerald-400" />
+                    <div>
+                      <div className="text-xs font-semibold text-white">Show Live Leaderboard</div>
+                      <div className="text-[10px] text-gray-500">Visible to candidates during contest</div>
+                    </div>
+                  </label>
+                  <div>
+                    <div className="text-xs font-semibold text-white mb-1">Freeze Leaderboard (mins before end)</div>
+                    <input type="number" min="0" max="60" className="w-full bg-black/60 border border-white/10 rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-amber-400" 
+                      value={formData.freezeLeaderboardMins} onChange={e => setFormData({...formData, freezeLeaderboardMins: parseInt(e.target.value) || 0})} />
+                    <div className="text-[9px] text-gray-600 mt-0.5">Set 0 to never freeze (ICPC style: set 60)</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── PHASE 2: CONTEST SECTIONS ENGINE ── */}
+              <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/20 rounded-2xl p-5 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📚</span>
+                    <div>
+                      <h3 className="text-base font-extrabold text-indigo-300 tracking-tight flex items-center gap-2">
+                        Exam Sections Engine
+                        <span className="text-[10px] px-2 py-0.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded font-bold">PHASE 2</span>
+                      </h3>
+                      <p className="text-[11px] text-gray-400">Divide assessment into timed sections (like HackerEarth, Mettl & TCS iON)</p>
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 cursor-pointer bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl hover:border-indigo-400/50 transition">
+                    <input
+                      type="checkbox"
+                      checked={enableSections}
+                      onChange={e => setEnableSections(e.target.checked)}
+                      className="w-4 h-4 accent-indigo-400 cursor-pointer"
+                    />
+                    <span className="text-xs font-extrabold text-white">Enable Multi-Section Format</span>
+                  </label>
+                </div>
+
+                {enableSections && (
+                  <div className="space-y-4 pt-1">
+                    <div className="flex items-center justify-between text-xs font-semibold text-gray-400">
+                      <span>Configured Sections ({sections.length})</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nextNum = sections.length + 1;
+                          setSections([
+                            ...sections,
+                            {
+                              id: `sec-${Date.now()}`,
+                              title: `Section ${String.fromCharCode(64 + nextNum)}: Specialty Domain`,
+                              sectionType: 'CODING',
+                              duration: 30,
+                              negativeMarkingEnabled: false,
+                              negativeMarkingValue: 0.25,
+                              problemIds: [],
+                              instructions: 'Complete section problems.'
+                            }
+                          ]);
+                        }}
+                        className="px-3 py-1 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-bold transition flex items-center gap-1"
+                      >
+                        <span>+</span> Add Section
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {sections.map((sec, sIdx) => (
+                        <div key={sec.id} className="bg-black/60 border border-white/10 rounded-xl p-4 space-y-3 relative group hover:border-indigo-500/30 transition">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-2 flex-1">
+                              <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-black flex items-center justify-center border border-indigo-500/30 shrink-0">
+                                {sIdx + 1}
+                              </span>
+                              <input
+                                type="text"
+                                value={sec.title}
+                                onChange={e => {
+                                  const updated = [...sections];
+                                  updated[sIdx].title = e.target.value;
+                                  setSections(updated);
+                                }}
+                                placeholder="Section Title (e.g., Section A: Quant & Verbal)"
+                                className="w-full bg-black border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white font-bold focus:outline-none focus:border-indigo-400"
+                              />
+                            </div>
+
+                            {sections.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => setSections(sections.filter(s => s.id !== sec.id))}
+                                className="text-gray-500 hover:text-red-400 text-xs font-bold px-2 py-1 hover:bg-red-500/10 rounded transition"
+                                title="Remove Section"
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-3 text-xs">
+                            <div>
+                              <label className="block text-[10px] font-semibold text-gray-400 mb-1">Section Type</label>
+                              <select
+                                value={sec.sectionType}
+                                onChange={e => {
+                                  const updated = [...sections];
+                                  updated[sIdx].sectionType = e.target.value as any;
+                                  setSections(updated);
+                                }}
+                                className="w-full bg-black border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-400"
+                              >
+                                <option value="QUIZ">General Quiz / Aptitude</option>
+                                <option value="CODING">Coding / Algorithm</option>
+                                <option value="WEB_DEV">Web Dev / SQL</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] font-semibold text-gray-400 mb-1">Section Timer (Mins)</label>
+                              <input
+                                type="number"
+                                min="0" max="300"
+                                value={sec.duration}
+                                onChange={e => {
+                                  const updated = [...sections];
+                                  updated[sIdx].duration = parseInt(e.target.value) || 0;
+                                  setSections(updated);
+                                }}
+                                placeholder="0 = Inherit Contest"
+                                className="w-full bg-black border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-400"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] font-semibold text-gray-400 mb-1">Negative Marking</label>
+                              <div className="flex items-center gap-2 bg-black border border-white/10 rounded-lg px-2 py-1">
+                                <input
+                                  type="checkbox"
+                                  checked={sec.negativeMarkingEnabled}
+                                  onChange={e => {
+                                    const updated = [...sections];
+                                    updated[sIdx].negativeMarkingEnabled = e.target.checked;
+                                    setSections(updated);
+                                  }}
+                                  className="w-3.5 h-3.5 accent-red-400"
+                                />
+                                {sec.negativeMarkingEnabled ? (
+                                  <input
+                                    type="number"
+                                    min="0.1" max="10" step="0.25"
+                                    value={sec.negativeMarkingValue}
+                                    onChange={e => {
+                                      const updated = [...sections];
+                                      updated[sIdx].negativeMarkingValue = parseFloat(e.target.value) || 0.25;
+                                      setSections(updated);
+                                    }}
+                                    className="w-12 bg-transparent text-red-400 font-extrabold text-xs text-center focus:outline-none"
+                                  />
+                                ) : (
+                                  <span className="text-[10px] text-gray-500">Off</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Problem selector for this section */}
+                          {formData.problemIds.length > 0 && (
+                            <div className="pt-2 border-t border-white/5">
+                              <label className="block text-[10px] font-semibold text-gray-400 mb-1">
+                                Questions in this section ({sec.problemIds.length} of {formData.problemIds.length} selected)
+                              </label>
+                              <div className="flex flex-wrap gap-1.5">
+                                {formData.problemIds.map(pId => {
+                                  const prob = problemBank.find(p => p.id === pId);
+                                  const isAssigned = sec.problemIds.includes(pId);
+                                  return (
+                                    <button
+                                      key={pId}
+                                      type="button"
+                                      onClick={() => {
+                                        const updated = [...sections];
+                                        if (isAssigned) {
+                                          updated[sIdx].problemIds = updated[sIdx].problemIds.filter(id => id !== pId);
+                                        } else {
+                                          updated[sIdx].problemIds = [...updated[sIdx].problemIds, pId];
+                                        }
+                                        setSections(updated);
+                                      }}
+                                      className={`px-2 py-0.5 rounded text-[10px] font-bold border transition ${
+                                        isAssigned
+                                          ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+                                          : 'bg-white/5 text-gray-500 border-white/5 hover:text-gray-300'
+                                      }`}
+                                    >
+                                      {isAssigned ? '✓ ' : '+ '}{prob?.title || pId}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* ── QUESTIONS & MARKS ── */}
               <div>
                 <div className="flex items-center justify-between mb-3 border-b border-white/10 pb-2">
-                  <h3 className="text-lg font-bold">Select Problems</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold">Questions & Marks</h3>
+                    {formData.problemIds.length > 0 && (
+                      <span className="text-xs px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded font-bold">
+                        {formData.problemIds.length} selected · {formData.problemIds.reduce((sum, id) => sum + (problemScores[id] ?? 100), 0)} total marks
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-2">
-                    <select 
-                      className="bg-black border border-white/10 rounded-lg px-2 py-1 outline-none focus:border-[var(--accent-green)] text-xs text-white"
-                      value={problemFilterType} onChange={e => setProblemFilterType(e.target.value)}
-                    >
+                    <select className="bg-black border border-white/10 rounded-lg px-2 py-1 outline-none focus:border-[var(--accent-green)] text-xs text-white"
+                      value={problemFilterType} onChange={e => setProblemFilterType(e.target.value)}>
                       <option value="all">All Types</option>
                       <option value="code">Coding</option>
                       <option value="web-dev">Web Dev</option>
                       <option value="sql">SQL</option>
                     </select>
-                    <select 
-                      className="bg-black border border-white/10 rounded-lg px-2 py-1 outline-none focus:border-[var(--accent-green)] text-xs text-white"
-                      value={problemFilterCategory} onChange={e => setProblemFilterCategory(e.target.value)}
-                    >
+                    <select className="bg-black border border-white/10 rounded-lg px-2 py-1 outline-none focus:border-[var(--accent-green)] text-xs text-white"
+                      value={problemFilterCategory} onChange={e => setProblemFilterCategory(e.target.value)}>
                       <option value="all">All Categories</option>
                       {Array.from(new Set(problemBank.map(p => p.category || 'General'))).map(c => (
                         <option key={c} value={c as string}>{c as string}</option>
@@ -1071,46 +1522,128 @@ export function ContestManagementPage() {
                     </select>
                   </div>
                 </div>
-                <div className="max-h-48 overflow-y-auto space-y-2 border border-white/10 rounded-lg p-3 bg-black">
+
+                {/* Problems table with per-problem marks input */}
+                <div className="border border-white/10 rounded-xl overflow-y-auto max-h-64 bg-black select-none">
                   {problemBank.length === 0 ? (
-                    <p className="text-gray-500 text-sm italic">No problems found in the bank.</p>
+                    <p className="text-gray-500 text-sm italic p-4">No problems found in the bank.</p>
                   ) : (() => {
                     const filteredProblems = problemBank.filter(p => {
                       const typeMatch = problemFilterType === 'all' || (p.problemType || 'code') === problemFilterType;
                       const catMatch = problemFilterCategory === 'all' || (p.category || 'General') === problemFilterCategory;
                       return typeMatch && catMatch;
                     });
-                    
-                    if (filteredProblems.length === 0) return <p className="text-gray-500 text-sm italic">No problems match the current filters.</p>;
-                    
-                    return filteredProblems.map(prob => (
-                      <label key={prob.id} className="flex items-center gap-3 cursor-pointer p-2 hover:bg-white/5 rounded transition">
-                        <input 
-                          type="checkbox" 
-                          checked={formData.problemIds.includes(prob.id)} 
-                          onChange={e => {
-                            const newIds = e.target.checked 
-                              ? [...formData.problemIds, prob.id] 
-                              : formData.problemIds.filter(id => id !== prob.id);
-                            setFormData({...formData, problemIds: newIds});
-                          }} 
-                          className="w-4 h-4 accent-[var(--accent-green)]" 
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium text-sm text-white">{prob.title}</div>
-                          <div className="text-xs text-gray-400">{prob.category || 'General'}</div>
-                        </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded ${
-                          prob.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400' :
-                          prob.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-red-500/20 text-red-400'
-                        }`}>{prob.difficulty}</span>
-                      </label>
-                    ))
+                    if (filteredProblems.length === 0) return <p className="text-gray-500 text-sm italic p-4">No problems match the current filters.</p>;
+                    return (
+                      <table className="w-full text-xs">
+                        <thead className="sticky top-0 bg-zinc-900 border-b border-white/10 text-gray-400 uppercase text-[9px] tracking-wider z-10">
+                          <tr>
+                            <th className="p-3 text-left w-8"></th>
+                            <th className="p-3 text-left">Question Title</th>
+                            <th className="p-3 text-center whitespace-nowrap">Type</th>
+                            <th className="p-3 text-center whitespace-nowrap">Difficulty</th>
+                            <th className="p-3 text-center w-32 whitespace-nowrap">Custom Marks</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {filteredProblems.map(prob => {
+                            const isChecked = formData.problemIds.includes(prob.id);
+                            const marks = problemScores[prob.id] ?? 100;
+                            const pType = (prob.problemType || 'code').toUpperCase();
+                            const displayType = pType === 'WEB-DEV' ? 'WEB DEV' : pType;
+
+                            const toggleSelect = () => {
+                              const newIds = !isChecked 
+                                ? [...formData.problemIds, prob.id] 
+                                : formData.problemIds.filter(id => id !== prob.id);
+                              setFormData({...formData, problemIds: newIds});
+                              if (!isChecked && problemScores[prob.id] === undefined) {
+                                setProblemScores(prev => ({...prev, [prob.id]: 100}));
+                              }
+                            };
+
+                            return (
+                              <tr 
+                                key={prob.id} 
+                                onClick={toggleSelect}
+                                className={`transition-colors cursor-pointer ${isChecked ? 'bg-emerald-500/10' : 'hover:bg-white/5'}`}
+                              >
+                                <td className="p-3" onClick={e => e.stopPropagation()}>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={isChecked} 
+                                    onChange={toggleSelect} 
+                                    className="w-4 h-4 accent-emerald-400 cursor-pointer" 
+                                  />
+                                </td>
+                                <td className="p-3">
+                                  <div className="font-semibold text-white text-sm leading-snug">{prob.title}</div>
+                                  <div className="text-[10px] text-gray-400 mt-0.5">{prob.category || 'General'}</div>
+                                </td>
+                                <td className="p-3 text-center whitespace-nowrap">
+                                  <span className={`text-[9px] px-2 py-0.5 rounded-md font-black uppercase font-mono whitespace-nowrap inline-block ${
+                                    pType.includes('WEB') ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                                    pType.includes('SQL') ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                                    'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  }`}>{displayType}</span>
+                                </td>
+                                <td className="p-3 text-center whitespace-nowrap">
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold whitespace-nowrap inline-block ${
+                                    prob.difficulty === 'Easy' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                    prob.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                                    'bg-red-500/20 text-red-400 border border-red-500/30'
+                                  }`}>{prob.difficulty}</span>
+                                </td>
+                                <td className="p-3" onClick={e => e.stopPropagation()}>
+                                  <div className={`flex items-center justify-center gap-1 rounded-lg px-2.5 py-1 border transition-all ${
+                                    isChecked ? 'bg-amber-500/15 border-amber-500/40 ring-1 ring-amber-500/20' : 'bg-white/5 border-white/10 opacity-30'
+                                  }`}>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      max="1000"
+                                      disabled={!isChecked}
+                                      value={marks}
+                                      onChange={e => {
+                                        const v = Math.max(1, parseInt(e.target.value) || 1);
+                                        setProblemScores(prev => ({...prev, [prob.id]: v}));
+                                      }}
+                                      className="w-16 bg-transparent text-amber-300 font-black text-sm focus:outline-none text-center disabled:text-gray-500"
+                                    />
+                                    <span className="text-[10px] text-amber-400 font-bold">pts</span>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    );
                   })()}
                 </div>
+
+                {/* Total Marks Summary Bar */}
+                {formData.problemIds.length > 0 && (
+                  <div className="mt-2 flex items-center justify-between p-3 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 rounded-xl">
+                    <div className="flex items-center gap-4 text-xs font-bold">
+                      <span className="text-gray-400">{formData.problemIds.length} Q{formData.problemIds.length > 1 ? 's' : ''}</span>
+                      <span className="text-gray-600">·</span>
+                      <span className="text-emerald-400">Total: {formData.problemIds.reduce((sum, id) => sum + (problemScores[id] ?? 100), 0)} Marks</span>
+                      {formData.negativeMarkingEnabled && (
+                        <><span className="text-gray-600">·</span><span className="text-red-400">Neg: –{formData.negativeMarkingValue} per wrong</span></>
+                      )}
+                    </div>
+                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold border ${
+                      formData.scoringMode === 'PARTIAL' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                      formData.scoringMode === 'BINARY'  ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' :
+                      formData.scoringMode === 'ACM'     ? 'bg-purple-500/20 text-purple-400 border-purple-500/30' :
+                      'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                    }`}>{formData.scoringMode}</span>
+                  </div>
+                )}
               </div>
 
+              {/* ── SECURITY SETTINGS ── */}
               <div>
                 <h3 className="text-lg font-bold mb-3 border-b border-white/10 pb-2">Security Settings</h3>
                 <div className="space-y-4">

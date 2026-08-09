@@ -1274,6 +1274,10 @@ ${bodyContent}
 
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-xs font-bold text-gray-300 hidden sm:inline">{selectedProblem?.title}</span>
+            <span className="px-2.5 py-1 text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg flex items-center gap-1">
+              <span>🎯</span>
+              <span>{selectedProblem?.points || 100} Marks</span>
+            </span>
             <button
               onClick={() => {
                 const earned = rubricData?.total !== undefined ? rubricData.total : (testSummary ? Math.round((testSummary.passed / testSummary.total) * (selectedProblem?.points || 100)) : 0);
@@ -1425,13 +1429,16 @@ ${bodyContent}
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`text-xs px-2 py-0.5 rounded ${
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                     selectedProblem.difficulty === "Easy" ? "bg-green-500/20 text-green-400" :
                     selectedProblem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
                     selectedProblem.difficulty === "Hard" ? "bg-red-500/20 text-red-400" :
                     "bg-green-500/20 text-green-400"
                   }`}>
                     {selectedProblem.difficulty === "Solved" ? "Solved" : selectedProblem.difficulty}
+                  </span>
+                  <span className="text-xs font-black px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                    🎯 {selectedProblem.points || 100} Marks
                   </span>
                   {selectedProblem.acceptanceRate !== undefined && (
                     <span className="text-xs text-gray-500">

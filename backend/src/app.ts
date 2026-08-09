@@ -39,6 +39,8 @@ import proctorRoutes from './routes/proctor.routes';
 import analyticsViewerRoutes from './routes/analytics-viewer.routes';
 import guestRoutes from './routes/guest.routes';
 import complianceRoutes from './routes/compliance.routes';
+import notificationRoutes from './routes/notification.routes';
+import ssoRoutes from './routes/sso.routes';
 import { closeBrowser } from './services/webDevEvaluatorV2';
 
 const app = express();
@@ -218,7 +220,8 @@ app.get('/api/classes/:id/students', (_req, res) => {
   });
 });
 
-// Auth Routes
+// Auth & SSO Routes
+app.use('/api/auth/sso', ssoRoutes);
 app.use('/api/auth', authRoutes);
 
 // Organization Management
@@ -262,6 +265,9 @@ app.use('/api/guest', guestRoutes);
 
 // Compliance Officer — GDPR erasure + audit log access
 app.use('/api/compliance', complianceRoutes);
+
+// In-App Notifications & SSE Real-time Stream
+app.use('/api/notifications', notificationRoutes);
 
 // Start Server
 app.listen(PORT, () => {

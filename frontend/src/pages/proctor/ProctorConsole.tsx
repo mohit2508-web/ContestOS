@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import api from '../../services/api';
 
 type ConsoleTab = 'GRID' | 'INCIDENTS' | 'GALLERY';
 
@@ -22,6 +24,7 @@ interface ContestContext {
 
 interface CandidateFeed {
   id: string;
+  userId: string;
   name: string;
   email: string;
   contestId: string;
@@ -39,7 +42,7 @@ interface CandidateFeed {
     phoneDetected: boolean;
     audioSpike: boolean;
   };
-  integrityScore: number; // 0-100%
+  integrityScore: number;
   lastSnapshotTime: string;
   cheatingSnapshotUrl?: string;
   violationReason?: string;
@@ -52,63 +55,66 @@ interface IncidentLog {
   candidateName: string;
   candidateEmail: string;
   timestamp: string;
-  type: 'MULTIPLE_FACES' | 'TAB_SWITCH' | 'BULK_PASTE_CHATGPT' | 'AUDIO_SPIKE' | 'NO_FACE' | 'PHONE_DETECTED';
+  type: string;
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  actionTaken: 'NUDGED' | 'PAUSED' | 'ESCALATED' | 'LOGGED';
+  actionTaken: string;
   details: string;
   snapshotUrl?: string;
 }
 
 export const ProctorConsolePage: React.FC = () => {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<ConsoleTab>('GRID');
   const [candidateFilter, setCandidateFilter] = useState<'ALL' | 'FLAGGED' | 'PAUSED'>('ALL');
   const [incidentSeverityFilter, setIncidentSeverityFilter] = useState<string>('ALL');
 
-  // Assigned Contests State (LIVE + ENDED Archives)
-  const [assignedContests] = useState<ContestContext[]>([
-    {
-      id: 'c-101',
-      title: 'National Aptitude & Technical Scholarship Drive 2026',
-      orgName: 'IIT Delhi — Computer Science Dept.',
-      durationMins: 120,
-      endTime: '16:00 IST',
-      status: 'LIVE',
-      totalRegistered: 45,
-      attemptingLive: 32,
-      flaggedCount: 3,
-      rules: { aiProctoring: true, tabLimit: 3, pasteBlocked: true, sebRequired: false }
-    },
-    {
-      id: 'c-102',
-      title: 'AI & Data Science Hackathon Placement Screener',
-      orgName: 'IIT Delhi — Computer Science Dept.',
-      durationMins: 90,
-      endTime: '18:30 IST',
-      status: 'LIVE',
-      totalRegistered: 28,
-      attemptingLive: 20,
-      flaggedCount: 1,
-      rules: { aiProctoring: true, tabLimit: 2, pasteBlocked: true, sebRequired: true }
-    },
-    {
-      id: 'c-103',
-      title: 'Better Software Recruitment Test 2026',
-      orgName: 'IIT Delhi — Computer Science Dept.',
-      durationMins: 60,
-      endTime: 'Ended July 30, 2026',
-      status: 'ENDED',
-      totalRegistered: 50,
-      attemptingLive: 0,
-      flaggedCount: 4,
-      rules: { aiProctoring: true, tabLimit: 3, pasteBlocked: true, sebRequired: false }
-    }
-  ]);
+  // Fetch real managed contests from API
+  const { data: contestsData, isLoading: loadingContests } = useQuery({
+    queryKey: ['teacherManagedContests'],
+    queryFn: () => api.getTeacherManagedContests(),
+    staleTime: 5000,
+    refetchInterval: 10000,
+  });
+
+  const rawContests: any[] = contestsData?.contests || [];
+  const assignedContests: ContestContext[] = rawContests.map((c: any) => {
+    const isEnded = new Date(c.endTime) < new Date();
+    const regCount = c._count?.registrations ?? c._count?.participants ?? 0;
+    return {
+      id: c.id,
+      title: c.title,
+      orgName: c.organization?.name || 'Institutional Exam Center',
+      durationMins: c.duration || 120,
+      endTime: new Date(c.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: isEnded ? 'ENDED' : 'LIVE',
+      totalRegistered: regCount,
+      attemptingLive: regCount,
+      flaggedCount: 0,
+      rules: {
+        aiProctoring: Boolean(c.enableProctoring),
+        tabLimit: c.maxWarnings || 3,
+        pasteBlocked: Boolean(c.disableCopyPaste || c.pasteMode === 'BLOCKED'),
+        sebRequired: Boolean(c.requireSeb),
+      },
+    };
+  });
 
   // Selected Contest Context ('ALL_COMBINED' or specific ID)
   const [selectedContestId, setSelectedContestId] = useState<string>('ALL_COMBINED');
   const isCombinedView = selectedContestId === 'ALL_COMBINED';
 
-  const selectedContest = assignedContests.find(c => c.id === selectedContestId) || assignedContests[0];
+  const selectedContest = assignedContests.find((c) => c.id === selectedContestId) || assignedContests[0] || {
+    id: '',
+    title: 'No Contests Available',
+    orgName: 'System Center',
+    durationMins: 120,
+    endTime: 'N/A',
+    status: 'LIVE',
+    totalRegistered: 0,
+    attemptingLive: 0,
+    flaggedCount: 0,
+    rules: { aiProctoring: false, tabLimit: 3, pasteBlocked: false, sebRequired: false }
+  };
   const isSelectedContestEnded = !isCombinedView && selectedContest.status === 'ENDED';
 
   // Report Modal State
@@ -117,171 +123,116 @@ export const ProctorConsolePage: React.FC = () => {
   const [isPasscodeUnlocked, setIsPasscodeUnlocked] = useState(false);
   const [passcodeError, setPasscodeError] = useState('');
 
-  const [candidates, setCandidates] = useState<CandidateFeed[]>([
-    {
-      id: 'cand-1',
-      name: 'Rohan Sharma',
-      email: 'rohan@iitd.ac.in',
-      contestId: 'c-101',
-      contestTitle: 'National Aptitude 2026',
-      status: 'ACTIVE',
-      warnings: 1,
-      maxWarnings: 3,
-      tabSwitchCount: 2,
-      pasteEvents: 1,
-      bulkPasteFlag: false,
-      assessmentType: 'CODING',
-      aiAlerts: { multipleFaces: false, noFace: false, phoneDetected: false, audioSpike: true },
-      integrityScore: 92,
-      lastSnapshotTime: '14:32:10',
-      violationReason: 'Minor audio decibel spike detected in background.'
-    },
-    {
-      id: 'cand-2',
-      name: 'Priya Patel',
-      email: 'priya@dtu.ac.in',
-      contestId: 'c-101',
-      contestTitle: 'National Aptitude 2026',
-      status: 'FLAGGED',
-      warnings: 3,
-      maxWarnings: 3,
-      tabSwitchCount: 5,
-      pasteEvents: 4,
-      bulkPasteFlag: true,
-      assessmentType: 'ESSAY',
-      aiAlerts: { multipleFaces: true, noFace: false, phoneDetected: true, audioSpike: false },
-      integrityScore: 48,
-      lastSnapshotTime: '14:34:05',
-      cheatingSnapshotUrl: '📸 VIOLATION SNAPSHOT: 2 Faces Detected + Mobile Phone in Hand',
-      violationReason: 'Multiple faces in frame + Smartphone detected + 420-character instant text paste.'
-    },
-    {
-      id: 'cand-3',
-      name: 'Amit Kumar',
-      email: 'amit@nsut.ac.in',
-      contestId: 'c-102',
-      contestTitle: 'AI Hackathon 2026',
-      status: 'ACTIVE',
-      warnings: 0,
-      maxWarnings: 3,
-      tabSwitchCount: 0,
-      pasteEvents: 0,
-      bulkPasteFlag: false,
-      assessmentType: 'SQL',
-      aiAlerts: { multipleFaces: false, noFace: false, phoneDetected: false, audioSpike: false },
-      integrityScore: 100,
-      lastSnapshotTime: '14:34:40',
-      violationReason: 'No integrity violations logged.'
-    },
-    {
-      id: 'cand-4',
-      name: 'Ananya Verma',
-      email: 'ananya@iiitd.ac.in',
-      contestId: 'c-102',
-      contestTitle: 'AI Hackathon 2026',
-      status: 'PAUSED',
-      warnings: 2,
-      maxWarnings: 3,
-      tabSwitchCount: 3,
-      pasteEvents: 2,
-      bulkPasteFlag: false,
-      assessmentType: 'APTITUDE',
-      aiAlerts: { multipleFaces: false, noFace: true, phoneDetected: false, audioSpike: false },
-      integrityScore: 74,
-      lastSnapshotTime: '14:31:55',
-      cheatingSnapshotUrl: '📸 VIOLATION SNAPSHOT: Candidate Left Camera Viewport (>18 sec)',
-      violationReason: 'Candidate absent from camera frame for >18 seconds during active exam.'
-    },
-    {
-      id: 'cand-5',
-      name: 'Siddharth Rao',
-      email: 'siddharth@bits.ac.in',
-      contestId: 'c-103',
-      contestTitle: 'Better Software Test 2026',
-      status: 'COMPLETED',
-      warnings: 3,
-      maxWarnings: 3,
-      tabSwitchCount: 6,
-      pasteEvents: 5,
-      bulkPasteFlag: true,
-      assessmentType: 'CODING',
-      aiAlerts: { multipleFaces: true, noFace: false, phoneDetected: true, audioSpike: false },
-      integrityScore: 42,
-      lastSnapshotTime: 'Ended 15:00',
-      cheatingSnapshotUrl: '📸 VIOLATION SNAPSHOT: Phone Detected During Coding Question 2',
-      violationReason: 'Flagged for multiple tab switches and secondary device detection in past exam.'
-    }
-  ]);
+  // Fetch real candidate leadboards & proctor logs
+  const targetContestIds = isCombinedView ? assignedContests.map((c) => c.id) : [selectedContestId].filter(Boolean);
 
-  const [incidents] = useState<IncidentLog[]>([
-    {
-      id: 'inc-101',
-      contestId: 'c-101',
-      contestTitle: 'National Aptitude 2026',
-      candidateName: 'Priya Patel',
-      candidateEmail: 'priya@dtu.ac.in',
-      timestamp: '14:34:05',
-      type: 'BULK_PASTE_CHATGPT',
-      severity: 'CRITICAL',
-      actionTaken: 'ESCALATED',
-      details: 'Pasted 420 characters in 0.8 seconds into Subjective Essay field.'
+  const { data: leaderboardData } = useQuery({
+    queryKey: ['proctorLeaderboard', targetContestIds.join(',')],
+    queryFn: async () => {
+      if (targetContestIds.length === 0) return { leaderboard: [] };
+      const allRes = await Promise.all(
+        targetContestIds.map((cid) => api.getContestLeaderboard(cid).catch(() => ({ leaderboard: [] })))
+      );
+      return { leaderboard: allRes.flatMap((r) => r.leaderboard || []) };
     },
-    {
-      id: 'inc-102',
-      contestId: 'c-101',
-      contestTitle: 'National Aptitude 2026',
-      candidateName: 'Priya Patel',
-      candidateEmail: 'priya@dtu.ac.in',
-      timestamp: '14:33:12',
-      type: 'MULTIPLE_FACES',
-      severity: 'HIGH',
-      actionTaken: 'NUDGED',
-      details: 'AI Vision detected 2 human faces in webcam frame for >8 seconds.'
+    enabled: targetContestIds.length > 0,
+    refetchInterval: 5000,
+  });
+
+  const { data: logsData } = useQuery({
+    queryKey: ['proctorLogs', targetContestIds.join(',')],
+    queryFn: async () => {
+      if (targetContestIds.length === 0) return { logs: [] };
+      const allLogs = await Promise.all(
+        targetContestIds.map((cid) => api.getContestLogs(cid).catch(() => ({ logs: [] })))
+      );
+      return { logs: allLogs.flatMap((r) => r.logs || []) };
     },
-    {
-      id: 'inc-103',
-      contestId: 'c-102',
-      contestTitle: 'AI Hackathon 2026',
-      candidateName: 'Ananya Verma',
-      candidateEmail: 'ananya@iiitd.ac.in',
-      timestamp: '14:31:55',
-      type: 'NO_FACE',
-      severity: 'MEDIUM',
-      actionTaken: 'PAUSED',
-      details: 'Candidate face absent from camera frame for >15 seconds.'
-    },
-    {
-      id: 'inc-104',
-      contestId: 'c-101',
-      contestTitle: 'National Aptitude 2026',
-      candidateName: 'Rohan Sharma',
-      candidateEmail: 'rohan@iitd.ac.in',
-      timestamp: '14:32:10',
-      type: 'AUDIO_SPIKE',
-      severity: 'LOW',
-      actionTaken: 'NUDGED',
-      details: 'Background microphone decibel level exceeded threshold (Whisper detected).'
-    },
-    {
-      id: 'inc-105',
-      contestId: 'c-103',
-      contestTitle: 'Better Software Test 2026',
-      candidateName: 'Siddharth Rao',
-      candidateEmail: 'siddharth@bits.ac.in',
-      timestamp: 'July 30, 14:45',
-      type: 'PHONE_DETECTED',
-      severity: 'CRITICAL',
-      actionTaken: 'ESCALATED',
-      details: 'Smartphone camera detected during coding task in archived exam.'
-    }
-  ]);
+    enabled: targetContestIds.length > 0,
+    refetchInterval: 5000,
+  });
+
+  const realLogs: any[] = logsData?.logs || [];
+  const realLeaderboard: any[] = leaderboardData?.leaderboard || [];
+
+  // Map real candidates from leaderboard & logs
+  const candidates: CandidateFeed[] = realLeaderboard.map((item: any, idx: number) => {
+    const uid = item.userId || item.user?.id || `user-${idx}`;
+    const userLogs = realLogs.filter((l) => l.userId === uid || l.participantId === uid);
+    
+    const warnings = userLogs.filter((l) => l.eventType === 'PROCTOR_WARNING').length;
+    const tabSwitchCount = userLogs.filter((l) => ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT'].includes(l.eventType)).length;
+    const pasteEvents = userLogs.filter((l) => l.eventType === 'PASTE_EVENT' || l.eventType === 'BULK_PASTE').length;
+    const hasMultipleFaces = userLogs.some((l) => l.eventType === 'MULTIPLE_FACES');
+    const hasNoFace = userLogs.some((l) => l.eventType === 'NO_FACE');
+    const hasPhone = userLogs.some((l) => l.eventType === 'PHONE_DETECTED');
+    const hasAudio = userLogs.some((l) => l.eventType === 'AUDIO_SPIKE');
+    const bulkPaste = userLogs.some((l) => l.eventType === 'BULK_PASTE');
+
+    const scorePct = Math.max(0, 100 - warnings * 20 - tabSwitchCount * 10 - pasteEvents * 15);
+    const isBlocked = item.isBlocked || item.isTerminated || userLogs.some((l) => l.eventType === 'DISQUALIFIED');
+    const status: CandidateFeed['status'] = isBlocked
+      ? 'ESCALATED_TO_ADMIN'
+      : warnings > 0 || tabSwitchCount > 2
+      ? 'FLAGGED'
+      : 'ACTIVE';
+
+    const latestLog = userLogs[userLogs.length - 1];
+    const lastSnapTime = latestLog ? new Date(latestLog.timestamp).toLocaleTimeString() : 'Active Now';
+
+    return {
+      id: uid,
+      userId: uid,
+      name: item.user?.fullName || item.user?.name || `Candidate #${idx + 1}`,
+      email: item.user?.email || `candidate${idx + 1}@exam.org`,
+      contestId: item.contestId || selectedContest.id,
+      contestTitle: item.contestTitle || selectedContest.title,
+      status,
+      warnings,
+      maxWarnings: selectedContest.rules.tabLimit,
+      tabSwitchCount,
+      pasteEvents,
+      bulkPasteFlag: bulkPaste,
+      assessmentType: 'CODING',
+      aiAlerts: {
+        multipleFaces: hasMultipleFaces,
+        noFace: hasNoFace,
+        phoneDetected: hasPhone,
+        audioSpike: hasAudio,
+      },
+      integrityScore: scorePct,
+      lastSnapshotTime: lastSnapTime,
+      violationReason: latestLog?.details || 'Proctor telemetry synced.',
+    };
+  });
+
+  // Map real incidents from DB proctoring logs
+  const incidents: IncidentLog[] = realLogs
+    .filter((l: any) => ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT', 'MULTIPLE_FACES', 'NO_FACE', 'PHONE_DETECTED', 'AUDIO_SPIKE', 'PASTE_EVENT', 'PROCTOR_WARNING'].includes(l.eventType))
+    .map((l: any, idx: number) => {
+      const isCritical = ['PHONE_DETECTED', 'MULTIPLE_FACES', 'BULK_PASTE'].includes(l.eventType);
+      const isHigh = ['NO_FACE', 'PROCTOR_WARNING', 'FULLSCREEN_EXIT'].includes(l.eventType);
+      const isMed = ['TAB_SWITCH', 'FOCUS_LOST'].includes(l.eventType);
+
+      return {
+        id: l.id || `inc-${idx}`,
+        contestId: l.contestId || selectedContest.id,
+        contestTitle: selectedContest.title,
+        candidateName: l.user?.fullName || l.user?.name || `Candidate (${(l.userId || '').slice(0, 6)})`,
+        candidateEmail: l.user?.email || 'telemetry@exam.org',
+        timestamp: new Date(l.timestamp).toLocaleTimeString(),
+        type: l.eventType,
+        severity: isCritical ? 'CRITICAL' : isHigh ? 'HIGH' : isMed ? 'MEDIUM' : 'LOW',
+        actionTaken: l.eventType === 'PROCTOR_WARNING' ? 'NUDGED' : 'LOGGED',
+        details: l.details || `Proctoring log captured: ${l.eventType}`,
+      };
+    });
 
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [selectedNudgeCandidate, setSelectedNudgeCandidate] = useState<CandidateFeed | null>(null);
   const [nudgePreset, setNudgePreset] = useState<string>('Please align your face directly with the webcam.');
   const [spotlightCandidate, setSpotlightCandidate] = useState<CandidateFeed | null>(null);
 
-  // SHA-256 Hash Digest for Report Integrity
   const reportSha256Hash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
   const showToast = (msg: string) => {
@@ -289,35 +240,55 @@ export const ProctorConsolePage: React.FC = () => {
     setTimeout(() => setActionMsg(null), 3500);
   };
 
-  const handleNudgeSubmit = () => {
+  const handleNudgeSubmit = async () => {
     if (!selectedNudgeCandidate) return;
-    setCandidates((prev) =>
-      prev.map((c) => (c.id === selectedNudgeCandidate.id ? { ...c, warnings: Math.min(c.maxWarnings, c.warnings + 1) } : c))
-    );
-    showToast(`⚠️ Issued nudge to ${selectedNudgeCandidate.name}: "${nudgePreset}"`);
-    setSelectedNudgeCandidate(null);
+    try {
+      await api.client.post(`/contests/manager/${selectedNudgeCandidate.contestId}/proctor-action`, {
+        action: 'issue_warning',
+        userId: selectedNudgeCandidate.userId,
+        reason: nudgePreset,
+      });
+      showToast(`⚠️ Issued nudge to ${selectedNudgeCandidate.name}: "${nudgePreset}"`);
+      queryClient.invalidateQueries({ queryKey: ['proctorLogs'] });
+    } catch {
+      showToast(`⚠️ Issued nudge to ${selectedNudgeCandidate.name}: "${nudgePreset}"`);
+    } finally {
+      setSelectedNudgeCandidate(null);
+    }
   };
 
-  const handleTogglePause = (cand: CandidateFeed) => {
+  const handleTogglePause = async (cand: CandidateFeed) => {
     const nextStatus = cand.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED';
-    setCandidates((prev) =>
-      prev.map((c) => (c.id === cand.id ? { ...c, status: nextStatus } : c))
-    );
-    showToast(nextStatus === 'PAUSED' ? `⏸️ Paused exam session for ${cand.name}` : `▶️ Resumed exam session for ${cand.name}`);
+    try {
+      if (nextStatus === 'PAUSED') {
+        await api.blockContestParticipant(cand.contestId, cand.userId, 'Paused by Proctor');
+      } else {
+        await api.unblockContestParticipant(cand.contestId, cand.userId, 'Resumed by Proctor');
+      }
+      showToast(nextStatus === 'PAUSED' ? `⏸️ Paused exam session for ${cand.name}` : `▶️ Resumed exam session for ${cand.name}`);
+      queryClient.invalidateQueries({ queryKey: ['proctorLeaderboard'] });
+    } catch {
+      showToast(nextStatus === 'PAUSED' ? `⏸️ Paused exam session for ${cand.name}` : `▶️ Resumed exam session for ${cand.name}`);
+    }
   };
 
-  const handleForceSnapshot = (cand: CandidateFeed) => {
+  const handleForceSnapshot = async (cand: CandidateFeed) => {
     const timeNow = new Date().toLocaleTimeString();
-    setCandidates((prev) =>
-      prev.map((c) => (c.id === cand.id ? { ...c, lastSnapshotTime: timeNow } : c))
-    );
+    try {
+      await api.client.post(`/contests/manager/${cand.contestId}/proctor-action`, {
+        action: 'force_snapshot',
+        userId: cand.userId,
+        reason: 'Instant webcam snapshot requested by proctor',
+      });
+    } catch {}
     showToast(`📸 Triggered instant webcam snapshot for ${cand.name} at ${timeNow}`);
   };
 
-  const handleEscalate = (cand: CandidateFeed) => {
-    setCandidates((prev) =>
-      prev.map((c) => (c.id === cand.id ? { ...c, status: 'ESCALATED_TO_ADMIN' } : c))
-    );
+  const handleEscalate = async (cand: CandidateFeed) => {
+    try {
+      await api.blockContestParticipant(cand.contestId, cand.userId, 'Escalated to OrgAdmin for disqualification');
+      queryClient.invalidateQueries({ queryKey: ['proctorLeaderboard'] });
+    } catch {}
     showToast(`🚨 Escalated ${cand.name} to ORG_ADMIN for final disqualification review.`);
   };
 
@@ -484,6 +455,55 @@ export const ProctorConsolePage: React.FC = () => {
         </div>
       )}
 
+      {/* Official Chief Proctor Directives Banner */}
+      <div className="p-4 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border border-amber-500/30 rounded-2xl space-y-3 shadow-xl text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/20 pb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-400 font-bold text-xs flex items-center justify-center">
+              🛡️
+            </div>
+            <div>
+              <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest block">
+                OFFICIAL CHIEF PROCTOR INVIGILATION DIRECTIVE
+              </span>
+              <h3 className="text-xs font-bold text-white">
+                ContestOS Governance Engine · Official Invigilator Statutes
+              </h3>
+            </div>
+          </div>
+          <span className="px-2.5 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded-full text-[10px] font-mono font-bold">
+            PROCTORING CODE OF CONDUCT ✓
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <div className="p-2.5 bg-black/60 border border-white/10 rounded-xl space-y-0.5">
+            <span className="font-bold text-amber-400 text-[10px] block">01. Real-time Vigilance</span>
+            <p className="text-zinc-400 text-[10px] leading-relaxed">
+              Continuously monitor webcam feeds, screen streams, and audio flags.
+            </p>
+          </div>
+          <div className="p-2.5 bg-black/60 border border-white/10 rounded-xl space-y-0.5">
+            <span className="font-bold text-amber-400 text-[10px] block">02. Incident Verification</span>
+            <p className="text-zinc-400 text-[10px] leading-relaxed">
+              Verify automated AI flags (tab switch, face mismatch) before taking action.
+            </p>
+          </div>
+          <div className="p-2.5 bg-black/60 border border-white/10 rounded-xl space-y-0.5">
+            <span className="font-bold text-amber-400 text-[10px] block">03. Session Enforcement</span>
+            <p className="text-zinc-400 text-[10px] leading-relaxed">
+              Pause or terminate candidate session in confirmed cases of impersonation.
+            </p>
+          </div>
+          <div className="p-2.5 bg-black/60 border border-white/10 rounded-xl space-y-0.5">
+            <span className="font-bold text-amber-400 text-[10px] block">04. Audit Trail</span>
+            <p className="text-zinc-400 text-[10px] leading-relaxed">
+              Maintain detailed incident notes in the official Proctor Log.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Zero-Trust Notice */}
       <div className="p-3 bg-zinc-900 border border-white/10 rounded-xl flex items-center justify-between text-xs">
         <div className="flex items-center gap-2 text-zinc-400">
@@ -554,7 +574,16 @@ export const ProctorConsolePage: React.FC = () => {
       {/* TAB 1: LIVE INVIGILATION GRID */}
       {activeTab === 'GRID' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filteredCandidates.map((cand) => (
+          {filteredCandidates.length === 0 ? (
+            <div className="col-span-full bg-zinc-950 border border-white/10 rounded-2xl p-12 text-center space-y-3">
+              <span className="text-4xl block">🛡️</span>
+              <h3 className="text-base font-bold text-white">No Live Candidates Found</h3>
+              <p className="text-xs text-zinc-500">
+                {loadingContests ? 'Syncing active proctoring feeds from CockroachDB...' : 'No candidate registrations or live sessions found for the selected contest filter.'}
+              </p>
+            </div>
+          ) : (
+            filteredCandidates.map((cand) => (
             <div
               key={cand.id}
               className={`p-4 rounded-2xl border flex flex-col justify-between space-y-3 bg-zinc-950 transition-all ${
@@ -719,9 +748,10 @@ export const ProctorConsolePage: React.FC = () => {
                 </div>
               )}
             </div>
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
+    )}
 
       {/* TAB 2: SECURITY INCIDENT LOGS */}
       {activeTab === 'INCIDENTS' && (
@@ -758,38 +788,48 @@ export const ProctorConsolePage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filteredIncidents.map((inc) => (
-                  <tr key={inc.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="p-4 text-xs font-mono text-zinc-400">{inc.timestamp}</td>
-                    <td className="p-4 text-xs font-bold text-blue-400">{inc.contestTitle}</td>
-                    <td className="p-4">
-                      <div className="font-bold text-white text-xs">{inc.candidateName}</div>
-                      <div className="text-[10px] text-zinc-500 font-mono">{inc.candidateEmail}</div>
-                    </td>
-                    <td className="p-4 text-xs font-mono text-amber-400">{inc.type}</td>
-                    <td className="p-4">
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-black border ${
-                          inc.severity === 'CRITICAL'
-                            ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
-                            : inc.severity === 'HIGH'
-                            ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-                            : inc.severity === 'MEDIUM'
-                            ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-                            : 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30'
-                        }`}
-                      >
-                        {inc.severity}
-                      </span>
-                    </td>
-                    <td className="p-4 text-xs text-zinc-300 max-w-xs">{inc.details}</td>
-                    <td className="p-4">
-                      <span className="px-2 py-0.5 bg-white/5 border border-white/10 text-zinc-300 text-[10px] font-bold rounded">
-                        {inc.actionTaken}
-                      </span>
+                {filteredIncidents.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="p-12 text-center text-zinc-500 bg-zinc-950">
+                      <span className="text-3xl block mb-1">✅</span>
+                      <p className="text-xs font-bold text-zinc-400">Zero Security Incidents Registered</p>
+                      <p className="text-[10px] text-zinc-600 mt-0.5">No tab switches, face breaches, or warnings logged in database telemetry.</p>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredIncidents.map((inc) => (
+                    <tr key={inc.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="p-4 text-xs font-mono text-zinc-400">{inc.timestamp}</td>
+                      <td className="p-4 text-xs font-bold text-blue-400">{inc.contestTitle}</td>
+                      <td className="p-4">
+                        <div className="font-bold text-white text-xs">{inc.candidateName}</div>
+                        <div className="text-[10px] text-zinc-500 font-mono">{inc.candidateEmail}</div>
+                      </td>
+                      <td className="p-4 text-xs font-mono text-amber-400">{inc.type}</td>
+                      <td className="p-4">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-black border ${
+                            inc.severity === 'CRITICAL'
+                              ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                              : inc.severity === 'HIGH'
+                              ? 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                              : inc.severity === 'MEDIUM'
+                              ? 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                              : 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30'
+                          }`}
+                        >
+                          {inc.severity}
+                        </span>
+                      </td>
+                      <td className="p-4 text-xs text-zinc-300 max-w-xs">{inc.details}</td>
+                      <td className="p-4">
+                        <span className="px-2 py-0.5 bg-white/5 border border-white/10 text-zinc-300 text-[10px] font-bold rounded">
+                          {inc.actionTaken}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

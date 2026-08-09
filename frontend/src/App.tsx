@@ -40,6 +40,10 @@ import { GuestResultView } from './pages/guest/GuestResultView';
 import { ComplianceDashboard } from './pages/compliance/ComplianceDashboard';
 import { ModeratorDashboard } from './pages/moderator/ModeratorDashboard';
 
+import { AcceptInvitePage } from './pages/AcceptInvitePage';
+import { NotificationsPage } from './pages/NotificationsPage';
+import { SsoCallbackPage } from './pages/SsoCallbackPage';
+
 import LandingPageApp from './landing/LandingPageApp';
 
 const queryClient = new QueryClient();
@@ -47,6 +51,10 @@ const queryClient = new QueryClient();
 function PortalRedirect() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
+
+  if (user.role !== 'SUPER_ADMIN' && user.role !== 'PLATFORM_CONTENT_AUTHOR' && !user.organizationId) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   switch (user.role) {
     case 'SUPER_ADMIN': return <Navigate to="/admin/platform" replace />;
@@ -80,8 +88,11 @@ export default function App() {
               {/* Auth Pages */}
               <Route path="/login" element={<LoginPageComponent />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/auth/sso/callback" element={<SsoCallbackPage />} />
 
-              {/* Guest Routes */}
+              {/* Guest & Public Invite Routes */}
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/accept-invite" element={<AcceptInvitePage />} />
               <Route path="/guest/join/:token" element={<GuestContestEntry />} />
               <Route path="/guest/result/:token" element={<GuestResultView />} />
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useNotify } from '../../components/notifications';
 
 interface Contest {
   id: string;
@@ -85,6 +86,7 @@ function RoleBadge({ role }: { role: string }) {
 export function MemberDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const notify = useNotify();
 
   const [activeTab, setActiveTab] = useState<Tab>('contests');
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -647,8 +649,13 @@ export function MemberDashboard() {
                   <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl font-bold flex items-center justify-between">
                     <span>✅ Package Locked with Passcode ({'*'.repeat(exportPasscode.length)}) & Ready for Export</span>
                     <button
-                      onClick={() => alert(`Encrypted PDF Downloaded!\nFile: ContestOS_Secured_Results_${Date.now()}.pdf\nDecryption Key: ${exportPasscode}\nSHA-256 Digest: ${resultsSha256Hash}`)}
-                      className="px-4 py-1.5 bg-emerald-500 text-black font-black text-xs rounded-lg hover:bg-emerald-400 transition"
+                      onClick={async () => {
+                        await notify.alert('Encrypted PDF Downloaded', {
+                          description: `File: ContestOS_Secured_Results_${Date.now()}.pdf\nDecryption Key: ${exportPasscode}\nSHA-256 Digest: ${resultsSha256Hash}`,
+                          variant: 'success',
+                        });
+                      }}
+                      className="px-4 py-1.5 bg-emerald-500 text-black font-black text-xs rounded-lg hover:bg-emerald-400 transition cursor-pointer"
                     >
                       📥 Download Encrypted PDF (.pdf)
                     </button>

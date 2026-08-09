@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/client"
 }
 
 datasource db {
@@ -107,6 +108,13 @@ model Organization {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
+  // Enterprise SAML 2.0 Single Sign-On
+  samlEnabled      Boolean   @default(false)
+  samlDomain       String?
+  samlIdpEntityId  String?
+  samlIdpSsoUrl    String?
+  samlIdpCert      String?
+
   users           User[]
   contests        Contest[]
   problems        Problem[]
@@ -129,6 +137,12 @@ model User {
   invitedBy      User?         @relation("InvitedUsers", fields: [invitedById], references: [id])
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  // SSO (Social OAuth & Enterprise SAML)
+  ssoProvider    String?       // 'GOOGLE' | 'GITHUB' | 'LINKEDIN' | 'SAML'
+  ssoId          String?       // Provider Subject ID
+  avatarUrl      String?
+
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -150,6 +164,7 @@ model User {
   questionReviews    QuestionReviewLog[]
   breakGlassLogs     BreakGlassAuditLog[]  @relation("SuperAdminBreakGlass")
   moderatorAssignments ContestModerationAssignment[] @relation("ModeratorAssignments")
+  notifications      Notification[]
 }
 
 model Problem {
@@ -203,16 +218,28 @@ model Contest {
   isPublic               Boolean  @default(true)
   allowJoin              Boolean  @default(true)
 
+  // Security Settings
   requireSeb             Boolean  @default(false)
   sebConfig              String?
   sebQuitPassword        String?
   requireFullscreen      Boolean  @default(true)
   preventTabSwitch       Boolean  @default(true)
   disableCopyPaste       Boolean  @default(true)
+  pasteMode              String   @default("LOG_ONLY")
   enableProctoring       Boolean  @default(false)
+  faceCheckEnabled       Boolean  @default(false)
+  voiceCheckEnabled      Boolean  @default(false)
+  snapshotIntervalSeconds Int     @default(45)
   maxWarnings            Int      @default(3)
   allowMultipleMonitors  Boolean  @default(false)
   randomizeQuestionOrder Boolean  @default(false)
+
+  // Scoring Configuration
+  scoringMode              String   @default("PARTIAL")  // PARTIAL | BINARY | ACM | DYNAMIC
+  negativeMarkingEnabled   Boolean  @default(false)
+  negativeMarkingValue     Float    @default(0.25)       // Marks deducted per wrong attempt
+  showLeaderboardDuringContest Boolean @default(true)
+  freezeLeaderboardMins    Int      @default(0)          // Freeze X mins before end (0 = never)
 
   organizationId         String?
   organization           Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
@@ -376,6 +403,42 @@ model OrganizationRequest {
   reviewNotes    String?
   reviewedAt     DateTime?
   createdAt      DateTime          @default(now())
+
+  // Step 1 — Organization Identity
+  industry              String?
+  orgSize               String?
+  linkedinOrgUrl        String?
+
+  // Step 2 — Legal & Location (Anti-Fraud)
+  address               String?
+  city                  String?
+  state                 String?
+  country               String?
+  pincode               String?
+  gstNumber             String?
+  panNumber             String?
+  cinNumber             String?
+  regNumber             String?
+  taxId                 String?
+  aisheCode             String?
+  nirfRanking           String?
+  affiliatedTo          String?
+
+  // Step 3 — Contact Officer
+  contactDesignation    String?
+  contactAlternateEmail String?
+  domainMismatchReason  String?
+
+  // Step 4 — Platform Requirements
+  useCases              String[]    @default([])
+  expectedCandidates    String?
+  preferredFormat       String[]    @default([])
+  hearAboutUs           String?
+  referralCode          String?
+
+  // Step 5 — Legal Agreements
+  dpaAgreed             Boolean     @default(false)
+  certifiedRepresentative Boolean   @default(false)
 }
 
 model ContestSection {
@@ -385,9 +448,14 @@ model ContestSection {
   title         String
   sectionType   SectionType @default(QUIZ)
   order         Int         @default(0)
-  duration      Int         @default(30)
-  sectionLocked Boolean     @default(true)
+  duration      Int         @default(30)    // per-section time limit in minutes (0 = inherits contest timer)
+  sectionLocked Boolean     @default(true)  // once section submitted, cannot go back
   weight        Float       @default(1.0)
+  // Per-section scoring overrides
+  negativeMarkingEnabled Boolean @default(false)
+  negativeMarkingValue   Float   @default(0.25)
+  problemIds             Json?              // JSON array of problem IDs in this section (ordered)
+  instructions           String?            // Section-specific instructions shown to candidate
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -643,4 +711,18 @@ model ContestModerationAssignment {
 
   @@unique([contestId, moderatorId])
   @@index([contestId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("SYSTEM_ALERT")
+  data      Json?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
 }

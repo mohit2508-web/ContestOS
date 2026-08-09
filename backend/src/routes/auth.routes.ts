@@ -105,6 +105,14 @@ router.post('/login', rateLimit(20, 15 * 60 * 1000), async (req, res) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
+      const pendingReq = await prisma.organizationRequest.findFirst({
+        where: { contactEmail: email, status: 'PENDING' },
+      });
+      if (pendingReq) {
+        return res.status(403).json({
+          error: `⏳ Verification Pending: Your organization application for "${pendingReq.orgName}" is currently under review by Platform Super Admin (24-48 hr SLA). Your account will be activated automatically upon Super Admin approval.`,
+        });
+      }
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -136,17 +144,19 @@ router.post('/login', rateLimit(20, 15 * 60 * 1000), async (req, res) => {
       },
     });
 
-    await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
-        organizationId: user.organizationId,
-        action: 'USER_LOGIN',
-        resource: 'user',
-        resourceId: user.id,
-      },
-    });
+    // Run non-blocking background tasks for lastLoginAt update and AuditLog
+    Promise.allSettled([
+      prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } }),
+      prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          organizationId: user.organizationId,
+          action: 'USER_LOGIN',
+          resource: 'user',
+          resourceId: user.id,
+        },
+      }),
+    ]).catch(() => {});
 
     res.json({
       accessToken,
@@ -160,8 +170,11 @@ router.post('/login', rateLimit(20, 15 * 60 * 1000), async (req, res) => {
         hierarchyLevel: HIERARCHY_MAP[user.role] || 5,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
+    if (error?.message?.includes('Timed out fetching a new connection from the connection pool')) {
+      return res.status(503).json({ error: 'Database connection pool busy. Please try clicking sign in again in a moment.' });
+    }
     res.status(500).json({ error: 'Login failed' });
   }
 });

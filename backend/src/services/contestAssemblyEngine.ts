@@ -1,4 +1,4 @@
-import { PrismaClient, QuestionReviewStatus, BankScope } from '@prisma/client';
+import { PrismaClient, QuestionReviewStatus, BankScope } from '../generated/client';
 
 const prisma = new PrismaClient();
 

@@ -8,6 +8,7 @@ interface Notification {
   title: string;
   message: string;
   referenceId?: string;
+  data?: any;
   isRead: boolean;
   createdAt: string;
 }
@@ -85,14 +86,15 @@ export function useNotifications(): UseNotificationsReturn {
                 setUnreadCount((prev) => prev + 1);
                 setNotifications((prev) => [
                   {
-                    id: data.notificationId,
+                    id: data.id || data.notificationId,
                     userId: data.userId,
                     type: data.type,
                     title: data.title,
                     message: data.message,
+                    data: data.data,
                     referenceId: data.referenceId,
                     isRead: false,
-                    createdAt: data.createdAt,
+                    createdAt: data.createdAt || new Date().toISOString(),
                   },
                   ...prev,
                 ]);
@@ -115,12 +117,12 @@ export function useNotifications(): UseNotificationsReturn {
     };
   }, []);
 
-  // Poll for unread count as fallback when SSE isn't available
+  // Fetch full notifications list & unread count on mount and interval
   useEffect(() => {
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 60000);
+    refresh();
+    const interval = setInterval(refresh, 60000);
     return () => clearInterval(interval);
-  }, [fetchUnreadCount]);
+  }, [refresh]);
 
   const markAsRead = useCallback(async (id: string) => {
     try {

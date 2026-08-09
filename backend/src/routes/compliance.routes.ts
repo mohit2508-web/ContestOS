@@ -20,7 +20,15 @@ router.get('/audit-logs', authenticateToken, requireRole(...COMPLIANCE_ROLES), a
     const dateTo = req.query.dateTo ? new Date(req.query.dateTo as string) : undefined;
 
     const where: any = {};
-    if (orgId) where.organizationId = orgId;
+    if (req.user!.hierarchyLevel > 1) {
+      if (!req.user!.organizationId) {
+        return res.json({ logs: [], total: 0, page, pages: 0 });
+      }
+      where.organizationId = req.user!.organizationId;
+    } else if (orgId) {
+      where.organizationId = orgId;
+    }
+
     if (action) where.action = { contains: action, mode: 'insensitive' };
     if (dateFrom || dateTo) {
       where.timestamp = {};
@@ -205,9 +213,15 @@ router.get('/reports/access-summary', authenticateToken, requireRole(...COMPLIAN
     const days = parseInt(req.query.days as string) || 30;
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
+    const whereLog: any = { timestamp: { gte: since } };
+    if (req.user!.hierarchyLevel > 1) {
+      if (!req.user!.organizationId) return res.json({ period: `Last ${days} days`, topActions: [], gdprStats: [] });
+      whereLog.organizationId = req.user!.organizationId;
+    }
+
     const actionGroups = await prisma.auditLog.groupBy({
       by: ['action', 'resource'],
-      where: { timestamp: { gte: since } },
+      where: whereLog,
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 50,
@@ -280,7 +294,14 @@ router.get('/dsar/export', authenticateToken, requireRole(...COMPLIANCE_ROLES), 
 // Downloadable SOC 2 & ISO 27001 Cryptographically Signed Audit CSV
 router.get('/audit/export', authenticateToken, requireRole(...COMPLIANCE_ROLES), async (req, res) => {
   try {
+    const whereExport: any = {};
+    if (req.user!.hierarchyLevel > 1) {
+      if (!req.user!.organizationId) return res.status(403).json({ error: 'Access denied: Account not linked to any organization.' });
+      whereExport.organizationId = req.user!.organizationId;
+    }
+
     const logs = await prisma.auditLog.findMany({
+      where: whereExport,
       select: {
         id: true, action: true, resource: true, resourceId: true, details: true, timestamp: true,
         user: { select: { name: true, email: true, role: true } },

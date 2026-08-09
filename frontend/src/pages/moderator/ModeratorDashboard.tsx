@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import { useNotify } from '../../components/notifications';
 
 interface Contest {
   id: string;
@@ -41,6 +42,7 @@ interface GovernanceAuditLog {
 }
 
 export function ModeratorDashboard() {
+  const notify = useNotify();
   const [activeTab, setActiveTab] = useState<'moderation' | 'calibration' | 'curve' | 'appeals' | 'auditStream'>('moderation');
   const [contests, setContests] = useState<Contest[]>([]);
   const [selectedContestId, setSelectedContestId] = useState<string>('');
@@ -142,6 +144,7 @@ export function ModeratorDashboard() {
   const handleApprove = async (id: string) => {
     try {
       await api.put(`/evaluator/moderator/${id}/approve`);
+      notify.toast.success('Grade approved!');
       fetchEvaluations(selectedContestId);
       fetchAuditStream(selectedContestId);
     } catch (err: any) {
@@ -151,10 +154,19 @@ export function ModeratorDashboard() {
 
   const handleBulkApprove = async () => {
     if (!selectedContestId) return;
-    if (!confirm('Are you sure you want to 1-click Approve all graded submissions for this contest drive?')) return;
+    const ok = await notify.confirm('Bulk Approve Scores?', {
+      description: 'Are you sure you want to 1-click Approve all graded submissions for this contest drive?',
+      variant: 'warning',
+      confirmLabel: 'Approve Cohort Scores',
+    });
+    if (!ok) return;
+
     try {
       const res = await api.post(`/evaluator/moderator/contests/${selectedContestId}/bulk-approve`);
-      alert(`✅ Successfully approved ${res.approvedCount || 0} candidate scores!`);
+      await notify.alert('Cohort Scores Approved', {
+        description: `Successfully approved ${res.approvedCount || 0} candidate scores!`,
+        variant: 'success',
+      });
       fetchEvaluations(selectedContestId);
       fetchAuditStream(selectedContestId);
     } catch (err: any) {
@@ -165,7 +177,10 @@ export function ModeratorDashboard() {
   const handleOverrideSubmit = async () => {
     if (!selectedEvalId) return;
     if (!moderationReason || moderationReason.length < 5) {
-      alert('Mandatory moderation justification (min 5 characters) is required.');
+      await notify.alert('Justification Required', {
+        description: 'Mandatory moderation justification (min 5 characters) is required.',
+        variant: 'warning',
+      });
       return;
     }
     try {
@@ -173,6 +188,7 @@ export function ModeratorDashboard() {
         newScore: overrideScore,
         moderationReason,
       });
+      notify.toast.success('Score overridden successfully!');
       setSelectedEvalId(null);
       setModerationReason('');
       fetchEvaluations(selectedContestId);
@@ -185,7 +201,10 @@ export function ModeratorDashboard() {
   const handleApplyCurve = async () => {
     if (!selectedContestId) return;
     if (!curveJustification || curveJustification.length < 5) {
-      alert('Please provide a mandatory justification for applying the grade curve.');
+      await notify.alert('Justification Required', {
+        description: 'Please provide a mandatory justification for applying the grade curve.',
+        variant: 'warning',
+      });
       return;
     }
     try {
@@ -194,7 +213,10 @@ export function ModeratorDashboard() {
         value: curveValue,
         justification: curveJustification,
       });
-      alert(`✅ Applied ${curveType.toUpperCase()} Grade Curve to ${res.updatedCount || 0} candidate submissions!`);
+      await notify.alert('Grade Curve Applied', {
+        description: `Applied ${curveType.toUpperCase()} Grade Curve to ${res.updatedCount || 0} candidate submissions!`,
+        variant: 'success',
+      });
       setCurveJustification('');
       fetchEvaluations(selectedContestId);
       fetchCalibration(selectedContestId);
@@ -205,10 +227,14 @@ export function ModeratorDashboard() {
   };
 
   const handleRereview = async (id: string) => {
-    const reason = prompt('Reason for requesting re-review from evaluator:');
+    const reason = await notify.prompt('Request Re-Review', {
+      description: 'Enter specific reason for requesting re-review from the evaluator:',
+      placeholder: 'e.g. Please re-evaluate edge case handling on test case 4...',
+    });
     if (!reason) return;
     try {
       await api.put(`/evaluator/moderator/${id}/rereview`, { reason });
+      notify.toast.info('Re-review requested from evaluator.');
       fetchEvaluations(selectedContestId);
       fetchAuditStream(selectedContestId);
     } catch (err: any) {

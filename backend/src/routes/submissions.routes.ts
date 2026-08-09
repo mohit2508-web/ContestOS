@@ -129,60 +129,79 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
           },
         });
 
-    // Update submission record
+    // Fetch contest problem max points if part of a contest
+    let maxPoints = 100;
+    if (contestId) {
+      const contestProblem = await prisma.contestProblem.findUnique({
+        where: { contestId_problemId: { contestId, problemId } },
+      });
+      if (contestProblem?.points) {
+        maxPoints = contestProblem.points;
+      }
+    }
+
+    // Calculate points earned: full for ACCEPTED, partial for partial/wrong testcases
+    let earnedPoints = 0;
+    if (evalResult.status === 'ACCEPTED') {
+      earnedPoints = maxPoints;
+    } else if (evalResult.passedCount > 0 && evalResult.totalCount > 0) {
+      earnedPoints = Math.round((evalResult.passedCount / evalResult.totalCount) * maxPoints);
+    } else if (evalResult.score > 0) {
+      earnedPoints = Math.round((evalResult.score / 100) * maxPoints);
+    }
+
+    // Update submission record with scaled earned points
     const finalSubmission = await prisma.submission.update({
       where: { id: submission.id },
       data: {
         status: evalResult.status as any,
         executionTime: evalResult.executionTime,
         memoryUsed: evalResult.memoryUsed,
-        score: evalResult.score,
+        score: earnedPoints,
         testResults: evalResult.testResults as any,
       },
     });
 
     // If part of a contest, update/upsert candidate's score in ContestRegistration
-    if (contestId) {
-      const contestProblem = await prisma.contestProblem.findUnique({
-        where: { contestId_problemId: { contestId, problemId } },
+    if (contestId && earnedPoints >= 0) {
+      // Get current best score for this problem from this user in this contest
+      const previousSubmissions = await prisma.submission.findMany({
+        where: { contestId, problemId, userId, id: { not: submission.id } },
+        select: { score: true },
       });
-      const maxPoints = contestProblem?.points || 100;
+      const prevBestPoints = previousSubmissions.reduce((max, s) => Math.max(max, s.score || 0), 0);
+      const pointsDelta = Math.max(0, earnedPoints - prevBestPoints);
 
-      // Calculate points earned: full for ACCEPTED, partial for partial/wrong
-      let earnedPoints = 0;
-      if (evalResult.status === 'ACCEPTED') {
-        earnedPoints = maxPoints;
-      } else if (evalResult.passedCount > 0 && evalResult.totalCount > 0) {
-        // Partial credit proportional to passed testcases
-        earnedPoints = Math.round((evalResult.passedCount / evalResult.totalCount) * maxPoints);
-      }
-
-      if (earnedPoints > 0) {
-        // Get current best score for this problem from this user in this contest
-        const existingBest = await prisma.submission.findFirst({
-          where: { contestId, problemId, userId, status: { in: ['ACCEPTED', 'WRONG_ANSWER', 'RUNTIME_ERROR', 'TIME_LIMIT_EXCEEDED'] } },
-          orderBy: { score: 'desc' },
+      if (pointsDelta > 0 || earnedPoints > 0) {
+        // Fetch all current best scores across all problems in this contest for total calculation
+        const allUserSubmissions = await prisma.submission.findMany({
+          where: { contestId, userId },
+          select: { problemId: true, score: true, status: true },
         });
-        const prevBestPoints = existingBest?.score || 0;
-        const pointsDelta = Math.max(0, earnedPoints - prevBestPoints);
 
-        if (pointsDelta > 0) {
-          // Upsert ContestRegistration to ensure record exists and add only new score delta
-          await prisma.contestRegistration.upsert({
-            where: { contestId_userId: { contestId, userId } },
-            create: {
-              contestId,
-              userId,
-              score: earnedPoints,
-              status: 'IN_PROGRESS',
-              penalty: 0,
-            },
-            update: {
-              score: { increment: pointsDelta },
-              status: 'IN_PROGRESS',
-            },
-          });
-        }
+        const probBestMap = new Map<string, number>();
+        allUserSubmissions.forEach((s) => {
+          const cur = probBestMap.get(s.problemId) || 0;
+          if (s.score > cur) probBestMap.set(s.problemId, s.score);
+        });
+
+        let totalContestScore = 0;
+        probBestMap.forEach((pts) => { totalContestScore += pts; });
+
+        await prisma.contestRegistration.upsert({
+          where: { contestId_userId: { contestId, userId } },
+          create: {
+            contestId,
+            userId,
+            score: totalContestScore,
+            status: 'IN_PROGRESS',
+            penalty: 0,
+          },
+          update: {
+            score: totalContestScore,
+            status: 'IN_PROGRESS',
+          },
+        });
       }
     }
 

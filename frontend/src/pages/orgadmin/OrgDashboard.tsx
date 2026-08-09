@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useNotify } from '../../components/notifications';
 import { QuestionBankPage } from '../teacher/QuestionBankPage';
 
-type TabId = 'overview' | 'contests' | 'team' | 'problems' | 'participants' | 'billing';
+type TabId = 'overview' | 'contests' | 'team' | 'problems' | 'participants' | 'billing' | 'sso';
 
 interface OrgData {
   id: string;
@@ -14,6 +15,11 @@ interface OrgData {
   _count: { users: number; contests: number };
   subscriptionTier: string;
   status: string;
+  samlEnabled?: boolean;
+  samlDomain?: string;
+  samlIdpEntityId?: string;
+  samlIdpSsoUrl?: string;
+  samlIdpCert?: string;
 }
 
 interface Analytics {
@@ -27,9 +33,11 @@ interface TeamMember {
   id: string;
   userId: string;
   role: string;
-  user: { id: string; fullName: string; name?: string; email: string; lastLogin?: string };
+  user: { id: string; fullName: string; name?: string; email: string; lastLogin?: string; lastLoginAt?: string };
   name?: string;
   email?: string;
+  lastLoginAt?: string;
+  lastLogin?: string;
 }
 
 interface Contest {
@@ -83,6 +91,7 @@ const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'problems', label: 'Question Bank', icon: '📝' },
   { id: 'participants', label: 'Candidates & Shortlists', icon: '🎯' },
   { id: 'billing', label: 'Seats & Billing', icon: '💳' },
+  { id: 'sso', label: 'Enterprise SAML SSO', icon: '🏢' },
 ];
 
 const ASSESSMENT_TYPES = [
@@ -165,6 +174,7 @@ function difficultyColor(d: string) {
 export function OrgDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const notify = useNotify();
 
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [org, setOrg] = useState<OrgData | null>(null);
@@ -255,6 +265,7 @@ export function OrgDashboard() {
           Promise.all([
             loadAnalytics(orgData.id),
             loadTeam(orgData.id),
+            loadInvitations(orgData.id),
             loadContests(),
             loadProblems(),
             loadBilling(),
@@ -270,26 +281,61 @@ export function OrgDashboard() {
     })();
   }, [loadOrg, loadAnalytics, loadTeam, loadContests, loadProblems, loadBilling]);
 
+  const [invitations, setInvitations] = useState<any[]>([]);
+  const [createdInviteLink, setCreatedInviteLink] = useState<string | null>(null);
+
+  const loadInvitations = useCallback(async (orgId: string) => {
+    try {
+      const data = await api.getOrgInvitations(orgId);
+      setInvitations(data.invitations || []);
+    } catch {
+      setInvitations([]);
+    }
+  }, []);
+
   const handleInvite = async () => {
     if (!org || !inviteEmail.trim()) return;
     setInviting(true);
     try {
-      await api.inviteTeamMember(org.id, inviteEmail.trim());
-      setShowInvite(false);
+      const res = await api.inviteTeamMember(org.id, inviteEmail.trim(), inviteRole);
+      const link = window.location.origin + (res.invitation?.inviteLink || `/accept-invite?token=${res.invitation?.token}`);
+      setCreatedInviteLink(link);
       setInviteEmail('');
-      setInviteRole('ORG_MEMBER');
       loadTeam(org.id);
-    } catch { /* noop */ }
+      loadInvitations(org.id);
+    } catch (err: any) {
+      await notify.alert('Invitation Failed', {
+        description: err?.response?.data?.error || 'Failed to send invitation',
+        variant: 'danger',
+      });
+    }
     setInviting(false);
   };
 
-  const handleRemoveMember = async (userId: string) => {
+  const handleRevokeInvitation = async (invId: string) => {
     if (!org) return;
-    if (!window.confirm('Remove this member from the organization?')) return;
+    const ok = await notify.confirm('Revoke Invitation?', {
+      description: 'Are you sure you want to revoke this pending invitation token?',
+      variant: 'warning',
+      confirmLabel: 'Revoke Invitation',
+    });
+    if (!ok) return;
     try {
-      await api.removeTeamMember(org.id, userId);
-      loadTeam(org.id);
+      await api.revokeInvitation(invId);
+      notify.toast.info('Invitation revoked.');
+      loadInvitations(org.id);
     } catch { /* noop */ }
+  };
+
+  const handleRemoveMember = async (userId: string, payload?: { reasonCategory: string; detailedNotes: string }) => {
+    if (!org) return;
+    try {
+      const res = await api.removeTeamMember(org.id, userId, payload);
+      loadTeam(org.id);
+      return res;
+    } catch (err: any) {
+      throw err;
+    }
   };
 
   const handleChangeRole = async (userId: string, newRole: string) => {
@@ -442,6 +488,10 @@ export function OrgDashboard() {
         {activeTab === 'team' && (
           <TeamTab
             members={filteredMembers}
+            invitations={invitations}
+            contests={contests}
+            createdInviteLink={createdInviteLink}
+            setCreatedInviteLink={setCreatedInviteLink}
             search={teamSearch}
             setSearch={setTeamSearch}
             showInvite={showInvite}
@@ -454,6 +504,7 @@ export function OrgDashboard() {
             onInvite={handleInvite}
             onRemove={handleRemoveMember}
             onChangeRole={handleChangeRole}
+            onRevokeInvitation={handleRevokeInvitation}
           />
         )}
         {activeTab === 'problems' && (
@@ -464,6 +515,9 @@ export function OrgDashboard() {
         )}
         {activeTab === 'billing' && (
           <BillingTab subscription={subscription} usage={usage} />
+        )}
+        {activeTab === 'sso' && (
+          <SamlConfigTab org={org} reload={loadOrg} />
         )}
       </div>
 
@@ -839,8 +893,31 @@ function ContestsTab({ contests, showCreate, setShowCreate, contestForm, setCont
 // ═══════════════════════════════════════════
 // TEAM & ACCESS TAB
 // ═══════════════════════════════════════════
-function TeamTab({ members, search, setSearch, showInvite, setShowInvite, inviteEmail, setInviteEmail, inviteRole, setInviteRole, inviting, onInvite, onRemove, onChangeRole }: {
+function TeamTab({
+  members,
+  invitations,
+  contests,
+  createdInviteLink,
+  setCreatedInviteLink,
+  search,
+  setSearch,
+  showInvite,
+  setShowInvite,
+  inviteEmail,
+  setInviteEmail,
+  inviteRole,
+  setInviteRole,
+  inviting,
+  onInvite,
+  onRemove,
+  onChangeRole,
+  onRevokeInvitation,
+}: {
   members: TeamMember[];
+  invitations: any[];
+  contests: Contest[];
+  createdInviteLink: string | null;
+  setCreatedInviteLink: (link: string | null) => void;
   search: string;
   setSearch: (v: string) => void;
   showInvite: boolean;
@@ -851,129 +928,875 @@ function TeamTab({ members, search, setSearch, showInvite, setShowInvite, invite
   setInviteRole: (v: string) => void;
   inviting: boolean;
   onInvite: () => void;
-  onRemove: (userId: string) => void;
+  onRemove: (userId: string, payload?: { reasonCategory: string; detailedNotes: string }) => Promise<any>;
   onChangeRole: (userId: string, role: string) => void;
+  onRevokeInvitation: (invId: string) => void;
 }) {
+  const [subTab, setSubTab] = useState<'active' | 'pending' | 'matrix'>('active');
+  const [copied, setCopied] = useState(false);
+  const notify = useNotify();
+
+  const [assignModalUser, setAssignModalUser] = useState<TeamMember | null>(null);
+  const [assignedContestIds, setAssignedContestIds] = useState<string[]>([]);
+  const [loadingAssignments, setLoadingAssignments] = useState(false);
+
+  // Enterprise Roster & Drive Assign state
+  const [selectedRoleForAssign, setSelectedRoleForAssign] = useState<string>('EVALUATOR');
+  const [driveSearch, setDriveSearch] = useState('');
+  const [rosterAssignments, setRosterAssignments] = useState<any[]>([]);
+  const [loadingRoster, setLoadingRoster] = useState(false);
+  const [matrixContestFilter, setMatrixContestFilter] = useState('ALL');
+  const [matrixRoleFilter, setMatrixRoleFilter] = useState('ALL');
+
+  // Offboarding modal state
+  const [offboardModalUser, setOffboardModalUser] = useState<TeamMember | null>(null);
+  const [offboardReason, setOffboardReason] = useState('CONTRACT_EXPIRED');
+  const [offboardNotes, setOffboardNotes] = useState('');
+  const [offboarding, setOffboarding] = useState(false);
+
+  const pendingCount = invitations.filter((i) => i.status === 'PENDING').length;
+
+  const loadAllRosterAssignments = async () => {
+    setLoadingRoster(true);
+    try {
+      const allList: any[] = [];
+      for (const c of contests) {
+        try {
+          const res = await api.getContestAssignments(c.id);
+          const items = (res.assignments || []).map((a: any) => ({
+            ...a,
+            contestTitle: c.title,
+            contestId: c.id,
+            assessmentType: c.assessmentType || 'CODING',
+            startTime: c.startTime,
+            duration: c.duration,
+          }));
+          allList.push(...items);
+        } catch {}
+      }
+      setRosterAssignments(allList);
+    } finally {
+      setLoadingRoster(false);
+    }
+  };
+
+  const copyLink = (link: string) => {
+    navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const openAssignModal = async (member: TeamMember) => {
+    setAssignModalUser(member);
+    setSelectedRoleForAssign(member.role === 'PROCTOR' ? 'PROCTOR' : 'EVALUATOR');
+    setDriveSearch('');
+    setLoadingAssignments(true);
+    const targetUserId = member.userId || member.user?.id || member.id;
+    try {
+      const assignedIds: string[] = [];
+      for (const c of contests) {
+        try {
+          const res = await api.getContestAssignments(c.id);
+          const exists = (res.assignments || []).some((a: any) => a.userId === targetUserId);
+          if (exists) assignedIds.push(c.id);
+        } catch {}
+      }
+      setAssignedContestIds(assignedIds);
+    } finally {
+      setLoadingAssignments(false);
+    }
+  };
+
+  const toggleContestAssignment = async (contestId: string) => {
+    if (!assignModalUser) return;
+    const targetUserId = assignModalUser.userId || assignModalUser.user?.id || assignModalUser.id;
+    const isAssigned = assignedContestIds.includes(contestId);
+    const role = selectedRoleForAssign || (assignModalUser.role === 'PROCTOR' ? 'PROCTOR' : 'EVALUATOR');
+
+    try {
+      if (isAssigned) {
+        const res = await api.unassignMemberFromContest(contestId, targetUserId);
+        setAssignedContestIds(prev => prev.filter(id => id !== contestId));
+        notify.toast.success(res?.message || 'Drive unassigned from staff member.');
+      } else {
+        const res = await api.assignMemberToContest(contestId, targetUserId, role);
+        setAssignedContestIds(prev => [...prev, contestId]);
+        notify.toast.success(res?.message || `Drive assigned! Official Code of Conduct & guidelines delivered to ${assignModalUser.user?.name || assignModalUser.name}.`);
+      }
+    } catch (err: any) {
+      notify.toast.error(err?.response?.data?.error || 'Failed to update contest drive assignment');
+    }
+  };
+
+  const ROLE_OPTIONS = [
+    { id: 'EVALUATOR', title: 'Evaluator (Grader)', icon: '✍️', desc: 'Grading code, SQL & subjective responses' },
+    { id: 'PROCTOR', title: 'Proctor (Invigilator)', icon: '🛡️', desc: 'Live webcam invigilation & cheating alerts' },
+    { id: 'ORG_MEMBER', title: 'Org Member', icon: '👨‍🏫', desc: 'Question bank creation & contest hosting' },
+    { id: 'ORG_ADMIN', title: 'Org Admin', icon: '👑', desc: 'Full organization manager & seat controller' },
+    { id: 'ANALYTICS_VIEWER', title: 'Analytics Viewer', icon: '📊', desc: 'Read-only HR results & scorecard viewer' },
+    { id: 'CONTEST_MODERATOR', title: 'Contest Moderator', icon: '⚖️', desc: 'Grade overrides & chief examiner' },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="font-black text-xl">Team & Access Governance</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Manage team members, invigilators, and evaluators.</p>
+          <h2 className="font-black text-xl text-white">Team & Access Governance</h2>
+          <p className="text-xs text-gray-500 mt-0.5">Manage team members, live invigilators, and evaluators with real-time invitation tracking.</p>
         </div>
-        <button onClick={() => setShowInvite(true)} className="px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20">
+        <button
+          onClick={() => { setCreatedInviteLink(null); setShowInvite(true); }}
+          className="px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 cursor-pointer"
+        >
           <span>+</span> Invite Member
         </button>
       </div>
 
-      <div className="flex items-center gap-3">
+      {/* Sub-tab switcher */}
+      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSubTab('active')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              subTab === 'active'
+                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span>👥 Active Members</span>
+            <span className="px-2 py-0.5 bg-white/10 rounded-md text-[10px]">{members.length}</span>
+          </button>
+
+          <button
+            onClick={() => setSubTab('pending')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              subTab === 'pending'
+                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span>⏳ Pending Invitations</span>
+            {pendingCount > 0 && (
+              <span className="px-2 py-0.5 bg-amber-500/30 text-amber-300 rounded-md text-[10px] animate-pulse">
+                {pendingCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => {
+              setSubTab('matrix');
+              loadAllRosterAssignments();
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+              subTab === 'matrix'
+                ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span>🎯 Staff Drive Roster & Matrix</span>
+            <span className="px-2 py-0.5 bg-purple-500/30 text-purple-300 rounded-md text-[10px] font-mono">
+              {rosterAssignments.length}
+            </span>
+          </button>
+        </div>
+
         <input
           type="text"
-          placeholder="Search by name or email..."
+          placeholder="Filter team..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="flex-1 bg-zinc-950 border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none placeholder-gray-600"
+          onChange={(e) => setSearch(e.target.value)}
+          className="bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-1.5 text-xs focus:border-blue-400 outline-none w-64 text-white"
         />
-        <span className="text-xs text-gray-500 font-bold">{members.length} member(s)</span>
       </div>
 
-      {members.length === 0 ? (
-        <EmptyState icon="👥" message="No team members yet. Invite someone to get started." />
-      ) : (
-        <div className="border border-white/10 rounded-xl overflow-hidden bg-zinc-950">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="bg-black/60 border-b border-white/10 text-gray-500 text-xs uppercase tracking-wider font-bold">
-                <th className="p-4">Name</th>
-                <th className="p-4">Email</th>
-                <th className="p-4">Role</th>
-                <th className="p-4">Last Login</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {members.map(m => (
-                <tr key={m.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="p-4 font-bold text-white">{m.user?.fullName || m.user?.name || m.name || 'Member'}</td>
-                  <td className="p-4 text-gray-400 text-xs font-mono">{m.user?.email || m.email}</td>
-                  <td className="p-4">
-                    <select
-                      value={m.role}
-                      onChange={e => onChangeRole(m.userId || m.user.id, e.target.value)}
-                      className={`bg-transparent border rounded-lg px-2 py-1 text-[10px] font-bold outline-none cursor-pointer ${ROLE_STYLES[m.role] || ''}`}
-                    >
-                      <option value="ORG_ADMIN">ORG_ADMIN</option>
-                      <option value="ORG_MEMBER">ORG_MEMBER</option>
-                      <option value="EVALUATOR">EVALUATOR</option>
-                      <option value="PROCTOR">PROCTOR</option>
-                      <option value="ANALYTICS_VIEWER">ANALYTICS_VIEWER</option>
-                      <option value="CONTEST_MODERATOR">CONTEST_MODERATOR</option>
-                      <option value="COMPLIANCE_OFFICER">COMPLIANCE_OFFICER</option>
-                    </select>
-                  </td>
-                  <td className="p-4 text-gray-500 text-xs font-mono">
-                    {m.user?.lastLogin ? new Date(m.user.lastLogin).toLocaleDateString() : 'Never'}
-                  </td>
-                  <td className="p-4 text-right">
-                    <button
-                      onClick={() => onRemove(m.userId || m.user.id)}
-                      className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-xs font-bold border border-red-500/20 transition"
-                    >
-                      Remove
-                    </button>
-                  </td>
+      {/* TAB 1: Active Team Members */}
+      {subTab === 'active' && (
+        members.length === 0 ? (
+          <EmptyState icon="👥" message="No active team members found." />
+        ) : (
+          <div className="border border-white/10 rounded-xl overflow-hidden bg-zinc-950 shadow-xl">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="bg-black/60 border-b border-white/10 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                  <th className="p-4">Name</th>
+                  <th className="p-4">Email</th>
+                  <th className="p-4">Assigned Role</th>
+                  <th className="p-4">Last Login</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {members.map((m) => {
+                  const loginTime = m.lastLoginAt || m.user?.lastLoginAt || m.lastLogin;
+                  return (
+                    <tr key={m.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="p-4 font-bold text-white flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 font-black text-xs">
+                          {(m.user?.name || m.name || 'U')[0].toUpperCase()}
+                        </div>
+                        <span>{m.user?.fullName || m.user?.name || m.name || 'Member'}</span>
+                      </td>
+                      <td className="p-4 text-gray-400 text-xs font-mono">{m.user?.email || m.email}</td>
+                      <td className="p-4">
+                        <select
+                          value={m.role}
+                          onChange={(e) => onChangeRole(m.userId || m.user.id, e.target.value)}
+                          className={`bg-zinc-900 border rounded-lg px-2.5 py-1 text-xs font-bold outline-none cursor-pointer ${
+                            ROLE_STYLES[m.role] || 'text-gray-300'
+                          }`}
+                        >
+                          <option value="ORG_ADMIN">ORG_ADMIN</option>
+                          <option value="ORG_MEMBER">ORG_MEMBER</option>
+                          <option value="EVALUATOR">EVALUATOR</option>
+                          <option value="PROCTOR">PROCTOR</option>
+                          <option value="ANALYTICS_VIEWER">ANALYTICS_VIEWER</option>
+                          <option value="CONTEST_MODERATOR">CONTEST_MODERATOR</option>
+                          <option value="COMPLIANCE_OFFICER">COMPLIANCE_OFFICER</option>
+                        </select>
+                      </td>
+                      <td className="p-4 text-xs font-mono">
+                        {loginTime ? (
+                          <span className="text-emerald-400 font-bold">
+                            {new Date(loginTime).toLocaleDateString()}
+                          </span>
+                        ) : (
+                          <span className="text-zinc-500 italic">Never</span>
+                        )}
+                      </td>
+                    <td className="p-4 text-right flex items-center justify-end gap-2">
+                      {(m.role === 'EVALUATOR' || m.role === 'PROCTOR' || m.role === 'ORG_MEMBER' || m.role === 'CONTEST_MODERATOR') && (
+                        <button
+                          onClick={() => openAssignModal(m)}
+                          className="px-3.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-xs font-bold border border-blue-500/30 transition cursor-pointer flex items-center gap-1.5 shadow-sm"
+                        >
+                          <span>🎯 Assign Drives</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setOffboardModalUser(m);
+                          setOffboardReason('CONTRACT_EXPIRED');
+                          setOffboardNotes('');
+                        }}
+                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-xs font-bold border border-red-500/20 transition cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              </tbody>
+            </table>
+          </div>
+        )
+      )}
+
+      {/* TAB 3: Staff Drive Allocation Roster & Matrix */}
+      {subTab === 'matrix' && (
+        <div className="space-y-5">
+          {/* Controls Bar */}
+          <div className="bg-zinc-950 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">
+                  Filter Contest Drive
+                </label>
+                <select
+                  value={matrixContestFilter}
+                  onChange={(e) => setMatrixContestFilter(e.target.value)}
+                  className="bg-zinc-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-purple-400 cursor-pointer"
+                >
+                  <option value="ALL">🌐 All Contest Drives ({contests.length})</option>
+                  {contests.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      🏆 {c.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1">
+                  Filter Staff Role
+                </label>
+                <select
+                  value={matrixRoleFilter}
+                  onChange={(e) => setMatrixRoleFilter(e.target.value)}
+                  className="bg-zinc-900 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-purple-400 cursor-pointer"
+                >
+                  <option value="ALL">⚡ All Roles</option>
+                  <option value="EVALUATOR">✍️ EVALUATOR (Grader)</option>
+                  <option value="PROCTOR">🛡️ PROCTOR (Invigilator)</option>
+                  <option value="CONTENT_EDITOR">📝 CONTENT_EDITOR</option>
+                </select>
+              </div>
+            </div>
+
+            <button
+              onClick={loadAllRosterAssignments}
+              disabled={loadingRoster}
+              className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-2"
+            >
+              <span>{loadingRoster ? 'Refreshing Roster...' : '🔄 Refresh Allocation Matrix'}</span>
+            </button>
+          </div>
+
+          {/* Roster Table */}
+          {loadingRoster ? (
+            <div className="p-12 text-center text-xs text-zinc-400 bg-zinc-950 border border-white/10 rounded-2xl">
+              Loading enterprise staff allocation matrix...
+            </div>
+          ) : rosterAssignments.length === 0 ? (
+            <EmptyState icon="🎯" message="No staff members assigned to any contest drives yet. Click 'Assign Drives' on team members to appoint them." />
+          ) : (
+            <div className="border border-white/10 rounded-2xl overflow-hidden bg-zinc-950 shadow-xl">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr className="bg-black/80 border-b border-white/10 text-zinc-400 text-[11px] uppercase tracking-wider font-bold">
+                    <th className="p-4">Contest Drive</th>
+                    <th className="p-4">Assigned Staff Member</th>
+                    <th className="p-4">Designated Drive Role</th>
+                    <th className="p-4">Assigned By</th>
+                    <th className="p-4 text-right">Governance Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {rosterAssignments
+                    .filter((a) => matrixContestFilter === 'ALL' || a.contestId === matrixContestFilter)
+                    .filter((a) => matrixRoleFilter === 'ALL' || a.role === matrixRoleFilter)
+                    .map((item) => (
+                      <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="p-4 font-bold text-white">
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white text-sm font-bold">{item.contestTitle}</span>
+                              <span className="text-[9px] px-2 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/20 font-mono rounded font-bold uppercase">
+                                {item.assessmentType}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-zinc-400 font-mono">
+                              Starts: {new Date(item.startTime).toLocaleDateString()} · {item.duration} mins
+                            </p>
+                          </div>
+                        </td>
+
+                        <td className="p-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-300 font-black text-xs flex items-center justify-center">
+                              {(item.user?.name || 'S')[0].toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-white">{item.user?.name || 'Staff Member'}</p>
+                              <p className="text-[10px] text-zinc-400 font-mono">{item.user?.email}</p>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="p-4">
+                          {item.role === 'EVALUATOR' && (
+                            <span className="px-3 py-1 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+                              ✍️ EVALUATOR (Grader)
+                            </span>
+                          )}
+                          {item.role === 'PROCTOR' && (
+                            <span className="px-3 py-1 bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+                              🛡️ PROCTOR (Invigilator)
+                            </span>
+                          )}
+                          {item.role === 'CONTENT_EDITOR' && (
+                            <span className="px-3 py-1 bg-blue-500/10 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+                              📝 CONTENT_EDITOR
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="p-4 text-xs text-zinc-400 font-mono">
+                          <p className="text-zinc-300 font-bold">{item.assignedBy?.name || 'Org Admin'}</p>
+                          <p className="text-[10px] text-zinc-500">{new Date(item.createdAt).toLocaleDateString()}</p>
+                        </td>
+
+                        <td className="p-4 text-right">
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await api.unassignMemberFromContest(item.contestId, item.userId);
+                                notify.toast.success(res?.message || 'Assignment revoked.');
+                                loadAllRosterAssignments();
+                              } catch (err: any) {
+                                notify.toast.error(err?.response?.data?.error || 'Failed to revoke assignment');
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs font-bold border border-rose-500/30 transition cursor-pointer"
+                          >
+                            Revoke Appointment
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
-      {showInvite && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl">
-            <div className="flex justify-between items-center">
-              <h3 className="font-black text-lg text-white">Invite Team Member</h3>
-              <button onClick={() => setShowInvite(false)} className="text-gray-500 hover:text-white">✕</button>
+      {/* Ultra-Professional Enterprise Assign Contest Drives Modal */}
+      {assignModalUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md">
+          <div className="bg-zinc-950 border border-blue-500/30 rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-y-auto p-7 space-y-6 shadow-2xl relative">
+            {/* Header section */}
+            <div className="flex justify-between items-start border-b border-white/10 pb-5">
+              <div className="space-y-1">
+                <span className="px-3 py-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-400 border border-blue-500/30 rounded-full text-[10px] font-black uppercase tracking-widest inline-block">
+                  ⚡ ENTERPRISE DRIVE APPOINTMENT & GOVERNANCE
+                </span>
+                <h3 className="text-xl font-black text-white tracking-tight">
+                  Contest Drive Staffing Console
+                </h3>
+                <p className="text-xs text-zinc-400">
+                  Appoint authorized staff members to evaluate submissions, conduct live invigilation, or curate drive content.
+                </p>
+              </div>
+              <button
+                onClick={() => setAssignModalUser(null)}
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center text-sm cursor-pointer transition"
+              >
+                ✕
+              </button>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Email Address</label>
+
+            {/* Target Staff Member Profile Banner */}
+            <div className="bg-gradient-to-r from-zinc-900 to-zinc-900/80 border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-inner">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-purple-500/20">
+                  {(assignModalUser.user?.fullName || assignModalUser.user?.name || assignModalUser.name || 'S')[0].toUpperCase()}
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-white">
+                    {assignModalUser.user?.fullName || assignModalUser.user?.name || assignModalUser.name}
+                  </h4>
+                  <p className="text-xs text-zinc-400 font-mono">
+                    {assignModalUser.user?.email || assignModalUser.email}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className={`px-3 py-1 rounded-lg text-xs font-black border ${ROLE_STYLES[assignModalUser.role] || 'text-zinc-300'}`}>
+                  {assignModalUser.role}
+                </span>
+                <p className="text-[10px] text-zinc-500 font-mono mt-1">
+                  Active Assignments: <span className="text-blue-400 font-bold">{assignedContestIds.length} Drives</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Enforced Registered Role Banner */}
+            <div className="bg-zinc-900/90 border border-white/10 rounded-2xl p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Designated Drive Role:</span>
+                {assignModalUser.role === 'EVALUATOR' && (
+                  <span className="px-3.5 py-1 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                    ✍️ EVALUATOR (Submission Grader)
+                  </span>
+                )}
+                {assignModalUser.role === 'PROCTOR' && (
+                  <span className="px-3.5 py-1 bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                    🛡️ PROCTOR (Chief Invigilator)
+                  </span>
+                )}
+                {assignModalUser.role !== 'EVALUATOR' && assignModalUser.role !== 'PROCTOR' && (
+                  <span className="px-3.5 py-1 bg-blue-500/10 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                    📝 CONTENT_EDITOR (Problem Author)
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-mono text-zinc-500 bg-white/5 px-2.5 py-1 rounded-lg">
+                🔒 Auto-Picked from Org Role ({assignModalUser.role})
+              </span>
+            </div>
+
+            {/* Contest Drives List Header & Filter */}
+            <div className="flex items-center justify-between pt-2">
+              <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                Select Contest Drives to Appoint ({contests.length})
+              </label>
               <input
-                type="email"
-                placeholder="colleague@org.ac.in"
-                value={inviteEmail}
-                onChange={e => setInviteEmail(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none placeholder-gray-600"
+                type="text"
+                placeholder="Search drive by name..."
+                value={driveSearch}
+                onChange={(e) => setDriveSearch(e.target.value)}
+                className="bg-zinc-900 border border-white/10 rounded-xl px-3.5 py-1.5 text-xs text-white outline-none focus:border-blue-400 w-60"
               />
             </div>
-            <div>
-              <label className="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider">Assigned Role</label>
-              <select
-                value={inviteRole}
-                onChange={e => setInviteRole(e.target.value)}
-                className="w-full bg-black border border-white/10 rounded-lg px-4 py-2.5 text-sm focus:border-blue-400 outline-none"
-              >
-                <option value="ORG_MEMBER">Org Member (Question Author)</option>
-                <option value="ORG_ADMIN">Org Admin (Full Manager)</option>
-                <option value="EVALUATOR">Evaluator (Grader)</option>
-                <option value="PROCTOR">Proctor (Live Invigilator)</option>
-                <option value="ANALYTICS_VIEWER">Analytics Viewer (Read-Only HR)</option>
-                <option value="CONTEST_MODERATOR">Contest Moderator (Chief Examiner)</option>
-                <option value="COMPLIANCE_OFFICER">Compliance & GDPR Officer</option>
-              </select>
+
+            {/* Contest Drive List */}
+            {loadingAssignments ? (
+              <div className="p-12 text-center text-xs text-zinc-400">Loading contest drive assignments...</div>
+            ) : contests.length === 0 ? (
+              <div className="p-12 text-center text-xs text-zinc-400">No contest drives created in organization yet.</div>
+            ) : (
+              <div className="space-y-3 max-h-72 overflow-y-auto custom-scrollbar pr-1">
+                {contests
+                  .filter((c) => c.title.toLowerCase().includes(driveSearch.toLowerCase()))
+                  .map((c) => {
+                    const isAssigned = assignedContestIds.includes(c.id);
+                    return (
+                      <div
+                        key={c.id}
+                        className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-4 ${
+                          isAssigned
+                            ? 'bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border-emerald-500/40 text-white shadow-md'
+                            : 'bg-zinc-900/60 border-white/10 text-zinc-400 hover:border-white/20'
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-sm text-white">{c.title}</span>
+                            <span className="text-[10px] px-2 py-0.5 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded font-mono font-bold">
+                              {c.assessmentType || 'CODING'}
+                            </span>
+                            {isAssigned && (
+                              <span className="text-[9px] px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full font-bold">
+                                ✓ Appointed
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-zinc-400 font-mono">
+                            Starts: {new Date(c.startTime).toLocaleDateString()} · Duration: {c.duration} mins
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => toggleContestAssignment(c.id)}
+                          className={`px-5 py-2 rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
+                            isAssigned
+                              ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30'
+                              : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white shadow-lg shadow-blue-500/20'
+                          }`}
+                        >
+                          {isAssigned ? '❌ Revoke Appointment' : '+ Appoint to Drive'}
+                        </button>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+
+            {/* Enterprise Legal & Governance Notice Callout */}
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 text-xs text-blue-300 space-y-1">
+              <p className="font-bold flex items-center gap-1.5 text-blue-400">
+                <span>⚡ Real-Time Enterprise Dispatch & Compliance:</span>
+              </p>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Appointing a staff member automatically dispatches an official Code of Conduct notice, NDA guidelines, and real-time push alert to their account for instant onboarding.
+              </p>
             </div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowInvite(false)} className="flex-1 py-2.5 border border-white/10 rounded-lg text-sm font-bold text-gray-400 hover:bg-white/5 transition">
-                Cancel
-              </button>
+
+            <div className="pt-3 border-t border-white/10 flex justify-end">
               <button
-                onClick={onInvite}
-                disabled={inviting || !inviteEmail.trim()}
-                className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-lg text-sm transition disabled:opacity-50"
+                onClick={() => setAssignModalUser(null)}
+                className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-400 hover:to-purple-500 text-white font-black text-xs rounded-xl transition cursor-pointer shadow-lg shadow-blue-500/20"
               >
-                {inviting ? 'Sending...' : 'Send Invitation'}
+                Done & Save Staffing Roster
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enterprise Offboarding & Incident Report Modal */}
+      {offboardModalUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-rose-500/30 rounded-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 space-y-5 shadow-2xl">
+            <div className="flex justify-between items-start border-b border-white/10 pb-4">
+              <div>
+                <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Enterprise Compliance & Offboarding</span>
+                <h3 className="text-lg font-black text-white mt-0.5">
+                  Offboard {offboardModalUser.user?.fullName || offboardModalUser.user?.name || offboardModalUser.name}
+                </h3>
+                <p className="text-xs text-zinc-400 mt-1">
+                  {offboardModalUser.user?.email || offboardModalUser.email} · Role: <span className="text-rose-400 font-bold">{offboardModalUser.role}</span>
+                </p>
+              </div>
+              <button onClick={() => setOffboardModalUser(null)} className="text-zinc-500 hover:text-white text-lg cursor-pointer">✕</button>
+            </div>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (offboardNotes.trim().length < 15) {
+                  notify.toast.error('Detailed justification notes must be at least 15 characters long.');
+                  return;
+                }
+                setOffboarding(true);
+                try {
+                  const targetUserId = offboardModalUser.userId || offboardModalUser.user?.id || offboardModalUser.id;
+                  const res = await onRemove(targetUserId, {
+                    reasonCategory: offboardReason,
+                    detailedNotes: offboardNotes.trim(),
+                  });
+                  notify.toast.success(res?.message || 'Member offboarded and exit notice delivered.');
+                  setOffboardModalUser(null);
+                } catch (err: any) {
+                  notify.toast.error(err?.response?.data?.error || 'Failed to offboard team member.');
+                } finally {
+                  setOffboarding(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2">
+                  1. Offboarding Reason Category
+                </label>
+                <select
+                  value={offboardReason}
+                  onChange={(e) => setOffboardReason(e.target.value)}
+                  className="w-full bg-zinc-900 border border-white/10 rounded-xl p-3 text-xs font-bold text-white outline-none focus:border-rose-400 cursor-pointer"
+                >
+                  <option value="CONTRACT_EXPIRED">📅 Contract / Assessment Drive Completed</option>
+                  <option value="ROLE_RESTRUCTURING">🔄 Internal Team & Department Restructuring</option>
+                  <option value="SECURITY_POLICY_VIOLATION">🚨 Security, Anti-Cheat, or Integrity Policy Violation</option>
+                  <option value="INACTIVITY_NONPERFORMANCE">💤 Inactivity during live grading or invigilation</option>
+                  <option value="MUTUAL_SEPARATION">🤝 Voluntary Exit / Resignation</option>
+                </select>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider">
+                    2. Compliance Justification & Report Notes
+                  </label>
+                  <span className={`text-[10px] font-mono font-bold ${offboardNotes.trim().length >= 15 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {offboardNotes.trim().length} / 15 min chars
+                  </span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={offboardNotes}
+                  onChange={(e) => setOffboardNotes(e.target.value)}
+                  placeholder="Document the exact offboarding rationale, handover details, or incident summary. This report will be logged into AuditLog and sent as a formal Exit Notice to the offboarded member..."
+                  className="w-full bg-zinc-900 border border-white/10 rounded-xl p-3 text-xs text-white placeholder-zinc-500 outline-none focus:border-rose-400 leading-relaxed resize-none"
+                  required
+                />
+              </div>
+
+              <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-[11px] text-rose-300 space-y-1">
+                <p className="font-bold flex items-center gap-1">
+                  <span>⚖️ Legal & Governance Warning:</span>
+                </p>
+                <p className="text-zinc-400 text-[10px] leading-relaxed">
+                  Executing offboarding will revoke all staff privileges, unassign active grading drives, record an immutable audit entry, and deliver an official exit notification to the member.
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setOffboardModalUser(null)}
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 font-bold text-xs rounded-xl transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={offboarding || offboardNotes.trim().length < 15}
+                  className="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white font-black text-xs rounded-xl transition shadow-lg shadow-rose-600/20 cursor-pointer flex items-center gap-2"
+                >
+                  <span>{offboarding ? 'Executing Offboarding...' : '🚨 Confirm & Execute Offboarding'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: Pending Invitations Table */}
+      {subTab === 'pending' && (
+        invitations.length === 0 ? (
+          <EmptyState icon="⏳" message="No pending or past invitations found." />
+        ) : (
+          <div className="border border-white/10 rounded-xl overflow-hidden bg-zinc-950 shadow-xl">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="bg-black/60 border-b border-white/10 text-gray-500 text-xs uppercase tracking-wider font-bold">
+                  <th className="p-4">Invited Email</th>
+                  <th className="p-4">Target Role</th>
+                  <th className="p-4">Invited By</th>
+                  <th className="p-4">Sent Date</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {invitations.map((inv) => {
+                  const inviteLink = window.location.origin + `/accept-invite?token=${inv.token}`;
+                  return (
+                    <tr key={inv.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="p-4 font-bold text-white font-mono text-xs">{inv.email}</td>
+                      <td className="p-4">
+                        <span className="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg text-[10px] font-black uppercase">
+                          {inv.role}
+                        </span>
+                      </td>
+                      <td className="p-4 text-xs text-gray-400">
+                        {inv.invitedBy?.name || inv.invitedBy?.email || 'Org Admin'}
+                      </td>
+                      <td className="p-4 text-xs text-gray-500 font-mono">
+                        {new Date(inv.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="p-4">
+                        {inv.status === 'PENDING' && (
+                          <span className="px-2.5 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-[10px] font-black flex items-center gap-1.5 w-fit">
+                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                            <span>⏳ PENDING CONFIRMATION</span>
+                          </span>
+                        )}
+                        {inv.status === 'ACCEPTED' && (
+                          <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-[10px] font-black flex items-center gap-1.5 w-fit">
+                            <span>✅ ACCEPTED</span>
+                          </span>
+                        )}
+                        {(inv.status === 'REVOKED' || inv.status === 'EXPIRED') && (
+                          <span className="px-2.5 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-[10px] font-black flex items-center gap-1.5 w-fit">
+                            <span>❌ {inv.status}</span>
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-4 text-right space-x-2">
+                        {inv.status === 'PENDING' && (
+                          <>
+                            <button
+                              onClick={() => copyLink(inviteLink)}
+                              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold border border-white/10 transition cursor-pointer"
+                            >
+                              📋 Copy Link
+                            </button>
+                            <button
+                              onClick={() => onRevokeInvitation(inv.id)}
+                              className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs font-bold border border-rose-500/20 transition cursor-pointer"
+                            >
+                              Revoke
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
+      )}
+
+      {/* Redesigned Invite Team Member Modal */}
+      {showInvite && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-xl p-6 space-y-6 shadow-2xl overflow-hidden relative">
+            <div className="flex justify-between items-center border-b border-white/10 pb-4">
+              <div>
+                <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Team Access Control</span>
+                <h3 className="font-black text-xl text-white">Invite Team Member / Evaluator</h3>
+              </div>
+              <button onClick={() => setShowInvite(false)} className="text-gray-500 hover:text-white text-lg cursor-pointer">✕</button>
+            </div>
+
+            {createdInviteLink ? (
+              <div className="space-y-4 text-center py-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto text-xl">
+                  ✓
+                </div>
+                <h4 className="text-lg font-black text-white">Invitation Created Successfully!</h4>
+                <p className="text-xs text-gray-400 max-w-md mx-auto">
+                  If the invited user has a ContestOS account, an instant alert has been pushed to their 🔔 Notification Bell.
+                  You can also share this link directly:
+                </p>
+
+                <div className="flex items-center gap-2 bg-black border border-white/10 p-2 rounded-xl text-left">
+                  <input
+                    type="text"
+                    readOnly
+                    value={createdInviteLink}
+                    className="flex-1 bg-transparent text-xs text-amber-400 font-mono outline-none px-2"
+                  />
+                  <button
+                    onClick={() => copyLink(createdInviteLink)}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-black font-extrabold text-xs rounded-lg transition shrink-0 cursor-pointer"
+                  >
+                    {copied ? 'Copied! ✓' : 'Copy Link'}
+                  </button>
+                </div>
+
+                <div className="pt-3">
+                  <button
+                    onClick={() => setShowInvite(false)}
+                    className="px-6 py-2.5 bg-white/10 hover:bg-white/15 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 mb-1.5 uppercase tracking-wider">Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="e.g. evaluator@iitd.ac.in or proctor@company.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-400 outline-none text-white placeholder-gray-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Target Team Role</label>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {ROLE_OPTIONS.map((r) => (
+                      <button
+                        type="button"
+                        key={r.id}
+                        onClick={() => setInviteRole(r.id)}
+                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                          inviteRole === r.id
+                            ? 'bg-blue-500/15 border-blue-400 text-white shadow-lg shadow-blue-500/10'
+                            : 'bg-black/60 border-white/5 text-gray-400 hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <span>{r.icon}</span>
+                          <span className="text-xs font-bold text-white">{r.title}</span>
+                        </div>
+                        <p className="text-[10px] text-gray-500">{r.desc}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setShowInvite(false)}
+                    className="flex-1 py-3 border border-white/10 rounded-xl text-sm font-bold text-gray-400 hover:bg-white/5 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onInvite}
+                    disabled={inviting || !inviteEmail.trim()}
+                    className="flex-1 py-3 bg-blue-500 hover:bg-blue-400 text-black font-black rounded-xl text-sm transition disabled:opacity-50 shadow-lg shadow-blue-500/20 cursor-pointer"
+                  >
+                    {inviting ? 'Sending Invitation...' : 'Send Real-Time Invite'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1182,3 +2005,189 @@ function Tag({ children, accent }: { children: React.ReactNode; accent?: boolean
     </span>
   );
 }
+
+// ═══════════════════════════════════════════
+// ENTERPRISE SAML 2.0 CONFIGURATION TAB
+// ═══════════════════════════════════════════
+function SamlConfigTab({ org, reload }: { org: OrgData | null; reload: () => void }) {
+  const notify = useNotify();
+  const [samlEnabled, setSamlEnabled] = useState(org?.samlEnabled || false);
+  const [samlDomain, setSamlDomain] = useState(org?.samlDomain || org?.domain || '');
+  const [samlIdpEntityId, setSamlIdpEntityId] = useState(org?.samlIdpEntityId || '');
+  const [samlIdpSsoUrl, setSamlIdpSsoUrl] = useState(org?.samlIdpSsoUrl || '');
+  const [samlIdpCert, setSamlIdpCert] = useState(org?.samlIdpCert || '');
+  const [saving, setSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
+  useEffect(() => {
+    if (org) {
+      setSamlEnabled(org.samlEnabled || false);
+      setSamlDomain(org.samlDomain || org.domain || '');
+      setSamlIdpEntityId(org.samlIdpEntityId || '');
+      setSamlIdpSsoUrl(org.samlIdpSsoUrl || '');
+      setSamlIdpCert(org.samlIdpCert || '');
+    }
+  }, [org]);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!org) return;
+    setSaving(true);
+    setSavedSuccess(false);
+    try {
+      await api.updateSamlConfig({
+        orgId: org.id,
+        samlEnabled,
+        samlDomain: samlDomain.trim(),
+        samlIdpEntityId: samlIdpEntityId.trim(),
+        samlIdpSsoUrl: samlIdpSsoUrl.trim(),
+        samlIdpCert: samlIdpCert.trim(),
+      });
+      setSavedSuccess(true);
+      notify.toast.success('Enterprise SAML 2.0 configuration saved successfully!');
+      reload();
+    } catch (err: any) {
+      await notify.alert('Configuration Save Failed', {
+        description: err?.response?.data?.error || 'Failed to save SAML settings',
+        variant: 'danger',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const spEntityId = `${backendUrl}/api/auth/sso/saml/metadata`;
+  const acsUrl = `${backendUrl}/api/auth/sso/saml/acs`;
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="px-2.5 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/30 rounded-full text-[10px] font-mono font-bold uppercase">
+            ENTERPRISE SINGLE SIGN-ON
+          </span>
+        </div>
+        <h2 className="text-2xl font-black text-white mt-1">SAML 2.0 Identity Provider Settings</h2>
+        <p className="text-gray-400 text-xs mt-0.5">
+          Connect your organization's Okta, Microsoft Azure AD / Entra ID, PingIdentity, or Shibboleth IdP for seamless single sign-on.
+        </p>
+      </div>
+
+      {savedSuccess && (
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-xs text-emerald-400 font-bold flex items-center justify-between">
+          <span>✅ Enterprise SAML settings updated and active.</span>
+          <button onClick={() => setSavedSuccess(false)} className="text-emerald-500 hover:text-emerald-300">✕</button>
+        </div>
+      )}
+
+      {/* Service Provider (SP) Config Card for IdP Setup */}
+      <div className="bg-zinc-950 border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
+        <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
+          <span>⚙️ Step 1: Service Provider (SP) Metadata for your IdP</span>
+        </h3>
+        <p className="text-xs text-gray-400">Provide these URLs when setting up the ContestOS SAML App in Okta, Azure AD, or Ping:</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
+          <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">
+            <span className="text-[10px] text-gray-500 font-sans uppercase font-bold block">SP Entity ID / Audience URI</span>
+            <span className="text-purple-300 font-bold block select-all">{spEntityId}</span>
+          </div>
+          <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">
+            <span className="text-[10px] text-gray-500 font-sans uppercase font-bold block">Assertion Consumer Service (ACS) URL</span>
+            <span className="text-emerald-400 font-bold block select-all">{acsUrl}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* IdP Config Form */}
+      <form onSubmit={handleSave} className="bg-zinc-950 border border-white/10 rounded-2xl p-6 space-y-5 shadow-xl">
+        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div>
+            <h3 className="text-xs font-black text-white uppercase tracking-wider">Step 2: Identity Provider (IdP) Parameters</h3>
+            <p className="text-[11px] text-gray-500 mt-0.5">Enable SAML and input your IdP endpoints</p>
+          </div>
+
+          <label className="flex items-center gap-3 cursor-pointer">
+            <span className="text-xs font-bold text-gray-300">SAML SSO Status:</span>
+            <input
+              type="checkbox"
+              checked={samlEnabled}
+              onChange={e => setSamlEnabled(e.target.checked)}
+              className="w-5 h-5 accent-purple-500 cursor-pointer"
+            />
+            <span className={`text-xs font-extrabold px-2.5 py-1 rounded-lg border ${
+              samlEnabled ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-zinc-800 text-zinc-500 border-white/5'
+            }`}>
+              {samlEnabled ? 'ACTIVE' : 'DISABLED'}
+            </span>
+          </label>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+              Institutional Email Domain
+            </label>
+            <input
+              type="text"
+              value={samlDomain}
+              onChange={e => setSamlDomain(e.target.value)}
+              placeholder="e.g. iitd.ac.in or acme.com"
+              className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-purple-400 outline-none font-mono"
+            />
+            <span className="text-[10px] text-gray-500 mt-1 block">Used for auto-routing candidate logins by email domain</span>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+              IdP Entity ID / Issuer URL
+            </label>
+            <input
+              type="text"
+              value={samlIdpEntityId}
+              onChange={e => setSamlIdpEntityId(e.target.value)}
+              placeholder="http://www.okta.com/exk123456789"
+              className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-purple-400 outline-none font-mono"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+            IdP Single Sign-On Endpoint URL
+          </label>
+          <input
+            type="url"
+            value={samlIdpSsoUrl}
+            onChange={e => setSamlIdpSsoUrl(e.target.value)}
+            placeholder="https://dev-12345.okta.com/app/exk12345/sso/saml"
+            className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-purple-400 outline-none font-mono"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">
+            IdP X.509 Certificate (PEM Format)
+          </label>
+          <textarea
+            value={samlIdpCert}
+            onChange={e => setSamlIdpCert(e.target.value)}
+            rows={4}
+            placeholder="-----BEGIN CERTIFICATE-----&#10;MIIDpDCCAoygAwIBAgIGAX...&#10;-----END CERTIFICATE-----"
+            className="w-full bg-black border border-white/10 rounded-xl p-3 text-xs text-white focus:border-purple-400 outline-none font-mono resize-y placeholder-zinc-700"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-sm rounded-xl transition shadow-lg shadow-purple-500/20 cursor-pointer disabled:opacity-50"
+        >
+          {saving ? 'Saving SAML Configuration...' : '💾 Save Enterprise SAML Configuration'}
+        </button>
+      </form>
+    </div>
+  );
+}
+

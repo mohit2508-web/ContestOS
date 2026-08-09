@@ -166,7 +166,10 @@ router.get('/:id/team', authenticateToken, requireRole('super_admin', 'org_admin
     }
 
     const members = await prisma.user.findMany({
-      where: { organizationId: req.params.id },
+      where: {
+        organizationId: req.params.id,
+        role: { notIn: ['STUDENT', 'CANDIDATE', 'GUEST_CANDIDATE'] },
+      },
       select: {
         id: true, name: true, email: true, role: true, status: true,
         lastLoginAt: true, createdAt: true,
@@ -180,22 +183,44 @@ router.get('/:id/team', authenticateToken, requireRole('super_admin', 'org_admin
   }
 });
 
+import { notificationEmitter } from './notification.routes';
+
+router.get('/:id/invitations', authenticateToken, requireRole('super_admin', 'org_admin'), async (req, res) => {
+  try {
+    if (req.user!.hierarchyLevel > 1 && req.user!.organizationId !== req.params.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const invitations = await prisma.teamInvitation.findMany({
+      where: { organizationId: req.params.id },
+      include: {
+        invitedBy: { select: { id: true, name: true, email: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json({ invitations });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch team invitations' });
+  }
+});
+
 router.post('/:id/team/invite', authenticateToken, requireRole('super_admin', 'org_admin'), async (req, res) => {
   try {
     if (req.user!.hierarchyLevel > 1 && req.user!.organizationId !== req.params.id) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    const { email } = req.body;
+    const { email, role } = req.body;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
-    const inviteRole = 'ORG_MEMBER';
+    const inviteRole = (role || 'ORG_MEMBER').toUpperCase();
 
     const existingInvitation = await prisma.teamInvitation.findFirst({
       where: { email, organizationId: req.params.id, status: 'PENDING' },
     });
     if (existingInvitation) {
-      return res.status(409).json({ error: 'Invitation already pending for this email' });
+      return res.status(409).json({ error: 'Invitation already pending for this email address' });
     }
 
     const token = crypto.randomBytes(32).toString('hex');
@@ -216,6 +241,30 @@ router.post('/:id/team/invite', authenticateToken, requireRole('super_admin', 'o
       },
     });
 
+    // Check if target user exists in system to deliver instant in-app notification
+    const targetUser = await prisma.user.findUnique({ where: { email } });
+    if (targetUser) {
+      const inviterName = invitation.invitedBy?.name || invitation.invitedBy?.email || 'Org Admin';
+      const notification = await prisma.notification.create({
+        data: {
+          userId: targetUser.id,
+          title: `🏛️ Team Invitation from ${invitation.organization.name}`,
+          message: `${inviterName} invited you to join ${invitation.organization.name} as ${inviteRole}. Click to review and respond.`,
+          type: 'TEAM_INVITATION',
+          data: {
+            invitationId: invitation.id,
+            token,
+            organizationId: req.params.id,
+            orgName: invitation.organization.name,
+            role: inviteRole,
+            invitedByName: inviterName,
+          },
+        },
+      });
+
+      notificationEmitter.emit('push', { targetUserId: targetUser.id, notification });
+    }
+
     await prisma.auditLog.create({
       data: {
         userId: req.user!.userId,
@@ -229,11 +278,135 @@ router.post('/:id/team/invite', authenticateToken, requireRole('super_admin', 'o
 
     res.status(201).json({
       invitation: { ...invitation, inviteLink: `/accept-invite?token=${token}` },
-      message: 'Invitation created.',
+      message: `Invitation sent to ${email} as ${inviteRole}.`,
     });
   } catch (error) {
     console.error('Invite error:', error);
     res.status(500).json({ error: 'Failed to create invitation' });
+  }
+});
+
+router.post('/invitations/:id/accept', authenticateToken, async (req, res) => {
+  try {
+    const invitation = await prisma.teamInvitation.findUnique({
+      where: { id: req.params.id },
+      include: { organization: true, invitedBy: true },
+    });
+
+    if (!invitation) return res.status(404).json({ error: 'Invitation not found' });
+    if (invitation.status !== 'PENDING') return res.status(400).json({ error: `Invitation already ${invitation.status.toLowerCase()}` });
+    if (invitation.expiresAt < new Date()) return res.status(400).json({ error: 'Invitation expired' });
+
+    // Update user role & org
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user!.userId },
+      data: {
+        organizationId: invitation.organizationId,
+        role: invitation.role as any,
+        status: 'ACTIVE',
+      },
+    });
+
+    await prisma.teamInvitation.update({
+      where: { id: invitation.id },
+      data: { status: 'ACCEPTED', acceptedAt: new Date() },
+    });
+
+    // Update recipient's notification so action card changes to accepted status
+    await prisma.notification.updateMany({
+      where: {
+        userId: req.user!.userId,
+        type: 'TEAM_INVITATION',
+      },
+      data: {
+        isRead: true,
+        title: `✅ Joined ${invitation.organization.name}`,
+        message: `You accepted the invitation to join ${invitation.organization.name} as ${invitation.role}.`,
+        data: { invitationId: invitation.id, token: invitation.token, status: 'ACCEPTED' },
+      },
+    });
+
+    // Notify OrgAdmin about acceptance
+    const adminNotification = await prisma.notification.create({
+      data: {
+        userId: invitation.invitedById,
+        title: `✅ Invitation Accepted!`,
+        message: `${updatedUser.name} (${updatedUser.email}) accepted your invitation to join ${invitation.organization.name} as ${invitation.role}.`,
+        type: 'SYSTEM_ALERT',
+        data: { organizationId: invitation.organizationId, acceptedUserId: updatedUser.id },
+      },
+    });
+    notificationEmitter.emit('push', { targetUserId: invitation.invitedById, notification: adminNotification });
+
+    res.json({ message: `Successfully joined ${invitation.organization.name} as ${invitation.role}!`, organization: invitation.organization, user: updatedUser });
+  } catch (error) {
+    console.error('Accept invitation error:', error);
+    res.status(500).json({ error: 'Failed to accept invitation' });
+  }
+});
+
+router.post('/invitations/:id/decline', authenticateToken, async (req, res) => {
+  try {
+    const invitation = await prisma.teamInvitation.findUnique({
+      where: { id: req.params.id },
+      include: { organization: true },
+    });
+
+    if (!invitation) return res.status(404).json({ error: 'Invitation not found' });
+    if (invitation.status !== 'PENDING') return res.status(400).json({ error: `Invitation already ${invitation.status.toLowerCase()}` });
+
+    await prisma.teamInvitation.update({
+      where: { id: invitation.id },
+      data: { status: 'REVOKED' },
+    });
+
+    const currentUser = await prisma.user.findUnique({ where: { id: req.user!.userId } });
+
+    // Update recipient's notification status
+    await prisma.notification.updateMany({
+      where: {
+        userId: req.user!.userId,
+        type: 'TEAM_INVITATION',
+      },
+      data: {
+        isRead: true,
+        title: `❌ Invitation Declined`,
+        message: `You declined the invitation to join ${invitation.organization.name}.`,
+        data: { invitationId: invitation.id, status: 'DECLINED' },
+      },
+    });
+
+    // Notify OrgAdmin about decline
+    const adminNotification = await prisma.notification.create({
+      data: {
+        userId: invitation.invitedById,
+        title: `❌ Invitation Declined`,
+        message: `${currentUser?.name || currentUser?.email || 'Invited user'} declined the invitation to join ${invitation.organization.name}.`,
+        type: 'SYSTEM_ALERT',
+        data: { organizationId: invitation.organizationId },
+      },
+    });
+    notificationEmitter.emit('push', { targetUserId: invitation.invitedById, notification: adminNotification });
+
+    res.json({ message: 'Invitation declined.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to decline invitation' });
+  }
+});
+
+router.delete('/invitations/:id', authenticateToken, requireRole('super_admin', 'org_admin'), async (req, res) => {
+  try {
+    const invitation = await prisma.teamInvitation.findUnique({ where: { id: req.params.id } });
+    if (!invitation) return res.status(404).json({ error: 'Invitation not found' });
+
+    if (req.user!.hierarchyLevel > 1 && req.user!.organizationId !== invitation.organizationId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    await prisma.teamInvitation.delete({ where: { id: req.params.id } });
+    res.json({ message: 'Invitation revoked.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to revoke invitation' });
   }
 });
 
@@ -298,26 +471,90 @@ router.delete('/:id/team/:userId', authenticateToken, requireRole('super_admin',
     }
 
     if (req.params.userId === req.user!.userId) {
-      return res.status(400).json({ error: 'Cannot remove yourself from the team' });
+      return res.status(400).json({ error: 'Cannot remove yourself from the organization team' });
     }
 
-    const member = await prisma.user.findUnique({ where: { id: req.params.userId } });
+    const { reasonCategory, detailedNotes } = req.body || {};
+    if (!reasonCategory || !detailedNotes || String(detailedNotes).trim().length < 15) {
+      return res.status(400).json({
+        error: 'Compliance Violation: Mandatory offboarding reason category and detailed justification notes (min 15 chars) are required.',
+      });
+    }
+
+    const [member, organization, performingAdmin] = await Promise.all([
+      prisma.user.findUnique({ where: { id: req.params.userId } }),
+      prisma.organization.findUnique({ where: { id: req.params.id }, select: { name: true } }),
+      prisma.user.findUnique({ where: { id: req.user!.userId }, select: { name: true, email: true } }),
+    ]);
+
     if (!member || member.organizationId !== req.params.id) {
       return res.status(404).json({ error: 'Member not found in this organization' });
     }
 
     if (member.role === 'ORG_ADMIN' && req.user!.hierarchyLevel > 1) {
-      return res.status(403).json({ error: 'Cannot remove other admin accounts' });
+      return res.status(403).json({ error: 'Security Exception: Cannot remove other ORG_ADMIN accounts.' });
     }
 
+    // 1. Delete active contest assignments for this user
+    const deletedAssignments = await prisma.contestAssignment.deleteMany({
+      where: { userId: req.params.userId, contest: { organizationId: req.params.id } },
+    });
+
+    // 2. Remove member from organization
     await prisma.user.update({
       where: { id: req.params.userId },
       data: { organizationId: null, role: 'STUDENT' },
     });
 
-    res.json({ message: 'Member removed from organization' });
+    // 3. Create AuditLog entry for compliance tracking
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user!.userId,
+        action: 'TEAM_MEMBER_OFFBOARDED',
+        resource: 'user',
+        resourceId: req.params.userId,
+        details: {
+          offboardedUserEmail: member.email,
+          offboardedUserName: member.name,
+          offboardedUserRole: member.role,
+          reasonCategory,
+          detailedNotes,
+          unassignedContestsCount: deletedAssignments.count,
+          performedByAdmin: performingAdmin?.name || performingAdmin?.email,
+          organizationId: req.params.id,
+        },
+      },
+    });
+
+    // 4. Send formal Exit Notice Notification to offboarded member
+    const exitNotification = await prisma.notification.create({
+      data: {
+        userId: req.params.userId,
+        title: `📋 Formal Organization Offboarding Notice — ${organization?.name || 'Organization'}`,
+        message: `Your staff privileges and contest assignments at ${organization?.name || 'Organization'} have been officially revoked by ${performingAdmin?.name || 'Admin'}.\nReason: ${reasonCategory}.\nSummary Notes: ${detailedNotes}`,
+        type: 'OFFBOARDING_NOTICE',
+        data: {
+          organizationId: req.params.id,
+          organizationName: organization?.name,
+          adminName: performingAdmin?.name || 'Org Admin',
+          adminEmail: performingAdmin?.email,
+          reasonCategory,
+          detailedNotes,
+          offboardedAt: new Date().toISOString(),
+          unassignedContestsCount: deletedAssignments.count,
+        },
+      },
+    });
+
+    notificationEmitter.emit('push', { targetUserId: req.params.userId, notification: exitNotification });
+
+    res.json({
+      message: `Member ${member.name} offboarded successfully. Exit notice delivered & audit log created.`,
+      unassignedContestsCount: deletedAssignments.count,
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to remove member' });
+    console.error('Offboard member error:', error);
+    res.status(500).json({ error: 'Failed to offboard team member' });
   }
 });
 

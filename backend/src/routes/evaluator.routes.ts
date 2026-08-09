@@ -22,7 +22,8 @@ router.get('/assigned-submissions', async (req, res) => {
         where: { userId: req.user!.userId, role: 'EVALUATOR' },
         select: { contestId: true },
       });
-      where.contestId = { in: assignedContests.map((a: { contestId: string }) => a.contestId) };
+      const cIds = assignedContests.map((a: { contestId: string }) => a.contestId);
+      where.contestId = { in: cIds.length > 0 ? cIds : ['none'] };
     } else if (userRole === 'ORG_ADMIN' || userRole === 'SUPER_ADMIN') {
       if ((req.user!.hierarchyLevel || 5) > 1 && req.user!.organizationId) {
         where.contest = { organizationId: req.user!.organizationId };

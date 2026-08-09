@@ -1,4 +1,4 @@
-import { PrismaClient, BankScope, QuestionReviewStatus } from '@prisma/client';
+import { PrismaClient, BankScope, QuestionReviewStatus } from './generated/client';
 import { QuestionBankService } from './services/questionBankService';
 import { ContestAssemblyEngine } from './services/contestAssemblyEngine';
 import { QuestionAnalyticsEngine } from './services/questionAnalyticsEngine';

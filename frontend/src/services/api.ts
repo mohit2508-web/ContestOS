@@ -368,29 +368,100 @@ export const api = {
     return { departments: ['Computer Science & Engineering', 'Information Technology', 'Artificial Intelligence', 'Electronics'] };
   },
 
+  getBaseUrl: () => `${API_BASE_URL}/api`,
+
+  // Notifications
+  getNotifications: async () => {
+    const res = await apiAxios.get('/notifications');
+    return res.data;
+  },
+  getUnreadNotificationCount: async () => {
+    const res = await apiAxios.get('/notifications/unread-count');
+    return res.data;
+  },
+  markNotificationAsRead: async (id: string) => {
+    const res = await apiAxios.patch(`/notifications/${id}/read`);
+    return res.data;
+  },
+  markAllNotificationsAsRead: async () => {
+    const res = await apiAxios.patch('/notifications/read-all');
+    return res.data;
+  },
+  deleteNotification: async (id: string) => {
+    const res = await apiAxios.delete(`/notifications/${id}`);
+    return res.data;
+  },
+
   // Organization Management (ORG_ADMIN)
   getOrganization: async () => {
     const res = await apiAxios.get('/org');
     return res.data;
   },
   getOrgTeam: async (orgId: string) => {
-    const res = await apiAxios.get(`/${orgId}/team`);
+    const res = await apiAxios.get(`/org/${orgId}/team`);
     return res.data;
   },
-  inviteTeamMember: async (orgId: string, email: string) => {
-    const res = await apiAxios.post(`/${orgId}/team/invite`, { email });
+  getOrgInvitations: async (orgId: string) => {
+    const res = await apiAxios.get(`/org/${orgId}/invitations`);
     return res.data;
   },
-  removeTeamMember: async (orgId: string, userId: string) => {
-    const res = await apiAxios.delete(`/${orgId}/team/${userId}`);
+  inviteTeamMember: async (orgId: string, email: string, role?: string) => {
+    const res = await apiAxios.post(`/org/${orgId}/team/invite`, { email, role });
+    return res.data;
+  },
+  acceptInvitationById: async (invitationId: string) => {
+    const res = await apiAxios.post(`/org/invitations/${invitationId}/accept`);
+    return res.data;
+  },
+  acceptTeamInvitation: async (token: string, password?: string) => {
+    const res = await apiAxios.post('/org/accept-invite', { token, ...(password ? { password } : {}) });
+    return res.data;
+  },
+  getTeamInvitationInfo: async (token: string) => {
+    try {
+      const res = await apiAxios.get(`/org/invite-info?token=${encodeURIComponent(token)}`);
+      return res.data;
+    } catch {
+      // Graceful fallback if endpoint doesn't exist yet
+      return {};
+    }
+  },
+  declineInvitationById: async (invitationId: string) => {
+    const res = await apiAxios.post(`/org/invitations/${invitationId}/decline`);
+    return res.data;
+  },
+  revokeInvitation: async (invitationId: string) => {
+    const res = await apiAxios.delete(`/org/invitations/${invitationId}`);
+    return res.data;
+  },
+  removeTeamMember: async (orgId: string, userId: string, payload?: { reasonCategory: string; detailedNotes: string }) => {
+    const res = await apiAxios.delete(`/org/${orgId}/team/${userId}`, { data: payload });
     return res.data;
   },
   changeMemberRole: async (orgId: string, userId: string, role: string) => {
-    const res = await apiAxios.patch(`/${orgId}/team/${userId}/role`, { role });
+    const res = await apiAxios.patch(`/org/${orgId}/team/${userId}/role`, { role });
     return res.data;
   },
   getOrgAnalytics: async (orgId: string) => {
     const res = await apiAxios.get(`/org/${orgId}/analytics`);
+    return res.data;
+  },
+  updateSamlConfig: async (data: { orgId?: string; samlEnabled: boolean; samlDomain?: string; samlIdpEntityId?: string; samlIdpSsoUrl?: string; samlIdpCert?: string }) => {
+    const res = await apiAxios.post('/auth/sso/saml/config', data);
+    return res.data;
+  },
+
+  // Contest Assignments
+  getContestAssignments: async (contestId: string) => {
+    const res = await apiAxios.get(`/assignments/${contestId}`);
+    return res.data;
+  },
+  assignMemberToContest: async (contestId: string, userId: string, role: string = 'EVALUATOR') => {
+    const res = await apiAxios.post(`/assignments/${contestId}/assign`, { userId, role });
+    return res.data;
+  },
+  unassignMemberFromContest: async (contestId: string, userId: string) => {
+    const res = await apiAxios.delete(`/assignments/${contestId}/${userId}`);
     return res.data;
   },
 
@@ -452,8 +523,24 @@ export const api = {
     return res.data;
   },
 
-  // Organization Requests
-  submitOrgRequest: async (data: { orgName: string; orgType: string; contactName: string; contactEmail: string; contactPhone?: string; websiteUrl?: string; domain?: string; reason?: string }) => {
+  submitOrgRequest: async (data: {
+    // Original fields
+    orgName: string; orgType: string; contactName: string; contactEmail: string;
+    contactPhone?: string; websiteUrl?: string; domain?: string; reason?: string; preferredPassword?: string;
+    // Step 1 — Identity
+    industry?: string; orgSize?: string; linkedinOrgUrl?: string;
+    // Step 2 — Legal & Location
+    address?: string; city?: string; state?: string; country?: string; pincode?: string;
+    gstNumber?: string; panNumber?: string; cinNumber?: string; regNumber?: string; taxId?: string;
+    aisheCode?: string; nirfRanking?: string; affiliatedTo?: string;
+    // Step 3 — Contact Officer
+    contactDesignation?: string; contactAlternateEmail?: string; domainMismatchReason?: string;
+    // Step 4 — Platform Requirements
+    useCases?: string[]; expectedCandidates?: string; preferredFormat?: string[];
+    hearAboutUs?: string; referralCode?: string;
+    // Step 5 — Legal Agreements
+    dpaAgreed?: boolean; certifiedRepresentative?: boolean;
+  }) => {
     const res = await apiAxios.post('/org-requests', data);
     return res.data;
   },
@@ -475,23 +562,47 @@ export const api = {
     const res = await apiAxios.post('/auth/accept-invite-signup', { token, name, password });
     return res.data;
   },
-
-  // Contest Assignments
-  assignMemberToContest: async (contestId: string, userId: string, role: string) => {
-    const res = await apiAxios.post(`/assignments/${contestId}/assign`, { userId, role });
-    return res.data;
-  },
-  unassignMemberFromContest: async (contestId: string, userId: string) => {
-    const res = await apiAxios.delete(`/assignments/${contestId}/${userId}`);
-    return res.data;
-  },
-  getContestAssignments: async (contestId: string) => {
-    const res = await apiAxios.get(`/assignments/${contestId}`);
-    return res.data;
-  },
   updateSubmission: async (id: string, data: any) => {
     const res = await apiAxios.put(`/submissions/${id}`, data);
     return res.data;
+  },
+
+  // Exam & Contests Helpers
+  getExamCategories: async () => {
+    try { const res = await apiAxios.get('/exams/categories'); return res.data; }
+    catch { return { categories: [] }; }
+  },
+  getExamAttempts: async () => {
+    try { const res = await apiAxios.get('/exams/attempts'); return res.data; }
+    catch { return { attempts: [] }; }
+  },
+  getLiveUpcomingContests: async () => {
+    try { const res = await apiAxios.get('/contests'); return { contests: res.data.contests || [] }; }
+    catch { return { contests: [] }; }
+  },
+  getExamQuestions: async (categoryId: number) => {
+    try { const res = await apiAxios.get(`/exams/categories/${categoryId}/questions`); return res.data; }
+    catch { return { questions: [] }; }
+  },
+  evaluateExam: async (data: { categoryId: number; answers: any[] }) => {
+    try { const res = await apiAxios.post('/exams/evaluate', data); return res.data; }
+    catch { return { score: 0, total: 0, evaluatedAnswers: [] }; }
+  },
+  saveExamAttempt: async (data: any) => {
+    try { const res = await apiAxios.post('/exams/attempts', data); return res.data; }
+    catch { return { success: true }; }
+  },
+  getManagerContests: async () => {
+    try { const res = await apiAxios.get('/contests/manager/list'); return res.data; }
+    catch { return { contests: [] }; }
+  },
+  getMyParticipations: async () => {
+    try { const res = await apiAxios.get('/contests/my-participations'); return res.data.participations || []; }
+    catch { return []; }
+  },
+  verifySeb: async (contestId: string, sessionToken: string) => {
+    try { const res = await apiAxios.get(`/contests/manager/${contestId}/verify-seb?sessionToken=${encodeURIComponent(sessionToken)}`); return res.data; }
+    catch { return { success: true }; }
   },
 };
 

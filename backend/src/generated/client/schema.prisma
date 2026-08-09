@@ -1,0 +1,728 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider  = "cockroachdb"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  PLATFORM_CONTENT_AUTHOR
+  ORG_ADMIN
+  PROCTOR
+  ORG_MEMBER
+  STUDENT
+  CANDIDATE
+  EVALUATOR
+  ANALYTICS_VIEWER // HR Manager — read-only results & analytics
+  GUEST_CANDIDATE // External invite-only participant (no persistent account)
+  COMPLIANCE_OFFICER // GDPR + audit compliance officer
+  CONTEST_MODERATOR // Chief examiner — grade approval & override
+}
+
+enum EvaluationStatus {
+  UNGRADED
+  EVALUATION_SUBMITTED
+  RESULT_APPROVED
+}
+
+enum OrgStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_INVITE
+}
+
+enum ContestMemberRole {
+  CONTENT_EDITOR
+  PROCTOR
+  EVALUATOR
+}
+
+enum EvaluationStrategy {
+  EXACT_MATCH
+  UNORDERED_MATCH
+  FLOAT_TOLERANCE
+}
+
+enum SubmissionStatus {
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+  PENDING
+  RUNNING
+}
+
+enum SectionType {
+  QUIZ
+  CODING
+  WEB_DEV
+}
+
+enum QuestionType {
+  SINGLE_SELECT
+  MULTI_SELECT
+  TRUE_FALSE
+  NUMERIC
+  CODE_OUTPUT
+  FILL_BLANK
+  IMAGE_PATTERN
+}
+
+model Organization {
+  id               String           @id @default(uuid())
+  name             String
+  slug             String           @unique
+  logoUrl          String?
+  domain           String?          @unique
+  status           OrgStatus        @default(ACTIVE)
+  subscriptionTier SubscriptionTier @default(FREE)
+  featureFlags     Json?
+  maxContests      Int              @default(5)
+  maxUsers         Int              @default(50)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  // Enterprise SAML 2.0 Single Sign-On
+  samlEnabled     Boolean @default(false)
+  samlDomain      String?
+  samlIdpEntityId String?
+  samlIdpSsoUrl   String?
+  samlIdpCert     String?
+
+  users         User[]
+  contests      Contest[]
+  problems      Problem[]
+  invitations   TeamInvitation[]
+  auditLogs     AuditLog[]
+  questionBanks QuestionBank[]
+}
+
+model User {
+  id             String        @id @default(uuid())
+  email          String        @unique
+  password       String
+  name           String
+  username       String?       @unique
+  phone          String?
+  role           Role          @default(STUDENT)
+  status         UserStatus    @default(ACTIVE)
+  lastLoginAt    DateTime?
+  invitedById    String?
+  invitedBy      User?         @relation("InvitedUsers", fields: [invitedById], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  // SSO (Social OAuth & Enterprise SAML)
+  ssoProvider String? // 'GOOGLE' | 'GITHUB' | 'LINKEDIN' | 'SAML'
+  ssoId       String? // Provider Subject ID
+  avatarUrl   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdContests      Contest[]                     @relation("CreatedContests")
+  createdProblems      Problem[]                     @relation("CreatedProblems")
+  registrations        ContestRegistration[]
+  submissions          Submission[]
+  proctoringLogs       ProctoringLog[]
+  invitedUsers         User[]                        @relation("InvitedUsers")
+  sentInvitations      TeamInvitation[]              @relation("InvitationSender")
+  contestAssignments   ContestAssignment[]
+  assignedContests     ContestAssignment[]           @relation("AssignedBy")
+  auditLogs            AuditLog[]
+  refreshTokens        RefreshToken[]
+  scoredSubmissions    Submission[]                  @relation("ScoredSubmissions")
+  reviewedRequests     OrganizationRequest[]         @relation("ReviewedBy")
+  quizAttemptQuestions QuizAttemptQuestion[]
+  quizResponses        QuizResponse[]
+  questionReviews      QuestionReviewLog[]
+  breakGlassLogs       BreakGlassAuditLog[]          @relation("SuperAdminBreakGlass")
+  moderatorAssignments ContestModerationAssignment[] @relation("ModeratorAssignments")
+  notifications        Notification[]
+}
+
+model Problem {
+  id                 String             @id @default(uuid())
+  title              String
+  slug               String             @unique
+  description        String
+  difficulty         String             @default("Medium")
+  category           String             @default("General")
+  problemType        String             @default("code")
+  evaluationStrategy EvaluationStrategy @default(EXACT_MATCH)
+  referenceSolution  String?
+  starterCode        Json
+  driverCode         Json?
+  images             Json?
+  isPublic           Boolean            @default(false)
+  organizationId     String?
+  organization       Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById        String?
+  createdBy          User?              @relation("CreatedProblems", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  testCases       TestCase[]
+  contestProblems ContestProblem[]
+  submissions     Submission[]
+
+  @@index([organizationId, isPublic])
+  @@index([createdById])
+}
+
+model TestCase {
+  id             String   @id @default(uuid())
+  problemId      String
+  problem        Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  input          String
+  expectedOutput String
+  isHidden       Boolean  @default(false)
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model Contest {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  duration    Int
+  difficulty  String   @default("Medium")
+  isPublic    Boolean  @default(true)
+  allowJoin   Boolean  @default(true)
+
+  // Security Settings
+  requireSeb              Boolean @default(false)
+  sebConfig               String?
+  sebQuitPassword         String?
+  requireFullscreen       Boolean @default(true)
+  preventTabSwitch        Boolean @default(true)
+  disableCopyPaste        Boolean @default(true)
+  pasteMode               String  @default("LOG_ONLY")
+  enableProctoring        Boolean @default(false)
+  faceCheckEnabled        Boolean @default(false)
+  voiceCheckEnabled       Boolean @default(false)
+  snapshotIntervalSeconds Int     @default(45)
+  maxWarnings             Int     @default(3)
+  allowMultipleMonitors   Boolean @default(false)
+  randomizeQuestionOrder  Boolean @default(false)
+
+  // Scoring Configuration
+  scoringMode                  String  @default("PARTIAL") // PARTIAL | BINARY | ACM | DYNAMIC
+  negativeMarkingEnabled       Boolean @default(false)
+  negativeMarkingValue         Float   @default(0.25) // Marks deducted per wrong attempt
+  showLeaderboardDuringContest Boolean @default(true)
+  freezeLeaderboardMins        Int     @default(0) // Freeze X mins before end (0 = never)
+
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById    String
+  createdBy      User          @relation("CreatedContests", fields: [createdById], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  problems              ContestProblem[]
+  registrations         ContestRegistration[]
+  submissions           Submission[]
+  proctoringLogs        ProctoringLog[]
+  plagiarismReports     PlagiarismReport[]
+  assignments           ContestAssignment[]
+  sections              ContestSection[]
+  quizAttemptQuestions  QuizAttemptQuestion[]
+  guestInvites          GuestInvite[]
+  moderationAssignments ContestModerationAssignment[]
+}
+
+model ContestProblem {
+  id                String  @id @default(uuid())
+  contestId         String
+  contest           Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problemId         String
+  problem           Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  order             Int     @default(0)
+  points            Int     @default(100)
+  timeLimitOverride Int?
+
+  @@unique([contestId, problemId])
+  @@index([contestId, order])
+}
+
+model ContestRegistration {
+  id                 String   @id @default(uuid())
+  contestId          String
+  contest            Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score              Int      @default(0)
+  penalty            Int      @default(0)
+  activeSessionToken String?
+  status             String   @default("REGISTERED")
+  registeredAt       DateTime @default(now())
+
+  @@unique([contestId, userId])
+}
+
+model Submission {
+  id                 String           @id @default(uuid())
+  contestId          String?
+  contest            Contest?         @relation(fields: [contestId], references: [id], onDelete: SetNull)
+  problemId          String
+  problem            Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code               String
+  language           String
+  status             SubmissionStatus @default(PENDING)
+  executionTime      Int?
+  memoryUsed         Int?
+  score              Int              @default(0)
+  testResults        Json?
+  evaluatedById      String?
+  evaluatedBy        User?            @relation("ScoredSubmissions", fields: [evaluatedById], references: [id])
+  evaluatedAt        DateTime?
+  evaluationComments String?
+  submittedAt        DateTime         @default(now())
+}
+
+model ProctoringLog {
+  id        String   @id @default(uuid())
+  contestId String
+  contest   Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType String
+  details   String?
+  timestamp DateTime @default(now())
+}
+
+model PlagiarismReport {
+  id            String   @id @default(uuid())
+  contestId     String
+  contest       Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  similarityMap Json
+  createdAt     DateTime @default(now())
+}
+
+model TeamInvitation {
+  id             String           @id @default(uuid())
+  email          String
+  role           Role             @default(ORG_MEMBER)
+  token          String           @unique
+  status         InvitationStatus @default(PENDING)
+  organizationId String
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedById    String
+  invitedBy      User             @relation("InvitationSender", fields: [invitedById], references: [id])
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime         @default(now())
+}
+
+model ContestAssignment {
+  id           String            @id @default(uuid())
+  contestId    String
+  contest      Contest           @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedById String
+  assignedBy   User              @relation("AssignedBy", fields: [assignedById], references: [id])
+  role         ContestMemberRole @default(CONTENT_EDITOR)
+  createdAt    DateTime          @default(now())
+
+  @@unique([contestId, userId])
+}
+
+model AuditLog {
+  id             String        @id @default(uuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  action         String
+  resource       String
+  resourceId     String?
+  details        Json?
+  timestamp      DateTime      @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+enum OrgRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model OrganizationRequest {
+  id           String           @id @default(uuid())
+  orgName      String
+  orgType      String
+  contactName  String
+  contactEmail String
+  contactPhone String?
+  websiteUrl   String?
+  domain       String?
+  reason       String?
+  status       OrgRequestStatus @default(PENDING)
+  reviewedById String?
+  reviewedBy   User?            @relation("ReviewedBy", fields: [reviewedById], references: [id])
+  reviewNotes  String?
+  reviewedAt   DateTime?
+  createdAt    DateTime         @default(now())
+
+  // Step 1 — Organization Identity
+  industry       String?
+  orgSize        String?
+  linkedinOrgUrl String?
+
+  // Step 2 — Legal & Location (Anti-Fraud)
+  address      String?
+  city         String?
+  state        String?
+  country      String?
+  pincode      String?
+  gstNumber    String?
+  panNumber    String?
+  cinNumber    String?
+  regNumber    String?
+  taxId        String?
+  aisheCode    String?
+  nirfRanking  String?
+  affiliatedTo String?
+
+  // Step 3 — Contact Officer
+  contactDesignation    String?
+  contactAlternateEmail String?
+  domainMismatchReason  String?
+
+  // Step 4 — Platform Requirements
+  useCases           String[] @default([])
+  expectedCandidates String?
+  preferredFormat    String[] @default([])
+  hearAboutUs        String?
+  referralCode       String?
+
+  // Step 5 — Legal Agreements
+  dpaAgreed               Boolean @default(false)
+  certifiedRepresentative Boolean @default(false)
+}
+
+model ContestSection {
+  id                     String      @id @default(uuid())
+  contestId              String
+  contest                Contest     @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  title                  String
+  sectionType            SectionType @default(QUIZ)
+  order                  Int         @default(0)
+  duration               Int         @default(30) // per-section time limit in minutes (0 = inherits contest timer)
+  sectionLocked          Boolean     @default(true) // once section submitted, cannot go back
+  weight                 Float       @default(1.0)
+  // Per-section scoring overrides
+  negativeMarkingEnabled Boolean     @default(false)
+  negativeMarkingValue   Float       @default(0.25)
+  problemIds             Json? // JSON array of problem IDs in this section (ordered)
+  instructions           String? // Section-specific instructions shown to candidate
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  passages      QuizPassage[]
+  questions     QuizQuestion[]
+  assemblyRules ContestAssemblyRule[]
+
+  @@index([contestId, order])
+}
+
+enum BankScope {
+  PLATFORM_GLOBAL
+  TENANT_PRIVATE
+  SHARED_CONTRIBUTED
+}
+
+enum QuestionReviewStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  PUBLISHED
+  REJECTED
+}
+
+model QuestionBank {
+  id             String        @id @default(uuid())
+  name           String
+  description    String?
+  scope          BankScope     @default(TENANT_PRIVATE)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById    String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  questions QuizQuestion[]
+
+  @@index([scope, organizationId])
+}
+
+model QuizPassage {
+  id          String         @id @default(uuid())
+  sectionId   String
+  section     ContestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title       String?
+  passageType String         @default("reading_comprehension")
+  content     String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  questions QuizQuestion[]
+}
+
+model QuizQuestion {
+  id                   String               @id @default(uuid())
+  sectionId            String?
+  section              ContestSection?      @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  passageId            String?
+  passage              QuizPassage?         @relation(fields: [passageId], references: [id], onDelete: SetNull)
+  bankId               String?
+  bank                 QuestionBank?        @relation(fields: [bankId], references: [id], onDelete: SetNull)
+  questionType         QuestionType         @default(SINGLE_SELECT)
+  reviewStatus         QuestionReviewStatus @default(PUBLISHED)
+  content              String
+  imageUrl             String?
+  difficulty           Int                  @default(3)
+  category             String               @default("general")
+  topic                String?
+  subtopic             String?
+  points               Float                @default(4.0)
+  negativeMarking      Float                @default(1.0)
+  randomizeOptions     Boolean              @default(true)
+  explanation          String?
+  version              Int                  @default(1)
+  parentQuestionId     String?
+  allowPlatformSharing Boolean              @default(false)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  options          QuizOption[]
+  attemptQuestions QuizAttemptQuestion[]
+  analytics        QuizItemAnalytics?
+  reviewLogs       QuestionReviewLog[]
+  versions         QuestionVersion[]     @relation("QuestionVersions")
+
+  @@index([sectionId, category])
+  @@index([bankId, reviewStatus])
+}
+
+model QuestionVersion {
+  id              String       @id @default(uuid())
+  questionId      String
+  question        QuizQuestion @relation("QuestionVersions", fields: [questionId], references: [id], onDelete: Cascade)
+  versionNumber   Int
+  contentSnapshot Json
+  changeSummary   String?
+  createdById     String
+  createdAt       DateTime     @default(now())
+}
+
+model QuestionReviewLog {
+  id         String               @id @default(uuid())
+  questionId String
+  question   QuizQuestion         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  reviewerId String
+  reviewer   User                 @relation(fields: [reviewerId], references: [id])
+  fromStatus QuestionReviewStatus
+  toStatus   QuestionReviewStatus
+  comments   String?
+  createdAt  DateTime             @default(now())
+}
+
+model ContestAssemblyRule {
+  id            String         @id @default(uuid())
+  sectionId     String
+  section       ContestSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  category      String
+  topic         String?
+  minDifficulty Int            @default(1)
+  maxDifficulty Int            @default(5)
+  sampleCount   Int            @default(5)
+  points        Float          @default(4.0)
+  createdAt     DateTime       @default(now())
+
+  @@index([sectionId])
+}
+
+model QuizOption {
+  id           String       @id @default(uuid())
+  questionId   String
+  question     QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  content      String
+  imageUrl     String?
+  isCorrect    Boolean      @default(false)
+  displayOrder Int          @default(0)
+}
+
+model QuizAttemptQuestion {
+  id                    String       @id @default(uuid())
+  userId                String
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contestId             String
+  contest               Contest      @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  sectionId             String
+  questionId            String
+  question              QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  presentedOrder        Int
+  optionOrderMap        Json
+  imageTransformApplied Json?
+  servedAt              DateTime     @default(now())
+
+  responses QuizResponse[]
+
+  @@unique([userId, contestId, questionId])
+}
+
+model QuizResponse {
+  id                String              @id @default(uuid())
+  attemptQuestionId String
+  attemptQuestion   QuizAttemptQuestion @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  selectedOptionIds String[]            @default([])
+  numericAnswer     Float?
+  textAnswer        String?
+  scratchpadData    Json?
+  timeSpentMs       Int                 @default(0)
+  flaggedForReview  Boolean             @default(false)
+  isCorrect         Boolean             @default(false)
+  scoreAwarded      Float               @default(0.0)
+  evaluationStatus  EvaluationStatus    @default(UNGRADED)
+  evaluatedById     String?
+  evaluatorNotes    String?
+  approvedById      String?
+  answeredAt        DateTime            @default(now())
+  // CONTEST_MODERATOR override fields
+  moderatorOverride Boolean             @default(false)
+  moderatedById     String?
+  moderationReason  String?
+  moderatedAt       DateTime?
+
+  @@index([userId, attemptQuestionId])
+}
+
+model QuizItemAnalytics {
+  id                   String       @id @default(uuid())
+  questionId           String       @unique
+  question             QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  totalAttempts        Int          @default(0)
+  correctAttempts      Int          @default(0)
+  avgTimeSpentMs       Int          @default(0)
+  pointBiserialCorr    Float        @default(0.0)
+  calibratedDifficulty Float        @default(3.0)
+  updatedAt            DateTime     @updatedAt
+}
+
+model BreakGlassAuditLog {
+  id             String   @id @default(uuid())
+  superAdminId   String
+  superAdmin     User     @relation("SuperAdminBreakGlass", fields: [superAdminId], references: [id], onDelete: Cascade)
+  organizationId String?
+  resourcePath   String
+  actionType     String
+  reason         String
+  createdAt      DateTime @default(now())
+
+  @@index([superAdminId])
+  @@index([organizationId])
+}
+
+// ── GUEST_CANDIDATE: Invite-only external contest participant ──────────────
+model GuestInvite {
+  id          String    @id @default(uuid())
+  contestId   String
+  contest     Contest   @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  email       String
+  name        String?
+  token       String    @unique
+  guestUserId String? // set after they join and ephemeral account is created
+  usedAt      DateTime?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  @@index([contestId])
+  @@index([token])
+}
+
+// ── COMPLIANCE_OFFICER: GDPR erasure request queue ────────────────────────
+model GdprErasureRequest {
+  id               String    @id @default(uuid())
+  requestedByEmail String // Who made the request (may be the candidate themselves)
+  targetUserId     String? // Whose data to erase (null = anonymous request)
+  reason           String
+  status           String    @default("PENDING") // PENDING | APPROVED | REJECTED | EXECUTED
+  reviewedById     String? // COMPLIANCE_OFFICER who reviewed
+  reviewNotes      String?
+  executedAt       DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([status])
+  @@index([targetUserId])
+}
+
+// ── CONTEST_MODERATOR: Per-contest moderation assignment ──────────────────
+model ContestModerationAssignment {
+  id           String   @id @default(uuid())
+  contestId    String
+  contest      Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  moderatorId  String
+  moderator    User     @relation("ModeratorAssignments", fields: [moderatorId], references: [id], onDelete: Cascade)
+  assignedById String
+  createdAt    DateTime @default(now())
+
+  @@unique([contestId, moderatorId])
+  @@index([contestId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("SYSTEM_ALERT")
+  data      Json?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+}

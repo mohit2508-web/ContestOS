@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotify } from '../../components/notifications';
+import { EmptyState } from '../../components/common/EmptyState';
 
 interface EvaluatorStats {
   assignedContests: number;
@@ -35,10 +36,10 @@ export function EvaluatorDashboard() {
   const notify = useNotify();
 
   const [stats, setStats] = useState<EvaluatorStats>({
-    assignedContests: 1,
-    totalSubmissions: 4,
-    gradedSubmissions: 1,
-    pendingSubmissions: 3,
+    assignedContests: 0,
+    totalSubmissions: 0,
+    gradedSubmissions: 0,
+    pendingSubmissions: 0,
   });
 
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -58,10 +59,7 @@ export function EvaluatorDashboard() {
   const [loadingSubmissions, setLoadingSubmissions] = useState(true);
   const [activeTab, setActiveTab] = useState<'queue' | 'history'>('queue');
 
-  const [assignedContestsList, setAssignedContestsList] = useState<{ id: string; title: string; total: number; graded: number }[]>([
-    { id: 'c-101', title: 'National Aptitude & Technical Scholarship Drive 2026', total: 3, graded: 1 },
-    { id: 'c-102', title: 'Data Analyst SQL Challenge', total: 1, graded: 0 }
-  ]);
+  const [assignedContestsList, setAssignedContestsList] = useState<{ id: string; title: string; total: number; graded: number }[]>([]);
 
   // Encrypted SHA-256 Audit Report Modal State
   const [showAuditReportModal, setShowAuditReportModal] = useState(false);
@@ -70,6 +68,30 @@ export function EvaluatorDashboard() {
   const [passcodeError, setPasscodeError] = useState('');
 
   const reportSha256Digest = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
+
+  // Load real evaluator stats and assigned contest drives from DB
+  const loadStatsAndContests = useCallback(async () => {
+    try {
+      const [statsData, managedData] = await Promise.all([
+        api.getEvaluatorStats().catch(() => ({ stats: { assignedContests: 0, totalSubmissions: 0, gradedSubmissions: 0, pendingSubmissions: 0 } })),
+        api.getTeacherManagedContests().catch(() => ({ contests: [] })),
+      ]);
+
+      if (statsData?.stats) {
+        setStats(statsData.stats);
+      }
+
+      const list = (managedData?.contests || []).map((c: any) => ({
+        id: c.id,
+        title: c.title,
+        total: c._count?.submissions || 0,
+        graded: 0,
+      }));
+      setAssignedContestsList(list);
+    } catch (err) {
+      console.error('Failed to load evaluator stats/contests:', err);
+    }
+  }, []);
 
   const loadSubmissions = useCallback(async () => {
     setLoadingSubmissions(true);
@@ -82,91 +104,19 @@ export function EvaluatorDashboard() {
       if (filterStatus !== 'all') {
         filtered = filtered.filter((s: Submission) => s.status === filterStatus);
       }
-
-      if (filtered.length === 0) {
-        filtered = [
-          {
-            id: 'sub-101',
-            anonymousId: 'ANON-8492',
-            problemTitle: 'Two Sum & Hash Mapping Optimization',
-            difficulty: 'Hard',
-            language: 'Python 3.11',
-            code: `def twoSum(nums, target):\n    lookup = {}\n    for i, num in enumerate(nums):\n        diff = target - num\n        if diff in lookup:\n            return [lookup[diff], i]\n        lookup[num] = i\n    return []`,
-            submittedAt: new Date().toISOString(),
-            status: 'PENDING',
-            contestTitle: 'National Aptitude & Technical Scholarship Drive 2026',
-            contestId: 'c-101',
-            assessmentType: 'CODING',
-            testCasesPassed: '9/10',
-            aiSimilarityScore: 4,
-          },
-          {
-            id: 'sub-102',
-            anonymousId: 'ANON-3910',
-            problemTitle: 'Customer Revenue Aggregation & Window Query',
-            difficulty: 'Medium',
-            language: 'SQLite 3',
-            code: `SELECT customer_id, SUM(amount) AS total_revenue, DENSE_RANK() OVER (ORDER BY SUM(amount) DESC) AS rank FROM orders GROUP BY customer_id HAVING total_revenue > 5000;`,
-            submittedAt: new Date().toISOString(),
-            status: 'PENDING',
-            contestTitle: 'Data Analyst SQL Challenge',
-            contestId: 'c-102',
-            assessmentType: 'SQL',
-            sqlExpectedOutput: `| customer_id | total_revenue | rank |\n| 104 | $12,450.00 | 1 |\n| 88 | $8,920.00 | 2 |`,
-            sqlCandidateOutput: `| customer_id | total_revenue | rank |\n| 104 | 12450 | 1 |\n| 88 | 8920 | 2 |`,
-            testCasesPassed: '2/2',
-            aiSimilarityScore: 0,
-          },
-          {
-            id: 'sub-103',
-            anonymousId: 'ANON-1104',
-            problemTitle: 'Microservices vs Monolith System Architecture Design',
-            difficulty: 'Hard',
-            language: 'Markdown / Essay',
-            code: `When designing a high-throughput contest engine, microservices decouple the judge execution cluster from candidate frontend routing. Key trade-offs include eventual consistency latency and distributed tracing overhead...`,
-            submittedAt: new Date().toISOString(),
-            status: 'PENDING',
-            contestTitle: 'National Aptitude & Technical Scholarship Drive 2026',
-            contestId: 'c-101',
-            assessmentType: 'ESSAY',
-            aiSimilarityScore: 6,
-          }
-        ];
-
-        if (selectedContestId !== 'ALL') {
-          filtered = filtered.filter(s => s.contestId === selectedContestId);
-        }
-      }
-
       setSubmissions(filtered);
       setTotalPages(data.totalPages || 1);
     } catch {
-      // Mock fallback
-      setSubmissions([
-        {
-          id: 'sub-101',
-          anonymousId: 'ANON-8492',
-          problemTitle: 'Two Sum & Hash Mapping Optimization',
-          difficulty: 'Hard',
-          language: 'Python 3.11',
-          code: `def twoSum(nums, target):\n    lookup = {}\n    for i, num in enumerate(nums):\n        diff = target - num\n        if diff in lookup:\n            return [lookup[diff], i]\n        lookup[num] = i\n    return []`,
-          submittedAt: new Date().toISOString(),
-          status: 'PENDING',
-          contestTitle: 'National Aptitude & Technical Scholarship Drive 2026',
-          contestId: 'c-101',
-          assessmentType: 'CODING',
-          testCasesPassed: '9/10',
-          aiSimilarityScore: 4,
-        }
-      ]);
+      setSubmissions([]);
     } finally {
       setLoadingSubmissions(false);
     }
   }, [selectedContestId, currentPage, filterStatus]);
 
   useEffect(() => {
+    loadStatsAndContests();
     loadSubmissions();
-  }, [loadSubmissions]);
+  }, [loadStatsAndContests, loadSubmissions]);
 
   const updateRubric = (subId: string, field: 'logic' | 'quality' | 'robustness', val: number) => {
     const prevRubric = rubrics[subId] || { logic: 35, quality: 25, robustness: 25 };
@@ -190,11 +140,11 @@ export function EvaluatorDashboard() {
     try {
       await api.gradeSubmission(submissionId, score, comments);
       notify.toast.success('Grade & rubric feedback submitted successfully!');
+      loadSubmissions();
+      loadStatsAndContests();
     } catch {
-      notify.toast.success('Grade & rubric feedback submitted successfully!');
+      notify.toast.error('Failed to submit evaluation score');
     } finally {
-      setSubmissions(prev => prev.map(s => s.id === submissionId ? { ...s, status: 'GRADED', score, comments } : s));
-      setStats(prev => ({ ...prev, gradedSubmissions: prev.gradedSubmissions + 1, pendingSubmissions: Math.max(0, prev.pendingSubmissions - 1) }));
       setSubmitting(prev => ({ ...prev, [submissionId]: false }));
     }
   };
@@ -263,6 +213,58 @@ export function EvaluatorDashboard() {
             >
               <span>🔐</span> Generate Evaluation Audit PDF Report
             </button>
+          </div>
+        </div>
+
+        {/* OFFICIAL APPOINTMENT DIRECTIVES CALLOUT BANNER FOR EVALUATOR */}
+        <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border border-cyan-500/30 rounded-2xl p-5 space-y-3 shadow-xl relative overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cyan-500/20 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 font-bold text-xs flex items-center justify-center">
+                🏛️
+              </div>
+              <div>
+                <span className="text-[10px] font-black text-cyan-400 uppercase tracking-widest block">
+                  OFFICIAL EVALUATION & GRADING DIRECTIVE ACCORD
+                </span>
+                <h3 className="text-sm font-black text-white">
+                  ContestOS Governance Engine · Official Evaluator Code of Conduct
+                </h3>
+              </div>
+            </div>
+            <span className="px-3 py-1 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded-full text-[10px] font-mono font-bold">
+              CONTESTOS LEGAL ACCORD 2026 ✓
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <div className="p-3 bg-black/60 border border-white/10 rounded-xl space-y-1">
+              <span className="font-bold text-cyan-400 text-[11px] block">01. Strict NDA & Secrecy</span>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Candidate submission source code and responses are strictly confidential under organization NDA.
+              </p>
+            </div>
+
+            <div className="p-3 bg-black/60 border border-white/10 rounded-xl space-y-1">
+              <span className="font-bold text-cyan-400 text-[11px] block">02. Objective Rubric Scoring</span>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Grade responses strictly against objective problem rubrics without personal or external bias.
+              </p>
+            </div>
+
+            <div className="p-3 bg-black/60 border border-white/10 rounded-xl space-y-1">
+              <span className="font-bold text-cyan-400 text-[11px] block">03. Evaluation SLA Accord</span>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Complete assigned evaluation queue within the active drive window.
+              </p>
+            </div>
+
+            <div className="p-3 bg-black/60 border border-white/10 rounded-xl space-y-1">
+              <span className="font-bold text-cyan-400 text-[11px] block">04. Disputed Escalation</span>
+              <p className="text-zinc-400 text-[11px] leading-relaxed">
+                Escalate ambiguous or zero-margin responses to the Chief Contest Moderator.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -367,11 +369,24 @@ export function EvaluatorDashboard() {
         </div>
 
         {/* Submission Queue List */}
-        {activeTab === 'queue' && !loadingSubmissions && submissions.length > 0 && (
-          <div className="space-y-5">
-            {submissions.map((sub) => {
-              const currentRubric = rubrics[sub.id] || { logic: 35, quality: 25, robustness: 25 };
-              const currentTotal = currentRubric.logic + currentRubric.quality + currentRubric.robustness;
+        {activeTab === 'queue' && !loadingSubmissions && (
+          submissions.length === 0 ? (
+            <EmptyState
+              variant="evaluator"
+              title={stats.assignedContests === 0 ? 'No Contest Drives Assigned Yet' : 'No Submissions Pending Evaluation'}
+              body={
+                stats.assignedContests === 0
+                  ? 'Your Organization Admin has not assigned any specific contest drives to your account yet. Contact your OrgAdmin for drive assignment.'
+                  : 'All candidate responses for the selected drive have been evaluated or no candidate submissions have been submitted yet.'
+              }
+              onAction={loadSubmissions}
+              actionLabel="Refresh Queue"
+            />
+          ) : (
+            <div className="space-y-5">
+              {submissions.map((sub) => {
+                const currentRubric = rubrics[sub.id] || { logic: 35, quality: 25, robustness: 25 };
+                const currentTotal = currentRubric.logic + currentRubric.quality + currentRubric.robustness;
 
               return (
                 <div key={sub.id} className="bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden space-y-4 p-5">
@@ -509,7 +524,6 @@ export function EvaluatorDashboard() {
                     </div>
                   )}
 
-                  {/* Already Graded Summary */}
                   {sub.status === 'GRADED' && (
                     <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center justify-between text-xs">
                       <div>
@@ -524,7 +538,8 @@ export function EvaluatorDashboard() {
               );
             })}
           </div>
-        )}
+        )
+      )}
 
         {/* 🔐 ENCRYPTED SHA-256 EVALUATION AUDIT REPORT MODAL (ORG ADMIN PASSCODE LOCKED) */}
         {showAuditReportModal && (
@@ -590,8 +605,13 @@ export function EvaluatorDashboard() {
                   <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl font-bold flex items-center justify-between">
                     <span>✅ Master Passcode Verified (`admin123`) · Report Unlocked</span>
                     <button
-                      onClick={() => alert(`Encrypted Audit Report Downloaded!\nFile: ContestOS_Evaluation_Audit_Report_${Date.now()}.pdf\nDecryption Key: admin123\nSHA-256 Digest: ${reportSha256Digest}`)}
-                      className="px-4 py-1.5 bg-emerald-500 text-black font-black text-xs rounded-lg hover:bg-emerald-400 transition"
+                      onClick={async () => {
+                        await notify.alert('Encrypted Audit Report Downloaded', {
+                          description: `File: ContestOS_Evaluation_Audit_Report_${Date.now()}.pdf\nDecryption Key: admin123\nSHA-256 Digest: ${reportSha256Digest}`,
+                          variant: 'success',
+                        });
+                      }}
+                      className="px-4 py-1.5 bg-emerald-500 text-black font-black text-xs rounded-lg hover:bg-emerald-400 transition cursor-pointer"
                     >
                       📥 Download Hashed Audit PDF (.pdf)
                     </button>

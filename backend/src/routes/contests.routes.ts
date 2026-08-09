@@ -195,11 +195,23 @@ router.get('/:id/my-report', authenticateToken, async (req: Request, res: Respon
       orderBy: { timestamp: 'asc' },
     });
 
+    // Create a map of contest problem points
+    const cpPointsMap = new Map<string, number>();
+    contest.problems.forEach((cp) => {
+      cpPointsMap.set(cp.problem.id, cp.points || 100);
+    });
+
     // Calculate best score for each distinct problem in this contest
     const problemScores = new Map<string, number>();
     submissions.forEach((s) => {
+      const maxPts = cpPointsMap.get(s.problemId) || 100;
       const currentBest = problemScores.get(s.problemId) || 0;
-      const points = s.score > 0 ? s.score : (s.status === 'ACCEPTED' ? 100 : 0);
+      let points = s.score;
+      if (s.status === 'ACCEPTED') {
+        points = maxPts;
+      } else if (points > 0 && points <= 100 && maxPts !== 100) {
+        points = Math.round((points / 100) * maxPts);
+      }
       if (points > currentBest) {
         problemScores.set(s.problemId, points);
       }

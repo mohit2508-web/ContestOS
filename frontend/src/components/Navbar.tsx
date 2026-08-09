@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useNotifications } from '../hooks/useNotifications';
+import { useNotify } from './notifications';
+import { api } from '../services/api';
+
+import { NotificationBell } from './NotificationBell';
 
 export function Navbar() {
   const { user, login } = useAuth();
@@ -102,8 +107,11 @@ export function Navbar() {
           </NavLink>
         </nav>
 
-        {/* Right: Active Identity & Demo Role Selector */}
+        {/* Right: Active Identity, Notification Bell & Demo Role Selector */}
         <div className="flex items-center gap-3">
+          {/* Notification Bell 🔔 */}
+          <NotificationBell />
+
           <a
             href="http://localhost:3000"
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-400 hover:text-white transition-colors border border-white/10 rounded-lg hover:bg-white/5"
@@ -150,5 +158,7 @@ export function Navbar() {
     </header>
   );
 }
+
+
 
 export default Navbar;

@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useNotify } from '../components/notifications';
 import MarkdownRenderer from '../components/MarkdownRenderer';
+import { EmptyState } from '../components/common/EmptyState';
 
 // Lobby Suite Imports
 import { LobbyStepper } from '../components/lobby/LobbyStepper';
@@ -552,7 +553,6 @@ export function ContestsPage() {
         if (msg.type === 'lobby_status' && msg.bypassTargetId === user?.id) {
           await notify.alert('Clearance Authorized', {
             description: 'The examiner has issued a security checkpoint waiver for your device.',
-            variant: 'success',
           });
           setDiagnosticsHash('EXAMINER_WAIVER_BYPASS');
           setQrCodeDataUrl('EXAMINER_WAIVER_BYPASS');
@@ -595,7 +595,6 @@ export function ContestsPage() {
     } catch (e) {
       await notify.alert('Camera Access Required', {
         description: 'Camera access is required for passenger profile photo validation.',
-        variant: 'error',
       });
     }
   };
@@ -649,7 +648,6 @@ export function ContestsPage() {
     } catch (err) {
       await notify.alert('Authorization Failed', {
         description: 'Failed to authorize device security clearance. Please retry check-in.',
-        variant: 'error',
       });
     } finally {
       setSubmittingLobby(false);
@@ -911,7 +909,7 @@ export function ContestsPage() {
           {/* Checkpoint 4: Issue Boarding Pass Ticket */}
           {lobbyStep === 4 && (
             <BoardingPass
-              studentName={user?.fullName || user?.email || 'Candidate'}
+              studentName={user?.name || user?.email || 'Candidate'}
               contestTitle={selected.title}
               problemsCount={selected._count?.problems || 0}
               durationMins={selected.duration}
@@ -1382,7 +1380,7 @@ export function ContestsPage() {
 
   const handleLoadSubmissionCode = async (sub: any) => {
     if (!solvingProblem || !sub.code) return;
-    if (await notify.confirm('Load submission code?', { description: "Your current unsaved changes will be overwritten.", variant: 'warning' })) {
+    if (await notify.confirm('Load submission code?', { description: "Your current unsaved changes will be overwritten." })) {
       const key = `code_playground_${solvingProblem.id}_${sub.language || 'python'}`;
       localStorage.setItem(key, sub.code);
       setPlaygroundKey(prev => prev + 1); // remount
@@ -1481,8 +1479,7 @@ export function ContestsPage() {
         setSolvingProblem(null);
         if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
         await notify.alert("Time's Up!", {
-          description: "Your contest has been submitted automatically.",
-          variant: "critical"
+          description: "Your contest has been submitted automatically."
         });
         navigate(`/contests/${expiredId}/report`);
       }
@@ -1624,7 +1621,7 @@ export function ContestsPage() {
     }
 
     const handleLeave = async () => {
-      if(await notify.confirm('Leave contest?', { description: 'Are you sure you want to leave the contest?', variant: 'warning' })) {
+      if (await notify.confirm('Leave contest?', { description: 'Are you sure you want to leave the contest?' })) {
         setActiveContest(null);
         setSolvingProblem(null);
         window.history.pushState({}, '', window.location.pathname);
@@ -1634,9 +1631,7 @@ export function ContestsPage() {
 
     const handleFinishContest = async () => {
       const ok = await notify.confirm('Final Submit Contest?', {
-        description: 'Are you sure you want to finish and submit the contest? You will not be able to change your answers after submitting.',
-        confirmLabel: 'Submit Contest',
-        variant: 'warning',
+        description: 'Are you sure you want to finish and submit the contest? You will not be able to change your answers after submitting.'
       });
       if (!ok) return;
 
@@ -1674,9 +1669,7 @@ export function ContestsPage() {
     };
     const handleSelectProblem = (prob: any) => {
       if (solvedProblems.has(prob.id)) {
-        notify.toast.info('Problem Locked', {
-          description: `Problem "${prob.title}" has been successfully solved and locked!`
-        });
+        notify.toast.info(`Problem Locked: Problem "${prob.title}" has been successfully solved and locked!`);
         return;
       }
       const params = new URLSearchParams(window.location.search);
@@ -1945,7 +1938,7 @@ export function ContestsPage() {
                           </div>
                           <div className="text-[10px] text-gray-500 mt-1 flex justify-between">
                             <span>{attemptedCount} / {totalProblems} Attempted</span>
-                            <span>Student: {user?.fullName || 'Candidate'}</span>
+                            <span>Student: {user?.name || 'Candidate'}</span>
                           </div>
                         </div>
                       );
@@ -2508,9 +2501,13 @@ export function ContestsPage() {
         {!loading && !error && (tab === 'active' || tab === 'upcoming' || tab === 'ended') && (
           <>
             {displayContests.length === 0 ? (
-              <div className="text-center py-20 bg-console-panel border border-console-border rounded-xl font-mono text-xs text-white/40">
-                No {tab} contests found {searchQuery ? `matching "${searchQuery}"` : ''}.
-              </div>
+              <EmptyState
+                variant="contests"
+                title={`No ${tab} contests found`}
+                body={searchQuery ? `No contests matched "${searchQuery}". Try clearing filters.` : `There are currently no ${tab} contests in this directory.`}
+                onAction={() => { setTab('active'); setDifficultyFilter('all'); }}
+                actionLabel="View All Contests"
+              />
             ) : (
               <div className="space-y-3">
                 {displayContests.map((c: any) => {

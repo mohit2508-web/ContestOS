@@ -31,6 +31,7 @@ const SQL_STATEMENTS = [
   `CREATE TABLE "AuditLog" ("id" STRING NOT NULL, "userId" STRING NOT NULL, "organizationId" STRING, "action" STRING NOT NULL, "resource" STRING NOT NULL, "resourceId" STRING, "details" JSONB, "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id"));`,
   `CREATE TABLE "RefreshToken" ("id" STRING NOT NULL, "userId" STRING NOT NULL, "token" STRING NOT NULL, "expiresAt" TIMESTAMP(3) NOT NULL, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "RefreshToken_pkey" PRIMARY KEY ("id"));`,
   `CREATE TABLE "OrganizationRequest" ("id" STRING NOT NULL, "orgName" STRING NOT NULL, "orgType" STRING NOT NULL, "contactName" STRING NOT NULL, "contactEmail" STRING NOT NULL, "contactPhone" STRING, "websiteUrl" STRING, "domain" STRING, "reason" STRING, "status" "OrgRequestStatus" NOT NULL DEFAULT 'PENDING', "reviewedById" STRING, "reviewNotes" STRING, "reviewedAt" TIMESTAMP(3), "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "OrganizationRequest_pkey" PRIMARY KEY ("id"));`,
+  `CREATE TABLE "Notification" ("id" STRING NOT NULL, "userId" STRING NOT NULL, "title" STRING NOT NULL, "message" STRING NOT NULL, "type" STRING NOT NULL DEFAULT 'SYSTEM_ALERT', "data" JSONB, "isRead" BOOL NOT NULL DEFAULT false, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT "Notification_pkey" PRIMARY KEY ("id"));`,
 
   // Indices
   `CREATE UNIQUE INDEX "Organization_slug_key" ON "Organization"("slug");`,
@@ -46,6 +47,7 @@ const SQL_STATEMENTS = [
   `CREATE UNIQUE INDEX "TeamInvitation_token_key" ON "TeamInvitation"("token");`,
   `CREATE UNIQUE INDEX "ContestAssignment_contestId_userId_key" ON "ContestAssignment"("contestId", "userId");`,
   `CREATE UNIQUE INDEX "RefreshToken_token_key" ON "RefreshToken"("token");`,
+  `CREATE INDEX "Notification_userId_isRead_idx" ON "Notification"("userId", "isRead");`,
 
   // Foreign Keys
   `ALTER TABLE "User" ADD CONSTRAINT "User_invitedById_fkey" FOREIGN KEY ("invitedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;`,
@@ -74,7 +76,8 @@ const SQL_STATEMENTS = [
   `ALTER TABLE "AuditLog" ADD CONSTRAINT "AuditLog_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;`,
   `ALTER TABLE "AuditLog" ADD CONSTRAINT "AuditLog_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE SET NULL ON UPDATE CASCADE;`,
   `ALTER TABLE "RefreshToken" ADD CONSTRAINT "RefreshToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;`,
-  `ALTER TABLE "OrganizationRequest" ADD CONSTRAINT "OrganizationRequest_reviewedById_fkey" FOREIGN KEY ("reviewedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;`
+  `ALTER TABLE "OrganizationRequest" ADD CONSTRAINT "OrganizationRequest_reviewedById_fkey" FOREIGN KEY ("reviewedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;`,
+  `ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;`
 ];
 
 async function main() {

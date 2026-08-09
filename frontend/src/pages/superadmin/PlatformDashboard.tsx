@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { useSearchParams } from 'react-router-dom';
+import { EmptyState } from '../../components/common/EmptyState';
+import { useNotify } from '../../components/notifications';
 
 // ───────── Types ─────────
-type TabId = 'overview' | 'organizations' | 'billing' | 'features' | 'users' | 'audit' | 'health' | 'announcements';
+type TabId = 'overview' | 'requests' | 'organizations' | 'billing' | 'features' | 'users' | 'audit' | 'health' | 'announcements';
 
 interface PlatformAnalytics {
   totalOrgs: number;
@@ -49,13 +51,14 @@ interface AuditLog {
 
 // ───────── Tab Config ─────────
 const TABS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'overview',       label: 'Tenant Command',      icon: '🏢' },
-  { id: 'billing',        label: 'Revenue & Billing',   icon: '💹' },
-  { id: 'features',       label: 'Feature Flags',       icon: '🚩' },
-  { id: 'users',          label: 'Users & IAM',         icon: '👥' },
-  { id: 'audit',          label: 'Security & Audit',    icon: '🛡️' },
-  { id: 'health',         label: 'Platform Health',     icon: '📡' },
-  { id: 'announcements',  label: 'Announcements',       icon: '📢' },
+  { id: 'overview',       label: 'Tenant Command',                  icon: '🏢' },
+  { id: 'requests',       label: 'Org Requests & Verification',     icon: '📋' },
+  { id: 'billing',        label: 'Revenue & Billing',               icon: '💹' },
+  { id: 'features',       label: 'Feature Flags',                   icon: '🚩' },
+  { id: 'users',          label: 'Users & IAM',                     icon: '👥' },
+  { id: 'audit',          label: 'Security & Audit',                icon: '🛡️' },
+  { id: 'health',         label: 'Platform Health',                 icon: '📡' },
+  { id: 'announcements',  label: 'Announcements',                   icon: '📢' },
 ];
 
 // ───────── Style Maps ─────────
@@ -82,15 +85,6 @@ const TIER_STYLES: Record<string, string> = {
 };
 
 // ───────── Shared UI Atoms ─────────
-function EmptyState({ icon, message, sub }: { icon: string; message: string; sub?: string }) {
-  return (
-    <div className="text-center py-16 bg-zinc-950 rounded-xl border border-white/10">
-      <span className="text-4xl block mb-3">{icon}</span>
-      <p className="text-zinc-400 text-sm font-semibold">{message}</p>
-      {sub && <p className="text-zinc-600 text-xs mt-1">{sub}</p>}
-    </div>
-  );
-}
 
 function Pagination({ page, totalPages, setPage }: { page: number; totalPages: number; setPage: (p: number) => void }) {
   return (
@@ -140,6 +134,7 @@ function OverviewTab({ analytics, orgs, orgsLoading, onStatus, onTier }: {
   onStatus: (id: string, s: string) => void;
   onTier: (id: string, t: string) => void;
 }) {
+  const notify = useNotify();
   const [search, setSearch] = useState('');
   const [breakGlassOrgId, setBreakGlassOrgId] = useState<string | null>(null);
   const [breakGlassReason, setBreakGlassReason] = useState('');
@@ -330,11 +325,14 @@ function OverviewTab({ analytics, orgs, orgsLoading, onStatus, onTier }: {
               </button>
               <button
                 disabled={!breakGlassReason.trim()}
-                onClick={() => {
-                  alert(`Break-Glass access logged.\nOrg: ${breakGlassOrgId}\nReason: ${breakGlassReason}\nThis would redirect to org admin view.`);
+                onClick={async () => {
+                  await notify.alert('Break-Glass Support Access Logged', {
+                    description: `Support Session Initiated.\nOrg: ${breakGlassOrgId}\nReason: ${breakGlassReason}\nThis security event has been recorded in the audit trail.`,
+                    variant: 'warning',
+                  });
                   setBreakGlassOrgId(null); setBreakGlassReason('');
                 }}
-                className="flex-1 px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-black text-xs rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-black text-xs rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 🔑 Log Access & Proceed
               </button>
@@ -892,8 +890,765 @@ function AnnouncementsTab() {
       {/* Past Announcements Placeholder */}
       <div className="bg-zinc-950 border border-white/8 rounded-xl p-5">
         <h3 className="text-[11px] font-black text-zinc-400 uppercase tracking-wider mb-3">Recent Announcements</h3>
-        <EmptyState icon="📢" message="No announcements sent yet" sub="Compose and send your first platform announcement above." />
+        <EmptyState
+          variant="notifications"
+          title="No announcements sent yet"
+          body="Compose and send your first platform broadcast announcement above."
+        />
       </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════
+// TAB: ORGANIZATION VERIFICATION REQUESTS
+// ═══════════════════════════════════════════
+interface OrgRequestItem {
+  id: string;
+  orgName: string;
+  orgType: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string;
+  websiteUrl?: string;
+  domain?: string;
+  reason?: string;
+  parsedReason?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  hasPasswordSet?: boolean;
+  domainMatch?: boolean;
+  riskScore?: number;
+  reviewedBy?: { name: string; email: string };
+  reviewNotes?: string;
+  reviewedAt?: string;
+  createdAt: string;
+
+  // Comprehensive Anti-Fraud & Legal Fields
+  industry?: string;
+  orgSize?: string;
+  linkedinOrgUrl?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pincode?: string;
+  gstNumber?: string;
+  panNumber?: string;
+  cinNumber?: string;
+  regNumber?: string;
+  taxId?: string;
+  aisheCode?: string;
+  nirfRanking?: string;
+  affiliatedTo?: string;
+  contactDesignation?: string;
+  contactAlternateEmail?: string;
+  domainMismatchReason?: string;
+  useCases?: string[];
+  expectedCandidates?: string;
+  preferredFormat?: string[];
+  hearAboutUs?: string;
+  referralCode?: string;
+  dpaAgreed?: boolean;
+  certifiedRepresentative?: boolean;
+}
+
+function OrgRequestsTab() {
+  const notify = useNotify();
+  const [requests, setRequests] = useState<OrgRequestItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [subTab, setSubTab] = useState<'PENDING' | 'APPROVED' | 'REJECTED' | 'ALL'>('PENDING');
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('ALL');
+  const [pendingCount, setPendingCount] = useState(0);
+
+  // Modals
+  const [selectedDossier, setSelectedDossier] = useState<OrgRequestItem | null>(null);
+  const [rejectModalItem, setRejectModalItem] = useState<OrgRequestItem | null>(null);
+  const [rejectNotes, setRejectNotes] = useState('');
+  const [actionProcessing, setActionProcessing] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
+  const fetchRequests = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await api.getOrgRequests(1, subTab === 'ALL' ? undefined : subTab);
+      setRequests(data.requests || []);
+      setPendingCount(data.pendingCount || 0);
+    } catch (_e) {}
+    setLoading(false);
+  }, [subTab]);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
+
+  const handleApprove = async (id: string, orgName: string) => {
+    const ok = await notify.confirm('Approve & Provision Organization?', {
+      description: `Are you sure you want to approve organization "${orgName}"? This will activate the tenant and email credentials to the Org Admin.`,
+      variant: 'success',
+      confirmLabel: 'Approve & Provision',
+    });
+    if (!ok) return;
+
+    setActionProcessing(id);
+    setActionSuccess(null);
+    try {
+      const res = await api.approveOrgRequest(id);
+      setActionSuccess(res.message || `Organization "${orgName}" approved & provisioned successfully!`);
+      notify.toast.success(`Organization "${orgName}" provisioned successfully!`);
+      fetchRequests();
+    } catch (err: any) {
+      await notify.alert('Approval Failed', {
+        description: err?.response?.data?.error || 'Failed to approve request',
+        variant: 'danger',
+      });
+    } finally {
+      setActionProcessing(null);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectModalItem) return;
+    setActionProcessing(rejectModalItem.id);
+    setActionSuccess(null);
+    try {
+      await api.rejectOrgRequest(rejectModalItem.id, rejectNotes || 'Verification criteria not satisfied.');
+      setActionSuccess(`Request for "${rejectModalItem.orgName}" flagged and rejected.`);
+      notify.toast.warning(`Request for "${rejectModalItem.orgName}" rejected.`);
+      setRejectModalItem(null);
+      setRejectNotes('');
+      fetchRequests();
+    } catch (err: any) {
+      await notify.alert('Rejection Failed', {
+        description: err?.response?.data?.error || 'Failed to reject request',
+        variant: 'danger',
+      });
+    } finally {
+      setActionProcessing(null);
+    }
+  };
+
+  const filteredRequests = requests.filter((r) => {
+    const matchesSearch =
+      r.orgName.toLowerCase().includes(search.toLowerCase()) ||
+      r.contactName.toLowerCase().includes(search.toLowerCase()) ||
+      r.contactEmail.toLowerCase().includes(search.toLowerCase()) ||
+      (r.gstNumber && r.gstNumber.toLowerCase().includes(search.toLowerCase())) ||
+      (r.panNumber && r.panNumber.toLowerCase().includes(search.toLowerCase())) ||
+      (r.aisheCode && r.aisheCode.toLowerCase().includes(search.toLowerCase())) ||
+      (r.domain && r.domain.toLowerCase().includes(search.toLowerCase()));
+
+    const matchesType = typeFilter === 'ALL' || r.orgType.toUpperCase() === typeFilter.toUpperCase();
+
+    return matchesSearch && matchesType;
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
+              ENTERPRISE GOVERNANCE ENGINE
+            </span>
+          </div>
+          <h2 className="font-black text-2xl text-white mt-1">Organization Verification Requests</h2>
+          <p className="text-zinc-400 text-xs mt-0.5">
+            Review, verify institutional domain credentials, legal registration numbers, and provision tenant organizations.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchRequests}
+            className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 border border-white/10 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer"
+          >
+            <span>🔄 Refresh Queue</span>
+          </button>
+        </div>
+      </div>
+
+      {actionSuccess && (
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-xs text-emerald-400 font-bold flex items-center justify-between animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <span>✅</span>
+            <span>{actionSuccess}</span>
+          </div>
+          <button onClick={() => setActionSuccess(null)} className="text-emerald-500 hover:text-emerald-300">✕</button>
+        </div>
+      )}
+
+      {/* Sub-Tabs */}
+      <div className="flex items-center justify-between flex-wrap gap-3 border-b border-white/10 pb-3">
+        <div className="flex items-center gap-2">
+          {(['PENDING', 'APPROVED', 'REJECTED', 'ALL'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setSubTab(tab)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                subTab === tab
+                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-lg'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>
+                {tab === 'PENDING' ? '⏳ Pending Verification' : tab === 'APPROVED' ? '✅ Approved Tenants' : tab === 'REJECTED' ? '❌ Flagged / Rejected' : '🌐 All Requests'}
+              </span>
+              {tab === 'PENDING' && pendingCount > 0 && (
+                <span className="px-2 py-0.5 bg-amber-500 text-black rounded-full text-[10px] font-black animate-pulse">
+                  {pendingCount}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="bg-zinc-950 border border-white/10 text-white rounded-xl px-3 py-1.5 text-xs font-bold outline-none focus:border-amber-400 cursor-pointer"
+          >
+            <option value="ALL">All Org Types</option>
+            <option value="UNIVERSITY">University / College</option>
+            <option value="COMPANY">Company / Corporate</option>
+            <option value="GOVERNMENT">Government / PSU</option>
+            <option value="EDTECH">Ed-Tech / Coaching</option>
+            <option value="NGO">NGO / Non-Profit</option>
+            <option value="OTHER">Other</option>
+          </select>
+
+          <input
+            type="text"
+            placeholder="Search by name, GST, PAN, AISHE, domain..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-zinc-950 border border-white/10 rounded-xl px-3.5 py-1.5 text-xs focus:border-amber-400 outline-none w-64 text-white placeholder-zinc-600"
+          />
+        </div>
+      </div>
+
+      {/* Grid of Verification Cards */}
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400" />
+        </div>
+      ) : filteredRequests.length === 0 ? (
+        <EmptyState
+          variant="orgRequests"
+          title={`No ${subTab.toLowerCase()} verification requests found`}
+          body="New applications submitted from the institution register page will appear here instantly."
+        />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filteredRequests.map((r) => {
+            const isProcessing = actionProcessing === r.id;
+            const locationStr = [r.city, r.state, r.country].filter(Boolean).join(', ');
+            return (
+              <div
+                key={r.id}
+                className="bg-gradient-to-b from-zinc-950 via-zinc-900/90 to-zinc-950 border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl hover:border-amber-500/30 transition-all group"
+              >
+                {/* Header */}
+                <div className="flex items-start justify-between gap-3 border-b border-white/5 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-md text-[10px] font-mono font-bold uppercase">
+                        {r.orgType}
+                      </span>
+                      {r.industry && (
+                        <span className="px-2 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/30 rounded-md text-[10px] font-bold">
+                          {r.industry}
+                        </span>
+                      )}
+                      <span
+                        className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                          r.status === 'PENDING'
+                            ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                            : r.status === 'APPROVED'
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                            : 'bg-red-500/20 text-red-400 border-red-500/40'
+                        }`}
+                      >
+                        {r.status === 'PENDING' ? '⏳ PENDING VERIFICATION' : r.status === 'APPROVED' ? '✅ PROVISIONED' : '❌ REJECTED'}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-black text-white group-hover:text-amber-400 transition-colors">
+                      {r.orgName}
+                    </h3>
+                    {locationStr && (
+                      <p className="text-[11px] text-zinc-400 flex items-center gap-1 mt-0.5">
+                        📍 {locationStr}
+                      </p>
+                    )}
+                  </div>
+
+                  <span className="text-[10px] font-mono text-zinc-500 bg-black/60 px-2.5 py-1 rounded-lg border border-white/5 whitespace-nowrap">
+                    {new Date(r.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+
+                {/* Grid Details */}
+                <div className="grid grid-cols-2 gap-3 text-xs bg-black/50 p-3 rounded-xl border border-white/5">
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Contact Officer</span>
+                    <span className="font-bold text-white block truncate">{r.contactName}</span>
+                    {r.contactDesignation && (
+                      <span className="text-[10px] text-amber-300/80 block truncate font-medium">{r.contactDesignation}</span>
+                    )}
+                    <span className="text-[11px] text-zinc-400 font-mono block truncate">{r.contactEmail}</span>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Institutional Domain & Web</span>
+                    <span className="font-mono text-amber-400 font-bold block truncate">{r.domain || r.contactEmail.split('@')[1]}</span>
+                    {r.websiteUrl && (
+                      <a href={r.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-[11px] text-blue-400 hover:underline block truncate">
+                        🔗 {r.websiteUrl.replace(/^https?:\/\//, '')}
+                      </a>
+                    )}
+                    {r.contactPhone && <span className="text-[11px] text-zinc-400 block truncate">📞 {r.contactPhone}</span>}
+                  </div>
+                </div>
+
+                {/* Legal Registration Number Badges */}
+                <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono">
+                  {r.gstNumber && (
+                    <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded font-bold">
+                      🇮🇳 GST: {r.gstNumber} ✓
+                    </span>
+                  )}
+                  {r.panNumber && (
+                    <span className="px-2 py-0.5 bg-blue-500/10 text-blue-300 border border-blue-500/30 rounded font-bold">
+                      PAN: {r.panNumber}
+                    </span>
+                  )}
+                  {r.aisheCode && (
+                    <span className="px-2 py-0.5 bg-purple-500/10 text-purple-300 border border-purple-500/30 rounded font-bold">
+                      🎓 AISHE: {r.aisheCode}
+                    </span>
+                  )}
+                  {r.cinNumber && (
+                    <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded font-bold">
+                      CIN: {r.cinNumber}
+                    </span>
+                  )}
+                  {!r.gstNumber && !r.panNumber && !r.aisheCode && !r.cinNumber && (
+                    <span className="px-2 py-0.5 bg-zinc-800 text-zinc-400 border border-white/5 rounded text-[10px]">
+                      ⚪ Reg. Numbers: Not Provided
+                    </span>
+                  )}
+                </div>
+
+                {/* Verification Signals Accord */}
+                <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-zinc-900/80 border border-white/5 rounded-xl text-[11px]">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {r.domainMatch ? (
+                      <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded text-[10px] font-bold">
+                        🌐 Domain Match Verified ✓
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded text-[10px] font-bold">
+                        ⚠️ Domain Mismatch Review
+                      </span>
+                    )}
+                    {r.dpaAgreed && (
+                      <span className="px-2 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded text-[10px] font-bold">
+                        📜 DPA Signed ✓
+                      </span>
+                    )}
+                    {r.hasPasswordSet && (
+                      <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded text-[10px] font-bold">
+                        🔑 Password Sealed ✓
+                      </span>
+                    )}
+                  </div>
+
+                  <span className="text-[10px] font-mono text-zinc-400">
+                    Risk Score: <strong className={(r.riskScore || 0) < 20 ? 'text-emerald-400' : (r.riskScore || 0) < 45 ? 'text-amber-400' : 'text-red-400'}>{r.riskScore || 5}/100</strong>
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-1">
+                  {r.status === 'PENDING' && (
+                    <>
+                      <button
+                        disabled={isProcessing}
+                        onClick={() => handleApprove(r.id, r.orgName)}
+                        className="flex-1 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-black font-extrabold text-xs rounded-xl transition shadow-lg shadow-emerald-500/20 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5"
+                      >
+                        {isProcessing ? 'Provisioning...' : '⚡ Approve & Provision Tenant'}
+                      </button>
+
+                      <button
+                        disabled={isProcessing}
+                        onClick={() => setRejectModalItem(r)}
+                        className="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold rounded-xl transition cursor-pointer"
+                      >
+                        Reject
+                      </button>
+                    </>
+                  )}
+
+                  <button
+                    onClick={() => setSelectedDossier(r)}
+                    className="px-3.5 py-2 bg-white/5 hover:bg-white/10 text-zinc-200 border border-white/10 text-xs font-bold rounded-xl transition cursor-pointer flex items-center gap-1"
+                  >
+                    🔍 Inspect Full Dossier
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Inspect Dossier Modal - Complete Verification Report */}
+      {selectedDossier && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fadeIn overflow-y-auto">
+          <div className="bg-zinc-950 border border-amber-500/30 rounded-3xl p-6 w-full max-w-3xl space-y-5 shadow-2xl shadow-amber-500/10 my-8 max-h-[90vh] overflow-y-auto">
+            
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-white/10 pb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="px-2.5 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
+                    INSTITUTIONAL VERIFICATION DOSSIER
+                  </span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                    (selectedDossier.riskScore || 0) < 20 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    : (selectedDossier.riskScore || 0) < 45 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                    : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                  }`}>
+                    RISK SCORE: {selectedDossier.riskScore || 5}/100
+                  </span>
+                </div>
+                <h2 className="text-xl font-black text-white">{selectedDossier.orgName}</h2>
+                <p className="text-xs text-zinc-400 mt-0.5">Submitted on {new Date(selectedDossier.createdAt).toLocaleString()}</p>
+              </div>
+
+              <button
+                onClick={() => setSelectedDossier(null)}
+                className="w-9 h-9 rounded-full bg-zinc-900 text-zinc-400 hover:text-white flex items-center justify-center text-sm font-bold border border-white/10 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Section 1: Legal & Registration Numbers */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                🏛️ Section 1: Legal Identity & Govt Registrations
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs bg-black/60 p-4 rounded-2xl border border-white/10">
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold block">Organization Type</span>
+                  <span className="font-bold text-white block">{selectedDossier.orgType}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold block">Industry / Sector</span>
+                  <span className="font-bold text-white block">{selectedDossier.industry || 'Not Provided'}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold block">Organization Size</span>
+                  <span className="font-bold text-white block">{selectedDossier.orgSize || 'Not Provided'}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold block">GST Number (India)</span>
+                  <span className="font-mono font-bold text-emerald-400 block">{selectedDossier.gstNumber || '❌ None'}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold block">PAN Number (India)</span>
+                  <span className="font-mono font-bold text-blue-400 block">{selectedDossier.panNumber || '❌ None'}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold block">CIN / Company Reg No</span>
+                  <span className="font-mono font-bold text-cyan-300 block">{selectedDossier.cinNumber || selectedDossier.regNumber || '❌ None'}</span>
+                </div>
+                {['COLLEGE', 'EDTECH', 'UNIVERSITY', 'INSTITUTE'].includes(selectedDossier.orgType?.toUpperCase() || '') && (
+                  <>
+                    <div>
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">AISHE / UGC / AICTE Code</span>
+                      <span className="font-mono font-bold text-purple-300 block">{selectedDossier.aisheCode || '❌ None'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">NIRF Rank</span>
+                      <span className="font-mono font-bold text-amber-300 block">{selectedDossier.nirfRanking || 'N/A'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">Affiliated To</span>
+                      <span className="font-bold text-white block truncate">{selectedDossier.affiliatedTo || 'N/A'}</span>
+                    </div>
+                  </>
+                )}
+                {selectedDossier.taxId && (
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">International Tax ID / VAT</span>
+                    <span className="font-mono font-bold text-amber-300 block">{selectedDossier.taxId}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Section 2: Address & Location */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                📍 Section 2: Registered Physical Address
+              </h3>
+              <div className="bg-black/60 p-4 rounded-2xl border border-white/10 text-xs space-y-2">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">City</span>
+                    <span className="font-bold text-white block">{selectedDossier.city || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">State / Province</span>
+                    <span className="font-bold text-white block">{selectedDossier.state || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Country</span>
+                    <span className="font-bold text-white block">{selectedDossier.country || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Pincode / ZIP</span>
+                    <span className="font-mono font-bold text-white block">{selectedDossier.pincode || 'N/A'}</span>
+                  </div>
+                </div>
+                {selectedDossier.address && (
+                  <div className="border-t border-white/5 pt-2">
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Full Registered Address</span>
+                    <span className="text-zinc-300 block font-mono">{selectedDossier.address}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Section 3: Contact Officer Audit */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                👤 Section 3: Primary Contact Officer Credentials
+              </h3>
+              <div className="bg-black/60 p-4 rounded-2xl border border-white/10 text-xs space-y-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Contact Person</span>
+                    <span className="font-bold text-white block">{selectedDossier.contactName}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Designation / Title</span>
+                    <span className="font-bold text-amber-300 block">{selectedDossier.contactDesignation || 'Authorized Officer'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Official Email</span>
+                    <span className="font-mono text-zinc-200 block">{selectedDossier.contactEmail}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Mobile Phone</span>
+                    <span className="font-mono text-zinc-300 block">{selectedDossier.contactPhone || 'N/A'}</span>
+                  </div>
+                  {selectedDossier.contactAlternateEmail && (
+                    <div>
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">Alternate Email</span>
+                      <span className="font-mono text-zinc-400 block">{selectedDossier.contactAlternateEmail}</span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Official Website</span>
+                    {selectedDossier.websiteUrl ? (
+                      <a href={selectedDossier.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 font-mono underline block truncate">
+                        {selectedDossier.websiteUrl}
+                      </a>
+                    ) : (
+                      <span className="text-zinc-500 block">Not Provided</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Domain Match Analysis */}
+                <div className={`p-3 rounded-xl border ${selectedDossier.domainMatch ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold uppercase text-[10px] text-white">Domain Audit Result</span>
+                    <span className={`font-bold text-xs ${selectedDossier.domainMatch ? 'text-emerald-400' : 'text-amber-400'}`}>
+                      {selectedDossier.domainMatch ? '✅ MATCHED: Email domain matches website' : '⚠️ MISMATCH: Email domain differs from website'}
+                    </span>
+                  </div>
+                  {selectedDossier.domainMismatchReason && (
+                    <div className="mt-2 border-t border-amber-500/20 pt-2">
+                      <span className="text-[10px] text-amber-300 font-bold block uppercase">Applicant Explanation for Mismatch:</span>
+                      <p className="text-amber-200/90 text-xs font-mono mt-0.5">{selectedDossier.domainMismatchReason}</p>
+                    </div>
+                  )}
+                </div>
+
+                {selectedDossier.linkedinOrgUrl && (
+                  <div className="text-xs">
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">LinkedIn Page</span>
+                    <a href={selectedDossier.linkedinOrgUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 font-mono underline">
+                      {selectedDossier.linkedinOrgUrl}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Section 4: Platform Requirements & Use Case */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                📋 Section 4: Assessment Use Cases & Capacity
+              </h3>
+              <div className="bg-black/60 p-4 rounded-2xl border border-white/10 text-xs space-y-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Expected Monthly Volume</span>
+                    <span className="font-bold text-white block">{selectedDossier.expectedCandidates || 'Not Specified'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">Attribution / Source</span>
+                    <span className="font-bold text-zinc-300 block">{selectedDossier.hearAboutUs || 'Organic'}</span>
+                  </div>
+                  {selectedDossier.referralCode && (
+                    <div>
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">Referral Code</span>
+                      <span className="font-mono font-bold text-amber-400 block">{selectedDossier.referralCode}</span>
+                    </div>
+                  )}
+                </div>
+
+                {selectedDossier.useCases && selectedDossier.useCases.length > 0 && (
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block mb-1">Selected Primary Use Cases</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedDossier.useCases.map((u) => (
+                        <span key={u} className="px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-300 rounded-lg text-[10px] font-bold">
+                          {u.replace('_', ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedDossier.preferredFormat && selectedDossier.preferredFormat.length > 0 && (
+                  <div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block mb-1">Preferred Contest Formats</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedDossier.preferredFormat.map((f) => (
+                        <span key={f} className="px-2.5 py-1 bg-blue-500/10 border border-blue-500/30 text-blue-300 rounded-lg text-[10px] font-bold">
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <span className="text-[10px] text-zinc-500 uppercase font-bold block mb-1">Reason / Detailed Requirement</span>
+                  <p className="text-zinc-300 font-mono leading-relaxed bg-zinc-900/90 p-3 rounded-xl border border-white/5">
+                    {selectedDossier.parsedReason || selectedDossier.reason || 'Standard Tenant Application'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Section 5: Legal & Compliance */}
+            <div className="space-y-2">
+              <h3 className="text-xs font-black uppercase text-amber-400 tracking-wider flex items-center gap-1.5">
+                ⚖️ Section 5: Legal Certifications & Agreements
+              </h3>
+              <div className="grid grid-cols-2 gap-3 text-xs bg-black/60 p-4 rounded-2xl border border-white/10">
+                <div className="flex items-center gap-2">
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${selectedDossier.dpaAgreed ? 'bg-emerald-500 text-black' : 'bg-zinc-700 text-zinc-400'}`}>
+                    {selectedDossier.dpaAgreed ? '✓' : '✗'}
+                  </span>
+                  <div>
+                    <span className="font-bold text-white block">Data Processing Agreement (DPA)</span>
+                    <span className="text-[10px] text-zinc-400">{selectedDossier.dpaAgreed ? 'Accepted (GDPR Art. 28)' : 'Not Signed'}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${selectedDossier.certifiedRepresentative ? 'bg-emerald-500 text-black' : 'bg-zinc-700 text-zinc-400'}`}>
+                    {selectedDossier.certifiedRepresentative ? '✓' : '✗'}
+                  </span>
+                  <div>
+                    <span className="font-bold text-white block">Authorized Representative</span>
+                    <span className="text-[10px] text-zinc-400">{selectedDossier.certifiedRepresentative ? 'Self-Certified' : 'Not Certified'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Action */}
+            <div className="flex items-center justify-between text-xs pt-3 border-t border-white/10">
+              <span className="text-zinc-500 font-mono text-[11px]">Request ID: {selectedDossier.id}</span>
+              {selectedDossier.status === 'PENDING' && (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      const item = selectedDossier;
+                      setSelectedDossier(null);
+                      setRejectModalItem(item);
+                    }}
+                    className="px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-bold rounded-xl transition cursor-pointer"
+                  >
+                    Reject Application
+                  </button>
+                  <button
+                    onClick={() => {
+                      const id = selectedDossier.id;
+                      const name = selectedDossier.orgName;
+                      setSelectedDossier(null);
+                      handleApprove(id, name);
+                    }}
+                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-yellow-400 text-black font-extrabold rounded-xl transition shadow-lg shadow-emerald-500/20 cursor-pointer"
+                  >
+                    ⚡ Approve & Provision Tenant Now
+                  </button>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Reject Modal */}
+      {rejectModalItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-zinc-950 border border-red-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div>
+              <span className="text-[10px] font-black text-red-400 uppercase tracking-widest block">FLAG & REJECT APPLICATION</span>
+              <h3 className="text-base font-black text-white mt-1">Reject "{rejectModalItem.orgName}"?</h3>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold text-zinc-400 mb-1 uppercase">Rejection Justification Notes</label>
+              <textarea
+                value={rejectNotes}
+                onChange={(e) => setRejectNotes(e.target.value)}
+                placeholder="e.g. Domain verification failed / Invalid institution credentials provided."
+                className="w-full bg-black border border-red-500/30 rounded-xl p-3 text-xs text-white placeholder-zinc-600 outline-none focus:border-red-500/60 h-20 resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setRejectModalItem(null)}
+                className="flex-1 py-2.5 bg-zinc-900 text-zinc-400 font-bold text-xs rounded-xl hover:text-white transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs rounded-xl transition cursor-pointer"
+              >
+                Confirm Rejection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -911,7 +1666,7 @@ export function PlatformDashboard() {
   // Sync ?tab= URL param from sidebar links
   useEffect(() => {
     const t = searchParams.get('tab') as TabId | null;
-    const validTabs: TabId[] = ['overview', 'organizations', 'billing', 'features', 'users', 'audit', 'health', 'announcements'];
+    const validTabs: TabId[] = ['overview', 'requests', 'organizations', 'billing', 'features', 'users', 'audit', 'health', 'announcements'];
     if (t && validTabs.includes(t)) {
       setActiveTab(t);
     } else if (!t) {
@@ -1069,6 +1824,7 @@ export function PlatformDashboard() {
         {activeTab === 'overview' && (
           <OverviewTab analytics={analytics} orgs={orgs} orgsLoading={loadingOrgs} onStatus={handleOrgStatus} onTier={handleOrgTier} />
         )}
+        {activeTab === 'requests' && <OrgRequestsTab />}
         {activeTab === 'billing' && (
           <BillingTab orgsByTier={analytics?.orgsByTier || {}} />
         )}

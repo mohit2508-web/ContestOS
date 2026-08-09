@@ -5,12 +5,40 @@ import crypto from 'crypto';
 
 const router = Router();
 
-// GET /api/contests/manager/list — List all contests managed by user
+// GET /api/contests/manager/list — List contests managed by or assigned to user
 router.get('/list', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {
+    const userId = req.user!.userId;
+    const isSuperAdmin = req.user?.role === 'SUPER_ADMIN' || (req.user as any)?.hierarchyLevel === 1;
+    const isOrgAdmin = req.user?.role === 'ORG_ADMIN';
+
+    let whereClause: any = {};
+
+    if (!isSuperAdmin) {
+      if (isOrgAdmin && req.user?.organizationId) {
+        whereClause = {
+          OR: [
+            { organizationId: req.user.organizationId },
+            { assignments: { some: { userId } } },
+            { createdById: userId },
+          ],
+        };
+      } else {
+        // Staff member (PROCTOR, EVALUATOR, etc.): ONLY see assigned drives or drives created by them!
+        whereClause = {
+          OR: [
+            { assignments: { some: { userId } } },
+            { createdById: userId },
+          ],
+        };
+      }
+    }
+
     const contests = await prisma.contest.findMany({
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
       include: {
+        organization: { select: { name: true } },
         _count: {
           select: {
             problems: true,
@@ -20,8 +48,18 @@ router.get('/list', authenticateToken, async (req: Request, res: Response): Prom
       },
     });
 
-    res.json({ contests });
+    const formatted = contests.map((c: any) => ({
+      ...c,
+      _count: {
+        problems: c._count?.problems || 0,
+        registrations: c._count?.registrations || 0,
+        participants: c._count?.registrations || 0,
+      },
+    }));
+
+    res.json({ contests: formatted });
   } catch (error: any) {
+    console.error('Fetch managed contests error:', error);
     res.status(500).json({ error: 'Failed to fetch managed contests' });
   }
 });
@@ -42,12 +80,25 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
       requireFullscreen,
       preventTabSwitch,
       disableCopyPaste,
+      pasteMode,
       enableProctoring,
+      faceCheckEnabled,
+      voiceCheckEnabled,
+      snapshotIntervalSeconds,
       maxWarnings,
       allowMultipleMonitors,
       randomizeQuestionOrder,
+      // New Scoring Fields
+      scoringMode,
+      negativeMarkingEnabled,
+      negativeMarkingValue,
+      showLeaderboardDuringContest,
+      freezeLeaderboardMins,
+      // Problem lists & Sections
       problemIds,
       problems,
+      problemScores, // Map: { [problemId]: number } — per-problem custom marks
+      sections,      // Array of section configurations for multi-section exams
     } = req.body;
 
     if (!title || !startTime || !endTime) {
@@ -88,6 +139,8 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
     creatorId = creatorUser.id;
 
     // --- Process problems & filter valid existing problem IDs ---
+    const scoresMap: Record<string, number> = problemScores && typeof problemScores === 'object' ? problemScores : {};
+
     const rawProblemList: any[] = Array.isArray(problemIds) && problemIds.length > 0
       ? problemIds.map((id: string) => ({ problemId: id }))
       : Array.isArray(problems)
@@ -113,21 +166,49 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
         requireFullscreen: requireFullscreen ?? true,
         preventTabSwitch: preventTabSwitch ?? true,
         disableCopyPaste: disableCopyPaste ?? true,
+        pasteMode: pasteMode || 'LOG_ONLY',
         enableProctoring: enableProctoring ?? false,
+        faceCheckEnabled: faceCheckEnabled ?? false,
+        voiceCheckEnabled: voiceCheckEnabled ?? false,
+        snapshotIntervalSeconds: Number(snapshotIntervalSeconds) || 45,
         maxWarnings: Number(maxWarnings) || 3,
         allowMultipleMonitors: allowMultipleMonitors ?? false,
         randomizeQuestionOrder: randomizeQuestionOrder ?? true,
+        // Scoring config
+        scoringMode: scoringMode || 'PARTIAL',
+        negativeMarkingEnabled: negativeMarkingEnabled ?? false,
+        negativeMarkingValue: Number(negativeMarkingValue) || 0.25,
+        showLeaderboardDuringContest: showLeaderboardDuringContest ?? true,
+        freezeLeaderboardMins: Number(freezeLeaderboardMins) || 0,
         createdById: creatorId,
         problems: {
-          create: validProblemsToCreate.map((p: any, idx: number) => ({
-            problemId: p.problemId || p,
-            order: idx + 1,
-            points: p.points || (idx + 1) * 100,
-          })),
+          create: validProblemsToCreate.map((p: any, idx: number) => {
+            const pid = p.problemId || p;
+            const customPoints = scoresMap[pid];
+            return {
+              problemId: pid,
+              order: idx + 1,
+              points: customPoints !== undefined ? Number(customPoints) : (p.points || 100),
+            };
+          }),
         },
-      },
+        sections: Array.isArray(sections) && sections.length > 0 ? {
+          create: sections.map((sec: any, idx: number) => ({
+            title: sec.title || `Section ${idx + 1}`,
+            sectionType: sec.sectionType || 'CODING',
+            order: idx + 1,
+            duration: Number(sec.duration) || 0,
+            sectionLocked: sec.sectionLocked ?? true,
+            negativeMarkingEnabled: sec.negativeMarkingEnabled ?? false,
+            negativeMarkingValue: Number(sec.negativeMarkingValue) || 0.25,
+            problemIds: Array.isArray(sec.problemIds) ? sec.problemIds : [],
+            instructions: sec.instructions || null,
+          }))
+        } : undefined,
+      } as any,
       include: {
         problems: true,
+        sections: true,
       },
     });
 
@@ -137,6 +218,7 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
     res.status(500).json({ error: error.message || 'Failed to create contest' });
   }
 });
+
 
 // GET /api/contests/manager/:id/problems — Fetch questions mapped to contest
 router.get('/:id/problems', authenticateToken, async (req: Request, res: Response): Promise<void> => {
@@ -297,6 +379,9 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response): Promi
           include: {
             problem: true,
           },
+          orderBy: { order: 'asc' },
+        },
+        sections: {
           orderBy: { order: 'asc' },
         },
         registrations: {
