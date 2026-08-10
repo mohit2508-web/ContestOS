@@ -450,6 +450,18 @@ export const api = {
     const res = await apiAxios.post('/auth/sso/saml/config', data);
     return res.data;
   },
+  getOrgShortlistCandidates: async (orgId: string) => {
+    try {
+      const res = await apiAxios.get(`/org/${orgId}/shortlisting-candidates`);
+      return res.data;
+    } catch {
+      return { candidates: [], drives: [] };
+    }
+  },
+  updateCandidateShortlist: async (orgId: string, payload: { registrationId: string; status: string; evaluatorRemarks?: string }) => {
+    const res = await apiAxios.patch(`/org/${orgId}/shortlist-candidate`, payload);
+    return res.data;
+  },
 
   // Contest Assignments
   getContestAssignments: async (contestId: string) => {

@@ -26,7 +26,7 @@ const AUDIENCE_PAGES = new Set(['company', 'college']);
 export default function App() {
   const [page, setPage] = useState<Page>(getPageFromHash);
   const [introComplete, setIntroComplete] = useState(() => {
-    return localStorage.getItem('contestos-intro-done') === '1';
+    return localStorage.getItem('kryptaviaos-intro-done') === '1';
   });
   const galaxyRef = useRef<GalaxyHandle>(null);
 
@@ -41,7 +41,7 @@ export default function App() {
   }, []);
 
   const handleIntroComplete = useCallback(() => {
-    localStorage.setItem('contestos-intro-done', '1');
+    localStorage.setItem('kryptaviaos-intro-done', '1');
     galaxyRef.current?.fadeToBlack(1200);
     setTimeout(() => setIntroComplete(true), 300);
   }, []);

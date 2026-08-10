@@ -115,7 +115,7 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
         creatorUser = await prisma.user.create({
           data: {
             id: creatorId,
-            email: req.user?.email || `host_${Date.now()}@contestos.org`,
+            email: req.user?.email || `host_${Date.now()}@kryptavia.org`,
             name: req.user?.email ? req.user.email.split('@')[0] : 'Teacher Host',
             password: 'demo-password-hash',
             role: 'ORG_MEMBER' as any,
@@ -127,7 +127,7 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
         if (!creatorUser) {
           creatorUser = await prisma.user.create({
             data: {
-              email: `fallback_host_${Date.now()}@contestos.org`,
+              email: `fallback_host_${Date.now()}@kryptavia.org`,
               name: 'Contest Host',
               password: 'demo-password-hash',
               role: 'ORG_MEMBER' as any,
@@ -493,7 +493,8 @@ router.get('/:id/seb-config', authenticateToken, async (req: Request, res: Respo
     const userPayload = fullUser ? { ...fullUser } : null;
     const userToken = (req.query.token as string) || req.headers.authorization?.replace('Bearer ', '') || '';
     const userParam = userPayload ? encodeURIComponent(JSON.stringify(userPayload)) : '';
-    const startUrl = `http://localhost:5173/contests/${contest.id}?seb=1&token=${userToken}&user=${userParam}`;
+    const baseUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+    const startUrl = `${baseUrl}/contests/${contest.id}?seb=1&token=${userToken}&user=${userParam}`;
 
     if (req.user?.userId) {
       try {

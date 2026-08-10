@@ -29,7 +29,7 @@ export default function ROIBlock() {
             transition={{ delay: 0.2 }}
             className="rounded-2xl border border-red-500/10 bg-red-500/[0.03] p-8"
           >
-            <div className="text-xs font-mono text-red-400 uppercase tracking-widest mb-4">Without ContestOS</div>
+            <div className="text-xs font-mono text-red-400 uppercase tracking-widest mb-4">Without Kryptavia OS</div>
             <div className="space-y-4">
               {[
                 { icon: '📋', text: '100 resumes manually screened', time: '8 hours' },
@@ -59,7 +59,7 @@ export default function ROIBlock() {
             transition={{ delay: 0.35 }}
             className="rounded-2xl border border-green-500/10 bg-green-500/[0.03] p-8"
           >
-            <div className="text-xs font-mono text-green-400 uppercase tracking-widest mb-4">With ContestOS</div>
+            <div className="text-xs font-mono text-green-400 uppercase tracking-widest mb-4">With Kryptavia OS</div>
             <div className="space-y-4">
               {[
                 { icon: '⚡', text: 'Auto-graded assessments', time: '2 min setup' },

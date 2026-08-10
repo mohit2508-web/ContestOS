@@ -40,7 +40,7 @@ export const InstrumentHeader: React.FC<InstrumentHeaderProps> = ({
       {/* Brand & Section Title */}
       <div className="flex items-baseline space-x-3">
         <span className="font-['Fraunces'] font-semibold text-xl tracking-wide text-[#C6A15B] flex items-center">
-          <span className="mr-1.5 text-sm">◈</span>ContestOS
+          <span className="mr-1.5 text-sm">◈</span>Kryptavia OS
         </span>
         <span className="text-xs text-[#8C9099] font-medium">
           {sectionTitle}

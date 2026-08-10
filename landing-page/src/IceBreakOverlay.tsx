@@ -263,7 +263,7 @@ export default function IceBreakOverlay({ onComplete, onFading }: Props) {
           {/* Bottom-left brand mark */}
           <div className="fixed bottom-8 left-8 z-[60] flex items-center gap-3 opacity-40">
             <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-black font-black text-xs">⚡</div>
-            <span className="font-bold text-white/70 text-sm tracking-tight">ContestOS</span>
+            <span className="font-bold text-white/70 text-sm tracking-tight">Kryptavia OS</span>
           </div>
 
           {/* Skip button */}

@@ -1,5 +1,6 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { KryptaviaLogo } from '../../../components/common/KryptaviaLogo';
 
 export default function CertificatePreview() {
   const ref = useRef<HTMLDivElement>(null);
@@ -59,8 +60,7 @@ export default function CertificatePreview() {
               <div className="relative z-10 text-center py-4">
                 <div className="text-xs font-mono text-amber-400/60 uppercase tracking-[0.3em] mb-2">Certificate of Achievement</div>
                 <div className="flex items-center justify-center gap-2 mb-6">
-                  <div className="w-6 h-6 rounded bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-black font-black text-[10px]">⚡</div>
-                  <span className="font-bold text-white text-sm">ContestOS</span>
+                  <KryptaviaLogo size="sm" />
                 </div>
 
                 <div className="text-xs text-gray-500 mb-1">This certifies that</div>
@@ -87,7 +87,7 @@ export default function CertificatePreview() {
                 <div className="mt-6 flex items-center justify-center gap-4 text-[10px] text-gray-600 font-mono">
                   <span>ID: CERT-CS26-00001</span>
                   <span>•</span>
-                  <span>verify.contestos.com</span>
+                  <span>verify.kryptavia.com</span>
                 </div>
               </div>
             </div>

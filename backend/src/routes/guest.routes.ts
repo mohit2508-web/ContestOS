@@ -97,7 +97,7 @@ router.post('/join/:token', async (req, res) => {
     if (invite.usedAt) return res.status(409).json({ error: 'This invite has already been used' });
 
     // Create an ephemeral user account with GUEST_CANDIDATE role
-    const guestEmail = `guest_${token.slice(0, 8)}@guest.contestos`;
+    const guestEmail = `guest_${token.slice(0, 8)}@guest.kryptavia`;
     const guestName = name || invite.name || `Guest ${invite.email.split('@')[0]}`;
 
     let guestUser = await prisma.user.findFirst({ where: { email: guestEmail } });

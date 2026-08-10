@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { api } from "../services/api";
 import { CinematicAuthBackground } from "../components/common/CinematicAuthBackground";
+import { KryptaviaLogo } from "../components/common/KryptaviaLogo";
 
 // ─── Password Strength ───────────────────────────────────────────────────────
 function getPasswordStrength(pwd: string): { score: number; label: string; color: string; hint: string } {
@@ -347,11 +348,8 @@ const RegisterPage = () => {
     <CinematicAuthBackground maxWidthClass="max-w-2xl">
       <div className="p-8">
         {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-black tracking-tight logo-shimmer">
-            <span className="text-white">Contest</span><span className="text-amber-400">OS</span>
-          </h1>
-          <p className="text-xs text-gray-400 mt-1">Enterprise Assessment & Contest Platform</p>
+        <div className="flex flex-col items-center justify-center text-center mb-6">
+          <KryptaviaLogo size="lg" showTagline />
         </div>
 
             {/* Tab Navigation */}
@@ -386,7 +384,7 @@ const RegisterPage = () => {
                   <div className="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-3xl mx-auto">🎉</div>
                   <div>
                     <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest block">Account Created Successfully</span>
-                    <h2 className="text-lg font-black text-white mt-1">Welcome to ContestOS!</h2>
+                    <h2 className="text-lg font-black text-white mt-1">Welcome to Kryptavia OS!</h2>
                     <p className="text-xs text-zinc-400 mt-1">Check your inbox to verify your email address, then sign in to start competing.</p>
                   </div>
                   <button onClick={() => navigate('/login')} className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-sm rounded-xl transition cursor-pointer">
@@ -761,7 +759,7 @@ const RegisterPage = () => {
                   {oStep === 3 && (
                     <div className="space-y-5">
                       <div className="bg-cyan-500/8 border border-cyan-500/20 rounded-xl p-3 text-xs text-cyan-300">
-                        📋 Tell us how you plan to use ContestOS so we can provision the right features for your organization.
+                        📋 Tell us how you plan to use Kryptavia OS so we can provision the right features for your organization.
                       </div>
 
                       <Field label="Primary Use Case" required error={oErrors.useCases} hint="Select all that apply">
@@ -823,7 +821,7 @@ const RegisterPage = () => {
                         </div>
                       </Field>
 
-                      <Field label="Why do you want to use ContestOS?" required error={oErrors.reason}
+                      <Field label="Why do you want to use Kryptavia OS?" required error={oErrors.reason}
                         hint={`${oForm.reason.length}/500 characters (min 50)`}>
                         <textarea className={`${inputCls} resize-none`} rows={3}
                           placeholder="Describe your specific assessment needs, challenges you're trying to solve, or goals you want to achieve..."
@@ -875,7 +873,7 @@ const RegisterPage = () => {
                       <div className="bg-zinc-900/60 border border-white/8 rounded-2xl p-5 space-y-4">
                         <p className="text-xs font-bold text-white">Legal Agreements — All required:</p>
                         {[
-                          { key: 'termsAgreed', label: <>I have read and agree to ContestOS <a href="/terms" target="_blank" rel="noopener" className="text-amber-400 underline">Terms of Service</a></>, err: oErrors.termsAgreed },
+                          { key: 'termsAgreed', label: <>I have read and agree to Kryptavia OS <a href="/terms" target="_blank" rel="noopener" className="text-amber-400 underline">Terms of Service</a></>, err: oErrors.termsAgreed },
                           { key: 'dpaAgreed', label: <>I agree to the <a href="/dpa" target="_blank" rel="noopener" className="text-amber-400 underline">Data Processing Agreement (DPA)</a> covering GDPR Article 28 obligations</>, err: oErrors.dpaAgreed },
                           { key: 'certifiedRepresentative', label: 'I certify that I am an authorized representative of the above organization and that all information provided is accurate and truthful', err: oErrors.certifiedRepresentative },
                         ].map(({ key, label, err }) => (

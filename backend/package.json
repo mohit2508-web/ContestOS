@@ -1,7 +1,7 @@
 {
-  "name": "contestos-backend",
+  "name": "kryptaviaos-backend",
   "version": "1.0.0",
-  "description": "ContestOS Engine API Server - Safe Exam Browser, Live Leaderboards & Code Execution",
+  "description": "Kryptavia OS Engine API Server - Safe Exam Browser, Live Leaderboards & Code Execution",
   "main": "dist/app.js",
   "scripts": {
     "dev": "nodemon --watch src --exec ts-node src/app.ts",

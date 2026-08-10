@@ -37,7 +37,7 @@ export function Navbar() {
       login('demo-access-token', 'demo-refresh-token', {
         id: 'admin-id-1',
         name: 'SuperAdmin (Owner)',
-        email: 'admin@contestos.io',
+        email: 'admin@kryptavia.io',
         role: 'SUPER_ADMIN',
         hierarchyLevel: 1,
       });
@@ -54,7 +54,7 @@ export function Navbar() {
           </div>
           <div>
             <span className="text-lg font-black text-white tracking-tight block leading-none">
-              Contest<span className="text-amber-400">OS</span>
+              Kryptavia<span className="text-amber-400">OS</span>
             </span>
             <span className="text-[9px] text-gray-400 font-mono tracking-wider uppercase block mt-0.5">
               Secure Assessment Platform

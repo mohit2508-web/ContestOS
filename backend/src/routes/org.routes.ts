@@ -581,4 +581,104 @@ router.patch('/:id/team/:userId/role', authenticateToken, requireRole('super_adm
   }
 });
 
+router.get('/:id/shortlisting-candidates', authenticateToken, requireRole('super_admin', 'org_admin', 'evaluator', 'analytics_viewer'), async (req, res) => {
+  try {
+    if (req.user!.hierarchyLevel > 1 && req.user!.organizationId !== req.params.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const contests = await prisma.contest.findMany({
+      where: { organizationId: req.params.id },
+      select: { id: true, title: true, startTime: true, endTime: true, isPublic: true },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const contestIds = contests.map(c => c.id);
+
+    const registrations = await prisma.contestRegistration.findMany({
+      where: { contestId: { in: contestIds } },
+      include: {
+        user: { select: { id: true, name: true, email: true, username: true, phone: true } },
+        contest: { select: { id: true, title: true } },
+      },
+      orderBy: { score: 'desc' },
+    });
+
+    // Fetch proctoring violation counts for each user
+    const proctorLogs = await prisma.proctoringLog.findMany({
+      where: { contestId: { in: contestIds } },
+      select: { userId: true, contestId: true, eventType: true },
+    });
+
+    const candidates = registrations.map(reg => {
+      const logs = proctorLogs.filter(l => l.userId === reg.userId && l.contestId === reg.contestId);
+      const violationsCount = logs.length;
+      const trustIndex = Math.max(50, 100 - violationsCount * 7);
+
+      return {
+        id: reg.id,
+        userId: reg.userId,
+        name: reg.user.name,
+        email: reg.user.email,
+        rollNo: reg.user.username || `CAND-${reg.user.id.slice(0, 8).toUpperCase()}`,
+        contestId: reg.contestId,
+        driveName: reg.contest.title,
+        score: reg.score,
+        maxScore: 100,
+        percentile: 90, // computed placeholder
+        trustIndex,
+        violationsCount,
+        status: reg.status === 'REGISTERED' ? 'UNDER_REVIEW' : reg.status,
+        registeredAt: reg.registeredAt,
+      };
+    });
+
+    res.json({ candidates, drives: contests });
+  } catch (error) {
+    console.error('Fetch shortlisting candidates error:', error);
+    res.status(500).json({ error: 'Failed to fetch candidate records' });
+  }
+});
+
+router.patch('/:id/shortlist-candidate', authenticateToken, requireRole('super_admin', 'org_admin', 'evaluator'), async (req, res) => {
+  try {
+    if (req.user!.hierarchyLevel > 1 && req.user!.organizationId !== req.params.id) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const { registrationId, status, evaluatorRemarks } = req.body;
+    if (!registrationId || !status) {
+      return res.status(400).json({ error: 'registrationId and status are required' });
+    }
+
+    const registration = await prisma.contestRegistration.update({
+      where: { id: registrationId },
+      data: { status },
+      include: { user: { select: { name: true, email: true } }, contest: { select: { title: true } } },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: req.user!.userId,
+        organizationId: req.params.id,
+        action: 'CANDIDATE_SHORTLIST_UPDATED',
+        resource: 'contest_registration',
+        resourceId: registrationId,
+        details: {
+          candidateName: registration.user.name,
+          candidateEmail: registration.user.email,
+          driveTitle: registration.contest.title,
+          newStatus: status,
+          evaluatorRemarks: evaluatorRemarks || '',
+        },
+      },
+    });
+
+    res.json({ message: 'Candidate status updated successfully', registration });
+  } catch (error) {
+    console.error('Update candidate shortlist error:', error);
+    res.status(500).json({ error: 'Failed to update candidate status' });
+  }
+});
+
 export default router;

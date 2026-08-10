@@ -42,7 +42,7 @@ export const VerifiableScorecardPDF: React.FC<VerifiableScorecardPDFProps> = ({
         <div className="flex items-center justify-between border-b border-[#2B2F37] pb-5 print:border-slate-300">
           <div>
             <div className="font-mono text-[10px] uppercase tracking-[1.5px] text-[#C6A15B] flex items-center gap-1.5 mb-1 print:text-amber-800">
-              <span>◈ CONTESTOS OFFICIAL VERIFIED SCORECARD</span>
+              <span>◈ KRYPTAVIA OS OFFICIAL VERIFIED SCORECARD</span>
             </div>
             <h1 className="text-2xl font-['Fraunces'] font-semibold text-[#ECE8E0] print:text-black">{contestTitle}</h1>
             <p className="text-xs text-[#8C9099] mt-0.5 print:text-slate-600 font-mono">Verified Assessment Certificate & Breakdown</p>

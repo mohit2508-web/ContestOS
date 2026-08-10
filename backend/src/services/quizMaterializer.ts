@@ -94,7 +94,7 @@ export async function materializeQuizAttempt(userId: string, contestId: string, 
  * Derive AES-256 key from a session token string
  */
 function deriveKey(sessionToken: string): Buffer {
-  return crypto.createHash('sha256').update(sessionToken || 'contestos-default-secret-key-32b').digest();
+  return crypto.createHash('sha256').update(sessionToken || 'kryptaviaos-default-secret-key-32b').digest();
 }
 
 /**

@@ -98,7 +98,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
-    service: 'ContestOS API Engine',
+    service: 'Kryptavia OS API Engine',
     timestamp: new Date().toISOString(),
   });
 });
@@ -271,8 +271,26 @@ app.use('/api/notifications', notificationRoutes);
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`ContestOS Server running on port ${PORT}`);
+  console.log(`Kryptavia OS Server running on port ${PORT}`);
   console.log(`Health Check: http://localhost:${PORT}/api/health`);
+
+  // Anti-Sleep Self-Waker for Free Hosting Tiers (Render/Railway/Koyeb)
+  const KEEP_ALIVE_URL = process.env.KEEP_ALIVE_URL || process.env.BACKEND_URL;
+  if (KEEP_ALIVE_URL) {
+    const pingUrl = `${KEEP_ALIVE_URL.replace(/\/$/, '')}/api/health`;
+    const PING_INTERVAL_MS = 10 * 60 * 1000; // Ping every 10 minutes
+    console.log(`[Anti-Sleep Waker] Self-ping active for ${pingUrl}`);
+    setInterval(async () => {
+      try {
+        const httpModule = pingUrl.startsWith('https') ? await import('https') : await import('http');
+        httpModule.get(pingUrl, (res) => {
+          console.log(`[Anti-Sleep Ping] Self-ping dispatched to ${pingUrl} (Status: ${res.statusCode})`);
+        }).on('error', (err) => {
+          console.warn(`[Anti-Sleep Ping] Self-ping error: ${err.message}`);
+        });
+      } catch (_e) {}
+    }, PING_INTERVAL_MS);
+  }
 });
 
 export default app;

@@ -212,7 +212,7 @@ export function ContestReport() {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>ContestOS Scorecard - ${report.contest.title}</title>
+  <title>Kryptavia OS Scorecard - ${report.contest.title}</title>
   <style>
     @page { size: A4 portrait; margin: 6mm; }
     * { box-sizing: border-box; }
@@ -235,7 +235,7 @@ export function ContestReport() {
   <div class="cert-box">
     <div class="header">
       <div>
-        <div class="title">ContestOS Exam Performance Certificate</div>
+        <div class="title">Kryptavia OS Exam Performance Certificate</div>
         <div class="meta">Contest: <strong>${report.contest.title}</strong> | Candidate ID: <strong>${report.participant.id.slice(0, 8)}</strong> | Date: <strong>${new Date(report.participant.joinedAt).toLocaleString()}</strong></div>
       </div>
       <div class="status-badge">Verified Submitted</div>
@@ -255,7 +255,7 @@ export function ContestReport() {
       }).join('')}
     </div>
     <div class="footer">
-      <span>Verified by ContestOS Exam Integrity Engine</span>
+      <span>Verified by Kryptavia OS Exam Integrity Engine</span>
       <span>Official Scorecard Performance Certificate</span>
     </div>
   </div>
@@ -266,7 +266,7 @@ export function ContestReport() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ContestOS_Scorecard_${report.contest.title.replace(/\s+/g, '_')}.html`;
+    a.download = `KryptaviaOS_Scorecard_${report.contest.title.replace(/\s+/g, '_')}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -501,7 +501,7 @@ export function ContestReport() {
             <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 print-card flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h2 className="text-2xl font-black text-white md:text-3xl tracking-tight no-print">CONTEST SCORECARD</h2>
-                <h2 className="hidden print:block text-2xl font-black text-black">ContestOS Exam Performance Certificate</h2>
+                <h2 className="hidden print:block text-2xl font-black text-black">Kryptavia OS Exam Performance Certificate</h2>
                 <div className="flex flex-wrap items-center gap-3 mt-2 text-xs md:text-sm text-gray-400">
                   <span>Candidate ID: <strong className="text-white print:text-black">{report.participant.id.slice(0, 8)}</strong></span>
                   <span>•</span>

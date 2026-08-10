@@ -6,7 +6,7 @@ declare const process: any;
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Starting ContestOS Database Seeding...');
+  console.log('Starting Kryptavia OS Database Seeding...');
 
   const org = await prisma.organization.upsert({
     where: { slug: 'iit-delhi' },
@@ -28,11 +28,11 @@ async function main() {
   const studentPassword = await bcrypt.hash('Student@123456', 12);
 
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'admin@contestos.io' },
+    where: { email: 'admin@kryptavia.io' },
     update: {},
     create: {
-      name: 'ContestOS Platform Admin',
-      email: 'admin@contestos.io',
+      name: 'Kryptavia OS Platform Admin',
+      email: 'admin@kryptavia.io',
       password: password,
       role: 'SUPER_ADMIN' as Role,
       status: 'ACTIVE',
@@ -85,11 +85,11 @@ async function main() {
   const proctorPassword = await bcrypt.hash('Proctor@123456', 12);
 
   const smeUser = await prisma.user.upsert({
-    where: { email: 'sme@contestos.io' },
+    where: { email: 'sme@kryptavia.io' },
     update: { name: 'Dr. Ananya Sharma', role: 'PLATFORM_CONTENT_AUTHOR' as Role },
     create: {
       name: 'Dr. Ananya Sharma',
-      email: 'sme@contestos.io',
+      email: 'sme@kryptavia.io',
       password: smePassword,
       role: 'PLATFORM_CONTENT_AUTHOR' as Role,
       status: 'ACTIVE',
@@ -249,7 +249,7 @@ async function main() {
         {
           userId: superAdmin.id,
           title: '🏛️ System Architecture Directive Activated',
-          message: 'ContestOS Governance Engine & Security Compliance Protocols initialized successfully.',
+          message: 'Kryptavia OS Governance Engine & Security Compliance Protocols initialized successfully.',
           type: 'SYSTEM_ALERT',
           isRead: true,
           createdAt: new Date(Date.now() - 3600000 * 24 * 3),
@@ -267,8 +267,8 @@ async function main() {
   }
 
   console.log('');
-  console.log('=== ContestOS Seed Complete (Only Quick Access Accounts Retained) ===');
-  console.log('  Super Admin : admin@contestos.io     / Admin@123456');
+  console.log('=== Kryptavia OS Seed Complete (Only Quick Access Accounts Retained) ===');
+  console.log('  Super Admin : admin@kryptavia.io     / Admin@123456');
   console.log('  Org Admin   : admin@iitd.ac.in      / Admin@123456');
   console.log('  Org Member  : teacher@iitd.ac.in     / Teacher@123456');
   console.log('  Evaluator   : evaluator@iitd.ac.in   / Evaluator@123456');

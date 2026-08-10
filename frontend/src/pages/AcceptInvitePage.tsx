@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotify } from '../components/notifications';
+import { KryptaviaLogo } from '../components/common/KryptaviaLogo';
 
 // Role display config
 const ROLE_CONFIG: Record<string, { label: string; emoji: string; color: string; redirect: string; description: string }> = {
@@ -95,7 +96,7 @@ export function AcceptInvitePage() {
     emoji: '✨',
     color: 'from-amber-500 to-yellow-600',
     redirect: '/org',
-    description: 'You\'ve been invited to join an organization on ContestOS.',
+    description: 'You\'ve been invited to join an organization on Kryptavia OS.',
   };
 
   // Check expiry warning (within 24 hours)
@@ -149,9 +150,9 @@ export function AcceptInvitePage() {
 
           <div className="p-8 space-y-6">
             {/* Logo */}
-            <div className="text-center">
-              <h1 className="text-2xl font-black text-white">Contest<span className="text-amber-400">OS</span></h1>
-              <p className="text-xs text-gray-500 mt-0.5">Team Invitation Portal</p>
+            <div className="flex flex-col items-center justify-center text-center">
+              <KryptaviaLogo size="md" />
+              <p className="text-xs text-gray-500 mt-1">Team Invitation Portal</p>
             </div>
 
             {/* Role badge */}

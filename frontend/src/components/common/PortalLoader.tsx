@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 
 // =================================================================
-// ContestOS — flagship portal loader.
+// Kryptavia OS — flagship portal loader.
 // Cinematic sequence built for app shell & post-login transition,
 // syncing to a 4s beat with rotating conic rings, orbiting module icons,
 // exploding/reassembling hex emblem, typewriter status, and equalizer bar.
@@ -160,7 +160,7 @@ export interface PortalLoaderProps {
   title?: string;
 }
 
-export function PortalLoader({ duration = 3500, onComplete, title = 'ContestOS Portal' }: PortalLoaderProps) {
+export function PortalLoader({ duration = 3500, onComplete, title = 'Kryptavia OS Portal' }: PortalLoaderProps) {
   const pct = usePercent(duration, onComplete);
   const typed = useTypewriter(MESSAGES);
   const activeIcon = useActiveIndex(4, 700);
@@ -261,7 +261,7 @@ export function PortalLoader({ duration = 3500, onComplete, title = 'ContestOS P
               textAnchor="middle" dominantBaseline="central" fontSize="26" fontWeight="700" fill={ACCENT}
               style={{ animation: 'coreMark 4s ease-in-out infinite' }}
             >
-              C
+              K
             </text>
           </g>
         </svg>

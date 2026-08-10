@@ -467,7 +467,7 @@ export const ProctorConsolePage: React.FC = () => {
                 OFFICIAL CHIEF PROCTOR INVIGILATION DIRECTIVE
               </span>
               <h3 className="text-xs font-bold text-white">
-                ContestOS Governance Engine · Official Invigilator Statutes
+                Kryptavia OS Governance Engine · Official Invigilator Statutes
               </h3>
             </div>
           </div>
@@ -926,7 +926,7 @@ export const ProctorConsolePage: React.FC = () => {
                 <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl font-bold flex items-center justify-between">
                   <span>✅ Report Authenticated & Unlocked for Download</span>
                   <button
-                    onClick={() => alert(`Report Exported!\nFile: ContestOS_Proctor_Audit_Report_${selectedContestId}.pdf\nSHA-256: ${reportSha256Hash}`)}
+                    onClick={() => alert(`Report Exported!\nFile: KryptaviaOS_Proctor_Audit_Report_${selectedContestId}.pdf\nSHA-256: ${reportSha256Hash}`)}
                     className="px-4 py-1.5 bg-emerald-500 text-black font-black text-xs rounded-lg hover:bg-emerald-400 transition"
                   >
                     📥 Export Official PDF (Locked)
@@ -1009,7 +1009,7 @@ export const ProctorConsolePage: React.FC = () => {
                     <span className="font-bold text-white">Report Verification Checksum: </span>
                     <span className="font-mono text-zinc-400">{reportSha256Hash.substring(0, 32)}...</span>
                   </div>
-                  <span className="text-zinc-500">Certified by ContestOS Integrity Engine</span>
+                  <span className="text-zinc-500">Certified by Kryptavia OS Integrity Engine</span>
                 </div>
               </div>
             )}

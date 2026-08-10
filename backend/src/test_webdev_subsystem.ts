@@ -1,7 +1,7 @@
 import { evaluateWebDev, parseWebDevSpec } from './services/webDevEvaluator';
 
 async function runIntegrationSuite() {
-  console.log('🧪 Starting ContestOS WebDev Subsystem Automated Integration Suite...\n');
+  console.log('🧪 Starting Kryptavia OS WebDev Subsystem Automated Integration Suite...\n');
 
   let passedTests = 0;
   let totalTests = 0;

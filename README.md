@@ -1,6 +1,6 @@
-# ContestOS — Standalone B2B Assessment & Contest Platform
+# Kryptavia OS — Standalone B2B Assessment & Contest Platform
 
-ContestOS is an enterprise-grade, high-performance online contest and assessment platform designed for universities, colleges, and companies.
+Kryptavia OS is an enterprise-grade, high-performance online contest and assessment platform designed for universities, colleges, and companies.
 
 ## Features
 - **Codeforces-Style Code Execution Engine**: Direct `stdin` / `stdout` testing for C++, Java, Python, JavaScript, Go, Rust, C#, etc.
@@ -11,7 +11,7 @@ ContestOS is an enterprise-grade, high-performance online contest and assessment
 
 ## Project Structure
 ```
-ContestOS/
+KryptaviaOS/
 ├── backend/          # Express + TypeScript + Prisma API & Execution Engine
 ├── frontend/         # React + Vite + TailwindCSS + Monaco Code Editor
 └── README.md

@@ -40,7 +40,7 @@ export const MaterialHonestyHeader: React.FC<MaterialHonestyHeaderProps> = ({
   return (
     <header className="h-16 bg-[#0f172a] border-b border-[#1e293b] px-6 flex items-center justify-between shadow-lg shrink-0 z-10">
       <div className="flex items-center space-x-4">
-        <span className="text-teal-400 font-black text-lg tracking-wider">ContestOS</span>
+        <span className="text-teal-400 font-black text-lg tracking-wider">Kryptavia OS</span>
         <span className="text-slate-700">|</span>
         <h1 className="font-semibold text-slate-200 text-sm md:text-base">{sectionTitle}</h1>
         <SectionPacingIndicator

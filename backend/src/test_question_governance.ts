@@ -23,7 +23,7 @@ async function runTests() {
   if (!user) {
     user = await prisma.user.create({
       data: {
-        email: `gov_tester_${Date.now()}@contestos.io`,
+        email: `gov_tester_${Date.now()}@kryptavia.io`,
         name: 'Gov Tester',
         password: 'hashed_password',
       },
@@ -42,7 +42,7 @@ async function runTests() {
 
   console.log('--- TEST GROUP 1: Multi-Tenant Question Bank Scoping ---');
   const globalBank = await QuestionBankService.createBank({
-    name: 'ContestOS Standard Aptitude Bank',
+    name: 'Kryptavia OS Standard Aptitude Bank',
     scope: BankScope.PLATFORM_GLOBAL,
     createdById: user.id,
   });

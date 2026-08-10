@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "contestos-frontend",
+  "name": "kryptaviaos-frontend",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",

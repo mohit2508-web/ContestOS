@@ -1,5 +1,5 @@
 /**
- * ContestOS Web Dev Worker — Isolated Execution Thread
+ * Kryptavia OS Web Dev Worker — Isolated Execution Thread
  *
  * SECURITY: This worker runs JSDOM evaluation in an isolated Node.js worker thread.
  * If candidate's JS calls process.exit(), crashes, or hangs — ONLY this worker dies.

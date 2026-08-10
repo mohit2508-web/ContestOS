@@ -38,8 +38,8 @@ function roleToPath(role: string): string {
 }
 
 const DEMO_ACCOUNTS = [
-  { label: 'Super Admin', role: 'SUPER_ADMIN', email: 'admin@contestos.io', password: 'Admin@123456', color: 'from-red-500 to-red-600' },
-  { label: 'Platform Content SME', role: 'PLATFORM_CONTENT_AUTHOR', email: 'sme@contestos.io', password: 'Sme@123456', color: 'from-indigo-500 to-indigo-600' },
+  { label: 'Super Admin', role: 'SUPER_ADMIN', email: 'admin@kryptavia.io', password: 'Admin@123456', color: 'from-red-500 to-red-600' },
+  { label: 'Platform Content SME', role: 'PLATFORM_CONTENT_AUTHOR', email: 'sme@kryptavia.io', password: 'Sme@123456', color: 'from-indigo-500 to-indigo-600' },
   { label: 'Org Admin (IIT Delhi)', role: 'ORG_ADMIN', email: 'admin@iitd.ac.in', password: 'Admin@123456', color: 'from-purple-500 to-purple-600' },
   { label: 'Org Admin (GLA Univ)', role: 'GLA_ORG_ADMIN', email: 'neeraj@gla.ac.in', password: 'GlaAdmin@123456', color: 'from-amber-600 to-yellow-600' },
   { label: 'Proctor', role: 'PROCTOR', email: 'proctor@iitd.ac.in', password: 'Proctor@123456', color: 'from-rose-500 to-rose-600' },
@@ -194,9 +194,9 @@ export function LoginPageComponent() {
     try {
       const result = await api.login(loginEmail, loginPassword);
       if (rememberMe) {
-        localStorage.setItem('contestos_remember_email', loginEmail);
+        localStorage.setItem('kryptaviaos_remember_email', loginEmail);
       } else {
-        localStorage.removeItem('contestos_remember_email');
+        localStorage.removeItem('kryptaviaos_remember_email');
       }
       login(result.accessToken, result.refreshToken, {
         id: result.user.id,
@@ -255,7 +255,7 @@ export function LoginPageComponent() {
           {/* Header */}
           <div className="text-center">
             <h1 className="text-3xl font-black tracking-tight logo-shimmer">
-              <span className="text-white">Contest</span><span className="text-amber-400">OS</span>
+              <span className="text-white">Kryptavia</span><span className="text-amber-400">OS</span>
             </h1>
             <p className="text-xs text-gray-400 mt-1">Sign in to your assessment portal</p>
           </div>

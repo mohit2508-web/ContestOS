@@ -228,12 +228,12 @@ export function EvaluatorDashboard() {
                   OFFICIAL EVALUATION & GRADING DIRECTIVE ACCORD
                 </span>
                 <h3 className="text-sm font-black text-white">
-                  ContestOS Governance Engine · Official Evaluator Code of Conduct
+                  Kryptavia OS Governance Engine · Official Evaluator Code of Conduct
                 </h3>
               </div>
             </div>
             <span className="px-3 py-1 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 rounded-full text-[10px] font-mono font-bold">
-              CONTESTOS LEGAL ACCORD 2026 ✓
+              KRYPTAVIA OS LEGAL ACCORD 2026 ✓
             </span>
           </div>
 
@@ -607,7 +607,7 @@ export function EvaluatorDashboard() {
                     <button
                       onClick={async () => {
                         await notify.alert('Encrypted Audit Report Downloaded', {
-                          description: `File: ContestOS_Evaluation_Audit_Report_${Date.now()}.pdf\nDecryption Key: admin123\nSHA-256 Digest: ${reportSha256Digest}`,
+                          description: `File: KryptaviaOS_Evaluation_Audit_Report_${Date.now()}.pdf\nDecryption Key: admin123\nSHA-256 Digest: ${reportSha256Digest}`,
                           variant: 'success',
                         });
                       }}

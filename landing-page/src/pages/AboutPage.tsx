@@ -80,7 +80,7 @@ export default function AboutPage() {
       <section ref={ref1} className="py-24 px-4">
         <div className="max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={inView1 ? { opacity: 1, y: 0 } : {}} className="mb-12">
-            <h2 className="text-3xl md:text-5xl font-black mb-4">How ContestOS started</h2>
+            <h2 className="text-3xl md:text-5xl font-black mb-4">How Kryptavia OS started</h2>
           </motion.div>
 
           <motion.div
@@ -90,7 +90,7 @@ export default function AboutPage() {
             className="space-y-6 text-gray-400 text-lg leading-relaxed"
           >
             <p>
-              ContestOS didn't start as its own product. It began as a piece of{' '}
+              Kryptavia OS didn't start as its own product. It began as a piece of{' '}
               <span className="text-white font-medium">TalentOS</span> — a talent
               assessment platform where the contest and judging engine kept turning
               out to be the part people cared about most.
@@ -109,7 +109,7 @@ export default function AboutPage() {
               hiring, for campuses, for anyone who wants to judge skill by what
               someone can build, not what's written on a page.
             </p>
-            <p className="text-white font-bold text-xl">That's ContestOS.</p>
+            <p className="text-white font-bold text-xl">That's Kryptavia OS.</p>
           </motion.div>
         </div>
       </section>
@@ -281,14 +281,14 @@ export default function AboutPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-black font-black text-sm">⚡</div>
-              <span className="font-bold text-white tracking-tight">ContestOS</span>
+              <span className="font-bold text-white tracking-tight">Kryptavia OS</span>
             </div>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
               {['Features', 'Pricing', 'Docs', 'Blog', 'Privacy', 'Terms'].map(l => (
                 <a key={l} href="#" className="hover:text-white transition-colors">{l}</a>
               ))}
             </div>
-            <p className="text-xs text-gray-600">© 2026 ContestOS. All rights reserved.</p>
+            <p className="text-xs text-gray-600">© 2026 Kryptavia OS. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -81,7 +81,7 @@ export function GuestResultView() {
 
             <div className="pt-4 text-center">
               <Link to="/register" className="inline-block px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl transition">
-                Register Full Account on ContestOS
+                Register Full Account on Kryptavia OS
               </Link>
             </div>
           </div>

@@ -210,7 +210,7 @@ export function NotificationsPage() {
                               OFFICIAL STAFF APPOINTMENT DIRECTIVE
                             </span>
                             <h4 className="text-xs font-bold text-white font-mono">
-                              REF-DOC-{n.id.slice(0, 8).toUpperCase()} · CONTESTOS GOVERNANCE ENGINE
+                              REF-DOC-{n.id.slice(0, 8).toUpperCase()} · KRYPTAVIA OS GOVERNANCE ENGINE
                             </h4>
                           </div>
                         </div>

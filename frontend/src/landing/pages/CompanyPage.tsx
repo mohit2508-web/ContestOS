@@ -7,6 +7,7 @@ import SampleReport from '../components/company/SampleReport';
 import CandidateExperience from '../components/company/CandidateExperience';
 import CompanyCTA from '../components/company/CompanyCTA';
 import LiveJudgeSpeed from '../components/shared/LiveJudgeSpeed';
+import { KryptaviaLogo } from '../../components/common/KryptaviaLogo';
 
 export default function CompanyPage() {
   return (
@@ -26,15 +27,14 @@ export default function CompanyPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-black font-black text-sm">⚡</div>
-              <span className="font-bold text-white tracking-tight">ContestOS</span>
+              <KryptaviaLogo size="sm" />
             </div>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
               {['Features', 'Pricing', 'Docs', 'API', 'Privacy', 'Terms'].map(l => (
                 <a key={l} href="#" className="hover:text-white transition-colors">{l}</a>
               ))}
             </div>
-            <p className="text-xs text-gray-600">© 2026 ContestOS. All rights reserved.</p>
+            <p className="text-xs text-gray-600">© 2026 Kryptavia OS. All rights reserved.</p>
           </div>
         </div>
       </footer>

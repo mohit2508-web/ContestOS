@@ -102,7 +102,7 @@ router.get('/logs/:contestId', authenticateToken, async (req: Request, res: Resp
       createdAt: l.timestamp,
       user: {
         fullName: l.user && l.user.name ? l.user.name : (l.user && l.user.email ? l.user.email.split('@')[0] : 'System Candidate'),
-        email: l.user && l.user.email ? l.user.email : 'candidate@contestos.org',
+        email: l.user && l.user.email ? l.user.email : 'candidate@kryptavia.org',
       },
     }));
 

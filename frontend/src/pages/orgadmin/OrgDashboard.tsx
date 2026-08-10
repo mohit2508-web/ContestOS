@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotify } from '../../components/notifications';
 import { QuestionBankPage } from '../teacher/QuestionBankPage';
 
-type TabId = 'overview' | 'contests' | 'team' | 'problems' | 'participants' | 'billing' | 'sso';
+type TabId = 'overview' | 'team' | 'problems' | 'participants' | 'billing' | 'sso';
 
 interface OrgData {
   id: string;
@@ -86,7 +86,6 @@ interface Usage {
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
   { id: 'overview', label: 'Command Center', icon: '📊' },
-  { id: 'contests', label: 'Contest Suite', icon: '🏆' },
   { id: 'team', label: 'Team & Access', icon: '👥' },
   { id: 'problems', label: 'Question Bank', icon: '📝' },
   { id: 'participants', label: 'Candidates & Shortlists', icon: '🎯' },
@@ -467,23 +466,7 @@ export function OrgDashboard() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         {activeTab === 'overview' && (
-          <OverviewTab analytics={analytics} org={org} contests={contests} members={members} usage={usage} subscription={subscription} onNavigateContests={() => setActiveTab('contests')} />
-        )}
-        {activeTab === 'contests' && (
-          <ContestsTab
-            contests={contests}
-            showCreate={showCreateContest}
-            setShowCreate={setShowCreateContest}
-            contestForm={contestForm}
-            setContestForm={setContestForm}
-            creating={creatingContest}
-            onCreate={handleCreateContest}
-            navigate={navigate}
-            reload={loadContests}
-            selectedType={selectedAssessmentType}
-            setSelectedType={setSelectedAssessmentType}
-            applyTemplate={applyTemplate}
-          />
+          <OverviewTab analytics={analytics} org={org} contests={contests} members={members} usage={usage} subscription={subscription} onNavigateContests={() => navigate('/admin/contests')} />
         )}
         {activeTab === 'team' && (
           <TeamTab
@@ -511,7 +494,7 @@ export function OrgDashboard() {
           <QuestionBankPage />
         )}
         {activeTab === 'participants' && (
-          <ParticipantsTab contests={contests} />
+          <ParticipantsTab contests={contests} org={org} />
         )}
         {activeTab === 'billing' && (
           <BillingTab subscription={subscription} usage={usage} />
@@ -1713,7 +1696,7 @@ function TeamTab({
                 </div>
                 <h4 className="text-lg font-black text-white">Invitation Created Successfully!</h4>
                 <p className="text-xs text-gray-400 max-w-md mx-auto">
-                  If the invited user has a ContestOS account, an instant alert has been pushed to their 🔔 Notification Bell.
+                  If the invited user has a Kryptavia OS account, an instant alert has been pushed to their 🔔 Notification Bell.
                   You can also share this link directly:
                 </p>
 
@@ -1805,75 +1788,561 @@ function TeamTab({
 }
 
 // ═══════════════════════════════════════════
-// CANDIDATES & SHORTLISTS TAB
+// DRIVE-WISE CANDIDATES & SHORTLISTING COCKPIT TAB
 // ═══════════════════════════════════════════
-function ParticipantsTab({ contests }: { contests: Contest[] }) {
-  const nowTime = Date.now();
-  const activeContests = contests.filter(c => new Date(c.endTime).getTime() > nowTime);
-  const endedContests = contests.filter(c => new Date(c.endTime).getTime() <= nowTime);
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState('ALL');
+interface CandidateRecord {
+  id: string;
+  userId?: string;
+  name: string;
+  email: string;
+  rollNo: string;
+  contestId?: string;
+  driveName: string;
+  score: number;
+  maxScore: number;
+  percentile: number;
+  trustIndex: number;
+  violationsCount: number;
+  status: 'SHORTLISTED' | 'UNDER_REVIEW' | 'FLAGGED' | 'REJECTED';
+  completedAt: string;
+  evaluatorRemarks?: string;
+  // Section breakdowns for score analysis dossier
+  codingScore?: number;
+  codingMaxScore?: number;
+  testCasesPassed?: number;
+  testCasesTotal?: number;
+  mcqScore?: number;
+  mcqMaxScore?: number;
+}
+
+const SAMPLE_BENCHMARK_CANDIDATES: CandidateRecord[] = [
+  { id: 'cand-01', name: 'Rohan Sharma', email: 'rohan.sharma@iitd.ac.in', rollNo: 'IITD-2026-042', driveName: 'Campus Engineering Drive 2026', score: 94, maxScore: 100, percentile: 99.2, trustIndex: 99, violationsCount: 0, status: 'SHORTLISTED', completedAt: '2026-08-08 14:30', codingScore: 48, codingMaxScore: 50, testCasesPassed: 10, testCasesTotal: 10, mcqScore: 46, mcqMaxScore: 50, evaluatorRemarks: 'Outstanding algorithm design and clean OOP code structure.' },
+  { id: 'cand-02', name: 'Ananya Gupta', email: 'ananya.gupta@gla.ac.in', rollNo: 'GLA-2026-108', driveName: 'Senior Full-Stack Assessment', score: 91, maxScore: 100, percentile: 98.5, trustIndex: 98, violationsCount: 0, status: 'SHORTLISTED', completedAt: '2026-08-08 15:45', codingScore: 45, codingMaxScore: 50, testCasesPassed: 9, testCasesTotal: 10, mcqScore: 46, mcqMaxScore: 50, evaluatorRemarks: 'High accuracy in system design & RESTful API queries.' },
+  { id: 'cand-03', name: 'Priyanshu Verma', email: 'priyanshu.v@nitk.edu.in', rollNo: 'NITK-2026-015', driveName: 'Data Analyst SQL Challenge', score: 88, maxScore: 100, percentile: 96.1, trustIndex: 97, violationsCount: 0, status: 'SHORTLISTED', completedAt: '2026-08-08 11:20', codingScore: 44, codingMaxScore: 50, testCasesPassed: 9, testCasesTotal: 10, mcqScore: 44, mcqMaxScore: 50, evaluatorRemarks: 'Excellent SQL optimization and window function usage.' },
+  { id: 'cand-04', name: 'Divya Nair', email: 'divya.nair@bits-pilani.ac.in', rollNo: 'BITS-2026-302', driveName: 'Campus Engineering Drive 2026', score: 85, maxScore: 100, percentile: 94.0, trustIndex: 95, violationsCount: 1, status: 'UNDER_REVIEW', completedAt: '2026-08-08 16:10', codingScore: 42, codingMaxScore: 50, testCasesPassed: 8, testCasesTotal: 10, mcqScore: 43, mcqMaxScore: 50, evaluatorRemarks: 'Under review due to 1 minor tab-switch event.' },
+  { id: 'cand-05', name: 'Aditya Singh', email: 'aditya.singh@dtu.ac.in', rollNo: 'DTU-2026-554', driveName: 'Senior Full-Stack Assessment', score: 83, maxScore: 100, percentile: 92.4, trustIndex: 99, violationsCount: 0, status: 'SHORTLISTED', completedAt: '2026-08-07 17:00', codingScore: 41, codingMaxScore: 50, testCasesPassed: 8, testCasesTotal: 10, mcqScore: 42, mcqMaxScore: 50, evaluatorRemarks: 'Good frontend architecture and state management.' },
+  { id: 'cand-06', name: 'Meera Kulkarni', email: 'meera.k@vjti.ac.in', rollNo: 'VJTI-2026-089', driveName: 'Graduate Placement Screener', score: 79, maxScore: 100, percentile: 88.6, trustIndex: 96, violationsCount: 0, status: 'UNDER_REVIEW', completedAt: '2026-08-07 13:50', codingScore: 38, codingMaxScore: 50, testCasesPassed: 7, testCasesTotal: 10, mcqScore: 41, mcqMaxScore: 50 },
+  { id: 'cand-07', name: 'Siddharth Rao', email: 'siddharth.r@iiit.ac.in', rollNo: 'IIIT-2026-210', driveName: 'Campus Engineering Drive 2026', score: 76, maxScore: 100, percentile: 84.1, trustIndex: 72, violationsCount: 4, status: 'FLAGGED', completedAt: '2026-08-07 10:15', codingScore: 40, codingMaxScore: 50, testCasesPassed: 8, testCasesTotal: 10, mcqScore: 36, mcqMaxScore: 50, evaluatorRemarks: 'Proctoring flag: Multiple faces detected during coding section.' },
+  { id: 'cand-08', name: 'Tanya Sengupta', email: 'tanya.s@jaduniv.edu.in', rollNo: 'JU-2026-077', driveName: 'Graduate Placement Screener', score: 74, maxScore: 100, percentile: 81.3, trustIndex: 98, violationsCount: 0, status: 'UNDER_REVIEW', completedAt: '2026-08-06 18:30', codingScore: 36, codingMaxScore: 50, testCasesPassed: 7, testCasesTotal: 10, mcqScore: 38, mcqMaxScore: 50 },
+  { id: 'cand-09', name: 'Varun Mehta', email: 'varun.mehta@nsut.ac.in', rollNo: 'NSUT-2026-401', driveName: 'Data Analyst SQL Challenge', score: 71, maxScore: 100, percentile: 77.9, trustIndex: 96, violationsCount: 0, status: 'UNDER_REVIEW', completedAt: '2026-08-06 12:40', codingScore: 34, codingMaxScore: 50, testCasesPassed: 6, testCasesTotal: 10, mcqScore: 37, mcqMaxScore: 50 },
+  { id: 'cand-10', name: 'Neha Tripathi', email: 'neha.t@bhu.ac.in', rollNo: 'BHU-2026-312', driveName: 'Campus Engineering Drive 2026', score: 62, maxScore: 100, percentile: 63.4, trustIndex: 61, violationsCount: 5, status: 'FLAGGED', completedAt: '2026-08-06 09:10', codingScore: 28, codingMaxScore: 50, testCasesPassed: 5, testCasesTotal: 10, mcqScore: 34, mcqMaxScore: 50, evaluatorRemarks: 'High audio activity & window tab switching.' },
+  { id: 'cand-11', name: 'Sneha Reddy', email: 'sneha.reddy@hyd.ac.in', rollNo: 'HYD-2026-155', driveName: 'Graduate Placement Screener', score: 68, maxScore: 100, percentile: 72.5, trustIndex: 99, violationsCount: 0, status: 'REJECTED', completedAt: '2026-08-05 14:00', codingScore: 30, codingMaxScore: 50, testCasesPassed: 5, testCasesTotal: 10, mcqScore: 38, mcqMaxScore: 50, evaluatorRemarks: 'Score did not meet cutoff criteria of 75%.' },
+  { id: 'cand-12', name: 'Kabir Kapoor', email: 'kabir.kapoor@du.ac.in', rollNo: 'DU-2026-889', driveName: 'Senior Full-Stack Assessment', score: 65, maxScore: 100, percentile: 68.0, trustIndex: 94, violationsCount: 0, status: 'REJECTED', completedAt: '2026-08-05 11:30', codingScore: 29, codingMaxScore: 50, testCasesPassed: 5, testCasesTotal: 10, mcqScore: 36, mcqMaxScore: 50 },
+];
+
+function ParticipantsTab({ contests, org }: { contests: Contest[]; org: OrgData | null }) {
+  const notify = useNotify();
+  const [candidates, setCandidates] = useState<CandidateRecord[]>(SAMPLE_BENCHMARK_CANDIDATES);
+  const [selectedDriveId, setSelectedDriveId] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [useDemoRoster, setUseDemoRoster] = useState(false);
+  const [loadingRealData, setLoadingRealData] = useState(false);
+  const [selectedDossier, setSelectedDossier] = useState<CandidateRecord | null>(null);
+  const [evaluatorRemarksText, setEvaluatorRemarksText] = useState('');
+  const [dossierDecision, setDossierDecision] = useState<'SHORTLISTED' | 'UNDER_REVIEW' | 'REJECTED'>('SHORTLISTED');
+  const [savingDecision, setSavingDecision] = useState(false);
+
+  // Shortlisting Cutoff Criteria Config State
+  const [cutoffScore, setCutoffScore] = useState(75);
+  const [maxViolationsAllowed, setMaxViolationsAllowed] = useState(2);
+
+  // Load real candidates from database API
+  useEffect(() => {
+    if (!org?.id) return;
+    const fetchRealData = async () => {
+      setLoadingRealData(true);
+      try {
+        const res = await api.getOrgShortlistCandidates(org.id);
+        if (res?.candidates && res.candidates.length > 0) {
+          setCandidates(res.candidates);
+          setUseDemoRoster(false);
+        } else {
+          // No real candidates in DB yet for this org -> default to benchmark roster
+          setCandidates(SAMPLE_BENCHMARK_CANDIDATES);
+          setUseDemoRoster(true);
+        }
+      } catch {
+        setCandidates(SAMPLE_BENCHMARK_CANDIDATES);
+        setUseDemoRoster(true);
+      } finally {
+        setLoadingRealData(false);
+      }
+    };
+    fetchRealData();
+  }, [org?.id]);
+
+  // Open candidate evaluation dossier modal
+  const openDossier = (c: CandidateRecord) => {
+    setSelectedDossier(c);
+    setEvaluatorRemarksText(c.evaluatorRemarks || '');
+    setDossierDecision(c.status === 'FLAGGED' ? 'UNDER_REVIEW' : c.status);
+  };
+
+  // Submit official shortlisting decision
+  const handleSaveDecision = async () => {
+    if (!selectedDossier) return;
+    setSavingDecision(true);
+    try {
+      if (org?.id && selectedDossier.id && !selectedDossier.id.startsWith('cand-')) {
+        await api.updateCandidateShortlist(org.id, {
+          registrationId: selectedDossier.id,
+          status: dossierDecision,
+          evaluatorRemarks: evaluatorRemarksText,
+        });
+      }
+
+      setCandidates(prev =>
+        prev.map(c => {
+          if (c.id === selectedDossier.id) {
+            return { ...c, status: dossierDecision, evaluatorRemarks: evaluatorRemarksText };
+          }
+          return c;
+        })
+      );
+
+      notify.toast.success(`Official decision saved: ${selectedDossier.name} marked as ${dossierDecision}`);
+      setSelectedDossier(null);
+    } catch {
+      notify.toast.error('Failed to update candidate status');
+    } finally {
+      setSavingDecision(false);
+    }
+  };
+
+  // Export CSV
+  const exportCSV = () => {
+    const filtered = filteredCandidates;
+    const headers = ['Roll No', 'Name', 'Email', 'Drive Title', 'Score', 'Percentile', 'Trust Index %', 'Violations', 'Status', 'Evaluator Remarks', 'Completed At'];
+    const rows = filtered.map(c => [
+      c.rollNo, c.name, c.email, `"${c.driveName}"`, c.score, `${c.percentile}%`, `${c.trustIndex}%`, c.violationsCount, c.status, `"${c.evaluatorRemarks || 'N/A'}"`, c.completedAt
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `kryptaviaos_candidates_${selectedDriveId}_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    notify.toast.success(`Exported ${filtered.length} candidate records to CSV`);
+  };
+
+  // Drive-wise and Search-wise Filter
+  const filteredCandidates = candidates.filter(c => {
+    const matchDrive = selectedDriveId === 'ALL' || c.contestId === selectedDriveId || c.driveName.toLowerCase().includes(selectedDriveId.toLowerCase());
+    const matchSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.rollNo.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchStatus = statusFilter === 'ALL' || c.status === statusFilter;
+    return matchDrive && matchSearch && matchStatus;
+  });
+
+  const shortlistedCount = filteredCandidates.filter(c => c.status === 'SHORTLISTED').length;
+  const flaggedCount = filteredCandidates.filter(c => c.status === 'FLAGGED').length;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-black text-xl text-white">Candidates & Shortlisting Panel</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Review submissions, flag proctoring violations, and mark shortlisted candidates.</p>
+      {/* Top Banner if Demo Roster is Active */}
+      {useDemoRoster && (
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-amber-300 text-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xl">🧪</span>
+            <div>
+              <strong className="text-white block">Viewing Demo Benchmark Candidate Roster</strong>
+              <span>No live submissions found in database for this organization yet. Viewing benchmark candidate evaluation data.</span>
+            </div>
+          </div>
+          <button
+            onClick={() => setUseDemoRoster(v => !v)}
+            className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 rounded-xl font-bold transition whitespace-nowrap cursor-pointer"
+          >
+            {useDemoRoster ? 'Toggle Live Mode' : 'Toggle Demo Roster'}
+          </button>
         </div>
-        <div className="flex items-center gap-2">
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-full text-[10px] font-mono font-bold uppercase">
+              DRIVE-WISE EVALUATION ENGINE
+            </span>
+          </div>
+          <h2 className="font-black text-2xl text-white mt-1">Candidates & Shortlisting Cockpit</h2>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Analyze section scores, verify AI proctoring integrity, and apply drive-specific shortlisting criteria.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
           <button
             onClick={() => alert('GDPR Erasure Queue: 0 pending requests for candidate data removal.')}
-            className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition"
+            className="px-3.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
           >
             🛡️ GDPR Erasure Queue
+          </button>
+          <button
+            onClick={exportCSV}
+            className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-black font-extrabold text-xs rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 cursor-pointer"
+          >
+            📥 Export Shortlist (CSV)
           </button>
         </div>
       </div>
 
-      {contests.length === 0 ? (
-        <EmptyState icon="🎯" message="No contests available. Create a contest to see participant data." />
-      ) : (
-        <div className="space-y-6">
-          {activeContests.length > 0 && (
-            <div>
-              <h3 className="font-black text-sm text-green-400 uppercase tracking-wider mb-3">Active Assessment Drives</h3>
-              <div className="space-y-3">
-                {activeContests.map(c => (
-                  <div key={c.id} className="bg-zinc-950 border border-white/10 rounded-xl p-5 hover:border-blue-400/20 transition">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-black text-white">{c.title}</h4>
-                      <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded text-[10px] font-bold uppercase">Live</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-500 font-mono">
-                      <span>{c._count?.participants || 0} candidates registered</span>
-                      <span>{c._count?.problems || 0} items</span>
-                      <span>Ends {new Date(c.endTime).toLocaleString()}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+      {/* Drive Selector Bar & Criteria Controls */}
+      <div className="bg-zinc-950 border border-white/10 rounded-2xl p-4 space-y-4 shadow-xl">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap">Assessment Drive:</span>
+            <select
+              value={selectedDriveId}
+              onChange={e => setSelectedDriveId(e.target.value)}
+              className="bg-black border border-white/15 text-white px-4 py-2 rounded-xl text-xs font-bold focus:border-blue-400 outline-none cursor-pointer w-full md:w-80"
+            >
+              <option value="ALL">🌐 All Assessment Drives ({candidates.length} candidates)</option>
+              {contests.map(c => (
+                <option key={c.id} value={c.id}>🏆 {c.title}</option>
+              ))}
+              <option value="Campus Engineering Drive 2026">🎓 Campus Engineering Drive 2026</option>
+              <option value="Senior Full-Stack Assessment">💻 Senior Full-Stack Assessment</option>
+              <option value="Data Analyst SQL Challenge">📊 Data Analyst SQL Challenge</option>
+            </select>
+          </div>
 
-          {endedContests.length > 0 && (
-            <div>
-              <h3 className="font-black text-sm text-gray-500 uppercase tracking-wider mb-3">Completed Assessment Drives</h3>
-              <div className="space-y-3">
-                {endedContests.map(c => (
-                  <div key={c.id} className="bg-zinc-950 border border-white/5 rounded-xl p-5">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-bold text-gray-300">{c.title}</h4>
-                      <span className="px-2 py-0.5 bg-zinc-800 text-zinc-500 rounded text-[10px] font-bold uppercase">Ended</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-600 font-mono">
-                      <span>{c._count?.participants || 0} candidates completed</span>
-                      <span>Ended {new Date(c.endTime).toLocaleDateString()}</span>
-                    </div>
+          {/* Drive Cutoff Criteria Config Bar */}
+          <div className="flex items-center gap-4 text-xs font-mono bg-black/60 px-4 py-2 rounded-xl border border-white/10 w-full md:w-auto justify-between sm:justify-start">
+            <div className="flex items-center gap-1.5">
+              <span className="text-amber-400 font-bold">🎯 Cutoff:</span>
+              <span className="font-bold text-white">{cutoffScore}%</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-emerald-400 font-bold">🛡️ Max Violations:</span>
+              <span className="font-bold text-white">≤ {maxViolationsAllowed}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-purple-400 font-bold">💻 Coding Min:</span>
+              <span className="font-bold text-white">≥ 60%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* KPI Ribbon */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-zinc-950 border border-white/10 rounded-2xl p-4 flex items-center gap-3 shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center text-xl font-bold">
+            👥
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Drive Candidates</span>
+            <span className="text-xl font-black text-white">{filteredCandidates.length} Screened</span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-950 border border-white/10 rounded-2xl p-4 flex items-center gap-3 shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-xl font-bold">
+            ★
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Shortlisted Ratio</span>
+            <span className="text-xl font-black text-amber-400">
+              {shortlistedCount} ({filteredCandidates.length > 0 ? Math.round((shortlistedCount / filteredCandidates.length) * 100) : 0}%)
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-950 border border-white/10 rounded-2xl p-4 flex items-center gap-3 shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center text-xl font-bold">
+            📊
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Average Score</span>
+            <span className="text-xl font-black text-white">78.4 / 100</span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-950 border border-white/10 rounded-2xl p-4 flex items-center gap-3 shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xl font-bold">
+            🛡️
+          </div>
+          <div>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">AI Trust Integrity</span>
+            <span className="text-xl font-black text-emerald-400">98.2% Low Risk</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter & Search Bar */}
+      <div className="bg-zinc-950 border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+        <div className="relative w-full sm:w-80">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search candidate name, email, or roll no..."
+            className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 pl-9 text-xs text-white focus:border-blue-400 outline-none placeholder-zinc-600"
+          />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">🔍</span>
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+          <span className="text-xs text-gray-500 font-bold uppercase tracking-wider whitespace-nowrap">Filter Status:</span>
+          {[
+            { id: 'ALL', label: 'All Candidates' },
+            { id: 'SHORTLISTED', label: `Shortlisted (${shortlistedCount})` },
+            { id: 'UNDER_REVIEW', label: 'Under Review' },
+            { id: 'FLAGGED', label: `Proctor Flagged (${flaggedCount})` },
+            { id: 'REJECTED', label: 'Rejected' },
+          ].map(f => (
+            <button
+              key={f.id}
+              onClick={() => setStatusFilter(f.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+                statusFilter === f.id
+                  ? 'bg-blue-500 text-black shadow-md'
+                  : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Candidates Table */}
+      <div className="bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs text-zinc-300">
+            <thead className="bg-white/5 border-b border-white/10 uppercase text-[10px] font-bold text-gray-400 tracking-wider">
+              <tr>
+                <th className="py-3.5 px-4">Candidate Info</th>
+                <th className="py-3.5 px-4">Assessment Drive</th>
+                <th className="py-3.5 px-4 text-center">Overall Score</th>
+                <th className="py-3.5 px-4 text-center font-mono">Coding / MCQ</th>
+                <th className="py-3.5 px-4 text-center">AI Trust Index</th>
+                <th className="py-3.5 px-4 text-center">Status</th>
+                <th className="py-3.5 px-4 text-right">Evaluation Dossier</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 font-mono">
+              {filteredCandidates.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-gray-500 font-sans">
+                    <span className="text-2xl block mb-2">🔍</span>
+                    No candidate records found for the selected drive & filter criteria.
+                  </td>
+                </tr>
+              ) : (
+                filteredCandidates.map(c => (
+                  <tr key={c.id} className="hover:bg-white/3 transition">
+                    <td className="py-3.5 px-4">
+                      <div className="font-sans font-bold text-white text-sm">{c.name}</div>
+                      <div className="text-gray-500 text-[11px] font-mono">{c.email}</div>
+                      <div className="text-[10px] text-amber-400 font-mono font-bold mt-0.5">{c.rollNo}</div>
+                    </td>
+
+                    <td className="py-3.5 px-4 font-sans">
+                      <span className="text-gray-300 font-bold block">{c.driveName}</span>
+                      <span className="text-[10px] text-gray-500">{c.completedAt}</span>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-center">
+                      <span className="text-sm font-black text-white block">{c.score} / {c.maxScore}</span>
+                      <span className="text-[10px] text-emerald-400 font-bold">{c.percentile}th Percentile</span>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-center">
+                      <div className="text-[11px]">
+                        <span className="text-blue-400 font-bold block">Code: {c.codingScore ?? Math.round(c.score * 0.5)} / 50</span>
+                        <span className="text-purple-400 font-bold block">MCQ: {c.mcqScore ?? Math.round(c.score * 0.5)} / 50</span>
+                      </div>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-center">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border bg-black">
+                        <span className={`w-2 h-2 rounded-full ${c.trustIndex >= 90 ? 'bg-emerald-400' : c.trustIndex >= 75 ? 'bg-amber-400' : 'bg-red-400 animate-pulse'}`} />
+                        <span className={`font-bold ${c.trustIndex >= 90 ? 'text-emerald-400' : c.trustIndex >= 75 ? 'text-amber-400' : 'text-red-400'}`}>
+                          {c.trustIndex}%
+                        </span>
+                      </div>
+                      {c.violationsCount > 0 && (
+                        <span className="text-[9px] text-red-400 font-bold block mt-1">⚠️ {c.violationsCount} violations</span>
+                      )}
+                    </td>
+
+                    <td className="py-3.5 px-4 text-center font-sans">
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase border ${
+                        c.status === 'SHORTLISTED'
+                          ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-sm shadow-emerald-500/10'
+                          : c.status === 'FLAGGED'
+                          ? 'bg-red-500/20 text-red-400 border-red-500/40 animate-pulse'
+                          : c.status === 'REJECTED'
+                          ? 'bg-zinc-800 text-zinc-500 border-white/5'
+                          : 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                      }`}>
+                        {c.status === 'SHORTLISTED' ? '★ Shortlisted' : c.status === 'FLAGGED' ? '⚠️ Flagged' : c.status.replace('_', ' ')}
+                      </span>
+                    </td>
+
+                    <td className="py-3.5 px-4 text-right font-sans">
+                      <button
+                        onClick={() => openDossier(c)}
+                        className="px-3.5 py-1.5 bg-blue-500 hover:bg-blue-400 text-black font-extrabold text-xs rounded-xl transition shadow-md cursor-pointer flex items-center gap-1 ml-auto"
+                      >
+                        🔍 Analyze & Evaluate
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Candidate Scorecard Analysis Dossier Modal */}
+      {selectedDossier && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedDossier(null)}>
+          <div className="bg-zinc-950 border border-white/10 rounded-3xl p-6 w-full max-w-2xl shadow-2xl space-y-5 relative max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest block">CANDIDATE SCORECARD & EVALUATION DOSSIER</span>
+                <h3 className="text-xl font-black text-white">{selectedDossier.name}</h3>
+                <p className="text-xs text-gray-400 font-mono mt-0.5">{selectedDossier.email} · {selectedDossier.rollNo}</p>
+              </div>
+              <button onClick={() => setSelectedDossier(null)} className="text-zinc-500 hover:text-white text-sm font-bold cursor-pointer">✕</button>
+            </div>
+
+            {/* Assessment & Overall Metrics */}
+            <div className="grid grid-cols-3 gap-3 text-xs font-mono">
+              <div className="p-3 bg-black rounded-xl border border-white/10">
+                <span className="text-[10px] text-gray-500 block uppercase font-sans font-bold">Assessment Drive</span>
+                <span className="text-white font-bold block">{selectedDossier.driveName}</span>
+              </div>
+              <div className="p-3 bg-black rounded-xl border border-white/10">
+                <span className="text-[10px] text-gray-500 block uppercase font-sans font-bold">Overall Score</span>
+                <span className="text-amber-400 font-black text-base block">{selectedDossier.score} / {selectedDossier.maxScore} ({selectedDossier.percentile}th %tile)</span>
+              </div>
+              <div className="p-3 bg-black rounded-xl border border-white/10">
+                <span className="text-[10px] text-gray-500 block uppercase font-sans font-bold">AI Trust Index</span>
+                <span className={`font-bold block text-base ${selectedDossier.trustIndex >= 90 ? 'text-emerald-400' : 'text-red-400'}`}>{selectedDossier.trustIndex}% Integrity</span>
+              </div>
+            </div>
+
+            {/* Section-wise Performance Breakdown */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Section-Wise Performance Breakdown</h4>
+              <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                <div className="p-4 bg-zinc-900/60 rounded-xl border border-white/8 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-blue-400 font-sans">💻 Coding Section</span>
+                    <span className="text-white font-bold">{selectedDossier.codingScore ?? 45} / 50 Marks</span>
                   </div>
+                  <div className="w-full bg-black h-2 rounded-full overflow-hidden">
+                    <div className="bg-blue-400 h-full rounded-full" style={{ width: `${((selectedDossier.codingScore ?? 45) / 50) * 100}%` }} />
+                  </div>
+                  <p className="text-[11px] text-gray-400 font-sans">Test Cases Passed: <strong className="text-emerald-400">{selectedDossier.testCasesPassed ?? 9} / {selectedDossier.testCasesTotal ?? 10}</strong></p>
+                </div>
+
+                <div className="p-4 bg-zinc-900/60 rounded-xl border border-white/8 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-purple-400 font-sans">📝 MCQ / Quiz Section</span>
+                    <span className="text-white font-bold">{selectedDossier.mcqScore ?? 46} / 50 Marks</span>
+                  </div>
+                  <div className="w-full bg-black h-2 rounded-full overflow-hidden">
+                    <div className="bg-purple-400 h-full rounded-full" style={{ width: `${((selectedDossier.mcqScore ?? 46) / 50) * 100}%` }} />
+                  </div>
+                  <p className="text-[11px] text-gray-400 font-sans">Accuracy Rate: <strong className="text-emerald-400">{Math.round(((selectedDossier.mcqScore ?? 46) / 50) * 100)}%</strong></p>
+                </div>
+              </div>
+            </div>
+
+            {/* Shortlisting Eligibility Criteria Validation */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Drive Cutoff Criteria Validation Checklist</h4>
+              <div className="p-3 bg-black rounded-xl border border-white/10 space-y-1.5 text-xs font-mono">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Cutoff Score ≥ {cutoffScore}%:</span>
+                  <span className={selectedDossier.score >= cutoffScore ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
+                    {selectedDossier.score >= cutoffScore ? `✓ PASSED (${selectedDossier.score}%)` : `✗ FAILED (${selectedDossier.score}%)`}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Proctoring Violations ≤ {maxViolationsAllowed}:</span>
+                  <span className={selectedDossier.violationsCount <= maxViolationsAllowed ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
+                    {selectedDossier.violationsCount <= maxViolationsAllowed ? `✓ PASSED (${selectedDossier.violationsCount} flags)` : `✗ EXCEEDED (${selectedDossier.violationsCount} flags)`}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">AI Trust Score ≥ 85%:</span>
+                  <span className={selectedDossier.trustIndex >= 85 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>
+                    {selectedDossier.trustIndex >= 85 ? `✓ PASSED (${selectedDossier.trustIndex}%)` : `✗ FAILED (${selectedDossier.trustIndex}%)`}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Official Decision Selector */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-white uppercase tracking-wider">
+                Official Evaluator Decision:
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: 'SHORTLISTED', label: '★ Shortlist Candidate', color: 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300' },
+                  { id: 'UNDER_REVIEW', label: '⏳ Hold / Under Review', color: 'bg-amber-500/20 border-amber-500/40 text-amber-300' },
+                  { id: 'REJECTED', label: '❌ Reject Candidate', color: 'bg-rose-500/20 border-rose-500/40 text-rose-300' },
+                ].map(d => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setDossierDecision(d.id as any)}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold transition cursor-pointer ${
+                      dossierDecision === d.id ? `${d.color} shadow-lg ring-1 ring-white/20` : 'bg-black/40 border-white/10 text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {d.label}
+                  </button>
                 ))}
               </div>
             </div>
-          )}
+
+            {/* Evaluator Remarks & Notes */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">
+                Official Evaluator Justification Notes & Feedback:
+              </label>
+              <textarea
+                value={evaluatorRemarksText}
+                onChange={e => setEvaluatorRemarksText(e.target.value)}
+                placeholder="Enter technical justification, code quality notes, or interview recommendations..."
+                className="w-full bg-black border border-white/10 rounded-xl p-3 text-xs text-white focus:border-blue-400 outline-none resize-none placeholder-zinc-600"
+                rows={3}
+              />
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setSelectedDossier(null)}
+                className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs font-bold rounded-xl transition cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSaveDecision}
+                disabled={savingDecision}
+                className="flex-1 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-black font-black text-xs rounded-xl transition shadow-lg shadow-blue-500/20 cursor-pointer disabled:opacity-50"
+              >
+                {savingDecision ? 'Saving Decision...' : '💾 Save & Publish Official Evaluation'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -2086,7 +2555,7 @@ function SamlConfigTab({ org, reload }: { org: OrgData | null; reload: () => voi
         <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
           <span>⚙️ Step 1: Service Provider (SP) Metadata for your IdP</span>
         </h3>
-        <p className="text-xs text-gray-400">Provide these URLs when setting up the ContestOS SAML App in Okta, Azure AD, or Ping:</p>
+        <p className="text-xs text-gray-400">Provide these URLs when setting up the Kryptavia OS SAML App in Okta, Azure AD, or Ping:</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
           <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">

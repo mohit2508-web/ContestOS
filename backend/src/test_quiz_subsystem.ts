@@ -4,7 +4,7 @@ import { evaluateQuizResponse } from './services/quizEvaluator';
 import { detectSynchronizedCheating, isQuizSessionFrozen, setQuizSessionFreeze } from './services/proctoringService';
 
 async function runQuizIntegrationSuite() {
-  console.log('🧪 Starting ContestOS Quiz Subsystem Automated Integration Suite...\n');
+  console.log('🧪 Starting Kryptavia OS Quiz Subsystem Automated Integration Suite...\n');
 
   let passedTests = 0;
   let totalTests = 0;
@@ -147,7 +147,7 @@ async function runQuizIntegrationSuite() {
   if (!user) {
     user = await prisma.user.create({
       data: {
-        email: 'quiz-test-user@contestos.internal',
+        email: 'quiz-test-user@kryptavia.internal',
         name: 'Quiz Test User',
         password: 'hashed-password-123',
         role: 'STUDENT',

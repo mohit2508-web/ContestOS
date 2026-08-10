@@ -156,7 +156,7 @@ router.get('/google/callback', async (req: Request, res: Response) => {
     if (!clientId || !clientSecret || (typeof code === 'string' && code.startsWith('mock_google_code'))) {
       // Mock Profile for Dev Mode
       googleId = `google-mock-${Date.now()}`;
-      email = `arjun.google.dev@contestos.io`;
+      email = `arjun.google.dev@kryptavia.io`;
       name = `Arjun Sharma (Google SSO)`;
       avatarUrl = `https://lh3.googleusercontent.com/a/default-user`;
     } else {
@@ -229,7 +229,7 @@ router.get('/github/callback', async (req: Request, res: Response) => {
 
     if (!clientId || !clientSecret || (typeof code === 'string' && code.startsWith('mock_github_code'))) {
       githubId = `github-mock-${Date.now()}`;
-      email = `dev.github.user@contestos.io`;
+      email = `dev.github.user@kryptavia.io`;
       name = `Dev GitHub User`;
       avatarUrl = `https://avatars.githubusercontent.com/u/9919?v=4`;
     } else {
@@ -246,7 +246,7 @@ router.get('/github/callback', async (req: Request, res: Response) => {
       const accessToken = tokenRes.data.access_token;
 
       const userRes = await axios.get('https://api.github.com/user', {
-        headers: { Authorization: `token ${accessToken}`, 'User-Agent': 'ContestOS-Platform' },
+        headers: { Authorization: `token ${accessToken}`, 'User-Agent': 'KryptaviaOS-Platform' },
       });
 
       githubId = String(userRes.data.id);
@@ -256,7 +256,7 @@ router.get('/github/callback', async (req: Request, res: Response) => {
 
       if (!email) {
         const emailsRes = await axios.get('https://api.github.com/user/emails', {
-          headers: { Authorization: `token ${accessToken}`, 'User-Agent': 'ContestOS-Platform' },
+          headers: { Authorization: `token ${accessToken}`, 'User-Agent': 'KryptaviaOS-Platform' },
         });
         const primary = emailsRes.data.find((e: any) => e.primary) || emailsRes.data[0];
         email = primary ? primary.email : `${userRes.data.login}@users.noreply.github.com`;
@@ -315,7 +315,7 @@ router.get('/linkedin/callback', async (req: Request, res: Response) => {
 
     if (!clientId || !clientSecret || (typeof code === 'string' && code.startsWith('mock_linkedin_code'))) {
       linkedinId = `linkedin-mock-${Date.now()}`;
-      email = `pro.linkedin.user@contestos.io`;
+      email = `pro.linkedin.user@kryptavia.io`;
       name = `Priya Sharma (LinkedIn OIDC)`;
       avatarUrl = `https://media.licdn.com/dms/image/default`;
     } else {

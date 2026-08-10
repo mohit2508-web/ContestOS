@@ -37,7 +37,7 @@ export const QuestionBankPage: React.FC = () => {
           },
           {
             id: 'bank-2',
-            name: 'ContestOS Standard Aptitude & Verbal Bank',
+            name: 'Kryptavia OS Standard Aptitude & Verbal Bank',
             description: 'Platform-curated & psychometrically validated aptitude & reasoning bank.',
             scope: 'PLATFORM_GLOBAL',
             organizationId: null,
@@ -65,7 +65,7 @@ export const QuestionBankPage: React.FC = () => {
         },
         {
           id: 'bank-2',
-          name: 'ContestOS Standard Aptitude & Verbal Bank',
+          name: 'Kryptavia OS Standard Aptitude & Verbal Bank',
           description: 'Platform-curated & psychometrically validated aptitude & reasoning bank.',
           scope: 'PLATFORM_GLOBAL',
           organizationId: null,

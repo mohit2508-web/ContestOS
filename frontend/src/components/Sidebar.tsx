@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { ROLE_LABELS, ROLE_COLORS } from '../config/roles';
 
 import { NotificationBell } from './NotificationBell';
+import { KryptaviaLogo } from './common/KryptaviaLogo';
 
 const Icon = ({ d }: { d: string }) => (
   <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -238,9 +239,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
     <div className="flex h-screen bg-black overflow-hidden relative">
       {/* Mobile Header Bar */}
       <div className="md:hidden absolute top-0 left-0 right-0 h-16 bg-zinc-950 border-b border-white/10 flex items-center justify-between px-4 z-40">
-        <h1 className="text-lg font-black text-white">
-          Contest<span className="text-amber-400">OS</span>
-        </h1>
+        <KryptaviaLogo size="sm" />
         <button onClick={() => setIsOpen(true)} className="text-white p-2">
           <Icon d={icons.menu} />
         </button>
@@ -264,17 +263,17 @@ export function Sidebar({ children }: { children: ReactNode }) {
       >
         {/* Logo & Brand Header */}
         <div className="p-4 border-b border-white/10 flex items-center justify-between h-16 shrink-0">
-          {!isCollapsed && (
+          {!isCollapsed ? (
             <div>
-              <h1 className="text-xl font-black text-white tracking-tight">
-                Contest<span className="text-amber-400">OS</span>
-              </h1>
+              <KryptaviaLogo size="sm" />
               <span
                 className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold rounded ${roleColor} text-white mt-1 inline-block`}
               >
                 {roleLabel}
               </span>
             </div>
+          ) : (
+            <KryptaviaLogo size="sm" showTagline={false} />
           )}
           <div className="flex items-center gap-1">
             <NotificationBell position="left" />

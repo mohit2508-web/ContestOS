@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function runSecurityGovernanceTests() {
   console.log('=====================================================');
-  console.log('🧪 RUNNING CONTESTOS SECURITY & GOVERNANCE TEST SUITE');
+  console.log('🧪 RUNNING KRYPTAVIA OS SECURITY & GOVERNANCE TEST SUITE');
   console.log('=====================================================\n');
 
   let passed = 0;
@@ -28,17 +28,17 @@ async function runSecurityGovernanceTests() {
     assert(Role.PLATFORM_CONTENT_AUTHOR === 'PLATFORM_CONTENT_AUTHOR', 'Role enum contains PLATFORM_CONTENT_AUTHOR 7th role');
 
     // 2. Setup Test Author & Reviewer
-    let author = await prisma.user.findFirst({ where: { email: 'author_test@contestos.io' } });
+    let author = await prisma.user.findFirst({ where: { email: 'author_test@kryptavia.io' } });
     if (!author) {
       author = await prisma.user.create({
-        data: { email: 'author_test@contestos.io', name: 'Author Setter', password: 'hash' },
+        data: { email: 'author_test@kryptavia.io', name: 'Author Setter', password: 'hash' },
       });
     }
 
-    let reviewer = await prisma.user.findFirst({ where: { email: 'reviewer_test@contestos.io' } });
+    let reviewer = await prisma.user.findFirst({ where: { email: 'reviewer_test@kryptavia.io' } });
     if (!reviewer) {
       reviewer = await prisma.user.create({
-        data: { email: 'reviewer_test@contestos.io', name: 'Peer Reviewer', password: 'hash' },
+        data: { email: 'reviewer_test@kryptavia.io', name: 'Peer Reviewer', password: 'hash' },
       });
     }
 

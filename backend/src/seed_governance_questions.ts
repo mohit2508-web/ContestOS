@@ -9,7 +9,7 @@ async function main() {
   if (!user) {
     user = await prisma.user.create({
       data: {
-        email: `author_${Date.now()}@contestos.io`,
+        email: `author_${Date.now()}@kryptavia.io`,
         name: 'Tech Lead Author',
         password: 'hashed_password',
       },

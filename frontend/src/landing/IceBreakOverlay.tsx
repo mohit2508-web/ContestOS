@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { useIceBreak, CrackEvent, DetachEvent } from './useIceBreak';
 import { drawCellPath, Cell } from './lib/shatter';
 import { createWorld, addShard, step, removeExitedShards, destroy, PhysicsWorld } from './lib/physicsWorld';
+import { KryptaviaLogo } from '../components/common/KryptaviaLogo';
 
 interface Props {
   onComplete: () => void;
@@ -261,9 +262,8 @@ export default function IceBreakOverlay({ onComplete, onFading }: Props) {
           </div>
 
           {/* Bottom-left brand mark */}
-          <div className="fixed bottom-8 left-8 z-[60] flex items-center gap-3 opacity-40">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-black font-black text-xs">⚡</div>
-            <span className="font-bold text-white/70 text-sm tracking-tight">ContestOS</span>
+          <div className="fixed bottom-8 left-8 z-[60] flex items-center gap-3 opacity-60">
+            <KryptaviaLogo size="sm" />
           </div>
 
           {/* Skip button */}

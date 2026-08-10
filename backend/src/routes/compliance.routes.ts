@@ -151,7 +151,7 @@ router.put('/gdpr/requests/:id/approve', authenticateToken, requireRole(...COMPL
     // Execute PII masking if a target user is specified
     if (request.targetUserId) {
       const anonymisedName = `Deleted User ${Date.now()}`;
-      const anonymisedEmail = `deleted_${Date.now()}@gdpr-erased.contestos`;
+      const anonymisedEmail = `deleted_${Date.now()}@gdpr-erased.kryptavia`;
 
       await prisma.user.update({
         where: { id: request.targetUserId },
@@ -324,7 +324,7 @@ router.get('/audit/export', authenticateToken, requireRole(...COMPLIANCE_ROLES),
     const csvContent = `# SOC 2 Type II System Audit Trail\n# Exported By: ${req.user!.email}\n# Digest: SHA256-SIGNATURE-VERIFIED\n` + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="ContestOS_SOC2_AuditTrail_${Date.now()}.csv"`);
+    res.setHeader('Content-Disposition', `attachment; filename="KryptaviaOS_SOC2_AuditTrail_${Date.now()}.csv"`);
     res.send(csvContent);
   } catch (err) {
     console.error('Audit export error:', err);

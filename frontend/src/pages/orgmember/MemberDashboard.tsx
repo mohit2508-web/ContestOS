@@ -651,7 +651,7 @@ export function MemberDashboard() {
                     <button
                       onClick={async () => {
                         await notify.alert('Encrypted PDF Downloaded', {
-                          description: `File: ContestOS_Secured_Results_${Date.now()}.pdf\nDecryption Key: ${exportPasscode}\nSHA-256 Digest: ${resultsSha256Hash}`,
+                          description: `File: KryptaviaOS_Secured_Results_${Date.now()}.pdf\nDecryption Key: ${exportPasscode}\nSHA-256 Digest: ${resultsSha256Hash}`,
                           variant: 'success',
                         });
                       }}

@@ -45,8 +45,44 @@ import { NotificationsPage } from './pages/NotificationsPage';
 import { SsoCallbackPage } from './pages/SsoCallbackPage';
 
 import LandingPageApp from './landing/LandingPageApp';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { ErrorState } from './components/common/ErrorState';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 const queryClient = new QueryClient();
+
+function NetworkOfflineDetector() {
+  const [isOffline, setIsOffline] = React.useState(!navigator.onLine);
+
+  React.useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  if (!isOffline) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+      <div className="w-full max-w-lg">
+        <ErrorState
+          variant="network"
+          title="Internet Connection Lost"
+          body="Your connection dropped. Check your Wi-Fi/LAN cable. We'll pick up right where you left off when connected."
+          onAction={() => window.location.reload()}
+          ctaLabel="Retry Connection"
+        />
+      </div>
+    </div>
+  );
+}
 
 function PortalRedirect() {
   const { user } = useAuth();
@@ -74,12 +110,14 @@ import { NotificationProvider } from './components/notifications';
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <NotificationProvider>
-          <Router>
-          <Sidebar>
-            <Routes>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <NotificationProvider>
+            <NetworkOfflineDetector />
+            <Router>
+              <Sidebar>
+                <Routes>
               {/* Landing Page as Root Entrance */}
               <Route path="/" element={<LandingPageApp />} />
               <Route path="/landing" element={<LandingPageApp />} />
@@ -279,12 +317,13 @@ export default function App() {
               <Route path="/playground/quiz" element={<QuizPlaygroundPage />} />
               <Route path="/playground" element={<CodePlaygroundPage />} />
 
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Sidebar>
         </Router>
         </NotificationProvider>
       </AuthProvider>
     </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

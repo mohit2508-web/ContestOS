@@ -200,7 +200,7 @@ export function SmeGlobalRepositoryPage() {
           </h1>
           <p className="text-zinc-400 text-sm mt-1 max-w-xl">
             Psychometrically calibrated global item bank. Author, version, and IRT-calibrate
-            production-grade assessment items for all ContestOS tenants.
+            production-grade assessment items for all Kryptavia OS tenants.
           </p>
         </div>
         <button

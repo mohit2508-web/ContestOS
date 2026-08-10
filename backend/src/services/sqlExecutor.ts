@@ -1,5 +1,5 @@
 /**
- * Enterprise SQLite/WASM SQL Execution & Security Engine for ContestOS
+ * Enterprise SQLite/WASM SQL Execution & Security Engine for Kryptavia OS
  * Features:
  * - AST Pre-Parser Security Validation (node-sql-parser)
  * - Cartesian Product Bomb Shield

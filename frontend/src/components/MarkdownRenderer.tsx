@@ -6,7 +6,7 @@ interface Props {
 
 export default function MarkdownRenderer({ content }: Props) {
   if (!content) return null;
-  console.log("[ContestOS] MarkdownRenderer v2.0 active");
+  console.log("[Kryptavia OS] MarkdownRenderer v2.0 active");
 
   // Clean multiline image URLs (especially Base64 data URLs containing newlines/spaces)
   let normalizedContent = String(content || '')

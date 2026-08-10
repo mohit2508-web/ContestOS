@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import prisma from '../lib/prisma';
+import prisma, { withDbRetry } from '../lib/prisma';
 import { generateAccessToken, generateRefreshToken, AuthPayload } from '../middlewares/auth';
 import { rateLimit } from '../middlewares/rateLimit';
 
@@ -103,7 +103,7 @@ router.post('/login', rateLimit(20, 15 * 60 * 1000), async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await withDbRetry(() => prisma.user.findUnique({ where: { email } }));
     if (!user) {
       const pendingReq = await prisma.organizationRequest.findFirst({
         where: { contactEmail: email, status: 'PENDING' },
