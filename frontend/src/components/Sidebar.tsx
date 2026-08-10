@@ -262,12 +262,13 @@ export function Sidebar({ children }: { children: ReactNode }) {
         }`}
       >
         {/* Logo & Brand Header */}
-        <div className="p-4 border-b border-white/10 flex items-center justify-between h-16 shrink-0">
+        <div className="px-3.5 py-3 border-b border-white/10 flex items-center justify-between min-h-[4.5rem] shrink-0">
           {!isCollapsed ? (
-            <div>
+            <div className="min-w-0 flex-1 pr-1">
               <KryptaviaLogo size="sm" />
               <span
-                className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold rounded ${roleColor} text-white mt-1 inline-block`}
+                className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold rounded ${roleColor} text-white mt-1 inline-block truncate max-w-full`}
+                title={roleLabel}
               >
                 {roleLabel}
               </span>
@@ -275,13 +276,13 @@ export function Sidebar({ children }: { children: ReactNode }) {
           ) : (
             <KryptaviaLogo size="sm" showTagline={false} />
           )}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <NotificationBell position="left" />
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="hidden md:flex text-gray-400 hover:text-white p-1.5 hover:bg-white/5 rounded-lg transition cursor-pointer"
             >
-              {isCollapsed ? '\u2192' : '\u2190'}
+              {isCollapsed ? '→' : '←'}
             </button>
           </div>
           <button onClick={() => setIsOpen(false)} className="md:hidden text-gray-400 p-1">
@@ -325,9 +326,9 @@ export function Sidebar({ children }: { children: ReactNode }) {
         {/* User Identity Footer */}
         <div className="p-3 border-t border-white/10 bg-zinc-900/50 shrink-0 space-y-2">
           {!isCollapsed && user && (
-            <div className="bg-white/5 p-2.5 rounded-xl border border-white/5">
-              <p className="text-xs font-bold text-white truncate">{user.name}</p>
-              <p className="text-[10px] text-amber-400 truncate">{user.email}</p>
+            <div className="bg-white/5 p-2.5 rounded-xl border border-white/5 min-w-0 overflow-hidden">
+              <p className="text-xs font-bold text-white truncate" title={user.name}>{user.name}</p>
+              <p className="text-[10px] text-amber-400 truncate" title={user.email}>{user.email}</p>
             </div>
           )}
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNotify } from './notifications';
 import { api } from '../services/api';
@@ -6,8 +6,24 @@ import { api } from '../services/api';
 export function NotificationBell({ position = 'right' }: { position?: 'left' | 'right' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [actingId, setActingId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { notifications, unreadCount, markAsRead, markAllAsRead, refresh } = useNotifications();
   const notify = useNotify();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   const handleAccept = async (n: any) => {
     const invId = n.data?.invitationId;
@@ -18,6 +34,7 @@ export function NotificationBell({ position = 'right' }: { position?: 'left' | '
       notify.toast.success(res.message || 'Joined organization successfully!');
       markAsRead(n.id);
       refresh();
+      setIsOpen(false);
       setTimeout(() => {
         window.location.href = '/org';
       }, 1000);
@@ -37,6 +54,7 @@ export function NotificationBell({ position = 'right' }: { position?: 'left' | '
       notify.toast.success('Invitation declined');
       markAsRead(n.id);
       refresh();
+      setIsOpen(false);
     } catch (err: any) {
       notify.toast.error(err?.response?.data?.error || 'Failed to decline invitation');
     } finally {
@@ -47,7 +65,7 @@ export function NotificationBell({ position = 'right' }: { position?: 'left' | '
   const positionClasses = position === 'left' ? 'left-0 mt-2' : 'right-0 mt-2';
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
         onClick={() => { setIsOpen(!isOpen); if (!isOpen) refresh(); }}
         className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition cursor-pointer border border-white/10"
@@ -163,6 +181,7 @@ export function NotificationBell({ position = 'right' }: { position?: 'left' | '
                         )}
                         <a
                           href="/notifications"
+                          onClick={() => setIsOpen(false)}
                           className="inline-block mt-1 text-[9px] text-amber-400 hover:underline font-bold"
                         >
                           View Full Official Warrant & Directives →
