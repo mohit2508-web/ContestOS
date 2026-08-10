@@ -3,6 +3,7 @@ import React from 'react';
 interface KryptaviaLogoProps {
   size?: 'sm' | 'md' | 'lg';
   showTagline?: boolean;
+  showText?: boolean;
   className?: string;
   horizontal?: boolean;
 }
@@ -10,6 +11,7 @@ interface KryptaviaLogoProps {
 export function KryptaviaLogo({
   size = 'md',
   showTagline = false,
+  showText = true,
   className = '',
   horizontal = true,
 }: KryptaviaLogoProps) {
@@ -50,17 +52,19 @@ export function KryptaviaLogo({
       </div>
 
       {/* Brand Typography */}
-      <div className="flex flex-col">
-        <div className={`font-black ${dimensions.text} text-white tracking-tight flex items-center gap-1 font-sans`}>
-          <span>Kryptavia</span>
-          <span className="text-amber-400 font-extrabold">OS</span>
+      {showText && (
+        <div className="flex flex-col min-w-0">
+          <div className={`font-black ${dimensions.text} text-white tracking-tight flex items-center gap-1 font-sans`}>
+            <span>Kryptavia</span>
+            <span className="text-amber-400 font-extrabold">OS</span>
+          </div>
+          {showTagline && (
+            <span className={`${dimensions.tag} font-bold text-gray-500 tracking-widest uppercase mt-0.5 font-mono`}>
+              PROVEN. VERIFIED. ELEVATED.
+            </span>
+          )}
         </div>
-        {showTagline && (
-          <span className={`${dimensions.tag} font-bold text-gray-500 tracking-widest uppercase mt-0.5 font-mono`}>
-            PROVEN. VERIFIED. ELEVATED.
-          </span>
-        )}
-      </div>
+      )}
     </div>
   );
 }

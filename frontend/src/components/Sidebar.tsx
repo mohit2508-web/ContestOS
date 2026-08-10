@@ -262,33 +262,48 @@ export function Sidebar({ children }: { children: ReactNode }) {
         }`}
       >
         {/* Logo & Brand Header */}
-        <div className="px-3.5 py-3 border-b border-white/10 flex items-center justify-between min-h-[4.5rem] shrink-0">
-          {!isCollapsed ? (
-            <div className="min-w-0 flex-1 pr-1">
-              <KryptaviaLogo size="sm" />
+        {!isCollapsed ? (
+          <div className="p-3.5 border-b border-white/10 flex flex-col gap-2 shrink-0">
+            <div className="flex items-center justify-between min-w-0">
+              <KryptaviaLogo size="sm" showText={true} />
+              <div className="flex items-center gap-1 shrink-0">
+                <NotificationBell position="left" />
+                <button
+                  onClick={() => setIsCollapsed(true)}
+                  className="hidden md:flex text-gray-400 hover:text-white p-1.5 hover:bg-white/5 rounded-lg transition cursor-pointer"
+                  title="Collapse sidebar"
+                >
+                  ←
+                </button>
+              </div>
+              <button onClick={() => setIsOpen(false)} className="md:hidden text-gray-400 p-1">
+                <Icon d={icons.close} />
+              </button>
+            </div>
+            <div className="min-w-0">
               <span
-                className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold rounded ${roleColor} text-white mt-1 inline-block truncate max-w-full`}
+                className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold rounded ${roleColor} text-white truncate max-w-full inline-block`}
                 title={roleLabel}
               >
                 {roleLabel}
               </span>
             </div>
-          ) : (
-            <KryptaviaLogo size="sm" showTagline={false} />
-          )}
-          <div className="flex items-center gap-1 shrink-0">
-            <NotificationBell position="left" />
-            <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden md:flex text-gray-400 hover:text-white p-1.5 hover:bg-white/5 rounded-lg transition cursor-pointer"
-            >
-              {isCollapsed ? '→' : '←'}
-            </button>
           </div>
-          <button onClick={() => setIsOpen(false)} className="md:hidden text-gray-400 p-1">
-            <Icon d={icons.close} />
-          </button>
-        </div>
+        ) : (
+          <div className="p-2 border-b border-white/10 flex flex-col items-center gap-2.5 py-3 shrink-0">
+            <KryptaviaLogo size="sm" showText={false} showTagline={false} />
+            <div className="flex flex-col items-center gap-1.5">
+              <NotificationBell position="left" />
+              <button
+                onClick={() => setIsCollapsed(false)}
+                className="hidden md:flex text-gray-400 hover:text-white p-1.5 hover:bg-white/5 rounded-lg transition cursor-pointer"
+                title="Expand sidebar"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Navigation Items */}
         <nav className="flex-1 p-3 space-y-4 overflow-y-auto custom-scrollbar">

@@ -68,7 +68,7 @@ export function NotificationBell({ position = 'right' }: { position?: 'left' | '
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => { setIsOpen(!isOpen); if (!isOpen) refresh(); }}
-        className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition cursor-pointer border border-white/10"
+        className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-xl transition cursor-pointer border border-white/10 z-50"
         title="Notifications"
       >
         <span className="text-base">🔔</span>
@@ -80,41 +80,61 @@ export function NotificationBell({ position = 'right' }: { position?: 'left' | '
       </button>
 
       {isOpen && (
-        <div className={`absolute ${positionClasses} w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden space-y-2 p-3`}>
-          <div className="flex justify-between items-center px-2 py-1.5 border-b border-white/10">
-            <span className="font-extrabold text-xs text-white flex items-center gap-1.5">
-              <span>🔔 Notifications</span>
-              {unreadCount > 0 && (
-                <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 text-[10px] rounded-md font-bold">
-                  {unreadCount} new
-                </span>
-              )}
-            </span>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold transition cursor-pointer"
-              >
-                Mark all read
-              </button>
-            )}
-          </div>
+        <>
+          {/* Backdrop overlay for 100% fail-safe click outside dismiss */}
+          <div
+            className="fixed inset-0 z-40 bg-transparent"
+            onClick={() => setIsOpen(false)}
+          />
 
-          <div className="max-h-96 overflow-y-auto space-y-2 custom-scrollbar">
-            {notifications.length === 0 ? (
-              <div className="p-8 text-center text-gray-500 text-xs">
-                <span>✨ No notifications yet.</span>
-              </div>
-            ) : (
-              notifications.map((n) => {
-                const isInvite = n.type === 'TEAM_INVITATION';
-                return (
-                  <div
-                    key={n.id}
-                    className={`p-3 rounded-xl border transition ${
-                      !n.isRead ? 'bg-white/5 border-white/15' : 'bg-black/40 border-white/5 opacity-75'
-                    }`}
+          <div className={`absolute ${positionClasses} w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden space-y-2 p-3`}>
+            <div className="flex justify-between items-center px-2 py-1.5 border-b border-white/10">
+              <span className="font-extrabold text-xs text-white flex items-center gap-1.5">
+                <span>🔔 Notifications</span>
+                {unreadCount > 0 && (
+                  <span className="px-2 py-0.5 bg-rose-500/20 text-rose-400 text-[10px] rounded-md font-bold">
+                    {unreadCount} new
+                  </span>
+                )}
+              </span>
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold transition cursor-pointer"
                   >
+                    Mark all read
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-gray-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded hover:bg-white/10 transition cursor-pointer"
+                  title="Close Notifications"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="max-h-96 overflow-y-auto space-y-2 custom-scrollbar">
+              {notifications.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 text-xs">
+                  <span>✨ No notifications yet.</span>
+                </div>
+              ) : (
+                notifications.map((n) => {
+                  const isInvite = n.type === 'TEAM_INVITATION';
+                  return (
+                    <div
+                      key={n.id}
+                      onClick={() => {
+                        if (!n.isRead) markAsRead(n.id);
+                        setIsOpen(false);
+                      }}
+                      className={`p-3 rounded-xl border transition cursor-pointer hover:border-white/30 ${
+                        !n.isRead ? 'bg-white/5 border-white/15' : 'bg-black/40 border-white/5 opacity-75'
+                      }`}
+                    >
                     <div className="flex items-start justify-between gap-2">
                       <h4 className="text-xs font-bold text-white leading-tight">{n.title}</h4>
                       <span className="text-[9px] text-gray-500 font-mono shrink-0">
@@ -192,8 +212,9 @@ export function NotificationBell({ position = 'right' }: { position?: 'left' | '
                 );
               })
             )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
