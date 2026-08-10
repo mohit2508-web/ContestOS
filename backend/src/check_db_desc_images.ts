@@ -10,7 +10,7 @@ async function main() {
       console.log(`Problem ID: ${p.id} | Title: ${p.title}`);
       console.log(`Description contains images or data:image!`);
       const lines = p.description.split('\n');
-      lines.forEach((l, idx) => {
+      lines.forEach((l: string, idx: number) => {
         if (l.includes('![') || l.includes('data:image')) {
           console.log(`Line ${idx + 1} (${l.length} chars):`, l.substring(0, 120) + '...');
         }

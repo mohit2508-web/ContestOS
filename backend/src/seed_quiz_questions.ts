@@ -1,4 +1,5 @@
 import prisma from './lib/prisma';
+import process from 'process';
 
 async function main() {
   console.log('🌱 Seeding Quiz & MCQ Questions into CockroachDB...');

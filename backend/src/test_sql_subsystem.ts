@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import process from 'process';
 import { executeSql, runSqlTestCases, extractDdlString } from './services/sqlExecutor';
 
 const prisma = new PrismaClient();
@@ -107,7 +108,7 @@ async function runIntegrationSuite() {
   const stadiumSol = stadiumProb?.referenceSolution || '';
   const stadiumDdl = extractDdlString(stadiumProb?.starterCode);
 
-  const stadiumTCs = (stadiumProb?.testCases || []).map(tc => ({
+  const stadiumTCs = (stadiumProb?.testCases || []).map((tc: any) => ({
     setup: `${stadiumDdl}\n${extractDdlString(tc.input)}`,
     expectedOutput: tc.expectedOutput
   }));
@@ -127,7 +128,7 @@ async function runIntegrationSuite() {
   const scSol = supplyChainProb?.referenceSolution || '';
   const scDdl = extractDdlString(supplyChainProb?.starterCode);
 
-  const scTCs = (supplyChainProb?.testCases || []).map(tc => ({
+  const scTCs = (supplyChainProb?.testCases || []).map((tc: any) => ({
     setup: `${scDdl}\n${extractDdlString(tc.input)}`,
     expectedOutput: tc.expectedOutput
   }));

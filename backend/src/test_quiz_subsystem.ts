@@ -1,4 +1,5 @@
 import prisma from './lib/prisma';
+import process from 'process';
 import { materializeQuizAttempt, encryptQuizPayload, decryptQuizPayload } from './services/quizMaterializer';
 import { evaluateQuizResponse } from './services/quizEvaluator';
 import { detectSynchronizedCheating, isQuizSessionFrozen, setQuizSessionFreeze } from './services/proctoringService';

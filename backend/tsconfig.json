@@ -10,5 +10,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/check_*.ts", "src/test_*.ts", "src/dump_*.ts", "src/seed_*.ts"]
 }

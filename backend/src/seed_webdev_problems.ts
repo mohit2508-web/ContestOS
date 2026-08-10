@@ -1,4 +1,5 @@
 import prisma from './lib/prisma';
+import process from 'process';
 
 /**
  * Seeds web-dev problems for the Web Dev Playground.

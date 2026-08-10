@@ -11,7 +11,7 @@ async function main() {
     console.log(`\n========================================`);
     console.log(`ID: ${p.id} | Title: "${p.title}"`);
     console.log(`Total TestCases in DB: ${p.testCases.length}`);
-    p.testCases.forEach((tc, idx) => {
+    p.testCases.forEach((tc: any, idx: number) => {
       console.log(`  TC #${idx + 1}: isHidden=${tc.isHidden}, input="${tc.input.replace(/\n/g, '\\n')}", expectedOutput="${tc.expectedOutput.replace(/\n/g, '\\n')}"`);
     });
   }

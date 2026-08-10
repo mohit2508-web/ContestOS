@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const problems = await prisma.problem.findMany();
-  problems.forEach(p => {
+  problems.forEach((p: any) => {
     console.log(`\n========================================`);
     console.log(`ID: ${p.id} | Title: ${p.title}`);
     console.log(`Images:`, JSON.stringify(p.images));

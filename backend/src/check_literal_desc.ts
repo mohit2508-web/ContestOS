@@ -10,7 +10,7 @@ async function main() {
       console.log(`ID: ${p.id} | Title: "${p.title}"`);
       console.log(`DESCRIPTION HAS HARDCODED FIGURE TAGS!`);
       const lines = p.description.split('\n');
-      lines.forEach((l, i) => {
+      lines.forEach((l: string, i: number) => {
         if (l.includes('![')) {
           console.log(`  Line ${i + 1}: ${l.substring(0, 100)}...`);
         }

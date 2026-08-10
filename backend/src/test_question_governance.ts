@@ -1,4 +1,5 @@
 import { PrismaClient, BankScope, QuestionReviewStatus } from './generated/client';
+import process from 'process';
 import { QuestionBankService } from './services/questionBankService';
 import { ContestAssemblyEngine } from './services/contestAssemblyEngine';
 import { QuestionAnalyticsEngine } from './services/questionAnalyticsEngine';

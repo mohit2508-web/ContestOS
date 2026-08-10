@@ -10,7 +10,7 @@ async function main() {
 
   if (!p) return;
   console.log(`Problem "${p.title}" has ${p.testCases.length} total test cases.`);
-  p.testCases.slice(0, 15).forEach((tc, idx) => {
+  p.testCases.slice(0, 15).forEach((tc: any, idx: number) => {
     console.log(`TC #${idx + 1}: isHidden=${tc.isHidden}, input="${tc.input}", expectedOutput="${tc.expectedOutput}"`);
   });
 }
