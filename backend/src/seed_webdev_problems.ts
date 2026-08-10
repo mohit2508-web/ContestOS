@@ -1,5 +1,6 @@
 import prisma from './lib/prisma';
-import process from 'process';
+
+declare const process: any;
 
 /**
  * Seeds web-dev problems for the Web Dev Playground.

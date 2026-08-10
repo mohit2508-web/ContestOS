@@ -1,5 +1,5 @@
 import { PrismaClient, QuestionReviewStatus, QuestionType, Role } from './generated/client';
-import process from 'process';
+declare const process: any;
 import { QuestionBankService } from './services/questionBankService';
 
 const prisma = new PrismaClient();

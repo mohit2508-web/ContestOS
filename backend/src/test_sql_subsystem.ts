@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import process from 'process';
+declare const process: any;
 import { executeSql, runSqlTestCases, extractDdlString } from './services/sqlExecutor';
 
 const prisma = new PrismaClient();

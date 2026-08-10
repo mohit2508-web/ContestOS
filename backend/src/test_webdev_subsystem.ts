@@ -1,5 +1,5 @@
 import { evaluateWebDev, parseWebDevSpec } from './services/webDevEvaluator';
-import process from 'process';
+declare const process: any;
 
 async function runIntegrationSuite() {
   console.log('🧪 Starting Kryptavia OS WebDev Subsystem Automated Integration Suite...\n');
