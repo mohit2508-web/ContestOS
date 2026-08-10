@@ -153,12 +153,19 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
       validProblemIds.has(p.problemId || p)
     );
 
+    // Parse datetime-local input as IST (user's local time) by appending +05:30 offset
+    const parseAsLocal = (val: string) => {
+      if (!val) return new Date(val);
+      if (val.includes('Z') || /[+-]\d{2}:\d{2}$/.test(val)) return new Date(val);
+      return new Date(val + '+05:30');
+    };
+
     const contest = await prisma.contest.create({
       data: {
         title,
         description: description || null,
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        startTime: parseAsLocal(startTime),
+        endTime: parseAsLocal(endTime),
         duration: Number(duration) || 120,
         difficulty: difficulty || 'Medium',
         isPublic: isPublic ?? true,
