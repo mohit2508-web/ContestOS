@@ -88,4 +88,64 @@ router.post("/fingerprint", authenticateToken, requireRole('super_admin', 'org_a
   }
 });
 
+// POST /api/plagiarism/run/:contestId — Run batch plagiarism detector across all submissions in contest
+router.post("/run/:contestId", authenticateToken, requireRole('super_admin', 'org_admin', 'org_member'), async (req: Request, res: Response) => {
+  try {
+    const { contestId } = req.params;
+    const submissions = await prisma.submission.findMany({
+      where: { contestId, status: 'ACCEPTED' },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
+        problem: { select: { id: true, title: true } },
+      },
+    });
+
+    const reports: Array<{
+      user1: any;
+      user2: any;
+      problem: any;
+      similarity: number;
+      method: string;
+      code1?: string;
+      code2?: string;
+    }> = [];
+
+    // Group by problemId
+    const problemMap = new Map<string, typeof submissions>();
+    for (const sub of submissions) {
+      if (!sub.code || sub.code.length < 20) continue;
+      const existing = problemMap.get(sub.problemId) || [];
+      existing.push(sub);
+      problemMap.set(sub.problemId, existing);
+    }
+
+    for (const [_, subs] of problemMap.entries()) {
+      for (let i = 0; i < subs.length; i++) {
+        for (let j = i + 1; j < subs.length; j++) {
+          if (subs[i].userId === subs[j].userId) continue;
+
+          const res = plagiarismDetector.compareCodes(subs[i].code, subs[j].code);
+          if (res.similarity >= 0.5) {
+            reports.push({
+              user1: subs[i].user,
+              user2: subs[j].user,
+              problem: subs[i].problem,
+              similarity: Math.round(res.similarity * 100),
+              method: res.method,
+              code1: subs[i].code,
+              code2: subs[j].code,
+            });
+          }
+        }
+      }
+    }
+
+    reports.sort((a, b) => b.similarity - a.similarity);
+    res.json({ success: true, count: reports.length, reports });
+  } catch (error: unknown) {
+    console.error("Batch plagiarism run error:", error);
+    res.status(500).json({ error: 'Batch plagiarism detection failed' });
+  }
+});
+
 export default router;

@@ -256,10 +256,18 @@ export default function App() {
                   <ParticipantDashboard />
                 </RoleRoute>
               } />
-              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/leaderboard" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <Leaderboard />
+                </RoleRoute>
+              } />
 
               {/* ========== TalentOS Style Contest Scorecard / Report ========== */}
-              <Route path="/contests/:id/report" element={<ContestReport />} />
+              <Route path="/contests/:id/report" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <ContestReport />
+                </RoleRoute>
+              } />
 
               {/* ========== Immersive Contest Zone / IDE ========== */}
               <Route
@@ -311,11 +319,31 @@ export default function App() {
               } />
 
               {/* ========== Interactive Problem Playgrounds ========== */}
-              <Route path="/playground/logic" element={<CodePlaygroundPage />} />
-              <Route path="/playground/web-dev" element={<WebPlaygroundPage />} />
-              <Route path="/playground/sql" element={<SqlPlaygroundPage />} />
-              <Route path="/playground/quiz" element={<QuizPlaygroundPage />} />
-              <Route path="/playground" element={<CodePlaygroundPage />} />
+              <Route path="/playground/logic" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <CodePlaygroundPage />
+                </RoleRoute>
+              } />
+              <Route path="/playground/web-dev" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <WebPlaygroundPage />
+                </RoleRoute>
+              } />
+              <Route path="/playground/sql" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <SqlPlaygroundPage />
+                </RoleRoute>
+              } />
+              <Route path="/playground/quiz" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <QuizPlaygroundPage />
+                </RoleRoute>
+              } />
+              <Route path="/playground" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <CodePlaygroundPage />
+                </RoleRoute>
+              } />
 
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

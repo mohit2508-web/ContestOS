@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { createServer } from 'http';
+import { Server as SocketServer } from 'socket.io';
+import { setupQuizTimerSocket } from './sockets/quizTimerSocket';
 
 // Reload env parameters for CockroachDB & Compliance DSAR & Retention endpoints
 
@@ -44,7 +47,26 @@ import ssoRoutes from './routes/sso.routes';
 import { closeBrowser } from './services/webDevEvaluatorV2';
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
+
+// Socket.IO — Proctor ↔ Student real-time channel
+const io = new SocketServer(httpServer, {
+  cors: {
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return callback(null, true);
+      if (/\.vercel\.app$/.test(origin) || /\.render\.com$/.test(origin)) return callback(null, true);
+      return callback(null, true); // Allow all — same CORS policy as HTTP
+    },
+    credentials: true,
+  },
+  transports: ['websocket', 'polling'],
+});
+setupQuizTimerSocket(io);
+
+// Export io for use in routes (proctor block via REST)
+export { io };
 
 // Graceful shutdown — close Playwright browser on process exit
 process.on('SIGTERM', async () => {
@@ -156,7 +178,23 @@ app.get('/api/user/streak', authenticateToken, async (req: express.Request, res:
       }
     }
 
-    res.json({ currentStreak, maxStreak: currentStreak });
+    // Calculate maxStreak: scan all dates in ascending order
+    const allDates = Array.from(dateSet).sort();
+    let maxStreak = 0;
+    let runningStreak = 0;
+    for (let i = 0; i < allDates.length; i++) {
+      if (i === 0) {
+        runningStreak = 1;
+      } else {
+        const prev = new Date(allDates[i - 1]);
+        const curr = new Date(allDates[i]);
+        const diffDays = Math.round((curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24));
+        runningStreak = diffDays === 1 ? runningStreak + 1 : 1;
+      }
+      maxStreak = Math.max(maxStreak, runningStreak);
+    }
+
+    res.json({ currentStreak, maxStreak });
   } catch (error) {
     res.json({ currentStreak: 0, maxStreak: 0 });
   }
@@ -270,7 +308,7 @@ app.use('/api/compliance', complianceRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // Start Server
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Kryptavia OS Server running on port ${PORT}`);
   console.log(`Health Check: http://localhost:${PORT}/api/health`);
 

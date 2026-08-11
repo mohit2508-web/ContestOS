@@ -158,7 +158,58 @@ router.get('/contests/:id/results', authenticateToken, requireRole(...ALLOWED), 
   }
 });
 
-// ─── POST /api/analytics/contests/:id/compare ───────────────────────────────
+// ─── GET /api/analytics/contests/:id/export-csv ──────────────────────────────
+// Download contest leaderboard as CSV report
+router.get('/contests/:id/export-csv', authenticateToken, requireRole(...ALLOWED), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const contest = await prisma.contest.findUnique({
+      where: { id },
+      select: {
+        title: true,
+        registrations: {
+          select: {
+            score: true,
+            penalty: true,
+            status: true,
+            registeredAt: true,
+            user: { select: { id: true, name: true, email: true, username: true } },
+          },
+          orderBy: [{ score: 'desc' }, { penalty: 'asc' }],
+        },
+        proctoringLogs: { select: { userId: true } },
+      },
+    });
+
+    if (!contest) return res.status(404).json({ error: 'Contest not found' });
+
+    const flaggedUserIds = new Set(contest.proctoringLogs.map(l => l.userId));
+
+    const csvRows = [
+      ['Rank', 'Name', 'Email', 'Username', 'Score', 'Penalty (s)', 'Status', 'Proctor Flagged'].join(','),
+      ...contest.registrations.map((r, idx) => [
+        idx + 1,
+        `"${(r.user.name || '').replace(/"/g, '""')}"`,
+        `"${(r.user.email || '').replace(/"/g, '""')}"`,
+        `"${(r.user.username || '').replace(/"/g, '""')}"`,
+        r.score,
+        r.penalty,
+        r.status,
+        flaggedUserIds.has(r.user.id) ? 'FLAGGED' : 'CLEAN',
+      ].join(',')),
+    ];
+
+    const csvContent = csvRows.join('\n');
+    const filename = `${contest.title.replace(/[^a-zA-Z0-9_-]/g, '_')}_Results.csv`;
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csvContent);
+  } catch (err) {
+    console.error('CSV export error:', err);
+    res.status(500).json({ error: 'Failed to export CSV report' });
+  }
+});
 // Side-by-side multi-candidate comparison
 router.post('/contests/:id/compare', authenticateToken, requireRole(...ALLOWED), async (req, res) => {
   try {

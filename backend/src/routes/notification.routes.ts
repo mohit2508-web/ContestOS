@@ -79,6 +79,8 @@ router.delete('/:id', authenticateToken, async (req: Request, res: Response) => 
   }
 });
 
+import { onNotification } from '../lib/notificationEmitter';
+
 // GET /api/notifications/stream - SSE Live Stream for Real-Time Notification Push
 router.get('/stream', authenticateToken, (req: Request, res: Response) => {
   const userId = req.user!.userId;
@@ -88,13 +90,9 @@ router.get('/stream', authenticateToken, (req: Request, res: Response) => {
   res.setHeader('Connection', 'keep-alive');
   res.flushHeaders();
 
-  const onNotification = (data: { targetUserId: string; notification: any }) => {
-    if (data.targetUserId === userId) {
-      res.write(`data: ${JSON.stringify(data.notification)}\n\n`);
-    }
-  };
-
-  notificationEmitter.on('push', onNotification);
+  const unsubscribe = onNotification(userId, (event) => {
+    res.write(`data: ${JSON.stringify(event)}\n\n`);
+  });
 
   const heartbeat = setInterval(() => {
     res.write(': keepalive\n\n');
@@ -102,7 +100,7 @@ router.get('/stream', authenticateToken, (req: Request, res: Response) => {
 
   req.on('close', () => {
     clearInterval(heartbeat);
-    notificationEmitter.removeListener('push', onNotification);
+    unsubscribe();
     res.end();
   });
 });

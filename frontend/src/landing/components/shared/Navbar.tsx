@@ -13,7 +13,7 @@ interface Props {
 const AUDIENCE_PAGES = new Set<NavPage>(['company', 'college']);
 
 export default function Navbar({ page, onNavigate }: Props) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -79,29 +79,18 @@ export default function Navbar({ page, onNavigate }: Props) {
             Security
           </button>
 
-          {user ? (
-            <Link
-              to="/portal"
-              className="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-400 text-black font-bold rounded-full transition-all shadow-lg hover:shadow-amber-500/20 text-sm"
-            >
-              Go to Portal &rarr;
-            </Link>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full text-white transition-colors text-sm font-medium border border-white/10 text-center"
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/register"
-                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-black font-bold rounded-full transition-all shadow-md text-sm text-center"
-              >
-                Get Started
-              </Link>
-            </>
-          )}
+          <Link
+            to="/login"
+            className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-full text-white transition-colors text-sm font-medium border border-white/10 text-center"
+          >
+            Sign In
+          </Link>
+          <Link
+            to="/register"
+            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-black font-bold rounded-full transition-all shadow-md text-sm text-center"
+          >
+            Get Started
+          </Link>
         </div>
       </div>
     </nav>

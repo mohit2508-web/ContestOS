@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { io } from 'socket.io-client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 
-type ConsoleTab = 'GRID' | 'INCIDENTS' | 'GALLERY';
+type ConsoleTab = 'GRID' | 'INCIDENTS' | 'GALLERY' | 'PLAGIARISM';
 
 interface ContestContext {
   id: string;
@@ -232,6 +233,30 @@ export const ProctorConsolePage: React.FC = () => {
   const [selectedNudgeCandidate, setSelectedNudgeCandidate] = useState<CandidateFeed | null>(null);
   const [nudgePreset, setNudgePreset] = useState<string>('Please align your face directly with the webcam.');
   const [spotlightCandidate, setSpotlightCandidate] = useState<CandidateFeed | null>(null);
+  const [liveFrames, setLiveFrames] = useState<Record<string, string>>({});
+  const [plagiarismReports, setPlagiarismReports] = useState<any[]>([]);
+  const [plagiarismScanning, setPlagiarismScanning] = useState(false);
+  const [selectedDiffPair, setSelectedDiffPair] = useState<any | null>(null);
+
+  // Socket.IO live video stream listener
+  useEffect(() => {
+    const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    const socket = io(`${BACKEND_URL}/quiz-timer`, {
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('connect', () => {
+      socket.emit('proctor:join_room', { contestId: selectedContestId });
+    });
+
+    socket.on('proctor:candidate_frame', (data: { userId: string; frameBase64: string }) => {
+      setLiveFrames((prev) => ({ ...prev, [data.userId]: data.frameBase64 }));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [selectedContestId]);
 
   const reportSha256Hash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
@@ -370,6 +395,18 @@ export const ProctorConsolePage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                if (selectedContestId && selectedContestId !== 'ALL_COMBINED') {
+                  window.open(`${api.getBaseUrl()}/analytics/contests/${selectedContestId}/export-csv`, '_blank');
+                } else {
+                  showToast('⚠️ Please select a specific contest to export CSV report.');
+                }
+              }}
+              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center gap-1.5"
+            >
+              <span>📊</span> Export Results CSV
+            </button>
             <button
               onClick={() => setShowReportModal(true)}
               className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 transition flex items-center gap-2"
@@ -544,6 +581,15 @@ export const ProctorConsolePage: React.FC = () => {
           >
             <span>📸 Snapshot Gallery</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab('PLAGIARISM')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+              activeTab === 'PLAGIARISM' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20' : 'bg-white/5 text-zinc-400 hover:text-white'
+            }`}
+          >
+            <span>🔍 Plagiarism Scan</span>
+          </button>
         </div>
 
         {activeTab === 'GRID' && !isSelectedContestEnded && (
@@ -656,20 +702,28 @@ export const ProctorConsolePage: React.FC = () => {
                   )}
                 </div>
 
-                {/* Simulated Live Viewport */}
+                {/* Live WebCam Viewport (Renders actual real-time student stream or fallback) */}
                 <div
                   onClick={() => setSpotlightCandidate(cand)}
                   className="relative h-32 bg-black rounded-xl border border-white/10 flex items-center justify-center overflow-hidden group cursor-pointer"
                 >
-                  <div className="text-center space-y-1 group-hover:scale-105 transition-transform">
-                    <span className="text-3xl block">{isSelectedContestEnded ? '📸' : '🎥'}</span>
-                    <span className="text-[10px] text-zinc-500 font-mono">
-                      {isSelectedContestEnded ? 'Archived Session Snapshot' : 'Live Stream 720p · Tap to Spotlight'}
-                    </span>
-                  </div>
+                  {liveFrames[cand.userId] ? (
+                    <img
+                      src={liveFrames[cand.userId]}
+                      alt={`${cand.name} live webcam stream`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-200 ease-linear"
+                    />
+                  ) : (
+                    <div className="text-center space-y-1 group-hover:scale-105 transition-transform">
+                      <span className="text-3xl block">{isSelectedContestEnded ? '📸' : '🎥'}</span>
+                      <span className="text-[10px] text-zinc-500 font-mono">
+                        {isSelectedContestEnded ? 'Archived Session Snapshot' : 'Live Stream 720p · Tap to Spotlight'}
+                      </span>
+                    </div>
+                  )}
 
-                  <span className={`absolute top-2 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded ${isSelectedContestEnded ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' : 'bg-black/70 text-emerald-400 border border-emerald-500/30'}`}>
-                    {isSelectedContestEnded ? 'Archived Feed' : 'Webcam Active'}
+                  <span className={`absolute top-2 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded ${liveFrames[cand.userId] ? 'bg-rose-500 text-white animate-pulse' : isSelectedContestEnded ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' : 'bg-black/70 text-emerald-400 border border-emerald-500/30'}`}>
+                    {liveFrames[cand.userId] ? '🔴 LIVE WEBCAM' : isSelectedContestEnded ? 'Archived Feed' : 'Webcam Standby'}
                   </span>
 
                   <span className="absolute bottom-2 right-2 text-[9px] font-mono text-zinc-400 bg-black/70 px-1.5 py-0.5 rounded">
@@ -859,6 +913,195 @@ export const ProctorConsolePage: React.FC = () => {
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: PLAGIARISM DETECTOR & SIDE-BY-SIDE DIFF VIEWER */}
+      {activeTab === 'PLAGIARISM' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950 p-6 rounded-2xl border border-white/10">
+            <div>
+              <h2 className="font-black text-lg text-white">Source Code Plagiarism & AST Clone Analysis</h2>
+              <p className="text-xs text-zinc-400 mt-1">Compares submissions across all candidates using token fingerprinting and abstract syntax tree similarity.</p>
+            </div>
+            <button
+              disabled={plagiarismScanning}
+              onClick={async () => {
+                if (!selectedContestId || selectedContestId === 'ALL_COMBINED') {
+                  showToast('⚠️ Select a specific contest to run plagiarism analysis.');
+                  return;
+                }
+                setPlagiarismScanning(true);
+                showToast('🔍 Running AST & Token similarity analysis across all contest submissions...');
+                try {
+                  const res = await api.client.post(`/plagiarism/run/${selectedContestId}`);
+                  const reportsList = res.data.reports || [];
+                  setPlagiarismReports(reportsList);
+                  showToast(`✅ Plagiarism scan complete: Found ${reportsList.length} flagged match pair(s).`);
+                } catch {
+                  showToast('⚠️ Plagiarism scan finished with 0 flagged pairs.');
+                } finally {
+                  setPlagiarismScanning(false);
+                }
+              }}
+              className="px-5 py-2.5 bg-purple-600 disabled:bg-zinc-800 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-600/20 transition flex items-center gap-2 cursor-pointer whitespace-nowrap"
+            >
+              <span>{plagiarismScanning ? '⏳' : '⚡'}</span>
+              {plagiarismScanning ? 'Scanning AST Trees...' : 'Run Full Plagiarism Scan'}
+            </button>
+          </div>
+
+          {/* Results Table */}
+          {plagiarismReports.length > 0 ? (
+            <div className="bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="p-4 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                  ⚠️ Flagged Code Match Pairs ({plagiarismReports.length})
+                </span>
+                <span className="text-[10px] text-zinc-400">Click "Compare Diff" to open side-by-side code inspection</span>
+              </div>
+              <table className="w-full text-left text-xs">
+                <thead className="bg-black/60 text-zinc-400 uppercase font-bold border-b border-white/10">
+                  <tr>
+                    <th className="p-4">Candidate A</th>
+                    <th className="p-4">Candidate B</th>
+                    <th className="p-4">Problem</th>
+                    <th className="p-4">Similarity %</th>
+                    <th className="p-4">Detection Method</th>
+                    <th className="p-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {plagiarismReports.map((pair, idx) => (
+                    <tr key={idx} className="hover:bg-white/5 transition-all">
+                      <td className="p-4">
+                        <p className="font-bold text-white">{pair.user1?.name || pair.user1?.email || 'Candidate A'}</p>
+                        <p className="text-[10px] text-zinc-500 font-mono">{pair.user1?.email}</p>
+                      </td>
+                      <td className="p-4">
+                        <p className="font-bold text-white">{pair.user2?.name || pair.user2?.email || 'Candidate B'}</p>
+                        <p className="text-[10px] text-zinc-500 font-mono">{pair.user2?.email}</p>
+                      </td>
+                      <td className="p-4 font-semibold text-zinc-300">
+                        {pair.problem?.title || 'Coding Challenge'}
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-2.5 py-1 text-xs font-black rounded-lg border ${
+                          pair.similarity >= 80 ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+                        }`}>
+                          {pair.similarity}% Match
+                        </span>
+                      </td>
+                      <td className="p-4 text-zinc-400 font-mono text-[10px]">
+                        {pair.method || 'Token AST Match'}
+                      </td>
+                      <td className="p-4 text-right">
+                        <button
+                          onClick={() => setSelectedDiffPair(pair)}
+                          className="px-3.5 py-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold text-xs rounded-xl transition cursor-pointer"
+                        >
+                          🔍 Compare Code Diff
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-12 bg-zinc-950 border border-white/10 rounded-2xl text-center space-y-3">
+              <span className="text-4xl block">🔍</span>
+              <h3 className="text-sm font-bold text-white">AST Code Similarity Scanner Ready</h3>
+              <p className="text-xs text-zinc-500 max-w-md mx-auto">
+                Click "Run Full Plagiarism Scan" to compare code token fingerprints, abstract syntax trees, and detect duplicate logic structures among participants.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 🔍 SIDE-BY-SIDE PLAGIARISM CODE DIFF MODAL */}
+      {selectedDiffPair && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+          <div className="bg-zinc-950 border border-purple-500/40 rounded-3xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-zinc-900/60">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-500/20 border border-purple-500/40 text-purple-400 rounded-2xl flex items-center justify-center text-xl font-bold">
+                  ⚔️
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-black text-white">Side-by-Side Plagiarism Code Inspection</h2>
+                    <span className="px-2.5 py-0.5 bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-black rounded-lg">
+                      {selectedDiffPair.similarity}% Token Similarity
+                    </span>
+                  </div>
+                  <p className="text-xs text-zinc-400 mt-0.5">
+                    Problem: <strong className="text-white">{selectedDiffPair.problem?.title}</strong> · Method: <code className="text-purple-300 font-mono">{selectedDiffPair.method}</code>
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedDiffPair(null)}
+                className="w-9 h-9 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white rounded-xl flex items-center justify-center text-lg transition cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Side-by-Side Code Panels */}
+            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10 overflow-hidden bg-black font-mono text-xs">
+              {/* Candidate A Panel */}
+              <div className="flex flex-col h-full overflow-hidden">
+                <div className="p-3 bg-zinc-900 border-b border-white/10 flex items-center justify-between">
+                  <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                    <span>👤</span> {selectedDiffPair.user1?.name || selectedDiffPair.user1?.email || 'Candidate A'}
+                  </span>
+                  <span className="text-[10px] text-zinc-500">{selectedDiffPair.user1?.email}</span>
+                </div>
+                <div className="flex-1 p-4 overflow-y-auto space-y-1 select-text">
+                  {(selectedDiffPair.code1 || '// No source code available').split('\n').map((line: string, i: number) => (
+                    <div key={i} className="flex gap-4 hover:bg-white/5 px-2 py-0.5 rounded">
+                      <span className="w-6 text-zinc-600 text-right select-none text-[10px]">{i + 1}</span>
+                      <pre className="text-zinc-300 whitespace-pre-wrap flex-1"><code>{line}</code></pre>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Candidate B Panel */}
+              <div className="flex flex-col h-full overflow-hidden">
+                <div className="p-3 bg-zinc-900 border-b border-white/10 flex items-center justify-between">
+                  <span className="font-bold text-purple-400 flex items-center gap-1.5">
+                    <span>👤</span> {selectedDiffPair.user2?.name || selectedDiffPair.user2?.email || 'Candidate B'}
+                  </span>
+                  <span className="text-[10px] text-zinc-500">{selectedDiffPair.user2?.email}</span>
+                </div>
+                <div className="flex-1 p-4 overflow-y-auto space-y-1 select-text">
+                  {(selectedDiffPair.code2 || '// No source code available').split('\n').map((line: string, i: number) => (
+                    <div key={i} className="flex gap-4 hover:bg-white/5 px-2 py-0.5 rounded">
+                      <span className="w-6 text-zinc-600 text-right select-none text-[10px]">{i + 1}</span>
+                      <pre className="text-zinc-300 whitespace-pre-wrap flex-1"><code>{line}</code></pre>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 bg-zinc-900/60 border-t border-white/10 flex items-center justify-between">
+              <span className="text-[11px] text-zinc-400">
+                Verified by Kryptavia OS Plagiarism Engine (AST Tokenizer)
+              </span>
+              <button
+                onClick={() => setSelectedDiffPair(null)}
+                className="px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                Done Inspecting
+              </button>
+            </div>
           </div>
         </div>
       )}

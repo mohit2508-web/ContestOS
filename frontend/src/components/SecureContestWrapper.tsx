@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { WarningModal } from './exam/WarningModal';
 import { PostAutoSubmitScreen } from './exam/PostAutoSubmitScreen';
+import { ProctorBlockScreen } from './exam/ProctorBlockScreen';
+import { useProctorSocket } from '../hooks/useProctorSocket';
 import { useNotify } from './notifications';
 
 interface SecurityFlags {
@@ -49,6 +51,55 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
   // Keyboard Lock API States & Refs
   const [keyboardLockActive, setKeyboardLockActive] = useState(false);
   const lastShortcutLogTime = useRef(0);
+
+  // ── Proctor Socket: Block/Unblock/Warn/Terminate & Live Video Streaming ──
+  const {
+    isBlocked: proctorBlocked,
+    blockReason: proctorBlockReason,
+    proctorName: proctorBlockerName,
+    isTerminated: proctorTerminated,
+    terminationReason: proctorTerminationReason,
+    warnMessage: proctorWarnMessage,
+    sendWebcamFrame,
+  } = useProctorSocket({
+    userId: user?.id || '',
+    contestId,
+    enabled: !!(user?.id && contestId),
+    onAction: (action) => {
+      if (action.action === 'TERMINATED') {
+        setIsTerminated(true);
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(console.error);
+        }
+      }
+      if (action.action === 'WARNED' && action.message) {
+        notify.toast.warning(action.message);
+      }
+    },
+  });
+
+  // Stream lightweight webcam frames every 500ms (2 FPS) to invigilator live grid for smooth video
+  useEffect(() => {
+    if (!flags.enableProctoring || !user?.id || !contestId) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 240;
+    canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+
+    const interval = setInterval(() => {
+      const v = videoRef.current || sysVideoRef.current;
+      if (v && v.readyState >= 2 && ctx) {
+        try {
+          ctx.drawImage(v, 0, 0, 240, 180);
+          const frameBase64 = canvas.toDataURL('image/jpeg', 0.35);
+          sendWebcamFrame(frameBase64);
+        } catch {}
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [flags.enableProctoring, user?.id, contestId, sendWebcamFrame]);
 
   // Gesture & Warning Consequence States & Refs
   const lastVisibilityHiddenTime = useRef<number | null>(null);
@@ -1343,6 +1394,42 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
 
   return (
     <div className={`relative min-h-screen ${flags.disableCopyPaste ? 'select-none' : ''}`}>
+      {/* ── Proctor Block Screen — overlays everything when proctor blocks student ── */}
+      <ProctorBlockScreen
+        isBlocked={proctorBlocked}
+        blockReason={proctorBlockReason}
+        proctorName={proctorBlockerName}
+        contestTitle={contestTitle}
+      />
+
+      {/* ── Proctor Warn Banner — shown as a non-blocking warning toast ── */}
+      {proctorWarnMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '16px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 99998,
+          background: 'linear-gradient(135deg, #78350f, #92400e)',
+          border: '1px solid rgba(251, 191, 36, 0.5)',
+          borderRadius: '12px',
+          padding: '12px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
+          maxWidth: '480px',
+          width: '90%',
+          animation: 'fadeIn 0.3s ease-out',
+        }}>
+          <span style={{ fontSize: '20px' }}>⚠️</span>
+          <div>
+            <p style={{ color: '#fbbf24', fontWeight: '700', fontSize: '13px', margin: 0 }}>Invigilator Warning</p>
+            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '12px', margin: '2px 0 0 0' }}>{proctorWarnMessage}</p>
+          </div>
+        </div>
+      )}
+
       {activeViolations.length > 0 && (
         <div className="fixed top-0 left-0 w-full bg-red-600 text-white z-[9999] p-3 text-center text-xs font-black shadow-lg animate-pulse">
           ⚠️ SECURITY VIOLATION DETECTED: Close the following unapproved applications/tabs immediately to avoid disqualification review: {activeViolations.join(', ')}
@@ -1364,7 +1451,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
         warnings={_warnings}
         maxWarnings={flags.maxWarnings || 3}
         reason={warningReason}
-        isTerminated={isTerminated}
+        isTerminated={isTerminated || proctorTerminated}
         onResume={handleResumeExam}
         onExit={handleExitTerminated}
       />

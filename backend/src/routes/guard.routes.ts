@@ -112,4 +112,49 @@ router.get('/logs/:contestId', authenticateToken, async (req: Request, res: Resp
   }
 });
 
+import { generateSebConfig, verifySebHeader } from '../services/sebConfigService';
+
+// GET /api/guard/seb-config/:contestId — Download SEB (.seb) configuration file
+router.get('/seb-config/:contestId', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { contestId } = req.params;
+    const contest = await prisma.contest.findUnique({
+      where: { id: contestId },
+      select: { title: true, requireSeb: true },
+    });
+
+    const frontendUrl = process.env.FRONTEND_URL?.split(',')[0] || 'http://localhost:5173';
+    const contestStartUrl = `${frontendUrl}/contests/${contestId}`;
+
+    const sebXml = generateSebConfig({
+      contestId,
+      contestTitle: contest?.title || 'Kryptavia OS Exam',
+      startUrl: contestStartUrl,
+      allowQuit: true,
+      quitPassword: 'exit-exam-pwd',
+    });
+
+    res.setHeader('Content-Type', 'application/seb');
+    res.setHeader('Content-Disposition', `attachment; filename="Kryptavia_Exam_${contestId}.seb"`);
+    res.send(sebXml);
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to generate SEB configuration file' });
+  }
+});
+
+// GET /api/guard/verify-seb — Check if current browser is Safe Exam Browser
+router.get('/verify-seb', (req: Request, res: Response): void => {
+  const userAgent = req.headers['user-agent'];
+  const sebHeader = req.headers['x-safeexambrowser-requesthash'] as string;
+  const isSeb = verifySebHeader(userAgent, sebHeader);
+
+  res.json({
+    isSeb,
+    userAgent,
+    message: isSeb
+      ? 'Verified Safe Exam Browser connection'
+      : 'Standard web browser detected — Safe Exam Browser lockdown required.',
+  });
+});
+
 export default router;

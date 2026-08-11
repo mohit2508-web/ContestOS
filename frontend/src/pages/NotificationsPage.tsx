@@ -10,6 +10,25 @@ export function NotificationsPage() {
   const [actingId, setActingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'unread' | 'invitations'>('all');
 
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      const saved = localStorage.getItem('kryptavia_notif_prefs');
+      return saved ? JSON.parse(saved) : { emailWarnings: true, emailInvites: true, emailResults: true, inAppChime: true };
+    } catch {
+      return { emailWarnings: true, emailInvites: true, emailResults: true, inAppChime: true };
+    }
+  });
+  const [showPrefModal, setShowPrefModal] = useState(false);
+
+  const togglePref = (key: keyof typeof preferences) => {
+    setPreferences((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      localStorage.setItem('kryptavia_notif_prefs', JSON.stringify(next));
+      notify.toast.success('Notification preferences saved!');
+      return next;
+    });
+  };
+
   const handleAccept = async (n: any) => {
     const invId = n.data?.invitationId;
     if (!invId) return;
@@ -68,15 +87,121 @@ export function NotificationsPage() {
             </p>
           </div>
 
-          {unreadCount > 0 && (
+          <div className="flex items-center gap-3">
             <button
-              onClick={markAllAsRead}
-              className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/30 font-bold text-xs rounded-xl transition cursor-pointer"
+              onClick={() => setShowPrefModal(true)}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5"
             >
-              Mark All as Read ({unreadCount})
+              <span>⚙️</span> Notification Preferences
             </button>
-          )}
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/30 font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                Mark All as Read ({unreadCount})
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* NOTIFICATION PREFERENCES SETTINGS MODAL */}
+        {showPrefModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+            <div className="bg-zinc-950 border border-white/15 rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-2xl">⚙️</span>
+                  <div>
+                    <h3 className="text-lg font-black text-white">Notification Delivery Channels</h3>
+                    <p className="text-xs text-zinc-400">Configure email & real-time push preferences</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPrefModal(false)}
+                  className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Toggle 1: Warning Emails */}
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-900 border border-white/5">
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Proctoring Warning & Disqualification Emails</h4>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">Send instant email when integrity thresholds or warnings are issued</p>
+                  </div>
+                  <button
+                    onClick={() => togglePref('emailWarnings')}
+                    className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
+                      preferences.emailWarnings ? 'bg-emerald-500' : 'bg-zinc-800'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${preferences.emailWarnings ? 'translate-x-6' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Toggle 2: Invite Emails */}
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-900 border border-white/5">
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Organization & Contest Invite Alerts</h4>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">Receive email invites for new contest drives and organization roles</p>
+                  </div>
+                  <button
+                    onClick={() => togglePref('emailInvites')}
+                    className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
+                      preferences.emailInvites ? 'bg-emerald-500' : 'bg-zinc-800'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${preferences.emailInvites ? 'translate-x-6' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Toggle 3: Result Emails */}
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-900 border border-white/5">
+                  <div>
+                    <h4 className="text-xs font-bold text-white">Contest Performance & Scorecard Release Emails</h4>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">Email detailed PDF scorecard summary when contest leaderboard closes</p>
+                  </div>
+                  <button
+                    onClick={() => togglePref('emailResults')}
+                    className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
+                      preferences.emailResults ? 'bg-emerald-500' : 'bg-zinc-800'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${preferences.emailResults ? 'translate-x-6' : ''}`} />
+                  </button>
+                </div>
+
+                {/* Toggle 4: In-App Chime */}
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-900 border border-white/5">
+                  <div>
+                    <h4 className="text-xs font-bold text-white">In-App Chime & Sound Alerts</h4>
+                    <p className="text-[10px] text-zinc-400 mt-0.5">Play subtle acoustic notification sound on incoming live SSE events</p>
+                  </div>
+                  <button
+                    onClick={() => togglePref('inAppChime')}
+                    className={`w-12 h-6 rounded-full transition-colors p-1 cursor-pointer ${
+                      preferences.inAppChime ? 'bg-emerald-500' : 'bg-zinc-800'
+                    }`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white transition-transform ${preferences.inAppChime ? 'translate-x-6' : ''}`} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2 text-right">
+                <button
+                  onClick={() => setShowPrefModal(false)}
+                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs rounded-xl transition cursor-pointer"
+                >
+                  Save & Apply Settings
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="flex gap-2 border-b border-white/10 pb-3">
