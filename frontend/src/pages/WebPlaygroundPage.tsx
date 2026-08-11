@@ -1335,16 +1335,10 @@ ${bodyContent}
                   </button>
                 </>
               ) : (
-                <button
-                  onClick={() => navigate(`/contests/${contestId}`)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all shadow-sm"
-                  title="Back to Contest Overview"
-                >
-                  <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  <span>← Back to Contest</span>
-                </button>
+                // In contest mode, no back button in problem header — top bar has it
+                <span className="text-[10px] font-mono text-amber-400/60 px-2 py-1 bg-amber-500/5 border border-amber-500/10 rounded-lg">
+                  🔒 Contest Mode
+                </span>
               )}
               <button
                 onClick={() => setShowLeftPanel(false)}
@@ -1384,16 +1378,6 @@ ${bodyContent}
                     </button>
                   ) : (
                     <div className="flex items-center gap-2 px-2 py-1">
-                      <button
-                        onClick={() => navigate(`/contests/${contestId}`)}
-                        className="flex items-center gap-1 px-2 py-1 text-xs font-bold text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
-                        title="Back to Contest"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        Back
-                      </button>
                       <h2 className="text-lg font-bold text-white">{selectedProblem.title}</h2>
                     </div>
                   )}
@@ -1583,18 +1567,7 @@ ${bodyContent}
               </svg>
               <span>Hub</span>
             </button>
-            {contestId && (
-              <button
-                onClick={() => navigate(`/contests/${contestId}`)}
-                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-md transition-all shrink-0 cursor-pointer"
-                title="Back to Contest Overview"
-              >
-                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span>← Back to Contest</span>
-              </button>
-            )}
+            {/* Back to Contest button is in the top header bar — no duplicate here */}
             {contestId && selectedProblem && (
               <button
                 onClick={() => {

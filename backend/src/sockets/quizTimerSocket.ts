@@ -310,6 +310,30 @@ export function setupQuizTimerSocket(io: SocketIOServer) {
       });
     });
 
+    // ─── STUDENT: Stream live desktop screen frame to invigilator ────────────
+    socket.on('student:screen_frame', ({
+      contestId,
+      userId,
+      frameBase64,
+    }: {
+      contestId: string;
+      userId: string;
+      frameBase64: string;
+    }) => {
+      quizNamespace.to(`proctor:contest:${contestId}`).emit('proctor:candidate_screen_frame', {
+        contestId,
+        userId,
+        frameBase64,
+        timestamp: Date.now(),
+      });
+      quizNamespace.to('proctor:all').emit('proctor:candidate_screen_frame', {
+        contestId,
+        userId,
+        frameBase64,
+        timestamp: Date.now(),
+      });
+    });
+
     socket.on('disconnect', () => {
       if (currentKey) {
         socket.leave(currentKey);

@@ -18,6 +18,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { api } from '../services/api';
 import { useNotify } from '../components/notifications';
 import { useAuth } from '../contexts/AuthContext';
+import { io } from 'socket.io-client';
 import { syncOfflineTelemetryLogs } from '../services/offlineStorage';
 import SebDiagnosticCockpit from '../components/SebDiagnosticCockpit';
 import { ErrorBoundary } from '../components/ErrorBoundary';
@@ -307,19 +308,24 @@ export function ContestZoneLayout() {
     }
   }, [detailData, isJoined, location.pathname, contestId, navigate]);
 
-  // Track SEB Launch & Security Proctoring Events
+  // Track SEB Launch & Security Proctoring Events — ONLY log entry event ONCE per browser session
   useEffect(() => {
     if (!contestId || !isJoined) return;
 
-    // Log initial entry / SEB session launch event
-    const initialEventType = isSebBrowser ? 'SEB_SESSION_START' : 'CONTEST_ENTERED';
-    const initialDetails = isSebBrowser
-      ? 'Safe Exam Browser session verified & active'
-      : 'Candidate entered contest arena';
+    const uId = detailData?.participant?.userId || '';
+    const logKey = isSebBrowser ? `sebLogged_${contestId}_${uId}` : `contestEntered_${contestId}_${uId}`;
 
-    api.client
-      .post('/guard/log', { contestId, eventType: initialEventType, details: initialDetails })
-      .catch(() => {});
+    if (!sessionStorage.getItem(logKey)) {
+      sessionStorage.setItem(logKey, '1');
+      const initialEventType = isSebBrowser ? 'SEB_SESSION_START' : 'CONTEST_ENTERED';
+      const initialDetails = isSebBrowser
+        ? 'Safe Exam Browser session verified & active'
+        : 'Candidate entered contest arena';
+
+      api.client
+        .post('/guard/log', { contestId, eventType: initialEventType, details: initialDetails })
+        .catch(() => {});
+    }
 
     // 3-second grace period during initial page mount / SEB launch to prevent false positive TAB_SWITCH logs
     let isInitialMount = true;
@@ -365,56 +371,148 @@ export function ContestZoneLayout() {
 
   // TalentOS Warning Toast & Proctor Command Listener
   const [proctorToast, setProctorToast] = useState<{ message: string; type: 'warning' | 'info' | 'success' } | null>(null);
+  const [examPaused, setExamPaused] = useState(false);
+  const [pauseReason, setPauseReason] = useState('');
+  const [proctorName, setProctorName] = useState('Invigilator');
+  const [pauseTimeElapsed, setPauseTimeElapsed] = useState('00:00');
+  const [pauseWarningsCount, setPauseWarningsCount] = useState(0);
+  const [pauseMaxWarnings, setPauseMaxWarnings] = useState(3);
+  const [examTerminated, setExamTerminated] = useState(false);
+  const [terminationReason, setTerminationReason] = useState('');
   const lastSeenLogIdRef = useRef<string | null>(null);
 
+  // SEB session start tracking — ONLY fires once per SEB browser launch
+  useEffect(() => {
+    if (!contestId || !isJoined) return;
+    if (isSebBrowser) {
+      const uId = detailData?.participant?.userId || '';
+      const sKey = `sebLogged_${contestId}_${uId}`;
+      if (!sessionStorage.getItem(sKey)) {
+        sessionStorage.setItem(sKey, '1');
+        api.sebSessionStart(contestId).catch(() => {});
+      }
+    }
+  }, [contestId, isJoined, isSebBrowser, detailData?.participant?.userId]);
+
+  // Real-time proctor action Socket.IO listener — zero polling delay
   useEffect(() => {
     if (!contestId || !isJoined) return;
 
+    const BACKEND_URL = (import.meta.env.VITE_API_URL as string || 'http://localhost:5000/api').replace('/api', '');
+    const socket = io(`${BACKEND_URL}/quiz-timer`, {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 10,
+    });
+
+    const userId = detailData?.participant?.userId || '';
+
+    socket.on('connect', () => {
+      // Join all possible room formats to ensure delivery
+      const rooms = [
+        `user:${userId}:contest:${contestId}`,
+        `contest:${contestId}:user:${userId}`,
+        `proctor:${contestId}`,
+      ];
+      rooms.forEach(room => socket.emit('join_room', room));
+      socket.emit('candidate:join', { contestId, userId });
+    });
+
+    socket.on('proctor:action', (data: any) => {
+      // Only process actions targeted at this user or broadcast to contest
+      if (data.targetUserId && data.targetUserId !== userId) return;
+
+      const action = data.action?.toUpperCase();
+      console.log('[proctor:action]', action, data);
+
+      if (action === 'BLOCKED' || action === 'PAUSE') {
+        setExamPaused(true);
+        setPauseReason(data.reason || 'Multiple faces detected in camera feed');
+        setProctorName(data.proctorName || 'Invigilator');
+        setPauseWarningsCount(data.warningsCount ?? 0);
+        setPauseMaxWarnings(data.maxWarnings ?? (contest?.maxWarnings || 3));
+
+        const contestStart = contest ? new Date(contest.startTime).getTime() : Date.now();
+        const elapsedSecs = Math.max(0, Math.floor((Date.now() - contestStart) / 1000));
+        const mins = Math.floor(elapsedSecs / 60);
+        const secs = elapsedSecs % 60;
+        setPauseTimeElapsed(`${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`);
+        notify.toast.warning('⏸️ Your exam has been suspended by the invigilator');
+      } else if (action === 'UNBLOCKED' || action === 'RESUME') {
+        setExamPaused(false);
+        setPauseReason('');
+        setProctorToast({ message: '▶️ Your exam has been resumed. You may continue.', type: 'success' });
+        notify.toast.success('▶️ Exam resumed — you may continue');
+      } else if (action === 'WARNED') {
+        const msg = data.message || 'You have received a warning from the invigilator.';
+        setProctorToast({ message: msg, type: 'warning' });
+        notify.toast.warning(`⚠️ ${msg}`);
+      } else if (action === 'TERMINATED') {
+        setExamTerminated(true);
+        setTerminationReason(data.reason || 'You have been disqualified from this exam by the invigilator.');
+        notify.toast.error('🚫 Your exam has been terminated');
+      } else if (action === 'SNAPSHOT_REQUEST') {
+        // Capture native DOM screen snapshot without external dependencies
+        try {
+          const videoEl = document.querySelector('video') as HTMLVideoElement | null;
+          const canvas = document.createElement('canvas');
+          canvas.width = 480;
+          canvas.height = 270;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = '#090a0f';
+            ctx.fillRect(0, 0, 480, 270);
+            if (videoEl && videoEl.readyState >= 2) {
+              ctx.drawImage(videoEl, 0, 0, 480, 270);
+            }
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 12px monospace';
+            ctx.fillText(`SCREEN SNAPSHOT · ${new Date().toLocaleTimeString()}`, 15, 25);
+
+            const snap = canvas.toDataURL('image/jpeg', 0.5);
+            socket.emit('student:screen_frame', { contestId, userId, frameBase64: snap });
+            socket.emit('candidate:screen_snapshot', { contestId, userId, snapshot: snap });
+          }
+        } catch {}
+      } else if (action === 'FULLSCREEN_ENFORCED') {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [contestId, isJoined, detailData?.participant?.userId]);
+
+  // Fallback polling every 5s to catch any missed socket events
+  useEffect(() => {
+    if (!contestId || !isJoined) return;
     const checkProctorLogs = async () => {
       try {
         const res = await api.getMyContestLogs(contestId);
         const logs: any[] = res.logs || [];
         if (logs.length === 0) return;
-
         const latestLog = logs[0];
         if (latestLog && latestLog.id !== lastSeenLogIdRef.current) {
           lastSeenLogIdRef.current = latestLog.id;
-
           if (latestLog.eventType === 'PROCTOR_WARNING') {
-            setProctorToast({
-              message: latestLog.description || 'Official warning issued by exam proctor.',
-              type: 'warning',
-            });
-            notify.toast.warning('⚠️ OFFICIAL PROCTOR WARNING RECEIVED');
-          } else if (latestLog.eventType === 'FULLSCREEN_ENFORCED') {
-            setProctorToast({
-              message: 'Proctor enforced fullscreen mode. Please remain in fullscreen.',
-              type: 'warning',
-            });
-            if (document.documentElement.requestFullscreen) {
-              document.documentElement.requestFullscreen().catch(() => {});
-            }
-          } else if (latestLog.eventType === 'TIME_EXTENDED') {
-            setProctorToast({
-              message: latestLog.description || 'Exam time extended by proctor.',
-              type: 'info',
-            });
-          } else if (latestLog.eventType === 'WARNINGS_RESET') {
-            setProctorToast({
-              message: 'Your warning count has been reset to 0 by proctor.',
-              type: 'success',
-            });
-          } else if (latestLog.eventType === 'FORCE_SUBMITTED') {
-            notify.toast.error('Exam force-submitted by proctor.');
-            navigate(`/contests/${contestId}/report`, { replace: true });
+            setProctorToast({ message: latestLog.details || 'Warning from proctor.', type: 'warning' });
+          } else if (latestLog.eventType === 'PROCTOR_BLOCK') {
+            setExamPaused(true);
+            setPauseReason(latestLog.details || 'Exam paused by invigilator.');
+          } else if (latestLog.eventType === 'PROCTOR_UNBLOCK') {
+            setExamPaused(false);
+            setPauseReason('');
+          } else if (latestLog.eventType === 'ESCALATED_FOR_DISQUALIFICATION') {
+            setExamTerminated(true);
+            setTerminationReason(latestLog.details || 'Disqualified by invigilator.');
           }
         }
       } catch (_e) {}
     };
-
-    const interval = setInterval(checkProctorLogs, 3000);
+    const interval = setInterval(checkProctorLogs, 5000);
     return () => clearInterval(interval);
-  }, [contestId, isJoined, navigate, notify]);
+  }, [contestId, isJoined]);
 
   useEffect(() => {
     if (proctorToast) {
@@ -422,6 +520,22 @@ export function ContestZoneLayout() {
       return () => clearTimeout(timer);
     }
   }, [proctorToast]);
+
+
+  // Real network ping measurement (replaces hardcoded "24ms" fake value)
+  const [networkPing, setNetworkPing] = useState<number | null>(null);
+  useEffect(() => {
+    const measurePing = async () => {
+      try {
+        const start = Date.now();
+        await fetch('/api/auth/me', { method: 'HEAD', cache: 'no-store' });
+        setNetworkPing(Date.now() - start);
+      } catch { setNetworkPing(null); }
+    };
+    measurePing();
+    const interval = setInterval(measurePing, 10000); // re-measure every 10s
+    return () => clearInterval(interval);
+  }, []);
 
   // Clock state
   const [timeLeftStr, setTimeLeftStr] = useState('');
@@ -512,6 +626,108 @@ export function ContestZoneLayout() {
 
   return (
     <div className="relative min-h-screen bg-black font-sans selection:bg-amber-500/20 selection:text-amber-400">
+
+      {/* ── EXAM TERMINATED SCREEN (permanent, full-screen) ── */}
+      {examTerminated && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black">
+          <div className="text-center space-y-6 max-w-lg p-8">
+            <div className="w-20 h-20 bg-rose-500/20 border-2 border-rose-500 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-4xl">🚫</span>
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-black text-rose-500 uppercase tracking-wide">Exam Terminated</h1>
+              <p className="text-zinc-300 font-bold text-sm">You have been disqualified from this assessment by the invigilator.</p>
+            </div>
+            <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-left space-y-1">
+              <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Official Reason</span>
+              <p className="text-sm text-white font-semibold">{terminationReason}</p>
+            </div>
+            <div className="p-4 bg-zinc-900 border border-white/10 rounded-2xl text-xs text-zinc-500 text-left font-mono">
+              This action has been logged in the audit trail with timestamp {new Date().toLocaleString()}.<br />
+              Contact your invigilator or exam coordinator for further information.
+            </div>
+            <button
+              onClick={() => navigate(`/contests/${contestId}/report`, { replace: true })}
+              className="px-6 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-sm rounded-2xl transition"
+            >
+              View My Scorecard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── EXAM PAUSED OVERLAY (Proctor Intervention Mockup UI) ── */}
+      {examPaused && (
+        <div className="fixed inset-0 z-[9998] flex flex-col items-center justify-center bg-[#090a0d]/95 backdrop-blur-2xl p-6 select-none font-sans text-white">
+          <div className="w-full max-w-lg flex flex-col items-center text-center space-y-6">
+            
+            {/* Top Pill Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <span className="text-[11px] font-black tracking-widest text-amber-400 uppercase font-mono">
+                PROCTOR INTERVENTION
+              </span>
+            </div>
+
+            {/* Header Titles */}
+            <div className="space-y-2">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                Assessment suspended by proctor
+              </h1>
+              <p className="text-sm text-zinc-400 font-medium">
+                Your session has been flagged and paused pending review.
+              </p>
+            </div>
+
+            {/* Central Details Card */}
+            <div className="w-full bg-[#12141a]/90 border border-white/10 rounded-2xl p-6 text-left space-y-5 shadow-2xl backdrop-blur-md">
+              {/* Reason section */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-500 uppercase">
+                  REASON FOR FLAG
+                </span>
+                <p className="text-base font-bold text-white leading-relaxed">
+                  {pauseReason || 'Multiple faces detected in camera feed'}
+                </p>
+              </div>
+
+              <div className="h-px bg-white/10 w-full" />
+
+              {/* Grid of attributes */}
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-400 font-medium">Flagged by</span>
+                  <span className="text-white font-bold">{proctorName}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-400 font-medium">Time elapsed</span>
+                  <span className="text-white font-mono font-bold">{pauseTimeElapsed}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-400 font-medium">Warning count</span>
+                  <span className="text-amber-400 font-mono font-bold">
+                    {pauseWarningsCount} of {pauseMaxWarnings}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Yellow/Amber Warning Box */}
+            <div className="w-full bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-left">
+              <p className="text-xs text-amber-300 font-medium leading-relaxed">
+                This flag has been logged against your session record. Reaching the maximum allowed warnings will end your assessment automatically.
+              </p>
+            </div>
+
+            {/* Footer Instructions Subtext */}
+            <p className="text-xs text-zinc-500 max-w-lg leading-relaxed text-center font-normal">
+              Stay on this screen. Your code, progress, and remaining time are preserved — the assessment resumes automatically the moment the proctor clears this flag.
+            </p>
+
+          </div>
+        </div>
+      )}
+
       {/* TalentOS Warning Toast Banner Overlay */}
       {proctorToast && (
         <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[999] max-w-xl w-[92%] bg-gradient-to-r from-red-600 via-amber-500 to-red-600 p-0.5 rounded-2xl shadow-2xl shadow-red-500/50 animate-bounce">

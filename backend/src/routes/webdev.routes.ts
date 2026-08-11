@@ -161,18 +161,32 @@ router.post('/submit', authenticateToken, async (req: Request, res: Response): P
         const prevBestPoints = existingBest?.score || 0;
         const pointsDelta = Math.max(0, earnedPoints - prevBestPoints);
 
-        if (pointsDelta > 0) {
+        if (pointsDelta > 0 || earnedPoints > 0) {
+          const allUserSubmissions = await prisma.submission.findMany({
+            where: { contestId, userId },
+            select: { problemId: true, score: true },
+          });
+
+          const probBestMap = new Map<string, number>();
+          allUserSubmissions.forEach((s) => {
+            const cur = probBestMap.get(s.problemId) || 0;
+            if (s.score > cur) probBestMap.set(s.problemId, s.score);
+          });
+
+          let totalContestScore = 0;
+          probBestMap.forEach((pts) => { totalContestScore += pts; });
+
           await prisma.contestRegistration.upsert({
             where: { contestId_userId: { contestId, userId } },
             create: {
               contestId,
               userId,
-              score: earnedPoints,
+              score: totalContestScore,
               status: 'IN_PROGRESS',
               penalty: 0,
             },
             update: {
-              score: { increment: pointsDelta },
+              score: totalContestScore,
               status: 'IN_PROGRESS',
             },
           });

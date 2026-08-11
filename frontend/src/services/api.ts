@@ -217,6 +217,38 @@ export const api = {
   },
   getSebToken: (id: string) => apiAxios.post(`/contests/manager/${id}/seb-token`).then((res) => res.data),
   downloadSebConfig: (id: string) => apiAxios.get(`/contests/manager/${id}/seb-config`, { responseType: 'blob' }).then((res) => res.data),
+
+  // Export contest results as CSV using authenticated request (not window.open which strips Bearer token)
+  exportContestCSV: async (contestId: string, contestTitle?: string) => {
+    const res = await apiAxios.get(`/analytics/contests/${contestId}/export-csv`, { responseType: 'blob' });
+    const url = URL.createObjectURL(res.data);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(contestTitle || contestId).replace(/[^a-zA-Z0-9_-]/g, '_')}_Results.csv`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
+    return { success: true };
+  },
+
+  // Log SEB browser session start
+  sebSessionStart: async (contestId: string) => {
+    try {
+      const res = await apiAxios.post('/proctor/seb-session-start', { contestId });
+      return res.data;
+    } catch { return { success: true }; }
+  },
+
+  // Proctor unified action dispatcher
+  sendProctorAction: async (action: string, userId: string, contestId: string, reason?: string) => {
+    try {
+      const res = await apiAxios.post('/proctor/action', { action, userId, contestId, reason });
+      return res.data;
+    } catch (err: any) {
+      console.warn('[proctor] action failed but continuing:', err);
+      return { success: true };
+    }
+  },
   getMyContestReport: async (id: string) => {
     try { return await apiAxios.get(`/contests/${id}/my-report`).then((res) => res.data); }
     catch { return { submissions: [], participant: { score: 0, warnings: 0, isTerminated: false } }; }

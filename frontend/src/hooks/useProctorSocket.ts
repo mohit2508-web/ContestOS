@@ -9,6 +9,8 @@ export interface ProctorAction {
   message?: string;
   proctorName?: string;
   contestId?: string;
+  warningsCount?: number;
+  maxWarnings?: number;
 }
 
 interface UseProctorSocketOptions {
@@ -26,6 +28,8 @@ interface ProctorSocketState {
   isBlocked: boolean;
   blockReason: string;
   proctorName: string;
+  warningsCount: number;
+  maxWarnings: number;
   isTerminated: boolean;
   terminationReason: string;
   warnMessage: string;
@@ -49,12 +53,16 @@ export function useProctorSocket({
   emitUnblock: (targetUserId: string) => void;
   emitWarn: (targetUserId: string, message?: string) => void;
   emitTerminate: (targetUserId: string, reason?: string) => void;
+  sendWebcamFrame: (frameBase64: string) => void;
+  sendScreenFrame: (frameBase64: string) => void;
 } {
   const socketRef = useRef<Socket | null>(null);
   const [state, setState] = useState<ProctorSocketState>({
     isBlocked: false,
     blockReason: '',
     proctorName: '',
+    warningsCount: 0,
+    maxWarnings: 3,
     isTerminated: false,
     terminationReason: '',
     warnMessage: '',
@@ -97,6 +105,8 @@ export function useProctorSocket({
             isBlocked: true,
             blockReason: data.reason || 'Your exam has been paused by the invigilator.',
             proctorName: data.proctorName || 'Invigilator',
+            warningsCount: data.warningsCount ?? s.warningsCount,
+            maxWarnings: data.maxWarnings ?? s.maxWarnings,
           }));
           break;
 
@@ -178,5 +188,9 @@ export function useProctorSocket({
     socketRef.current?.emit('student:webcam_frame', { contestId, userId, frameBase64 });
   };
 
-  return { ...state, emitBlock, emitUnblock, emitWarn, emitTerminate, sendWebcamFrame };
+  const sendScreenFrame = (frameBase64: string) => {
+    socketRef.current?.emit('student:screen_frame', { contestId, userId, frameBase64 });
+  };
+
+  return { ...state, emitBlock, emitUnblock, emitWarn, emitTerminate, sendWebcamFrame, sendScreenFrame };
 }

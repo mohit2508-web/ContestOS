@@ -450,17 +450,6 @@ router.post('/:id/join', authenticateToken, async (req: Request, res: Response):
       },
     });
 
-    try {
-      await prisma.proctoringLog.create({
-        data: {
-          contestId,
-          userId,
-          eventType: 'SEB_SESSION_START',
-          details: 'Candidate registered and initialized SEB assessment.',
-        },
-      });
-    } catch (_e) {}
-
     res.json({ success: true, message: 'Successfully joined contest' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to join contest' });
@@ -477,8 +466,22 @@ router.post('/:id/seb-token', authenticateToken, async (_req: Request, res: Resp
   }
 });
 
-// GET /api/contests/manager/:id/verify-seb — Verify SEB Handshake
-router.get('/:id/verify-seb', authenticateToken, async (_req: Request, res: Response): Promise<void> => {
+// GET /api/contests/manager/:id/verify-seb — Verify SEB Handshake & Log SEB Session Start
+router.get('/:id/verify-seb', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  const contestId = req.params.id;
+  const userId = req.user?.userId;
+  if (userId && contestId) {
+    try {
+      await prisma.proctoringLog.create({
+        data: {
+          contestId,
+          userId,
+          eventType: 'SEB_SESSION_START',
+          details: 'Verified Safe Exam Browser session start.',
+        },
+      });
+    } catch (_e) {}
+  }
   res.json({ success: true, verified: true });
 });
 
@@ -503,31 +506,130 @@ router.get('/:id/seb-config', authenticateToken, async (req: Request, res: Respo
     const baseUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
     const startUrl = `${baseUrl}/contests/${contest.id}?seb=1&token=${userToken}&user=${userParam}`;
 
-    if (req.user?.userId) {
-      try {
-        await prisma.proctoringLog.create({
-          data: {
-            contestId,
-            userId: req.user.userId,
-            eventType: 'SEB_SESSION_START',
-            details: 'Safe Exam Browser configuration generated & launched.',
-          },
-        });
-      } catch (_e) {}
-    }
-
     const xmlConfig = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>startURL</key>
     <string>${startUrl}</string>
+
+    <!-- ── Security: Quit / Admin ── -->
     <key>allowQuit</key>
     <true/>
+    <key>hashedQuitPassword</key>
+    <string></string>
+
+    <!-- ── Lockdown: App Switcher & Task Manager ── -->
+    <key>enableAppSwitcherCheck</key>
+    <true/>
+    <key>allowSwitchToApplications</key>
+    <false/>
+    <key>taskbarHeight</key>
+    <integer>0</integer>
+    <key>showTaskBar</key>
+    <false/>
+    <key>allowedDisplayBuiltin</key>
+    <true/>
+    <key>allowedDisplaysMaxNumber</key>
+    <integer>1</integer>
+
+    <!-- ── Screen & Window Controls ── -->
+    <key>browserWindowAllowAddressBar</key>
+    <false/>
+    <key>allowBrowsingBackForward</key>
+    <false/>
+    <key>newBrowserWindowByLinkPolicy</key>
+    <integer>0</integer>
+    <key>enableZoomText</key>
+    <true/>
+
+    <!-- ── Keyboard Restrictions ── -->
+    <key>allowScreenSharing</key>
+    <false/>
+    <key>allowVideoCapture</key>
+    <true/>
+    <key>allowAudioCapture</key>
+    <true/>
+    <key>allowDictation</key>
+    <false/>
+    <key>enablePrintScreen</key>
+    <false/>
+    <key>allowPreferencesWindow</key>
+    <false/>
+
+    <!-- ── URL Filter ── -->
+    <key>URLFilterEnable</key>
+    <true/>
+    <key>URLFilterEnableContentFilter</key>
+    <true/>
+    <key>URLFilterRules</key>
+    <array>
+        <dict>
+            <key>action</key><integer>1</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>localhost</string>
+            <key>regex</key><false/>
+        </dict>
+        <dict>
+            <key>action</key><integer>1</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>${(process.env.FRONTEND_URL || 'http://localhost:5173').replace(/^https?:\/\//, '')}</string>
+            <key>regex</key><false/>
+        </dict>
+    </array>
+
+    <!-- ── Prohibited Processes (Background App Kill) ── -->
+    <!-- Kills: Spotify, VLC, Discord, Slack, Teams, Zoom, Chrome, Firefox, WhatsApp, Telegram -->
+    <key>prohibitedProcesses</key>
+    <array>
+        <dict><key>identifier</key><string>com.spotify.client</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>org.videolan.vlc</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.discordapp.Discord</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.tinyspeck.slackmacgap</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.microsoft.teams</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>us.zoom.xos</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.google.Chrome</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>org.mozilla.firefox</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.apple.Safari</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>net.whatsapp.WhatsApp</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>ru.keepcoder.Telegram</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.skype.skype</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.microsoft.onenote.mac</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.apple.Notes</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.microsoft.Word</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.microsoft.Excel</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.microsoft.Powerpoint</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.apple.ScreenSharing</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.anydesk.AnyDesk</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>com.teamviewer.TeamViewer</string><key>strongKill</key><true/></dict>
+        <!-- Windows process names (for SEB Windows) -->
+        <dict><key>identifier</key><string>spotify.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>discord.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>slack.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>teams.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>zoom.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>chrome.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>firefox.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>vlc.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>whatsapp.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>telegram.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>anydesk.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>teamviewer.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>taskmgr.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>cmd.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>powershell.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>mspaint.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>notepad.exe</string><key>strongKill</key><true/></dict>
+    </array>
+
+    <!-- ── Logging ── -->
     <key>enableLogging</key>
     <true/>
+    <key>logLevel</key>
+    <integer>1</integer>
 </dict>
 </plist>`;
+
 
     res.setHeader('Content-Type', 'application/x-seb');
     res.setHeader('Content-Disposition', `attachment; filename="${contest.title.replace(/\s+/g, '_')}_config.seb"`);

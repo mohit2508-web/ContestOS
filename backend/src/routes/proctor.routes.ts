@@ -7,6 +7,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 // Helper to get io and emit proctor actions via REST (for non-socket clients)
+// Emits to BOTH room formats to ensure delivery regardless of how the client joined
 async function emitProctorAction(
   targetUserId: string,
   contestId: string,
@@ -15,10 +16,17 @@ async function emitProctorAction(
 ) {
   try {
     const { io } = await import('../app');
-    const room = `user:${targetUserId}:contest:${contestId}`;
-    io.of('/quiz-timer').to(room).emit('proctor:action', { action, contestId, ...extra });
+    const roomV1 = `user:${targetUserId}:contest:${contestId}`;
+    const roomV2 = `proctor:${contestId}`;
+    const roomV3 = `contest:${contestId}:user:${targetUserId}`;
+    const payload = { action, contestId, targetUserId, ...extra, _ts: Date.now() };
+    io.of('/quiz-timer').to(roomV1).emit('proctor:action', payload);
+    io.of('/quiz-timer').to(roomV2).emit('proctor:action', payload);
+    io.of('/quiz-timer').to(roomV3).emit('proctor:action', payload);
+    // Also emit on main namespace for fallback
+    io.to(roomV1).emit('proctor:action', payload);
+    console.log(`[proctor] Emitted '${action}' to userId=${targetUserId} contestId=${contestId}`);
   } catch (e) {
-    // io may not be available in all contexts — non-fatal
     console.warn('[proctorRoutes] Could not emit socket event:', e);
   }
 }
@@ -276,6 +284,118 @@ router.get('/plagiarism/:contestId', authenticateToken, async (req, res) => {
   } catch (error: any) {
     // If plagiarism table not found, return empty
     res.json({ success: true, reports: [] });
+  }
+});
+
+// POST /api/proctor/seb-session-start — Log when candidate opens SEB browser
+router.post('/seb-session-start', authenticateToken, async (req, res) => {
+  try {
+    const { contestId } = req.body;
+    const userId = req.user!.userId;
+    if (!contestId) return res.status(400).json({ success: false, error: 'contestId required' });
+
+    await prisma.proctoringLog.create({
+      data: {
+        userId,
+        contestId,
+        eventType: 'SEB_SESSION_START',
+        details: 'Candidate opened Safe Exam Browser and entered the secure session.',
+      },
+    });
+
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/proctor/action — Unified dispatcher used by ProctorConsole
+// Routes to the appropriate dedicated endpoint logic + emits socket
+router.post('/action', authenticateToken, async (req, res) => {
+  try {
+    const { action, userId: candidateId, contestId, reason, message } = req.body;
+    if (!candidateId || !contestId || !action) {
+      return res.status(400).json({ success: false, error: 'action, userId, contestId are required' });
+    }
+
+    let eventType = 'PROCTOR_ACTION';
+    let details = reason || message || 'Proctor action issued.';
+    let dbStatus: string | null = null;
+
+    if (action === 'WARN' || action === 'warn' || action === 'issue_warning') {
+      eventType = 'PROCTOR_WARNING';
+      await emitProctorAction(candidateId, contestId, 'WARNED', { message: details });
+      await notifyUser(candidateId, {
+        title: '⚠️ Invigilator Warning',
+        message: details,
+        type: 'WARNING',
+        referenceId: contestId,
+      });
+    } else if (action === 'PAUSE' || action === 'pause' || action === 'block') {
+      eventType = 'PROCTOR_BLOCK';
+      dbStatus = 'BLOCKED';
+      
+      const proctorUser = req.user ? await prisma.user.findUnique({ where: { id: req.user.userId }, select: { name: true } }) : null;
+      const proctorName = proctorUser?.name || 'Invigilator';
+      const warningLogsCount = await prisma.proctoringLog.count({ where: { contestId, userId: candidateId, eventType: 'PROCTOR_WARNING' } });
+      const contestObj = await prisma.contest.findUnique({ where: { id: contestId }, select: { maxWarnings: true } });
+
+      await emitProctorAction(candidateId, contestId, 'BLOCKED', { 
+        reason: details,
+        proctorName,
+        warningsCount: warningLogsCount,
+        maxWarnings: contestObj?.maxWarnings || 3,
+      });
+      await notifyUser(candidateId, {
+        title: '⏸️ Exam Paused by Invigilator',
+        message: details,
+        type: 'PROCTOR_ACTION',
+        referenceId: contestId,
+      });
+    } else if (action === 'RESUME' || action === 'resume' || action === 'unblock') {
+      eventType = 'PROCTOR_UNBLOCK';
+      dbStatus = 'ACTIVE';
+      await emitProctorAction(candidateId, contestId, 'UNBLOCKED', {});
+      await notifyUser(candidateId, {
+        title: '▶️ Exam Resumed',
+        message: 'Your exam has been resumed by the invigilator.',
+        type: 'PROCTOR_ACTION',
+        referenceId: contestId,
+      });
+    } else if (action === 'ESCALATE' || action === 'escalate' || action === 'terminate') {
+      eventType = 'ESCALATED_FOR_DISQUALIFICATION';
+      dbStatus = 'DISQUALIFIED';
+      await emitProctorAction(candidateId, contestId, 'TERMINATED', { reason: details });
+      await notifyUser(candidateId, {
+        title: '🚫 Exam Terminated',
+        message: details,
+        type: 'PROCTOR_ACTION',
+        referenceId: contestId,
+      });
+    } else if (action === 'SNAPSHOT' || action === 'force_snapshot') {
+      eventType = 'PROCTOR_SNAPSHOT_REQUEST';
+      await emitProctorAction(candidateId, contestId, 'SNAPSHOT_REQUEST', {});
+    }
+
+    const log = await prisma.proctoringLog.create({
+      data: { userId: candidateId, contestId, eventType, details },
+    });
+
+    if (dbStatus === 'BLOCKED' || dbStatus === 'DISQUALIFIED') {
+      await prisma.contestRegistration.updateMany({
+        where: { contestId, userId: candidateId },
+        data: { status: dbStatus as any },
+      });
+    } else if (dbStatus === 'ACTIVE') {
+      await prisma.contestRegistration.updateMany({
+        where: { contestId, userId: candidateId, status: 'BLOCKED' as any },
+        data: { status: 'ACTIVE' as any },
+      });
+    }
+
+    res.json({ success: true, log });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
   }
 });
 

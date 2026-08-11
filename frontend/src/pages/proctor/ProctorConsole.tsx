@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
@@ -47,6 +47,7 @@ interface CandidateFeed {
   lastSnapshotTime: string;
   cheatingSnapshotUrl?: string;
   violationReason?: string;
+  pauseReason?: string;
 }
 
 interface IncidentLog {
@@ -160,20 +161,42 @@ export const ProctorConsolePage: React.FC = () => {
   const candidates: CandidateFeed[] = realLeaderboard.map((item: any, idx: number) => {
     const uid = item.userId || item.user?.id || `user-${idx}`;
     const userLogs = realLogs.filter((l) => l.userId === uid || l.participantId === uid);
-    
+
+    // ── ACCURATE EVENT CATEGORISATION ──
+    // Warning count = ONLY manual proctor-issued warnings (PROCTOR_WARNING)
     const warnings = userLogs.filter((l) => l.eventType === 'PROCTOR_WARNING').length;
+    // Tab switch count = auto-detected system violations only (NOT proctor actions)
     const tabSwitchCount = userLogs.filter((l) => ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT'].includes(l.eventType)).length;
+    // SEB entry count = verified SEB launch sessions (deduplicated by 60s window)
+    const sebLogs = userLogs.filter((l) => l.eventType === 'SEB_SESSION_START').sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    let sebEntryCount = 0;
+    let lastSebTime = 0;
+    sebLogs.forEach((l) => {
+      const t = new Date(l.timestamp).getTime();
+      if (t - lastSebTime > 60000) {
+        sebEntryCount++;
+        lastSebTime = t;
+      }
+    });
     const pasteEvents = userLogs.filter((l) => l.eventType === 'PASTE_EVENT' || l.eventType === 'BULK_PASTE').length;
     const hasMultipleFaces = userLogs.some((l) => l.eventType === 'MULTIPLE_FACES');
     const hasNoFace = userLogs.some((l) => l.eventType === 'NO_FACE');
     const hasPhone = userLogs.some((l) => l.eventType === 'PHONE_DETECTED');
     const hasAudio = userLogs.some((l) => l.eventType === 'AUDIO_SPIKE');
     const bulkPaste = userLogs.some((l) => l.eventType === 'BULK_PASTE');
+    const isPaused = userLogs.some((l) => l.eventType === 'PROCTOR_BLOCK') &&
+      !userLogs.some((l) => l.eventType === 'PROCTOR_UNBLOCK' &&
+        new Date(l.timestamp) > new Date(userLogs.filter(x => x.eventType === 'PROCTOR_BLOCK').slice(-1)[0]?.timestamp || 0));
+
+    const blockLog = userLogs.filter((l) => l.eventType === 'PROCTOR_BLOCK').slice(-1)[0];
+    const pauseReason = blockLog?.details || 'Exam session paused by proctor.';
 
     const scorePct = Math.max(0, 100 - warnings * 20 - tabSwitchCount * 10 - pasteEvents * 15);
-    const isBlocked = item.isBlocked || item.isTerminated || userLogs.some((l) => l.eventType === 'DISQUALIFIED');
+    const isBlocked = item.isBlocked || item.isTerminated || userLogs.some((l) => ['DISQUALIFIED', 'ESCALATED_FOR_DISQUALIFICATION'].includes(l.eventType));
     const status: CandidateFeed['status'] = isBlocked
       ? 'ESCALATED_TO_ADMIN'
+      : isPaused
+      ? 'PAUSED'
       : warnings > 0 || tabSwitchCount > 2
       ? 'FLAGGED'
       : 'ACTIVE';
@@ -192,6 +215,7 @@ export const ProctorConsolePage: React.FC = () => {
       warnings,
       maxWarnings: selectedContest.rules.tabLimit,
       tabSwitchCount,
+      sebEntryCount,
       pasteEvents,
       bulkPasteFlag: bulkPaste,
       assessmentType: 'CODING',
@@ -204,6 +228,7 @@ export const ProctorConsolePage: React.FC = () => {
       integrityScore: scorePct,
       lastSnapshotTime: lastSnapTime,
       violationReason: latestLog?.details || 'Proctor telemetry synced.',
+      pauseReason,
     };
   });
 
@@ -238,6 +263,58 @@ export const ProctorConsolePage: React.FC = () => {
   const [plagiarismScanning, setPlagiarismScanning] = useState(false);
   const [selectedDiffPair, setSelectedDiffPair] = useState<any | null>(null);
 
+  // Block/Escalate modals with mandatory reason
+  const [blockCandidate, setBlockCandidate] = useState<CandidateFeed | null>(null);
+  const [blockReason, setBlockReason] = useState('');
+  const [escalateCandidate, setEscalateCandidate] = useState<CandidateFeed | null>(null);
+  const [escalateReason, setEscalateReason] = useState('');
+
+  // Webcam & Screen: use refs to avoid React re-render flicker on every frame
+  const webcamImgRefs = useRef<Record<string, HTMLImageElement | null>>({});
+  const screenImgRefs = useRef<Record<string, HTMLImageElement | null>>({});
+  const liveFramesRef = useRef<Record<string, string>>({}); // track latest webcam frames
+  const liveScreenFramesRef = useRef<Record<string, string>>({}); // track latest screen frames
+  const [liveScreenFrames, setLiveScreenFrames] = useState<Record<string, string>>({});
+  const [feedViewMode, setFeedViewMode] = useState<Record<string, 'webcam' | 'screen'>>({});
+  const rafRef = useRef<number | null>(null);
+
+  // Flush frames from ref → state at ~15fps to update UI without per-frame re-render
+  useEffect(() => {
+    let lastFlush = 0;
+    const flush = (ts: number) => {
+      if (ts - lastFlush > 66) { // ~15fps
+        lastFlush = ts;
+        // Update webcam img src directly via ref
+        Object.entries(liveFramesRef.current).forEach(([uid, src]) => {
+          const el = webcamImgRefs.current[uid];
+          if (el && el.src !== src) el.src = src;
+        });
+        // Update screen img src directly via ref
+        Object.entries(liveScreenFramesRef.current).forEach(([uid, src]) => {
+          const el = screenImgRefs.current[uid];
+          if (el && el.src !== src) el.src = src;
+        });
+
+        // Trigger state updates when new frames arrive
+        setLiveFrames(prev => {
+          const newKeys = Object.keys(liveFramesRef.current);
+          const hasNew = newKeys.some(k => !prev[k]);
+          if (!hasNew) return prev;
+          return { ...liveFramesRef.current };
+        });
+        setLiveScreenFrames(prev => {
+          const newKeys = Object.keys(liveScreenFramesRef.current);
+          const hasNew = newKeys.some(k => !prev[k]);
+          if (!hasNew) return prev;
+          return { ...liveScreenFramesRef.current };
+        });
+      }
+      rafRef.current = requestAnimationFrame(flush);
+    };
+    rafRef.current = requestAnimationFrame(flush);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, []);
+
   // Socket.IO live video stream listener
   useEffect(() => {
     const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
@@ -250,7 +327,11 @@ export const ProctorConsolePage: React.FC = () => {
     });
 
     socket.on('proctor:candidate_frame', (data: { userId: string; frameBase64: string }) => {
-      setLiveFrames((prev) => ({ ...prev, [data.userId]: data.frameBase64 }));
+      liveFramesRef.current[data.userId] = `data:image/jpeg;base64,${data.frameBase64.replace(/^data:image\/[^;]+;base64,/, '')}`;
+    });
+
+    socket.on('proctor:candidate_screen_frame', (data: { userId: string; frameBase64: string }) => {
+      liveScreenFramesRef.current[data.userId] = `data:image/jpeg;base64,${data.frameBase64.replace(/^data:image\/[^;]+;base64,/, '')}`;
     });
 
     return () => {
@@ -268,53 +349,72 @@ export const ProctorConsolePage: React.FC = () => {
   const handleNudgeSubmit = async () => {
     if (!selectedNudgeCandidate) return;
     try {
-      await api.client.post(`/contests/manager/${selectedNudgeCandidate.contestId}/proctor-action`, {
-        action: 'issue_warning',
-        userId: selectedNudgeCandidate.userId,
-        reason: nudgePreset,
-      });
-      showToast(`⚠️ Issued nudge to ${selectedNudgeCandidate.name}: "${nudgePreset}"`);
+      await api.sendProctorAction('WARN', selectedNudgeCandidate.userId, selectedNudgeCandidate.contestId, nudgePreset);
+      showToast(`⚠️ Warning sent to ${selectedNudgeCandidate.name}: "${nudgePreset}"`);
       queryClient.invalidateQueries({ queryKey: ['proctorLogs'] });
     } catch {
-      showToast(`⚠️ Issued nudge to ${selectedNudgeCandidate.name}: "${nudgePreset}"`);
+      showToast(`⚠️ Warning sent to ${selectedNudgeCandidate.name}: "${nudgePreset}"`);
     } finally {
       setSelectedNudgeCandidate(null);
     }
   };
 
   const handleTogglePause = async (cand: CandidateFeed) => {
-    const nextStatus = cand.status === 'PAUSED' ? 'ACTIVE' : 'PAUSED';
+    const nextStatus = cand.status === 'PAUSED' ? 'RESUME' : 'PAUSE';
+    if (nextStatus === 'PAUSE') {
+      // Open block modal so proctor must provide reason
+      setBlockCandidate(cand);
+      setBlockReason('');
+      return;
+    }
     try {
-      if (nextStatus === 'PAUSED') {
-        await api.blockContestParticipant(cand.contestId, cand.userId, 'Paused by Proctor');
-      } else {
-        await api.unblockContestParticipant(cand.contestId, cand.userId, 'Resumed by Proctor');
-      }
-      showToast(nextStatus === 'PAUSED' ? `⏸️ Paused exam session for ${cand.name}` : `▶️ Resumed exam session for ${cand.name}`);
-      queryClient.invalidateQueries({ queryKey: ['proctorLeaderboard'] });
+      await api.sendProctorAction('RESUME', cand.userId, cand.contestId, 'Proctor resumed exam session.');
+      showToast(`▶️ Exam resumed for ${cand.name}`);
+      queryClient.invalidateQueries({ queryKey: ['proctorLogs', 'proctorLeaderboard'] });
     } catch {
-      showToast(nextStatus === 'PAUSED' ? `⏸️ Paused exam session for ${cand.name}` : `▶️ Resumed exam session for ${cand.name}`);
+      showToast(`▶️ Exam resumed for ${cand.name}`);
+    }
+  };
+
+  const handleConfirmBlock = async () => {
+    if (!blockCandidate || blockReason.trim().length < 5) return;
+    try {
+      await api.sendProctorAction('PAUSE', blockCandidate.userId, blockCandidate.contestId, blockReason.trim());
+      showToast(`⏸️ Exam paused for ${blockCandidate.name} — reason logged.`);
+      queryClient.invalidateQueries({ queryKey: ['proctorLogs', 'proctorLeaderboard'] });
+    } catch {
+      showToast(`⏸️ Exam paused for ${blockCandidate.name}`);
+    } finally {
+      setBlockCandidate(null);
+      setBlockReason('');
     }
   };
 
   const handleForceSnapshot = async (cand: CandidateFeed) => {
     const timeNow = new Date().toLocaleTimeString();
     try {
-      await api.client.post(`/contests/manager/${cand.contestId}/proctor-action`, {
-        action: 'force_snapshot',
-        userId: cand.userId,
-        reason: 'Instant webcam snapshot requested by proctor',
-      });
+      await api.sendProctorAction('SNAPSHOT', cand.userId, cand.contestId, 'Instant webcam snapshot requested by proctor');
     } catch {}
     showToast(`📸 Triggered instant webcam snapshot for ${cand.name} at ${timeNow}`);
   };
 
   const handleEscalate = async (cand: CandidateFeed) => {
+    setEscalateCandidate(cand);
+    setEscalateReason('');
+  };
+
+  const handleConfirmEscalate = async () => {
+    if (!escalateCandidate || escalateReason.trim().length < 5) return;
     try {
-      await api.blockContestParticipant(cand.contestId, cand.userId, 'Escalated to OrgAdmin for disqualification');
-      queryClient.invalidateQueries({ queryKey: ['proctorLeaderboard'] });
-    } catch {}
-    showToast(`🚨 Escalated ${cand.name} to ORG_ADMIN for final disqualification review.`);
+      await api.sendProctorAction('ESCALATE', escalateCandidate.userId, escalateCandidate.contestId, escalateReason.trim());
+      queryClient.invalidateQueries({ queryKey: ['proctorLogs', 'proctorLeaderboard'] });
+      showToast(`🚨 ${escalateCandidate.name} escalated to ORG_ADMIN — reason logged.`);
+    } catch {
+      showToast(`🚨 ${escalateCandidate.name} escalated to ORG_ADMIN.`);
+    } finally {
+      setEscalateCandidate(null);
+      setEscalateReason('');
+    }
   };
 
   const handleUnlockReport = () => {
@@ -396,9 +496,15 @@ export const ProctorConsolePage: React.FC = () => {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (selectedContestId && selectedContestId !== 'ALL_COMBINED') {
-                  window.open(`${api.getBaseUrl()}/analytics/contests/${selectedContestId}/export-csv`, '_blank');
+                  try {
+                    showToast('⏳ Preparing CSV export...');
+                    await api.exportContestCSV(selectedContestId, selectedContest.title);
+                    showToast('✅ CSV downloaded successfully!');
+                  } catch {
+                    showToast('❌ CSV export failed. Ensure you have organizer access.');
+                  }
                 } else {
                   showToast('⚠️ Please select a specific contest to export CSV report.');
                 }
@@ -629,180 +735,284 @@ export const ProctorConsolePage: React.FC = () => {
               </p>
             </div>
           ) : (
-            filteredCandidates.map((cand) => (
-            <div
-              key={cand.id}
-              className={`p-4 rounded-2xl border flex flex-col justify-between space-y-3 bg-zinc-950 transition-all ${
-                cand.status === 'ESCALATED_TO_ADMIN'
-                  ? 'border-rose-500/60 bg-rose-500/5'
-                  : cand.status === 'PAUSED'
-                  ? 'border-blue-500/60 bg-blue-500/5'
-                  : cand.warnings > 1 || cand.bulkPasteFlag
-                  ? 'border-amber-500/60 bg-amber-500/5'
-                  : 'border-white/10 hover:border-white/20'
-              }`}
-            >
-              <div className="space-y-2.5">
-                {/* Top Title & Status */}
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="text-sm font-black text-white leading-tight">{cand.name}</h3>
-                    <p className="text-[10px] text-zinc-500 font-mono mt-0.5">{cand.email}</p>
-                    
-                    {/* Contest Pill in Combined View */}
-                    {isCombinedView && (
-                      <span className="inline-block mt-1 px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded">
-                        🏆 {cand.contestTitle}
-                      </span>
-                    )}
-                  </div>
-                  <span
-                    className={`text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-wider ${
-                      cand.status === 'ESCALATED_TO_ADMIN'
-                        ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
-                        : cand.status === 'PAUSED'
-                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
-                        : cand.status === 'COMPLETED'
-                        ? 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-                        : cand.warnings > 0
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                        : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                    }`}
-                  >
-                    {cand.status === 'ESCALATED_TO_ADMIN' ? 'ESCALATED' : cand.status === 'PAUSED' ? 'PAUSED' : cand.status === 'COMPLETED' ? 'ENDED' : `Warnings: ${cand.warnings}/${cand.maxWarnings}`}
-                  </span>
-                </div>
+            filteredCandidates.map((cand) => {
+              const initials = cand.name
+                .split(' ')
+                .map((n) => n[0])
+                .join('')
+                .substring(0, 2)
+                .toUpperCase() || 'CD';
 
-                {/* AI Anomaly Alert Badges */}
-                <div className="flex flex-wrap gap-1">
-                  {cand.aiAlerts.multipleFaces && (
-                    <span className="px-1.5 py-0.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] font-bold rounded">
-                      👥 Multi-Face
-                    </span>
-                  )}
-                  {cand.aiAlerts.noFace && (
-                    <span className="px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded">
-                      👤 No Face
-                    </span>
-                  )}
-                  {cand.aiAlerts.phoneDetected && (
-                    <span className="px-1.5 py-0.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] font-bold rounded">
-                      📱 Phone Detected
-                    </span>
-                  )}
-                  {cand.aiAlerts.audioSpike && (
-                    <span className="px-1.5 py-0.5 bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded">
-                      🗣️ Voice Activity
-                    </span>
-                  )}
-                  {cand.bulkPasteFlag && (
-                    <span className="px-1.5 py-0.5 bg-purple-500/20 border border-purple-500/30 text-purple-400 text-[9px] font-bold rounded">
-                      ⚠️ Bulk Paste (AI Flag)
-                    </span>
-                  )}
-                </div>
-
-                {/* Live WebCam Viewport (Renders actual real-time student stream or fallback) */}
+              return (
                 <div
-                  onClick={() => setSpotlightCandidate(cand)}
-                  className="relative h-32 bg-black rounded-xl border border-white/10 flex items-center justify-center overflow-hidden group cursor-pointer"
+                  key={cand.id}
+                  className={`p-4 rounded-2xl border flex flex-col justify-between space-y-3 bg-[#0d0e12]/95 backdrop-blur-xl transition-all shadow-xl ${
+                    cand.status === 'ESCALATED_TO_ADMIN'
+                      ? 'border-rose-500/70 bg-rose-500/5 shadow-rose-500/5'
+                      : cand.status === 'PAUSED'
+                      ? 'border-amber-500/80 bg-amber-500/10 shadow-amber-500/10'
+                      : cand.warnings > 1 || cand.bulkPasteFlag
+                      ? 'border-amber-500/60 bg-amber-500/5'
+                      : 'border-white/10 hover:border-white/20'
+                  }`}
                 >
-                  {liveFrames[cand.userId] ? (
-                    <img
-                      src={liveFrames[cand.userId]}
-                      alt={`${cand.name} live webcam stream`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-all duration-200 ease-linear"
-                    />
-                  ) : (
-                    <div className="text-center space-y-1 group-hover:scale-105 transition-transform">
-                      <span className="text-3xl block">{isSelectedContestEnded ? '📸' : '🎥'}</span>
-                      <span className="text-[10px] text-zinc-500 font-mono">
-                        {isSelectedContestEnded ? 'Archived Session Snapshot' : 'Live Stream 720p · Tap to Spotlight'}
+                  <div className="space-y-3">
+                    {/* Top Header Row: Avatar + Name + Pill Badge */}
+                    <div className="flex items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* Avatar Initial Circle */}
+                        <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center text-xs font-black text-amber-400 shrink-0 font-mono">
+                          {initials}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-xs font-bold text-white truncate leading-snug">{cand.name}</h3>
+                          <p className="text-[10px] text-zinc-400 truncate font-sans">{cand.email}</p>
+                        </div>
+                      </div>
+
+                      {/* Pill Badge */}
+                      <span
+                        className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1.5 ${
+                          cand.status === 'ESCALATED_TO_ADMIN'
+                            ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
+                            : cand.status === 'PAUSED'
+                            ? 'bg-amber-500 text-black font-black border border-amber-400'
+                            : cand.status === 'COMPLETED'
+                            ? 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                            : cand.warnings > 0
+                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                            : 'bg-zinc-800/80 text-zinc-300 border border-white/10'
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${cand.status === 'PAUSED' ? 'bg-black animate-pulse' : cand.status === 'ESCALATED_TO_ADMIN' ? 'bg-rose-400 animate-ping' : 'bg-amber-400'}`} />
+                        <span>{cand.status === 'PAUSED' ? 'PAUSED BY PROCTOR' : cand.status === 'ACTIVE' ? `0/10 WARNINGS` : cand.status}</span>
                       </span>
                     </div>
-                  )}
 
-                  <span className={`absolute top-2 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded ${liveFrames[cand.userId] ? 'bg-rose-500 text-white animate-pulse' : isSelectedContestEnded ? 'bg-zinc-800 text-zinc-400 border border-zinc-700' : 'bg-black/70 text-emerald-400 border border-emerald-500/30'}`}>
-                    {liveFrames[cand.userId] ? '🔴 LIVE WEBCAM' : isSelectedContestEnded ? 'Archived Feed' : 'Webcam Standby'}
-                  </span>
+                    {/* AI Anomaly Alert Badges (if any) */}
+                    {(cand.aiAlerts.multipleFaces || cand.aiAlerts.noFace || cand.aiAlerts.phoneDetected || cand.aiAlerts.audioSpike || cand.bulkPasteFlag) && (
+                      <div className="flex flex-wrap gap-1">
+                        {cand.aiAlerts.multipleFaces && (
+                          <span className="px-1.5 py-0.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] font-bold rounded">
+                            👥 Multi-Face
+                          </span>
+                        )}
+                        {cand.aiAlerts.noFace && (
+                          <span className="px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded">
+                            👤 No Face
+                          </span>
+                        )}
+                        {cand.aiAlerts.phoneDetected && (
+                          <span className="px-1.5 py-0.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] font-bold rounded">
+                            📱 Phone Detected
+                          </span>
+                        )}
+                        {cand.aiAlerts.audioSpike && (
+                          <span className="px-1.5 py-0.5 bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded">
+                            🗣️ Voice Activity
+                          </span>
+                        )}
+                        {cand.bulkPasteFlag && (
+                          <span className="px-1.5 py-0.5 bg-purple-500/20 border border-purple-500/30 text-purple-400 text-[9px] font-bold rounded">
+                            ⚠️ Bulk Paste (AI Flag)
+                          </span>
+                        )}
+                      </div>
+                    )}
 
-                  <span className="absolute bottom-2 right-2 text-[9px] font-mono text-zinc-400 bg-black/70 px-1.5 py-0.5 rounded">
-                    Snap: {cand.lastSnapshotTime}
-                  </span>
-                </div>
-
-                {/* 10-Type Assessment Telemetry */}
-                <div className="p-2.5 bg-white/3 rounded-xl border border-white/5 space-y-1 text-[11px] font-mono">
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Test Format:</span>
-                    <span className="text-blue-400 font-bold">{cand.assessmentType}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Tab Switches:</span>
-                    <span className={cand.tabSwitchCount > 2 ? 'text-amber-400 font-bold' : 'text-zinc-300'}>{cand.tabSwitchCount}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Paste Events:</span>
-                    <span className={cand.pasteEvents > 2 ? 'text-purple-400 font-bold' : 'text-zinc-300'}>{cand.pasteEvents}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-zinc-500">Integrity Rating:</span>
-                    <span className={cand.integrityScore >= 80 ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>{cand.integrityScore}%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Controls */}
-              {!isSelectedContestEnded ? (
-                <div className="pt-2 border-t border-white/10 space-y-1.5">
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <button
-                      onClick={() => setSelectedNudgeCandidate(cand)}
-                      className="py-1.5 px-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-[11px] font-bold rounded-lg transition"
+                    {/* Stream Viewport with Live Overlays */}
+                    <div
+                      onClick={() => setSpotlightCandidate(cand)}
+                      className="relative h-36 bg-[#08090c] rounded-xl border border-white/10 flex items-center justify-center overflow-hidden group cursor-pointer"
                     >
-                      ⚠️ Nudge
-                    </button>
+                      {/* Top Overlay Badges */}
+                      <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10 pointer-events-none">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/70 border border-white/10 text-[9px] font-black text-rose-400 uppercase font-mono">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                          LIVE
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-black/70 border border-white/10 text-[9px] font-black text-zinc-300 uppercase font-mono">
+                          {cand.assessmentType || 'CODING'}
+                        </span>
+                      </div>
 
-                    <button
-                      onClick={() => handleForceSnapshot(cand)}
-                      className="py-1.5 px-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 text-[11px] font-bold rounded-lg transition"
-                    >
-                      📸 Snapshot
-                    </button>
-                  </div>
+                      {/* Webcam Image */}
+                      <img
+                        ref={(el) => { webcamImgRefs.current[cand.userId] = el; }}
+                        alt={`${cand.name} live webcam stream`}
+                        className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${feedViewMode[cand.userId] !== 'screen' && liveFrames[cand.userId] ? 'block' : 'hidden'}`}
+                        style={{ imageRendering: 'auto' }}
+                      />
 
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <button
-                      onClick={() => handleTogglePause(cand)}
-                      className={`py-1.5 px-2 text-[11px] font-bold rounded-lg transition border ${
-                        cand.status === 'PAUSED'
-                          ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/20'
-                          : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-white/10'
-                      }`}
-                    >
-                      {cand.status === 'PAUSED' ? '▶️ Resume' : '⏸️ Pause Exam'}
-                    </button>
+                      {/* Screen Image */}
+                      <img
+                        ref={(el) => { screenImgRefs.current[cand.userId] = el; }}
+                        alt={`${cand.name} live desktop screen stream`}
+                        className={`w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 ${feedViewMode[cand.userId] === 'screen' && liveScreenFrames[cand.userId] ? 'block' : 'hidden'}`}
+                        style={{ imageRendering: 'auto' }}
+                      />
 
-                    <button
-                      onClick={() => handleEscalate(cand)}
-                      className="py-1.5 px-2 bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 border border-rose-500/30 text-[11px] font-bold rounded-lg transition"
-                    >
-                      🚨 Escalate
-                    </button>
+                      {/* Stream Fallback */}
+                      {(!liveFrames[cand.userId] && !liveScreenFrames[cand.userId]) && (
+                        <div className="text-center space-y-1 group-hover:scale-105 transition-transform">
+                          <svg className="w-8 h-8 mx-auto text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-[10px] text-zinc-500 font-mono block">Tap to spotlight</span>
+                        </div>
+                      )}
+
+                      {/* Bottom Stream Mode Switcher Pill */}
+                      <div className="absolute bottom-2 right-2 z-10 flex gap-1 bg-black/80 p-0.5 rounded-lg border border-white/10 text-[9px] font-bold">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setFeedViewMode(prev => ({ ...prev, [cand.userId]: 'webcam' })); }}
+                          className={`px-1.5 py-0.5 rounded transition ${feedViewMode[cand.userId] !== 'screen' ? 'bg-amber-500 text-black font-black' : 'text-zinc-400 hover:text-white'}`}
+                        >
+                          Cam
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setFeedViewMode(prev => ({ ...prev, [cand.userId]: 'screen' })); }}
+                          className={`px-1.5 py-0.5 rounded transition ${feedViewMode[cand.userId] === 'screen' ? 'bg-blue-500 text-white font-black' : 'text-zinc-400 hover:text-white'}`}
+                        >
+                          Screen
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 4-Tile Metric Matrix (2x2 Grid) */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {/* Tile 1: Tab Switches */}
+                      <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
+                        <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">TAB SWITCHES</span>
+                        <span className={`text-base font-bold ${cand.tabSwitchCount > 2 ? 'text-amber-400' : 'text-white'}`}>
+                          {cand.tabSwitchCount}
+                        </span>
+                      </div>
+
+                      {/* Tile 2: SEB Entries */}
+                      <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
+                        <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">SEB ENTRIES</span>
+                        <span className={`text-base font-bold ${((cand as any).sebEntryCount || 0) > 0 ? 'text-amber-400' : 'text-white'}`}>
+                          {(cand as any).sebEntryCount ?? 0}
+                        </span>
+                      </div>
+
+                      {/* Tile 3: Paste Events */}
+                      <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
+                        <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">PASTE EVENTS</span>
+                        <span className={`text-base font-bold ${cand.pasteEvents > 0 ? 'text-purple-400' : 'text-white'}`}>
+                          {cand.pasteEvents}
+                        </span>
+                      </div>
+
+                      {/* Tile 4: Circular Integrity Rating Ring */}
+                      <div className="bg-[#12141c]/80 p-2 rounded-xl border border-white/5 flex items-center justify-between">
+                        <div>
+                          <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">INTEGRITY</span>
+                          <span className="text-[10px] font-bold text-zinc-300">Rating</span>
+                        </div>
+                        <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
+                          <svg className="w-9 h-9 transform -rotate-90">
+                            <circle cx="18" cy="18" r="14" stroke="currentColor" strokeWidth="3.5" className="text-zinc-800" fill="transparent" />
+                            <circle cx="18" cy="18" r="14" stroke="currentColor" strokeWidth="3.5"
+                              strokeDasharray={88}
+                              strokeDashoffset={88 - (88 * (cand.integrityScore || 100)) / 100}
+                              className={cand.integrityScore >= 80 ? 'text-amber-400' : 'text-rose-500'}
+                              strokeLinecap="round" fill="transparent" />
+                          </svg>
+                          <span className="absolute text-[9px] font-black text-amber-400 font-mono">{cand.integrityScore}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Highlighted Banner when candidate is PAUSED / BLOCKED */}
+                    {cand.status === 'PAUSED' && (
+                      <div className="p-3 bg-amber-500/15 border border-amber-500/40 rounded-xl space-y-1 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5 font-mono">
+                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                            <span>EXAM SESSION BLOCKED - ACTION REQUIRED</span>
+                          </span>
+                        </div>
+                        <p className="text-xs text-white font-bold leading-snug">
+                          {cand.pauseReason || 'Exam session paused by proctor.'}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Action Control Buttons */}
+                    {!isSelectedContestEnded ? (
+                      <div className="pt-2 border-t border-white/10 space-y-2">
+                        {cand.status === 'PAUSED' ? (
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => handleTogglePause(cand)}
+                                className="py-2.5 px-3 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-1 cursor-pointer"
+                              >
+                                <span>Resume candidate</span>
+                              </button>
+                              <button
+                                onClick={() => handleEscalate(cand)}
+                                className="py-2.5 px-3 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow-lg shadow-rose-600/20 transition flex items-center justify-center gap-1 cursor-pointer"
+                              >
+                                <span>Disqualify</span>
+                              </button>
+                            </div>
+                            <button
+                              onClick={() => handleForceSnapshot(cand)}
+                              className="w-full py-2 px-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 font-bold text-xs rounded-xl transition cursor-pointer"
+                            >
+                              Take verification snapshot
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => setSelectedNudgeCandidate(cand)}
+                                className="py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-bold rounded-xl transition cursor-pointer"
+                              >
+                                Nudge
+                              </button>
+                              <button
+                                onClick={() => handleForceSnapshot(cand)}
+                                className="py-2 px-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 text-xs font-bold rounded-xl transition cursor-pointer"
+                              >
+                                Snapshot
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <button
+                                onClick={() => handleTogglePause(cand)}
+                                className="py-2 px-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 text-xs font-bold rounded-xl transition cursor-pointer"
+                              >
+                                Pause exam
+                              </button>
+                              <button
+                                onClick={() => handleEscalate(cand)}
+                                className="py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold rounded-xl transition cursor-pointer"
+                              >
+                                Escalate / terminate
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="pt-2 border-t border-white/10">
+                        <button
+                          onClick={() => setShowReportModal(true)}
+                          className="w-full py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5"
+                        >
+                          📄 View Candidate Evidence
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
-              ) : (
-                <div className="pt-2 border-t border-white/10">
-                  <button
-                    onClick={() => setShowReportModal(true)}
-                    className="w-full py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5"
-                  >
-                    📄 View Candidate Evidence
-                  </button>
-                </div>
-              )}
-            </div>
-          ))
+              );
+            })
         )}
       </div>
     )}
@@ -1311,6 +1521,66 @@ export const ProctorConsolePage: React.FC = () => {
         </div>
       )}
 
+      {/* ── Block Exam Modal (requires reason) ── */}
+      {blockCandidate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-zinc-950 border border-blue-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div>
+              <span className="text-[10px] font-black text-blue-400 uppercase tracking-wider">⏸️ Pause Exam Session</span>
+              <h3 className="text-lg font-black text-white mt-1">Pause: {blockCandidate.name}</h3>
+              <p className="text-xs text-zinc-400 mt-1">You must provide a reason. This will be shown to the candidate and logged in the audit trail.</p>
+            </div>
+            <textarea
+              placeholder="Enter reason for pausing (min 5 chars)..."
+              value={blockReason}
+              onChange={(e) => setBlockReason(e.target.value)}
+              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-blue-400 outline-none placeholder-zinc-600 resize-none"
+              rows={3}
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setBlockCandidate(null)} className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition">Cancel</button>
+              <button
+                onClick={handleConfirmBlock}
+                disabled={blockReason.trim().length < 5}
+                className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-400 disabled:bg-zinc-700 text-white disabled:text-zinc-500 font-black text-xs rounded-xl transition"
+              >
+                ⏸️ Confirm Pause
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Escalate/Terminate Modal (requires reason) ── */}
+      {escalateCandidate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-zinc-950 border border-rose-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div>
+              <span className="text-[10px] font-black text-rose-400 uppercase tracking-wider">🚨 Escalate & Terminate</span>
+              <h3 className="text-lg font-black text-white mt-1">Terminate: {escalateCandidate.name}</h3>
+              <p className="text-xs text-zinc-400 mt-1">This will permanently disqualify the candidate. You must provide a documented reason for the audit report.</p>
+            </div>
+            <textarea
+              placeholder="Document reason for termination (min 5 chars)..."
+              value={escalateReason}
+              onChange={(e) => setEscalateReason(e.target.value)}
+              className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-rose-400 outline-none placeholder-zinc-600 resize-none"
+              rows={3}
+            />
+            <div className="flex gap-3">
+              <button onClick={() => setEscalateCandidate(null)} className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition">Cancel</button>
+              <button
+                onClick={handleConfirmEscalate}
+                disabled={escalateReason.trim().length < 5}
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 disabled:bg-zinc-700 text-white disabled:text-zinc-500 font-black text-xs rounded-xl transition"
+              >
+                🚨 Confirm Termination
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Spotlight View Modal */}
       {spotlightCandidate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
@@ -1325,21 +1595,57 @@ export const ProctorConsolePage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="h-64 bg-black rounded-xl border border-white/10 flex items-center justify-center relative">
-                <span className="text-4xl">📹</span>
-                <span className="absolute top-2 left-2 text-[10px] font-bold text-emerald-400 bg-black/80 px-2 py-0.5 rounded">Webcam Stream 720p HD</span>
+              {/* Real webcam frame from liveFrames */}
+              <div className="h-64 bg-black rounded-xl border border-white/10 overflow-hidden relative">
+                {liveFrames[spotlightCandidate.userId] ? (
+                  <img
+                    src={liveFrames[spotlightCandidate.userId]}
+                    alt="Live webcam"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center flex-col gap-2">
+                    <span className="text-4xl">📹</span>
+                    <span className="text-xs text-zinc-500">Waiting for webcam stream...</span>
+                  </div>
+                )}
+                <span className="absolute top-2 left-2 text-[10px] font-bold text-emerald-400 bg-black/80 px-2 py-0.5 rounded">
+                  {liveFrames[spotlightCandidate.userId] ? '🔴 LIVE WEBCAM' : 'Webcam Standby'}
+                </span>
               </div>
-              <div className="h-64 bg-black rounded-xl border border-white/10 flex items-center justify-center relative">
-                <span className="text-4xl">🖥️</span>
-                <span className="absolute top-2 left-2 text-[10px] font-bold text-blue-400 bg-black/80 px-2 py-0.5 rounded">Active Screen Share</span>
+              {/* Real desktop screen stream from liveScreenFrames or liveFrames fallback */}
+              <div className="h-64 bg-black rounded-xl border border-white/10 overflow-hidden relative">
+                {liveScreenFrames[spotlightCandidate.userId] || liveFrames[spotlightCandidate.userId] ? (
+                  <img
+                    src={liveScreenFrames[spotlightCandidate.userId] || liveFrames[spotlightCandidate.userId]}
+                    alt="Live candidate desktop screen"
+                    className="w-full h-full object-contain bg-black"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center flex-col gap-2">
+                    <span className="text-4xl">🖥️</span>
+                    <span className="text-xs text-zinc-500">Waiting for candidate desktop screen stream...</span>
+                  </div>
+                )}
+                <div className="absolute top-2 left-2 flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-blue-400 bg-black/80 px-2 py-0.5 rounded">
+                    {liveScreenFrames[spotlightCandidate.userId] ? '🔴 LIVE DESKTOP SCREEN' : 'Screen Standby'}
+                  </span>
+                  <button
+                    onClick={() => api.sendProctorAction('SNAPSHOT', spotlightCandidate.userId, spotlightCandidate.contestId, 'Proctor requested screen snapshot')}
+                    className="px-2 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 text-[10px] font-bold rounded transition cursor-pointer"
+                  >
+                    📸 Force Snapshot
+                  </button>
+                </div>
               </div>
             </div>
 
             <div className="p-4 bg-white/5 rounded-xl border border-white/5 grid grid-cols-4 gap-4 text-xs font-mono">
-              <div>Test Format: <span className="text-blue-400 font-bold">{spotlightCandidate.assessmentType}</span></div>
+              <div>Warnings: <span className="text-amber-400 font-bold">{spotlightCandidate.warnings}/{spotlightCandidate.maxWarnings}</span></div>
               <div>Tab Switches: <span className="text-amber-400 font-bold">{spotlightCandidate.tabSwitchCount}</span></div>
-              <div>Paste Events: <span className="text-purple-400 font-bold">{spotlightCandidate.pasteEvents}</span></div>
-              <div>Integrity Score: <span className="text-emerald-400 font-bold">{spotlightCandidate.integrityScore}%</span></div>
+              <div>SEB Entries: <span className="text-cyan-400 font-bold">{(spotlightCandidate as any).sebEntryCount ?? 0}</span></div>
+              <div>Integrity: <span className="text-emerald-400 font-bold">{spotlightCandidate.integrityScore}%</span></div>
             </div>
 
             <div className="flex justify-end gap-3 pt-2">

@@ -5,8 +5,8 @@ import { requireRole } from '../middlewares/rbac';
 
 const router = Router();
 
-// All routes require authentication + ANALYTICS_VIEWER, ORG_ADMIN, or SUPER_ADMIN
-const ALLOWED = ['analytics_viewer', 'org_admin', 'super_admin'];
+// All routes require authentication + ANALYTICS_VIEWER, ORG_ADMIN, SUPER_ADMIN, ORG_MEMBER, or PROCTOR
+const ALLOWED = ['analytics_viewer', 'org_admin', 'super_admin', 'org_member', 'proctor', 'ORG_MEMBER', 'ORG_ADMIN', 'SUPER_ADMIN', 'PROCTOR'];
 
 // ─── GET /api/analytics/contests ─────────────────────────────────────────────
 // List all contests within org (names, dates, status, participant count)

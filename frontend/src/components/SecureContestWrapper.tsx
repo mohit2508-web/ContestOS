@@ -61,6 +61,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
     terminationReason: proctorTerminationReason,
     warnMessage: proctorWarnMessage,
     sendWebcamFrame,
+    sendScreenFrame,
   } = useProctorSocket({
     userId: user?.id || '',
     contestId,
@@ -78,28 +79,48 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
     },
   });
 
-  // Stream lightweight webcam frames every 500ms (2 FPS) to invigilator live grid for smooth video
+  // Stream live webcam frames (2 FPS) & live screen frames (1 FPS) to invigilator live grid
   useEffect(() => {
     if (!flags.enableProctoring || !user?.id || !contestId) return;
 
-    const canvas = document.createElement('canvas');
-    canvas.width = 240;
-    canvas.height = 180;
-    const ctx = canvas.getContext('2d');
+    const camCanvas = document.createElement('canvas');
+    camCanvas.width = 240;
+    camCanvas.height = 180;
+    const camCtx = camCanvas.getContext('2d');
 
-    const interval = setInterval(() => {
+    const screenCanvas = document.createElement('canvas');
+    screenCanvas.width = 640;
+    screenCanvas.height = 360;
+    const screenCtx = screenCanvas.getContext('2d');
+
+    // 1. Webcam Frame Stream (2 FPS)
+    const camInterval = setInterval(() => {
       const v = videoRef.current || sysVideoRef.current;
-      if (v && v.readyState >= 2 && ctx) {
+      if (v && v.readyState >= 2 && camCtx) {
         try {
-          ctx.drawImage(v, 0, 0, 240, 180);
-          const frameBase64 = canvas.toDataURL('image/jpeg', 0.35);
+          camCtx.drawImage(v, 0, 0, 240, 180);
+          const frameBase64 = camCanvas.toDataURL('image/jpeg', 0.35);
           sendWebcamFrame(frameBase64);
         } catch {}
       }
     }, 500);
 
-    return () => clearInterval(interval);
-  }, [flags.enableProctoring, user?.id, contestId, sendWebcamFrame]);
+    // 2. Desktop Screen Frame Stream (1 FPS)
+    const screenInterval = setInterval(() => {
+      if (canvasRef.current && screenCtx) {
+        try {
+          screenCtx.drawImage(canvasRef.current, 0, 0, 640, 360);
+          const frameBase64 = screenCanvas.toDataURL('image/jpeg', 0.35);
+          sendScreenFrame(frameBase64);
+        } catch {}
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(camInterval);
+      clearInterval(screenInterval);
+    };
+  }, [flags.enableProctoring, user?.id, contestId, sendWebcamFrame, sendScreenFrame]);
 
   // Gesture & Warning Consequence States & Refs
   const lastVisibilityHiddenTime = useRef<number | null>(null);
@@ -255,7 +276,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
       return;
     }
 
-    const finalRollNo = user?.enrollmentNumber || tempRollNo;
+    const finalRollNo = (user as any)?.enrollmentNumber || tempRollNo;
     if (!finalRollNo.trim()) {
       notify.toast.warning("Please enter your Roll/Enrollment number to proceed.");
       return;
@@ -326,7 +347,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
         console.error("Screen share prompt was denied:", screenErr);
         await notify.alert("Screen Share Required", {
           description: "Screen sharing is mandatory to participate in this contest.",
-          variant: "critical"
+          variant: "danger"
         });
         webcamStream.getTracks().forEach(t => t.stop());
         setProctoringStream(null);
@@ -430,7 +451,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
       console.error("Proctoring access denied (camera/mic):", err);
       await notify.alert("Proctoring Access Required", {
         description: "Camera and microphone access are required for this proctored exam.",
-        variant: "critical"
+        variant: "danger"
       });
       navigate("/contests");
     }
@@ -1075,6 +1096,73 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
     }
   };
 
+  if (proctorBlocked) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#090a0d]/95 backdrop-blur-2xl p-6 select-none font-sans text-white">
+        <div className="w-full max-w-lg flex flex-col items-center text-center space-y-6">
+          
+          {/* Top Pill Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-[11px] font-black tracking-widest text-amber-400 uppercase font-mono">
+              PROCTOR INTERVENTION
+            </span>
+          </div>
+
+          {/* Header Titles */}
+          <div className="space-y-2">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+              Assessment suspended by proctor
+            </h1>
+            <p className="text-sm text-zinc-400 font-medium">
+              Your session has been flagged and paused pending review.
+            </p>
+          </div>
+
+          {/* Central Details Card */}
+          <div className="w-full bg-[#12141a]/90 border border-white/10 rounded-2xl p-6 text-left space-y-5 shadow-2xl backdrop-blur-md">
+            {/* Reason section */}
+            <div className="space-y-1">
+              <span className="text-[10px] font-mono font-bold tracking-wider text-zinc-500 uppercase">
+                REASON FOR FLAG
+              </span>
+              <p className="text-base font-bold text-white leading-relaxed">
+                {proctorBlockReason || 'Multiple faces detected in camera feed'}
+              </p>
+            </div>
+
+            <div className="h-px bg-white/10 w-full" />
+
+            {/* Grid of attributes */}
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-400 font-medium">Flagged by</span>
+                <span className="text-white font-bold">{proctorBlockerName || 'Invigilator'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-400 font-medium">Status</span>
+                <span className="text-amber-400 font-mono font-bold">Exam Session Paused</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Yellow/Amber Warning Box */}
+          <div className="w-full bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-left">
+            <p className="text-xs text-amber-300 font-medium leading-relaxed">
+              This flag has been logged against your session record. Reaching the maximum allowed warnings will end your assessment automatically.
+            </p>
+          </div>
+
+          {/* Footer Instructions Subtext */}
+          <p className="text-xs text-zinc-500 max-w-lg leading-relaxed text-center font-normal">
+            Stay on this screen. Your code, progress, and remaining time are preserved — the assessment resumes automatically the moment the proctor clears this flag.
+          </p>
+
+        </div>
+      </div>
+    );
+  }
+
   if (isSessionReplaced) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white p-4">
@@ -1149,7 +1237,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
 
   // System Check & Verification Photo Capture UI
   if (showSystemCheck && !hasRegistered) {
-    const finalRollNo = user?.enrollmentNumber || tempRollNo;
+    const finalRollNo = (user as any)?.enrollmentNumber || tempRollNo;
     const canSubmit = capturedPhoto && finalRollNo.trim();
 
     return (
@@ -1227,17 +1315,17 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
                       type="text" 
                       readOnly 
                       className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-xs text-white font-medium outline-none cursor-default font-mono"
-                      value={user?.fullName || user?.name || ''} 
+                      value={(user as any)?.fullName || user?.name || ''} 
                     />
                   </div>
                   <div>
                     <label className="block text-[10px] text-zinc-400 mb-0.5">Roll / Enrollment Number</label>
-                    {user?.enrollmentNumber ? (
+                    {(user as any)?.enrollmentNumber ? (
                       <input 
                         type="text" 
                         readOnly 
                         className="w-full bg-zinc-900 border border-zinc-800 rounded px-2.5 py-1.5 text-xs text-white font-medium outline-none cursor-default font-mono"
-                        value={user.enrollmentNumber} 
+                        value={(user as any).enrollmentNumber} 
                       />
                     ) : (
                       <input 
@@ -1286,7 +1374,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
 
   const Watermark = () => {
     if (!user) return null;
-    const watermarkText = `${user.fullName} | ${user.email} | Contest: ${contestId}`;
+    const watermarkText = `${(user as any)?.fullName || user?.name || ''} | ${user.email} | Contest: ${contestId}`;
 
     return (
       <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
@@ -1315,7 +1403,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
       ? `${BASE_HOST}/${storedPhoto.replace(/^[/\\]+/, '')}`
       : '';
     
-    const finalRollNo = user?.enrollmentNumber || tempRollNo || 'N/A';
+    const finalRollNo = (user as any)?.enrollmentNumber || tempRollNo || 'N/A';
 
     return (
       <div className="fixed bottom-4 right-4 z-50 pointer-events-auto bg-zinc-950/90 border border-green-500/30 rounded-xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur max-w-sm">
@@ -1354,7 +1442,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
           <div className="flex items-center gap-1.5">
             <span className="text-[9px] text-green-400 font-bold tracking-wider uppercase">Live Feed Active</span>
           </div>
-          <span className="text-xs font-bold text-white truncate block">{user?.fullName || user?.name || 'Candidate'}</span>
+          <span className="text-xs font-bold text-white truncate block">{(user as any)?.fullName || user?.name || 'Candidate'}</span>
           <span className="text-[10px] font-medium text-zinc-400 truncate block">Roll No: {finalRollNo}</span>
           <div className="mt-1 flex flex-wrap gap-1">
             {keyboardLockActive ? (

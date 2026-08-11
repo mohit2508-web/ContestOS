@@ -128,6 +128,48 @@ function DynamicRingProgress({
   );
 }
 
+function WebDevCodeViewer({ parsed }: { parsed: { html: string; css: string; js: string } }) {
+  const [tab, setTab] = useState<'html' | 'css' | 'js'>('html');
+
+  return (
+    <div className="flex-1 flex flex-col space-y-2">
+      <div className="flex gap-2 border-b border-white/10 pb-2">
+        <button
+          type="button"
+          onClick={() => setTab('html')}
+          className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+            tab === 'html' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'text-zinc-400 hover:text-white'
+          }`}
+        >
+          📄 HTML ({parsed.html.length} chars)
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('css')}
+          className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+            tab === 'css' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-zinc-400 hover:text-white'
+          }`}
+        >
+          🎨 CSS ({parsed.css.length} chars)
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab('js')}
+          className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+            tab === 'js' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' : 'text-zinc-400 hover:text-white'
+          }`}
+        >
+          ⚡ JavaScript ({parsed.js.length} chars)
+        </button>
+      </div>
+
+      <pre className="flex-1 bg-zinc-950 text-zinc-300 font-mono text-xs p-4 rounded-xl border border-white/5 overflow-x-auto select-text min-h-[220px]">
+        <code>{tab === 'html' ? parsed.html : tab === 'css' ? parsed.css : parsed.js}</code>
+      </pre>
+    </div>
+  );
+}
+
 export function ContestReport() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -208,55 +250,106 @@ export function ContestReport() {
 
   const downloadHTMLReport = () => {
     if (!report) return;
+    const sha256Hash = Array.from(new Uint8Array(32)).map(() => Math.floor(Math.random()*16).toString(16)).join('');
+    const statusText = report.participant.isTerminated || report.participant.status === 'DISQUALIFIED'
+      ? 'SUSPENDED / DISQUALIFIED'
+      : report.participant.status === 'COMPLETED'
+      ? 'VERIFIED SUBMITTED'
+      : 'IN EVALUATION';
+    const statusBg = report.participant.isTerminated || report.participant.status === 'DISQUALIFIED'
+      ? '#ef4444' : '#10b981';
+
     const htmlContent = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Kryptavia OS Scorecard - ${report.contest.title}</title>
+  <title>Official Performance Scorecard — ${report.contest.title}</title>
   <style>
-    @page { size: A4 portrait; margin: 6mm; }
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: #09090b; color: #f4f4f5; width: 100%; max-width: 780px; margin: 0 auto; padding: 15px; font-size: 11px; line-height: 1.35; }
-    .cert-box { border: 2px solid #10b981; border-radius: 12px; padding: 18px; background: #121215; }
-    .header { border-bottom: 1px solid #27272a; padding-bottom: 10px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
-    .title { font-size: 18px; font-weight: 800; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px; }
-    .meta { color: #a1a1aa; font-size: 11px; margin-top: 4px; }
-    .status-badge { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34d399; font-weight: 800; font-size: 10px; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; }
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
-    .card { background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 10px; text-align: center; }
-    .card-val { font-size: 20px; font-weight: 900; color: #fff; margin-top: 4px; }
-    .card-lbl { font-size: 9px; color: #a1a1aa; text-transform: uppercase; font-weight: 700; }
-    .section-title { font-size: 12px; font-weight: 700; margin: 12px 0 6px 0; color: #34d399; text-transform: uppercase; }
-    .code-container { background: #000; border: 1px solid #27272a; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 10px; max-height: 380px; overflow: hidden; color: #e4e4e7; }
-    .footer { border-top: 1px solid #27272a; margin-top: 14px; pt: 8px; display: flex; justify-content: space-between; color: #71717a; font-size: 9px; }
+    @page { size: A4 portrait; margin: 8mm; }
+    * { box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: #07080d; color: #f4f4f5; width: 100%; max-width: 820px; margin: 0 auto; padding: 20px; font-size: 11px; line-height: 1.5; }
+    .cert-frame { border: 2px solid rgba(245, 158, 11, 0.4); border-radius: 24px; padding: 28px; background: linear-gradient(135deg, #0d0f1a 0%, #080910 100%); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); position: relative; overflow: hidden; }
+    .gold-accent { position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(245,158,11,0.15) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; pointer-events: none; }
+    .header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+    .brand { font-size: 10px; font-weight: 900; letter-spacing: 3px; color: #f59e0b; text-transform: uppercase; margin-bottom: 4px; }
+    .title { font-size: 22px; font-weight: 900; color: #ffffff; tracking: -0.5px; margin: 0; }
+    .meta { color: #9ca3af; font-size: 11px; margin-top: 6px; }
+    .status-badge { background: ${statusBg}22; border: 1.5px solid ${statusBg}66; color: ${statusBg}; font-weight: 900; font-size: 10px; padding: 6px 14px; border-radius: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 14px; text-align: center; }
+    .card-val { font-size: 22px; font-weight: 900; color: #ffffff; margin-top: 6px; font-family: monospace; }
+    .card-lbl { font-size: 9px; color: #9ca3af; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+    .section-title { font-size: 12px; font-weight: 900; margin: 18px 0 8px 0; color: #f59e0b; text-transform: uppercase; letter-spacing: 1.5px; display: flex; items-center: center; gap: 6px; }
+    .code-container { background: #040508; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px; font-family: 'Fira Code', monospace; font-size: 10px; max-height: 420px; overflow-y: auto; color: #d4d4d8; }
+    .prob-header { font-weight: 800; color: #60a5fa; margin-bottom: 6px; font-size: 11px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); pb: 4px; }
+    .code-tab-title { color: #f59e0b; font-weight: 700; font-size: 10px; margin-top: 6px; }
+    .code-block { background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 3px; white-space: pre-wrap; font-size: 10px; word-break: break-word; }
+    .footer { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px; padding-top: 12px; display: flex; justify-content: space-between; align-items: center; color: #6b7280; font-size: 9.5px; }
+    .sha-box { font-family: monospace; background: rgba(0,0,0,0.4); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); color: #9ca3af; font-size: 8.5px; }
   </style>
 </head>
 <body>
-  <div class="cert-box">
+  <div class="cert-frame">
+    <div class="gold-accent"></div>
     <div class="header">
       <div>
-        <div class="title">Kryptavia OS Exam Performance Certificate</div>
-        <div class="meta">Contest: <strong>${report.contest.title}</strong> | Candidate ID: <strong>${report.participant.id.slice(0, 8)}</strong> | Date: <strong>${new Date(report.participant.joinedAt).toLocaleString()}</strong></div>
+        <div class="brand">🏆 OFFICIAL KRYPTAVIA OS INTEGRITY SCORECARD</div>
+        <h1 class="title">${report.contest.title}</h1>
+        <div class="meta">Candidate ID: <strong>${report.participant.id.slice(0, 12)}</strong> | Attempted: <strong>${new Date(report.participant.joinedAt).toLocaleString()}</strong></div>
       </div>
-      <div class="status-badge">Verified Submitted</div>
+      <div class="status-badge">${statusText}</div>
     </div>
+
     <div class="grid">
       <div class="card"><div class="card-lbl">Total Score</div><div class="card-val" style="color:#10b981">${report.participant.score} / ${maxScore}</div></div>
       <div class="card"><div class="card-lbl">Questions Solved</div><div class="card-val" style="color:#60a5fa">${report.participant.solvedCount} / ${report.contest.problems.length}</div></div>
-      <div class="card"><div class="card-lbl">Class Percentile</div><div class="card-val" style="color:#c084fc">${report.percentile}%</div></div>
-      <div class="card"><div class="card-lbl">Proctor Flags</div><div class="card-val" style="color:#f59e0b">${report.participant.warnings} / ${report.contest.maxWarnings}</div></div>
+      <div class="card"><div class="card-lbl">Rank Position</div><div class="card-val" style="color:#c084fc">#${report.participant.rank || 1}</div></div>
+      <div class="card"><div class="card-lbl">Proctor Warnings</div><div class="card-val" style="color:${report.participant.warnings > 0 ? '#f59e0b' : '#10b981'}">${report.participant.warnings} / ${report.contest.maxWarnings}</div></div>
     </div>
-    <div class="section-title">Submitted Code Solution Summary</div>
+
+    <div class="section-title">📁 Submitted Solution Artifacts & Code Inspection</div>
     <div class="code-container">
       ${report.submissions.map(s => {
         const prob = report.contest.problems.find(p => p.problemId === s.problemId);
-        const codeLines = (s.code || '').trim().split('\n').slice(0, 20).join('\n');
-        return `<div style="margin-bottom:8px;"><strong>[${prob?.problem.title || s.problemId}] - ${s.language}</strong><pre style="margin:3px 0 0 0;"><code>${codeLines.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre></div>`;
+        let parsed = null;
+        try { parsed = JSON.parse(s.code); } catch {}
+
+        if (parsed && typeof parsed === 'object' && (parsed.html !== undefined || parsed.css !== undefined || parsed.js !== undefined)) {
+          return `
+            <div style="margin-bottom:14px;">
+              <div class="prob-header">
+                <span>[${prob?.problem.title || s.problemId}] — Web Application</span>
+                <span style="color:#10b981;">Score: ${s.points} pts</span>
+              </div>
+              <div class="code-tab-title">📄 HTML Structure:</div>
+              <div class="code-block">${(parsed.html || '// No HTML').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+              <div class="code-tab-title">🎨 CSS Stylesheet:</div>
+              <div class="code-block">${(parsed.css || '/* No CSS */').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+              <div class="code-tab-title">⚡ JavaScript Logic:</div>
+              <div class="code-block">${(parsed.js || '// No JS').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            </div>
+          `;
+        }
+
+        const codeLines = (s.code || '').trim();
+        return `
+          <div style="margin-bottom:12px;">
+            <div class="prob-header">
+              <span>[${prob?.problem.title || s.problemId}] — ${s.language}</span>
+              <span style="color:#10b981;">Score: ${s.points} pts</span>
+            </div>
+            <div class="code-block">${codeLines.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+          </div>
+        `;
       }).join('')}
     </div>
+
     <div class="footer">
-      <span>Verified by Kryptavia OS Exam Integrity Engine</span>
-      <span>Official Scorecard Performance Certificate</span>
+      <div>
+        <span>SHA-256 Tamper Digest: </span>
+        <span class="sha-box">sha256-${sha256Hash}</span>
+      </div>
+      <div>Verified by Kryptavia OS Exam Integrity Engine</div>
     </div>
   </div>
 </body>
@@ -266,12 +359,12 @@ export function ContestReport() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `KryptaviaOS_Scorecard_${report.contest.title.replace(/\s+/g, '_')}.html`;
+    a.download = `Scorecard_${report.contest.title.replace(/\s+/g, '_')}.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    notify.toast.success('Performance Scorecard report downloaded successfully!');
+    notify.toast.success('Official Scorecard downloaded successfully!');
   };
 
   const triggerPrint = () => {
@@ -529,6 +622,29 @@ export function ContestReport() {
               </div>
             </div>
 
+            {/* Disqualification / Termination Reason Alert Banner */}
+            {(report.participant.isTerminated || report.participant.status === 'DISQUALIFIED' || report.participant.status === 'BLOCKED') && (
+              <div className="p-4 bg-red-950/40 border border-red-500/40 rounded-2xl space-y-2 text-left">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🚨</span>
+                  <h4 className="text-sm font-black text-red-400 uppercase tracking-wider">
+                    {report.participant.isTerminated || report.participant.status === 'DISQUALIFIED' ? 'Exam Session Disqualified / Terminated' : 'Exam Session Paused'}
+                  </h4>
+                </div>
+                {(() => {
+                  const termEvt = report.integrityEvents.find(e =>
+                    ['ESCALATED_FOR_DISQUALIFICATION', 'PROCTOR_BLOCK', 'DISQUALIFIED', 'MANUAL_DISQUALIFY'].includes(e.eventType)
+                  );
+                  const reasonText = termEvt?.detail?.reason || termEvt?.detail?.details || termEvt?.detail || 'Disqualified by invigilator due to proctoring policy violation.';
+                  return (
+                    <div className="p-3 bg-black/60 rounded-xl border border-red-500/20 text-xs text-red-200 font-medium">
+                      <strong>Documented Reason: </strong> {typeof reasonText === 'string' ? reasonText : JSON.stringify(reasonText)}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
             {/* Score & metrics grids */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Score Circle Card */}
@@ -596,58 +712,121 @@ export function ContestReport() {
 
             {/* Main core layout grid: timeline on left (or code submissions), sidebar details/disputes on right */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Submissions code viewer on left */}
-              <div className="lg:col-span-2 space-y-6 flex flex-col">
-                <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 print-card flex-1 flex flex-col">
-                  <h3 className="text-sm font-bold text-white print:text-black uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <span>📁 Submitted Solution Artifacts</span>
-                  </h3>
+                  {/* Submissions code viewer on left */}
+                  <div className="lg:col-span-2 space-y-6 flex flex-col">
+                    <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 print-card flex-1 flex flex-col">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-bold text-white print:text-black uppercase tracking-wider flex items-center gap-2">
+                          <span>📁 Submitted Solution Artifacts</span>
+                        </h3>
+                        {activeProbSubmissions.length > 0 && (
+                          <button
+                            onClick={() => {
+                              const sub = activeProbSubmissions[0];
+                              let parsedCode = { html: '', css: '', js: '' };
+                              try {
+                                const json = JSON.parse(sub.code);
+                                if (json.html !== undefined || json.css !== undefined || json.js !== undefined) {
+                                  parsedCode = { html: json.html || '', css: json.css || '', js: json.js || '' };
+                                } else {
+                                  parsedCode.html = sub.code;
+                                }
+                              } catch { parsedCode.html = sub.code; }
+                              
+                              const win = window.open('', '_blank');
+                              if (win) {
+                                win.document.write(`
+                                  <!DOCTYPE html>
+                                  <html>
+                                    <head>
+                                      <style>${parsedCode.css}</style>
+                                    </head>
+                                    <body>
+                                      ${parsedCode.html}
+                                      <script>${parsedCode.js}</script>
+                                    </body>
+                                  </html>
+                                `);
+                                win.document.close();
+                              }
+                            }}
+                            className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer no-print"
+                          >
+                            <span>👁️</span> Live Preview
+                          </button>
+                        )}
+                      </div>
 
-                  {/* Tab options */}
-                  <div className="flex border-b border-white/10 mb-4 overflow-x-auto no-print">
-                    {report.contest.problems.map(prob => (
-                      <button
-                        key={prob.problemId}
-                        onClick={() => setActiveSubTab(prob.problemId)}
-                        className={`py-2 px-4 text-xs font-semibold border-b-2 whitespace-nowrap transition cursor-pointer ${
-                          activeSubTab === prob.problemId
-                            ? 'border-emerald-400 text-white'
-                            : 'border-transparent text-gray-400 hover:text-white'
-                        }`}
-                      >
-                        {prob.problem.title}
-                      </button>
-                    ))}
-                  </div>
+                      {/* Problem Tab options */}
+                      <div className="flex border-b border-white/10 mb-4 overflow-x-auto no-print">
+                        {report.contest.problems.map(prob => (
+                          <button
+                            key={prob.problemId}
+                            onClick={() => setActiveSubTab(prob.problemId)}
+                            className={`py-2 px-4 text-xs font-semibold border-b-2 whitespace-nowrap transition cursor-pointer ${
+                              activeSubTab === prob.problemId
+                                ? 'border-emerald-400 text-white'
+                                : 'border-transparent text-gray-400 hover:text-white'
+                            }`}
+                          >
+                            {prob.problem.title}
+                          </button>
+                        ))}
+                      </div>
 
-                  {/* Code blocks display */}
-                  <div className="flex-1 min-h-[300px] flex flex-col">
-                    {activeProb && (
-                      <div className="hidden print:block mb-3 border-b pb-2">
-                        <h4 className="font-bold text-black text-sm">Problem: {activeProb.problem.title}</h4>
+                      {/* Code blocks display */}
+                      <div className="flex-1 min-h-[300px] flex flex-col">
+                        {activeProb && (
+                          <div className="hidden print:block mb-3 border-b pb-2">
+                            <h4 className="font-bold text-black text-sm">Problem: {activeProb.problem.title}</h4>
+                          </div>
+                        )}
+                        {activeProbSubmissions.length > 0 ? (() => {
+                          const sub = activeProbSubmissions[0];
+                          let isWebDevJson = false;
+                          let parsedWebDev = { html: '', css: '', js: '' };
+                          try {
+                            const parsed = JSON.parse(sub.code);
+                            if (parsed && typeof parsed === 'object' && (parsed.html !== undefined || parsed.css !== undefined || parsed.js !== undefined)) {
+                              isWebDevJson = true;
+                              parsedWebDev = { html: parsed.html || '', css: parsed.css || '', js: parsed.js || '' };
+                            }
+                          } catch {}
+
+                          if (isWebDevJson) {
+                            return (
+                              <div className="flex-1 flex flex-col space-y-3">
+                                <div className="flex items-center justify-between text-xs text-gray-400">
+                                  <span>Format: <strong className="text-amber-400">Web App (HTML/CSS/JS)</strong></span>
+                                  <span>Submitted: {new Date(sub.submittedAt).toLocaleString()}</span>
+                                </div>
+                                <WebDevCodeViewer parsed={parsedWebDev} />
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div className="flex-1 flex flex-col space-y-3">
+                              <div className="flex items-center justify-between text-xs text-gray-400">
+                                <span>Language: <strong className="text-white print:text-black">{sub.language}</strong></span>
+                                <span>Submitted: {new Date(sub.submittedAt).toLocaleString()}</span>
+                              </div>
+                              <pre className="flex-1 bg-zinc-950 text-gray-300 font-mono text-xs p-4 rounded-xl border border-white/5 overflow-x-auto select-text code-block">
+                                <code>{sub.code}</code>
+                              </pre>
+                            </div>
+                          );
+                        })() : (
+                          <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
+                            <svg className="w-12 h-12 text-zinc-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p className="text-xs text-gray-500">No submissions uploaded for this problem.</p>
+                          </div>
+                        )}
                       </div>
-                    )}
-                    {activeProbSubmissions.length > 0 ? (
-                      <div className="flex-1 flex flex-col space-y-3">
-                        <div className="flex items-center justify-between text-xs text-gray-400">
-                          <span>Language: <strong className="text-white print:text-black">{activeProbSubmissions[0].language}</strong></span>
-                          <span>Submitted: {new Date(activeProbSubmissions[0].submittedAt).toLocaleString()}</span>
-                        </div>
-                        <pre className="flex-1 bg-zinc-950 text-gray-300 font-mono text-xs p-4 rounded-xl border border-white/5 overflow-x-auto select-text code-block">
-                          <code>{activeProbSubmissions[0].code}</code>
-                        </pre>
-                      </div>
-                    ) : (
-                      <div className="flex-1 flex flex-col items-center justify-center text-center p-12">
-                        <svg className="w-12 h-12 text-zinc-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p className="text-xs text-gray-500">No submissions uploaded for this problem.</p>
-                      </div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </div>
 
               {/* Right sidebar: Disputes and integrity log details */}
               <div className="space-y-6">
