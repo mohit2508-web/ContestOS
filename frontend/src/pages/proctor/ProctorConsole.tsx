@@ -208,32 +208,33 @@ export const ProctorConsolePage: React.FC = () => {
 
   // Map real candidates from leaderboard & logs
   const candidates: CandidateFeed[] = realLeaderboard.map((item: any, idx: number) => {
-    const uid = item.userId || item.user?.id || `user-${idx}`;
+    const uid = item.userId || item.user?.id || item.id || `user-${idx}`;
     const userUserId = item.user?.id || item.userId || uid;
     const userLogs = realLogs.filter((l) =>
       l.userId === uid || l.userId === userUserId || l.participantId === uid || l.participantId === userUserId
     );
 
     // ── ACCURATE EVENT CATEGORISATION ──
-    // Warning count = all manual/automated proctor-issued warnings
-    const warnings = userLogs.filter((l) =>
+    const logsWarnings = userLogs.filter((l) =>
       ['PROCTOR_WARNING', 'PROCTOR_NUDGE', 'WARN', 'WARNING'].includes(l.eventType)
     ).length;
+    const warnings = Math.max(Number(item.warnings) || 0, Number(item.penalty) || 0, logsWarnings);
 
-    // Tab switch count = auto-detected system violations
-    const tabSwitchCount = userLogs.filter((l) =>
-      ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT'].includes(l.eventType)
-    ).length;
+    const tabSwitchCount = Math.max(
+      userLogs.filter((l) =>
+        ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT', 'DEVTOOLS_OPENED', 'SCREENSHOT_ATTEMPT'].includes(l.eventType)
+      ).length,
+      Number(item.tabSwitchCount) || 0
+    );
 
-    // SEB entry count = verified SEB launch sessions (deduplicated by 10s window)
     const sebLogs = userLogs.filter((l) =>
       ['SEB_SESSION_START', 'SEB_VERIFIED', 'SEB_LAUNCH', 'SEB_ENTRY', 'SEB_HANDSHAKE'].includes(l.eventType)
-    ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    ).sort((a, b) => new Date(a.timestamp || a.createdAt).getTime() - new Date(b.timestamp || b.createdAt).getTime());
 
     let sebEntryCountDB = 0;
     let lastSebTime = 0;
     sebLogs.forEach((l) => {
-      const t = new Date(l.timestamp).getTime();
+      const t = new Date(l.timestamp || l.createdAt).getTime();
       if (t - lastSebTime > 10000) {
         sebEntryCountDB++;
         lastSebTime = t;
@@ -241,23 +242,30 @@ export const ProctorConsolePage: React.FC = () => {
     });
 
     const sebEntryCount = Math.max(sebEntryCountDB, sebEntryCounts[uid] || sebEntryCounts[userUserId] || 0);
-    const pasteEvents = userLogs.filter((l) => l.eventType === 'PASTE_EVENT' || l.eventType === 'BULK_PASTE').length;
-    const hasMultipleFaces = userLogs.some((l) => l.eventType === 'MULTIPLE_FACES');
-    const hasNoFace = userLogs.some((l) => l.eventType === 'NO_FACE');
+    const pasteEvents = userLogs.filter((l) => ['PASTE_EVENT', 'BULK_PASTE', 'COPY_PASTE_ATTEMPT'].includes(l.eventType)).length;
+    const hasMultipleFaces = userLogs.some((l) => ['MULTIPLE_FACES', 'FACE_MULTIPLE_DETECTED'].includes(l.eventType));
+    const hasNoFace = userLogs.some((l) => ['NO_FACE', 'FACE_MISSING_DETECTED'].includes(l.eventType));
     const hasPhone = userLogs.some((l) => l.eventType === 'PHONE_DETECTED');
-    const hasAudio = userLogs.some((l) => l.eventType === 'AUDIO_SPIKE');
+    const hasAudio = userLogs.some((l) => ['AUDIO_SPIKE', 'VOICE_TALKING_DETECTED'].includes(l.eventType));
     const bulkPaste = userLogs.some((l) => l.eventType === 'BULK_PASTE');
+
     const isPaused = userLogs.some((l) => l.eventType === 'PROCTOR_BLOCK') &&
       !userLogs.some((l) => l.eventType === 'PROCTOR_UNBLOCK' &&
-        new Date(l.timestamp) > new Date(userLogs.filter(x => x.eventType === 'PROCTOR_BLOCK').slice(-1)[0]?.timestamp || 0));
+        new Date(l.timestamp || l.createdAt) > new Date(userLogs.filter(x => x.eventType === 'PROCTOR_BLOCK').slice(-1)[0]?.timestamp || 0));
 
-    const blockLog = userLogs.filter((l) => l.eventType === 'PROCTOR_BLOCK').slice(-1)[0];
-    const rawReason = blockLog?.details || 'Exam session paused by proctor.';
-    const pauseReason = rawReason.replace(/^Proctor blocked student:\s*/i, '').trim() || 'Exam session paused by proctor.';
-    const pausedAt = blockLog?.createdAt || blockLog?.timestamp || null;
+    const isBlocked = Boolean(
+      item.isBlocked ||
+      item.isTerminated ||
+      item.status === 'DISQUALIFIED' ||
+      userLogs.some((l) => ['DISQUALIFIED', 'ESCALATED_FOR_DISQUALIFICATION'].includes(l.eventType))
+    );
 
-    const scorePct = Math.max(0, 100 - warnings * 20 - tabSwitchCount * 10 - pasteEvents * 15);
-    const isBlocked = item.isBlocked || item.isTerminated || userLogs.some((l) => ['DISQUALIFIED', 'ESCALATED_FOR_DISQUALIFICATION'].includes(l.eventType));
+    // Disqualified / Escalated candidates have 0% Integrity Rating
+    let scorePct = Math.max(0, 100 - warnings * 20 - tabSwitchCount * 10 - pasteEvents * 15);
+    if (isBlocked) {
+      scorePct = 0;
+    }
+
     const status: CandidateFeed['status'] = isBlocked
       ? 'ESCALATED_TO_ADMIN'
       : isPaused
@@ -267,13 +275,18 @@ export const ProctorConsolePage: React.FC = () => {
       : 'ACTIVE';
 
     const latestLog = userLogs[userLogs.length - 1];
-    const lastSnapTime = latestLog ? new Date(latestLog.timestamp).toLocaleTimeString() : 'Active Now';
+    const lastSnapTime = latestLog ? new Date(latestLog.timestamp || latestLog.createdAt).toLocaleTimeString() : 'Active Now';
+
+    const blockLog = userLogs.filter((l) => l.eventType === 'PROCTOR_BLOCK').slice(-1)[0];
+    const rawReason = blockLog?.details || blockLog?.description || 'Exam session paused by proctor.';
+    const pauseReason = rawReason.replace(/^Proctor blocked student:\s*/i, '').trim() || 'Exam session paused by proctor.';
+    const pausedAt = blockLog?.createdAt || blockLog?.timestamp || null;
 
     return {
       id: uid,
       userId: uid,
-      name: item.user?.fullName || item.user?.name || `Candidate #${idx + 1}`,
-      email: item.user?.email || `candidate${idx + 1}@exam.org`,
+      name: item.user?.fullName || item.user?.name || item.name || `Candidate #${idx + 1}`,
+      email: item.user?.email || item.email || `candidate${idx + 1}@exam.org`,
       contestId: item.contestId || selectedContest.id,
       contestTitle: item.contestTitle || selectedContest.title,
       status,
@@ -292,7 +305,7 @@ export const ProctorConsolePage: React.FC = () => {
       },
       integrityScore: scorePct,
       lastSnapshotTime: lastSnapTime,
-      violationReason: latestLog?.details || 'Proctor telemetry synced.',
+      violationReason: latestLog?.details || latestLog?.description || (isBlocked ? 'Candidate escalated for security violations / disqualification.' : 'Proctor telemetry synced.'),
       pauseReason,
       pausedAt: pausedAt ? new Date(pausedAt).toISOString() : undefined,
     };
