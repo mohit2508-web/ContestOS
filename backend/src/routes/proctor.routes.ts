@@ -31,6 +31,18 @@ async function emitProctorAction(
   }
 }
 
+// ── FIX #8: Emit proctor status change to all proctor rooms ──
+async function emitProctorStatusChange(userId: string, contestId: string, newStatus: string) {
+  try {
+    const { io } = await import('../app');
+    const payload = { userId, contestId, newStatus, _ts: Date.now() };
+    io.of('/quiz-timer').to(`proctor:contest:${contestId}`).emit('proctor:candidate_status_change', payload);
+    io.of('/quiz-timer').to('proctor:all').emit('proctor:candidate_status_change', payload);
+  } catch (e) {
+    console.warn('[proctorRoutes] Could not emit status change:', e);
+  }
+}
+
 // GET /api/proctor/live/:contestId — Invigilator live feed
 router.get('/live/:contestId', authenticateToken, async (req, res) => {
   try {
@@ -303,6 +315,14 @@ router.post('/seb-session-start', authenticateToken, async (req, res) => {
       },
     });
 
+    // ── FIX #3: Emit real-time seb_entry to all proctor rooms so count updates instantly ──
+    try {
+      const { io } = await import('../app');
+      const payload = { userId, contestId, _ts: Date.now() };
+      io.of('/quiz-timer').to(`proctor:contest:${contestId}`).emit('proctor:seb_entry', payload);
+      io.of('/quiz-timer').to('proctor:all').emit('proctor:seb_entry', payload);
+    } catch (_e) {}
+
     res.json({ success: true });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });
@@ -324,13 +344,15 @@ router.post('/action', authenticateToken, async (req, res) => {
 
     if (action === 'WARN' || action === 'warn' || action === 'issue_warning') {
       eventType = 'PROCTOR_WARNING';
-      await emitProctorAction(candidateId, contestId, 'WARNED', { message: details });
-      await notifyUser(candidateId, {
+      // ── FIX #6: Emit socket FIRST (< 100ms delivery), DB write runs in background ──
+      emitProctorAction(candidateId, contestId, 'WARNED', { message: details });
+      // Fire-and-forget notification — don't await
+      notifyUser(candidateId, {
         title: '⚠️ Invigilator Warning',
         message: details,
         type: 'WARNING',
         referenceId: contestId,
-      });
+      }).catch(console.error);
     } else if (action === 'PAUSE' || action === 'pause' || action === 'block') {
       eventType = 'PROCTOR_BLOCK';
       dbStatus = 'BLOCKED';
@@ -355,23 +377,26 @@ router.post('/action', authenticateToken, async (req, res) => {
     } else if (action === 'RESUME' || action === 'resume' || action === 'unblock') {
       eventType = 'PROCTOR_UNBLOCK';
       dbStatus = 'ACTIVE';
+      // ── FIX #8: Emit UNBLOCKED + status_change to proctor rooms instantly ──
       await emitProctorAction(candidateId, contestId, 'UNBLOCKED', {});
-      await notifyUser(candidateId, {
+      emitProctorStatusChange(candidateId, contestId, 'RESUMED');
+      notifyUser(candidateId, {
         title: '▶️ Exam Resumed',
         message: 'Your exam has been resumed by the invigilator.',
         type: 'PROCTOR_ACTION',
         referenceId: contestId,
-      });
+      }).catch(console.error);
     } else if (action === 'ESCALATE' || action === 'escalate' || action === 'terminate') {
       eventType = 'ESCALATED_FOR_DISQUALIFICATION';
       dbStatus = 'DISQUALIFIED';
       await emitProctorAction(candidateId, contestId, 'TERMINATED', { reason: details });
-      await notifyUser(candidateId, {
+      emitProctorStatusChange(candidateId, contestId, 'DISQUALIFIED');
+      notifyUser(candidateId, {
         title: '🚫 Exam Terminated',
         message: details,
         type: 'PROCTOR_ACTION',
         referenceId: contestId,
-      });
+      }).catch(console.error);
     } else if (action === 'SNAPSHOT' || action === 'force_snapshot') {
       eventType = 'PROCTOR_SNAPSHOT_REQUEST';
       await emitProctorAction(candidateId, contestId, 'SNAPSHOT_REQUEST', {});

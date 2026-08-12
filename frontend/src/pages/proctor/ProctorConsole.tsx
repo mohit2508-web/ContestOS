@@ -48,6 +48,7 @@ interface CandidateFeed {
   cheatingSnapshotUrl?: string;
   violationReason?: string;
   pauseReason?: string;
+  pausedAt?: string;  // FIX #7: ISO timestamp of when candidate was paused
 }
 
 interface IncidentLog {
@@ -168,16 +169,18 @@ export const ProctorConsolePage: React.FC = () => {
     // Tab switch count = auto-detected system violations only (NOT proctor actions)
     const tabSwitchCount = userLogs.filter((l) => ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT'].includes(l.eventType)).length;
     // SEB entry count = verified SEB launch sessions (deduplicated by 60s window)
+    // FIX #3: Merge with real-time socket counts (take max to never go backwards)
     const sebLogs = userLogs.filter((l) => l.eventType === 'SEB_SESSION_START').sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-    let sebEntryCount = 0;
+    let sebEntryCountDB = 0;
     let lastSebTime = 0;
     sebLogs.forEach((l) => {
       const t = new Date(l.timestamp).getTime();
       if (t - lastSebTime > 60000) {
-        sebEntryCount++;
+        sebEntryCountDB++;
         lastSebTime = t;
       }
     });
+    const sebEntryCount = Math.max(sebEntryCountDB, sebEntryCounts[uid] || 0);
     const pasteEvents = userLogs.filter((l) => l.eventType === 'PASTE_EVENT' || l.eventType === 'BULK_PASTE').length;
     const hasMultipleFaces = userLogs.some((l) => l.eventType === 'MULTIPLE_FACES');
     const hasNoFace = userLogs.some((l) => l.eventType === 'NO_FACE');
@@ -189,7 +192,11 @@ export const ProctorConsolePage: React.FC = () => {
         new Date(l.timestamp) > new Date(userLogs.filter(x => x.eventType === 'PROCTOR_BLOCK').slice(-1)[0]?.timestamp || 0));
 
     const blockLog = userLogs.filter((l) => l.eventType === 'PROCTOR_BLOCK').slice(-1)[0];
-    const pauseReason = blockLog?.details || 'Exam session paused by proctor.';
+    // FIX #7: Strip "Proctor blocked student: " prefix from the reason stored in DB
+    const rawReason = blockLog?.details || 'Exam session paused by proctor.';
+    const pauseReason = rawReason.replace(/^Proctor blocked student:\s*/i, '').trim() || 'Exam session paused by proctor.';
+    // FIX #7: Track when the pause started for elapsed time display
+    const pausedAt = blockLog?.createdAt || blockLog?.timestamp || null;
 
     const scorePct = Math.max(0, 100 - warnings * 20 - tabSwitchCount * 10 - pasteEvents * 15);
     const isBlocked = item.isBlocked || item.isTerminated || userLogs.some((l) => ['DISQUALIFIED', 'ESCALATED_FOR_DISQUALIFICATION'].includes(l.eventType));
@@ -229,6 +236,7 @@ export const ProctorConsolePage: React.FC = () => {
       lastSnapshotTime: lastSnapTime,
       violationReason: latestLog?.details || 'Proctor telemetry synced.',
       pauseReason,
+      pausedAt: pausedAt ? new Date(pausedAt).toISOString() : undefined,
     };
   });
 
@@ -262,6 +270,28 @@ export const ProctorConsolePage: React.FC = () => {
   const [plagiarismReports, setPlagiarismReports] = useState<any[]>([]);
   const [plagiarismScanning, setPlagiarismScanning] = useState(false);
   const [selectedDiffPair, setSelectedDiffPair] = useState<any | null>(null);
+  // FIX #9: Evidence modal for permanently blocked candidates
+  const [evidenceCandidate, setEvidenceCandidate] = useState<CandidateFeed | null>(null);
+  // FIX #3: Real-time SEB entry counts from socket (overrides stale DB poll)
+  const [sebEntryCounts, setSebEntryCounts] = useState<Record<string, number>>({});
+  // FIX #7: Live elapsed time clock for paused candidates
+  const [elapsedTick, setElapsedTick] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setElapsedTick(n => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Helper: format elapsed seconds as "Xm Ys" — references elapsedTick to trigger re-render each second
+  const getElapsedSince = (isoTs?: string): string => {
+    void elapsedTick; // Reactive tick ensures re-render every second
+    if (!isoTs) return '';
+    const ms = Date.now() - new Date(isoTs).getTime();
+    if (ms < 0) return '';
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
 
   // Block/Escalate modals with mandatory reason
   const [blockCandidate, setBlockCandidate] = useState<CandidateFeed | null>(null);
@@ -277,6 +307,12 @@ export const ProctorConsolePage: React.FC = () => {
   const [liveScreenFrames, setLiveScreenFrames] = useState<Record<string, string>>({});
   const [feedViewMode, setFeedViewMode] = useState<Record<string, 'webcam' | 'screen'>>({});
   const rafRef = useRef<number | null>(null);
+  // FIX #4: Spotlight live refs — updated by RAF flush so spotlight is always live
+  const spotlightWebcamRef = useRef<HTMLImageElement | null>(null);
+  const spotlightScreenRef = useRef<HTMLImageElement | null>(null);
+  const spotlightCandidateRef = useRef<CandidateFeed | null>(null);
+  // Keep spotlightCandidateRef in sync with state
+  useEffect(() => { spotlightCandidateRef.current = spotlightCandidate; }, [spotlightCandidate]);
 
   // Flush frames from ref → state at ~15fps to update UI without per-frame re-render
   useEffect(() => {
@@ -294,6 +330,19 @@ export const ProctorConsolePage: React.FC = () => {
           const el = screenImgRefs.current[uid];
           if (el && el.src !== src) el.src = src;
         });
+
+        // FIX #4: Update spotlight live view refs directly (no React state needed)
+        const sc = spotlightCandidateRef.current;
+        if (sc) {
+          const camSrc = liveFramesRef.current[sc.userId];
+          const scrSrc = liveScreenFramesRef.current[sc.userId] || camSrc;
+          if (spotlightWebcamRef.current && camSrc && spotlightWebcamRef.current.src !== camSrc) {
+            spotlightWebcamRef.current.src = camSrc;
+          }
+          if (spotlightScreenRef.current && scrSrc && spotlightScreenRef.current.src !== scrSrc) {
+            spotlightScreenRef.current.src = scrSrc;
+          }
+        }
 
         // Trigger state updates when new frames arrive
         setLiveFrames(prev => {
@@ -332,6 +381,18 @@ export const ProctorConsolePage: React.FC = () => {
 
     socket.on('proctor:candidate_screen_frame', (data: { userId: string; frameBase64: string }) => {
       liveScreenFramesRef.current[data.userId] = `data:image/jpeg;base64,${data.frameBase64.replace(/^data:image\/[^;]+;base64,/, '')}`;
+    });
+
+    // FIX #3: Listen for real-time SEB entry events
+    socket.on('proctor:seb_entry', (data: { userId: string; contestId: string }) => {
+      setSebEntryCounts(prev => ({ ...prev, [data.userId]: (prev[data.userId] || 0) + 1 }));
+    });
+
+    // FIX #8: Listen for candidate status changes (resume/disqualify) → instant cache invalidation
+    socket.on('proctor:candidate_status_change', (data: { userId: string; contestId: string; newStatus: string }) => {
+      console.log(`[ProctorConsole] Status change: ${data.userId} → ${data.newStatus}`);
+      queryClient.invalidateQueries({ queryKey: ['proctorLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['proctorLeaderboard'] });
     });
 
     return () => {
@@ -933,6 +994,12 @@ export const ProctorConsolePage: React.FC = () => {
                             <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                             <span>EXAM SESSION BLOCKED - ACTION REQUIRED</span>
                           </span>
+                          {/* FIX #7: Show elapsed time since pause */}
+                          {cand.pausedAt && (
+                            <span className="text-[9px] font-mono text-amber-300/80 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20" title={`Paused at ${new Date(cand.pausedAt).toLocaleTimeString()}`}>
+                              ⏱ {getElapsedSince(cand.pausedAt)}
+                            </span>
+                          )}
                         </div>
                         <p className="text-xs text-white font-bold leading-snug">
                           {cand.pauseReason || 'Exam session paused by proctor.'}
@@ -964,6 +1031,20 @@ export const ProctorConsolePage: React.FC = () => {
                               className="w-full py-2 px-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 font-bold text-xs rounded-xl transition cursor-pointer"
                             >
                               Take verification snapshot
+                            </button>
+                          </div>
+                        ) : cand.status === 'ESCALATED_TO_ADMIN' ? (
+                          /* FIX #9: Permanently blocked candidate — show evidence package CTA */
+                          <div className="space-y-2">
+                            <div className="p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-center">
+                              <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest block">⛔ Permanently Disqualified</span>
+                              <span className="text-[9px] text-rose-300/70">{cand.violationReason?.replace(/^Proctor terminated student:\s*/i, '').slice(0, 80) || 'Exam terminated by proctor.'}</span>
+                            </div>
+                            <button
+                              onClick={() => setEvidenceCandidate(cand)}
+                              className="w-full py-2.5 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-black text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              📋 View Evidence Package
                             </button>
                           </div>
                         ) : (
@@ -1581,7 +1662,7 @@ export const ProctorConsolePage: React.FC = () => {
         </div>
       )}
 
-      {/* Spotlight View Modal */}
+      {/* Spotlight View Modal — FIX #4: Uses ref-based imgs updated by RAF flush */}
       {spotlightCandidate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
           <div className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-4xl p-6 space-y-4 shadow-2xl">
@@ -1595,15 +1676,15 @@ export const ProctorConsolePage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Real webcam frame from liveFrames */}
+              {/* Webcam — ref-based, updated by RAF loop at 15fps */}
               <div className="h-64 bg-black rounded-xl border border-white/10 overflow-hidden relative">
-                {liveFrames[spotlightCandidate.userId] ? (
-                  <img
-                    src={liveFrames[spotlightCandidate.userId]}
-                    alt="Live webcam"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
+                <img
+                  ref={spotlightWebcamRef}
+                  alt="Live webcam"
+                  className="w-full h-full object-cover"
+                  style={{ display: liveFrames[spotlightCandidate.userId] ? 'block' : 'none' }}
+                />
+                {!liveFrames[spotlightCandidate.userId] && (
                   <div className="w-full h-full flex items-center justify-center flex-col gap-2">
                     <span className="text-4xl">📹</span>
                     <span className="text-xs text-zinc-500">Waiting for webcam stream...</span>
@@ -1613,15 +1694,15 @@ export const ProctorConsolePage: React.FC = () => {
                   {liveFrames[spotlightCandidate.userId] ? '🔴 LIVE WEBCAM' : 'Webcam Standby'}
                 </span>
               </div>
-              {/* Real desktop screen stream from liveScreenFrames or liveFrames fallback */}
+              {/* Screen — ref-based, updated by RAF loop at 15fps */}
               <div className="h-64 bg-black rounded-xl border border-white/10 overflow-hidden relative">
-                {liveScreenFrames[spotlightCandidate.userId] || liveFrames[spotlightCandidate.userId] ? (
-                  <img
-                    src={liveScreenFrames[spotlightCandidate.userId] || liveFrames[spotlightCandidate.userId]}
-                    alt="Live candidate desktop screen"
-                    className="w-full h-full object-contain bg-black"
-                  />
-                ) : (
+                <img
+                  ref={spotlightScreenRef}
+                  alt="Live candidate desktop screen"
+                  className="w-full h-full object-contain bg-black"
+                  style={{ display: (liveScreenFrames[spotlightCandidate.userId] || liveFrames[spotlightCandidate.userId]) ? 'block' : 'none' }}
+                />
+                {!liveScreenFrames[spotlightCandidate.userId] && !liveFrames[spotlightCandidate.userId] && (
                   <div className="w-full h-full flex items-center justify-center flex-col gap-2">
                     <span className="text-4xl">🖥️</span>
                     <span className="text-xs text-zinc-500">Waiting for candidate desktop screen stream...</span>
@@ -1651,6 +1732,86 @@ export const ProctorConsolePage: React.FC = () => {
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={() => setSpotlightCandidate(null)} className="px-5 py-2.5 bg-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/20 transition">
                 Close Spotlight
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FIX #9: Evidence Package Modal for permanently disqualified candidates */}
+      {evidenceCandidate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+          <div className="bg-zinc-950 border border-rose-500/40 rounded-2xl w-full max-w-2xl p-6 space-y-5 shadow-2xl">
+            <div className="flex items-start justify-between border-b border-white/10 pb-4">
+              <div>
+                <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">⛔ Candidate Evidence Package</span>
+                <h2 className="text-lg font-black text-white mt-0.5">{evidenceCandidate.name}</h2>
+                <p className="text-xs text-zinc-400 font-mono">{evidenceCandidate.email} · {evidenceCandidate.contestTitle}</p>
+              </div>
+              <button onClick={() => setEvidenceCandidate(null)} className="text-zinc-400 hover:text-white text-xl">✕</button>
+            </div>
+
+            {/* Disqualification details */}
+            <div className="space-y-3">
+              <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl space-y-2">
+                <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase block">Termination Reason</span>
+                <p className="text-sm font-bold text-white leading-relaxed">
+                  {evidenceCandidate.violationReason?.replace(/^Proctor terminated student:\s*/i, '') || 'Disqualified by proctor.'}
+                </p>
+              </div>
+
+              {/* Integrity Metrics Grid */}
+              <div className="grid grid-cols-3 gap-3 text-xs">
+                <div className="p-3 bg-zinc-900 border border-white/5 rounded-xl text-center">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Warnings</div>
+                  <div className="text-lg font-black text-amber-400">{evidenceCandidate.warnings}/{evidenceCandidate.maxWarnings}</div>
+                </div>
+                <div className="p-3 bg-zinc-900 border border-white/5 rounded-xl text-center">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Tab Switches</div>
+                  <div className="text-lg font-black text-amber-400">{evidenceCandidate.tabSwitchCount}</div>
+                </div>
+                <div className="p-3 bg-zinc-900 border border-white/5 rounded-xl text-center">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Integrity</div>
+                  <div className="text-lg font-black text-rose-400">{evidenceCandidate.integrityScore}%</div>
+                </div>
+                <div className="p-3 bg-zinc-900 border border-white/5 rounded-xl text-center">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Paste Events</div>
+                  <div className="text-lg font-black text-purple-400">{evidenceCandidate.pasteEvents}</div>
+                </div>
+                <div className="p-3 bg-zinc-900 border border-white/5 rounded-xl text-center">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">SEB Entries</div>
+                  <div className="text-lg font-black text-cyan-400">{(evidenceCandidate as any).sebEntryCount ?? 0}</div>
+                </div>
+                <div className="p-3 bg-zinc-900 border border-white/5 rounded-xl text-center">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase mb-1">Last Seen</div>
+                  <div className="text-xs font-black text-zinc-300">{evidenceCandidate.lastSnapshotTime}</div>
+                </div>
+              </div>
+
+              {/* AI Alerts */}
+              {(evidenceCandidate.aiAlerts.multipleFaces || evidenceCandidate.aiAlerts.noFace || evidenceCandidate.aiAlerts.phoneDetected || evidenceCandidate.aiAlerts.audioSpike || evidenceCandidate.bulkPasteFlag) && (
+                <div>
+                  <div className="text-[10px] font-mono font-bold text-zinc-500 uppercase mb-2">AI Alerts Flagged</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {evidenceCandidate.aiAlerts.multipleFaces && <span className="px-2 py-1 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[10px] font-bold rounded-lg">👥 Multiple Faces</span>}
+                    {evidenceCandidate.aiAlerts.noFace && <span className="px-2 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-bold rounded-lg">👤 No Face</span>}
+                    {evidenceCandidate.aiAlerts.phoneDetected && <span className="px-2 py-1 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[10px] font-bold rounded-lg">📱 Phone Detected</span>}
+                    {evidenceCandidate.aiAlerts.audioSpike && <span className="px-2 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[10px] font-bold rounded-lg">🗣️ Voice Activity</span>}
+                    {evidenceCandidate.bulkPasteFlag && <span className="px-2 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-400 text-[10px] font-bold rounded-lg">⚠️ Bulk Paste</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-2 border-t border-white/10">
+              <button
+                onClick={() => { setEvidenceCandidate(null); setShowReportModal(true); }}
+                className="flex-1 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs rounded-xl transition"
+              >
+                📄 View Full Audit Report
+              </button>
+              <button onClick={() => setEvidenceCandidate(null)} className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition">
+                Close
               </button>
             </div>
           </div>

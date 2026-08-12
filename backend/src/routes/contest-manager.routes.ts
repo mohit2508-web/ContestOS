@@ -480,6 +480,13 @@ router.get('/:id/verify-seb', authenticateToken, async (req: Request, res: Respo
           details: 'Verified Safe Exam Browser session start.',
         },
       });
+      // ── FIX #3: Emit real-time seb_entry to proctor rooms immediately ──
+      try {
+        const { io } = await import('../app');
+        const payload = { userId, contestId, _ts: Date.now() };
+        io.of('/quiz-timer').to(`proctor:contest:${contestId}`).emit('proctor:seb_entry', payload);
+        io.of('/quiz-timer').to('proctor:all').emit('proctor:seb_entry', payload);
+      } catch (_e) {}
     } catch (_e) {}
   }
   res.json({ success: true, verified: true });
@@ -602,24 +609,74 @@ router.get('/:id/seb-config', authenticateToken, async (req: Request, res: Respo
         <dict><key>identifier</key><string>com.apple.ScreenSharing</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>com.anydesk.AnyDesk</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>com.teamviewer.TeamViewer</string><key>strongKill</key><true/></dict>
-        <!-- Windows process names (for SEB Windows) -->
-        <dict><key>identifier</key><string>spotify.exe</string><key>strongKill</key><true/></dict>
+        <!-- Windows process names (for SEB Windows) — COMPREHENSIVE KILL LIST -->
+        <!-- Communication & Collaboration -->
         <dict><key>identifier</key><string>discord.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>slack.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>teams.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>zoom.exe</string><key>strongKill</key><true/></dict>
-        <dict><key>identifier</key><string>chrome.exe</string><key>strongKill</key><true/></dict>
-        <dict><key>identifier</key><string>firefox.exe</string><key>strongKill</key><true/></dict>
-        <dict><key>identifier</key><string>vlc.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>whatsapp.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>telegram.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>skype.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>skypeapp.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>msteams.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>slack.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>signal.exe</string><key>strongKill</key><true/></dict>
+        <!-- Browsers (not SEB) -->
+        <dict><key>identifier</key><string>chrome.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>firefox.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>msedge.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>opera.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>brave.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>iexplore.exe</string><key>strongKill</key><true/></dict>
+        <!-- Code Editors & IDEs -->
+        <dict><key>identifier</key><string>code.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>idea64.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>pycharm64.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>eclipse.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>sublime_text.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>atom.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>notepad++.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>rider64.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>webstorm64.exe</string><key>strongKill</key><true/></dict>
+        <!-- Remote Access & Screen Sharing -->
         <dict><key>identifier</key><string>anydesk.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>teamviewer.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>vncserver.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>vncviewer.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>rdp.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>mstsc.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>rustdesk.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>parsec.exe</string><key>strongKill</key><true/></dict>
+        <!-- Screen Recorders & Capture -->
+        <dict><key>identifier</key><string>obs64.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>obs32.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>bandicam.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>fraps.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>camtasia.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>screenrec.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>sharex.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>loom.exe</string><key>strongKill</key><true/></dict>
+        <!-- System Tools -->
         <dict><key>identifier</key><string>taskmgr.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>cmd.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>powershell.exe</string><key>strongKill</key><true/></dict>
-        <dict><key>identifier</key><string>mspaint.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>regedit.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>mmc.exe</string><key>strongKill</key><true/></dict>
+        <!-- Media & Entertainment -->
+        <dict><key>identifier</key><string>spotify.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>vlc.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>wmplayer.exe</string><key>strongKill</key><true/></dict>
+        <!-- Office -->
+        <dict><key>identifier</key><string>winword.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>excel.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>powerpnt.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>onenote.exe</string><key>strongKill</key><true/></dict>
         <dict><key>identifier</key><string>notepad.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>mspaint.exe</string><key>strongKill</key><true/></dict>
+        <!-- AI Tools -->
+        <dict><key>identifier</key><string>cursor.exe</string><key>strongKill</key><true/></dict>
+        <dict><key>identifier</key><string>chatgpt.exe</string><key>strongKill</key><true/></dict>
     </array>
 
     <!-- ── Logging ── -->

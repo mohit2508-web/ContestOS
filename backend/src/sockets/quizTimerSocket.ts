@@ -128,6 +128,10 @@ export function setupQuizTimerSocket(io: SocketIOServer) {
       });
       quizNamespace.to(room).emit('session:frozen', { isFrozen: true });
 
+      // Notify proctor rooms of status change
+      quizNamespace.to(`proctor:contest:${contestId}`).emit('proctor:candidate_status_change', { userId: targetUserId, contestId, newStatus: 'BLOCKED' });
+      quizNamespace.to('proctor:all').emit('proctor:candidate_status_change', { userId: targetUserId, contestId, newStatus: 'BLOCKED' });
+
       // Log to DB
       try {
         await prisma.proctoringLog.create({
@@ -179,6 +183,10 @@ export function setupQuizTimerSocket(io: SocketIOServer) {
         contestId,
       });
       quizNamespace.to(room).emit('session:frozen', { isFrozen: false });
+
+      // Notify proctor rooms of status change
+      quizNamespace.to(`proctor:contest:${contestId}`).emit('proctor:candidate_status_change', { userId: targetUserId, contestId, newStatus: 'RESUMED' });
+      quizNamespace.to('proctor:all').emit('proctor:candidate_status_change', { userId: targetUserId, contestId, newStatus: 'RESUMED' });
 
       // Log to DB
       try {
@@ -254,6 +262,10 @@ export function setupQuizTimerSocket(io: SocketIOServer) {
         reason: reason || 'You have been disqualified from this exam.',
         contestId,
       });
+
+      // Notify proctor rooms of status change
+      quizNamespace.to(`proctor:contest:${contestId}`).emit('proctor:candidate_status_change', { userId: targetUserId, contestId, newStatus: 'DISQUALIFIED' });
+      quizNamespace.to('proctor:all').emit('proctor:candidate_status_change', { userId: targetUserId, contestId, newStatus: 'DISQUALIFIED' });
 
       try {
         await prisma.contestRegistration.updateMany({
