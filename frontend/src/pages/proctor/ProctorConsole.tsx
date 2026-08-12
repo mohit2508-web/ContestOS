@@ -71,6 +71,63 @@ export const ProctorConsolePage: React.FC = () => {
   const [candidateFilter, setCandidateFilter] = useState<'ALL' | 'FLAGGED' | 'PAUSED'>('ALL');
   const [incidentSeverityFilter, setIncidentSeverityFilter] = useState<string>('ALL');
 
+  // Selected Contest Context ('ALL_COMBINED' or specific ID)
+  const [selectedContestId, setSelectedContestId] = useState<string>('ALL_COMBINED');
+
+  // Report Modal State
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportPasscode, setReportPasscode] = useState('');
+  const [isPasscodeUnlocked, setIsPasscodeUnlocked] = useState(false);
+  const [passcodeError, setPasscodeError] = useState('');
+
+  // Action and Proctor State
+  const [actionMsg, setActionMsg] = useState<string | null>(null);
+  const [selectedNudgeCandidate, setSelectedNudgeCandidate] = useState<CandidateFeed | null>(null);
+  const [nudgePreset, setNudgePreset] = useState<string>('Please align your face directly with the webcam.');
+  const [spotlightCandidate, setSpotlightCandidate] = useState<CandidateFeed | null>(null);
+  const [liveFrames, setLiveFrames] = useState<Record<string, string>>({});
+  const [plagiarismReports, setPlagiarismReports] = useState<any[]>([]);
+  const [plagiarismScanning, setPlagiarismScanning] = useState(false);
+  const [selectedDiffPair, setSelectedDiffPair] = useState<any | null>(null);
+  const [evidenceCandidate, setEvidenceCandidate] = useState<CandidateFeed | null>(null);
+  const [sebEntryCounts, setSebEntryCounts] = useState<Record<string, number>>({});
+  const [elapsedTick, setElapsedTick] = useState(0);
+
+  // Block/Escalate modals with mandatory reason
+  const [blockCandidate, setBlockCandidate] = useState<CandidateFeed | null>(null);
+  const [blockReason, setBlockReason] = useState('');
+  const [escalateCandidate, setEscalateCandidate] = useState<CandidateFeed | null>(null);
+  const [escalateReason, setEscalateReason] = useState('');
+
+  // Webcam & Screen: use refs to avoid React re-render flicker on every frame
+  const webcamImgRefs = useRef<Record<string, HTMLImageElement | null>>({});
+  const screenImgRefs = useRef<Record<string, HTMLImageElement | null>>({});
+  const liveFramesRef = useRef<Record<string, string>>({});
+  const liveScreenFramesRef = useRef<Record<string, string>>({});
+  const [liveScreenFrames, setLiveScreenFrames] = useState<Record<string, string>>({});
+  const [feedViewMode, setFeedViewMode] = useState<Record<string, 'webcam' | 'screen'>>({});
+  const rafRef = useRef<number | null>(null);
+  const spotlightWebcamRef = useRef<HTMLImageElement | null>(null);
+  const spotlightScreenRef = useRef<HTMLImageElement | null>(null);
+  const spotlightCandidateRef = useRef<CandidateFeed | null>(null);
+
+  useEffect(() => {
+    const t = setInterval(() => setElapsedTick(n => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Helper: format elapsed seconds as "Xm Ys" — references elapsedTick to trigger re-render each second
+  const getElapsedSince = (isoTs?: string): string => {
+    void elapsedTick; // Reactive tick ensures re-render every second
+    if (!isoTs) return '';
+    const ms = Date.now() - new Date(isoTs).getTime();
+    if (ms < 0) return '';
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+
   // Fetch real managed contests from API
   const { data: contestsData, isLoading: loadingContests } = useQuery({
     queryKey: ['teacherManagedContests'],
@@ -102,10 +159,7 @@ export const ProctorConsolePage: React.FC = () => {
     };
   });
 
-  // Selected Contest Context ('ALL_COMBINED' or specific ID)
-  const [selectedContestId, setSelectedContestId] = useState<string>('ALL_COMBINED');
   const isCombinedView = selectedContestId === 'ALL_COMBINED';
-
   const selectedContest = assignedContests.find((c) => c.id === selectedContestId) || assignedContests[0] || {
     id: '',
     title: 'No Contests Available',
@@ -119,12 +173,6 @@ export const ProctorConsolePage: React.FC = () => {
     rules: { aiProctoring: false, tabLimit: 3, pasteBlocked: false, sebRequired: false }
   };
   const isSelectedContestEnded = !isCombinedView && selectedContest.status === 'ENDED';
-
-  // Report Modal State
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [reportPasscode, setReportPasscode] = useState('');
-  const [isPasscodeUnlocked, setIsPasscodeUnlocked] = useState(false);
-  const [passcodeError, setPasscodeError] = useState('');
 
   // Fetch real candidate leadboards & proctor logs
   const targetContestIds = isCombinedView ? assignedContests.map((c) => c.id) : [selectedContestId].filter(Boolean);
@@ -164,12 +212,8 @@ export const ProctorConsolePage: React.FC = () => {
     const userLogs = realLogs.filter((l) => l.userId === uid || l.participantId === uid);
 
     // ── ACCURATE EVENT CATEGORISATION ──
-    // Warning count = ONLY manual proctor-issued warnings (PROCTOR_WARNING)
     const warnings = userLogs.filter((l) => l.eventType === 'PROCTOR_WARNING').length;
-    // Tab switch count = auto-detected system violations only (NOT proctor actions)
     const tabSwitchCount = userLogs.filter((l) => ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT'].includes(l.eventType)).length;
-    // SEB entry count = verified SEB launch sessions (deduplicated by 60s window)
-    // FIX #3: Merge with real-time socket counts (take max to never go backwards)
     const sebLogs = userLogs.filter((l) => l.eventType === 'SEB_SESSION_START').sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     let sebEntryCountDB = 0;
     let lastSebTime = 0;
@@ -192,10 +236,8 @@ export const ProctorConsolePage: React.FC = () => {
         new Date(l.timestamp) > new Date(userLogs.filter(x => x.eventType === 'PROCTOR_BLOCK').slice(-1)[0]?.timestamp || 0));
 
     const blockLog = userLogs.filter((l) => l.eventType === 'PROCTOR_BLOCK').slice(-1)[0];
-    // FIX #7: Strip "Proctor blocked student: " prefix from the reason stored in DB
     const rawReason = blockLog?.details || 'Exam session paused by proctor.';
     const pauseReason = rawReason.replace(/^Proctor blocked student:\s*/i, '').trim() || 'Exam session paused by proctor.';
-    // FIX #7: Track when the pause started for elapsed time display
     const pausedAt = blockLog?.createdAt || blockLog?.timestamp || null;
 
     const scorePct = Math.max(0, 100 - warnings * 20 - tabSwitchCount * 10 - pasteEvents * 15);
@@ -262,55 +304,6 @@ export const ProctorConsolePage: React.FC = () => {
       };
     });
 
-  const [actionMsg, setActionMsg] = useState<string | null>(null);
-  const [selectedNudgeCandidate, setSelectedNudgeCandidate] = useState<CandidateFeed | null>(null);
-  const [nudgePreset, setNudgePreset] = useState<string>('Please align your face directly with the webcam.');
-  const [spotlightCandidate, setSpotlightCandidate] = useState<CandidateFeed | null>(null);
-  const [liveFrames, setLiveFrames] = useState<Record<string, string>>({});
-  const [plagiarismReports, setPlagiarismReports] = useState<any[]>([]);
-  const [plagiarismScanning, setPlagiarismScanning] = useState(false);
-  const [selectedDiffPair, setSelectedDiffPair] = useState<any | null>(null);
-  // FIX #9: Evidence modal for permanently blocked candidates
-  const [evidenceCandidate, setEvidenceCandidate] = useState<CandidateFeed | null>(null);
-  // FIX #3: Real-time SEB entry counts from socket (overrides stale DB poll)
-  const [sebEntryCounts, setSebEntryCounts] = useState<Record<string, number>>({});
-  // FIX #7: Live elapsed time clock for paused candidates
-  const [elapsedTick, setElapsedTick] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setElapsedTick(n => n + 1), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  // Helper: format elapsed seconds as "Xm Ys" — references elapsedTick to trigger re-render each second
-  const getElapsedSince = (isoTs?: string): string => {
-    void elapsedTick; // Reactive tick ensures re-render every second
-    if (!isoTs) return '';
-    const ms = Date.now() - new Date(isoTs).getTime();
-    if (ms < 0) return '';
-    const totalSec = Math.floor(ms / 1000);
-    const m = Math.floor(totalSec / 60);
-    const s = totalSec % 60;
-    return m > 0 ? `${m}m ${s}s` : `${s}s`;
-  };
-
-  // Block/Escalate modals with mandatory reason
-  const [blockCandidate, setBlockCandidate] = useState<CandidateFeed | null>(null);
-  const [blockReason, setBlockReason] = useState('');
-  const [escalateCandidate, setEscalateCandidate] = useState<CandidateFeed | null>(null);
-  const [escalateReason, setEscalateReason] = useState('');
-
-  // Webcam & Screen: use refs to avoid React re-render flicker on every frame
-  const webcamImgRefs = useRef<Record<string, HTMLImageElement | null>>({});
-  const screenImgRefs = useRef<Record<string, HTMLImageElement | null>>({});
-  const liveFramesRef = useRef<Record<string, string>>({}); // track latest webcam frames
-  const liveScreenFramesRef = useRef<Record<string, string>>({}); // track latest screen frames
-  const [liveScreenFrames, setLiveScreenFrames] = useState<Record<string, string>>({});
-  const [feedViewMode, setFeedViewMode] = useState<Record<string, 'webcam' | 'screen'>>({});
-  const rafRef = useRef<number | null>(null);
-  // FIX #4: Spotlight live refs — updated by RAF flush so spotlight is always live
-  const spotlightWebcamRef = useRef<HTMLImageElement | null>(null);
-  const spotlightScreenRef = useRef<HTMLImageElement | null>(null);
-  const spotlightCandidateRef = useRef<CandidateFeed | null>(null);
   // Keep spotlightCandidateRef in sync with state
   useEffect(() => { spotlightCandidateRef.current = spotlightCandidate; }, [spotlightCandidate]);
 
@@ -344,19 +337,9 @@ export const ProctorConsolePage: React.FC = () => {
           }
         }
 
-        // Trigger state updates when new frames arrive
-        setLiveFrames(prev => {
-          const newKeys = Object.keys(liveFramesRef.current);
-          const hasNew = newKeys.some(k => !prev[k]);
-          if (!hasNew) return prev;
-          return { ...liveFramesRef.current };
-        });
-        setLiveScreenFrames(prev => {
-          const newKeys = Object.keys(liveScreenFramesRef.current);
-          const hasNew = newKeys.some(k => !prev[k]);
-          if (!hasNew) return prev;
-          return { ...liveScreenFramesRef.current };
-        });
+        // Trigger state updates on every flush so React state is continuously fresh
+        setLiveFrames({ ...liveFramesRef.current });
+        setLiveScreenFrames({ ...liveScreenFramesRef.current });
       }
       rafRef.current = requestAnimationFrame(flush);
     };
@@ -1553,8 +1536,14 @@ export const ProctorConsolePage: React.FC = () => {
 
       {/* Nudge Preset Modal */}
       {selectedNudgeCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-950 border border-amber-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+        <div
+          onClick={() => setSelectedNudgeCandidate(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-zinc-950 border border-amber-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl cursor-default"
+          >
             <div>
               <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider">⚠️ Send Live Warning Nudge</span>
               <h3 className="text-lg font-black text-white mt-1">Issue Warning to {selectedNudgeCandidate.name}</h3>
@@ -1573,8 +1562,9 @@ export const ProctorConsolePage: React.FC = () => {
                 ].map((preset) => (
                   <button
                     key={preset}
+                    type="button"
                     onClick={() => setNudgePreset(preset)}
-                    className={`w-full p-2.5 rounded-xl border text-left text-xs font-medium transition ${
+                    className={`w-full p-2.5 rounded-xl border text-left text-xs font-medium transition cursor-pointer ${
                       nudgePreset === preset ? 'bg-amber-500/10 border-amber-500 text-amber-400 font-bold' : 'bg-black border-white/10 text-zinc-300 hover:border-white/20'
                     }`}
                   >
@@ -1586,14 +1576,16 @@ export const ProctorConsolePage: React.FC = () => {
 
             <div className="flex gap-3 pt-2">
               <button
+                type="button"
                 onClick={() => setSelectedNudgeCandidate(null)}
-                className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition"
+                className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleNudgeSubmit}
-                className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs rounded-xl transition"
+                className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs rounded-xl transition cursor-pointer"
               >
                 Send Nudge Warning
               </button>
@@ -1604,8 +1596,14 @@ export const ProctorConsolePage: React.FC = () => {
 
       {/* ── Block Exam Modal (requires reason) ── */}
       {blockCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-950 border border-blue-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+        <div
+          onClick={() => { setBlockCandidate(null); setBlockReason(''); }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-zinc-950 border border-blue-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl cursor-default"
+          >
             <div>
               <span className="text-[10px] font-black text-blue-400 uppercase tracking-wider">⏸️ Pause Exam Session</span>
               <h3 className="text-lg font-black text-white mt-1">Pause: {blockCandidate.name}</h3>
@@ -1619,11 +1617,18 @@ export const ProctorConsolePage: React.FC = () => {
               rows={3}
             />
             <div className="flex gap-3">
-              <button onClick={() => setBlockCandidate(null)} className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition">Cancel</button>
               <button
+                type="button"
+                onClick={() => { setBlockCandidate(null); setBlockReason(''); }}
+                className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
                 onClick={handleConfirmBlock}
                 disabled={blockReason.trim().length < 5}
-                className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-400 disabled:bg-zinc-700 text-white disabled:text-zinc-500 font-black text-xs rounded-xl transition"
+                className="flex-1 py-2.5 bg-blue-500 hover:bg-blue-400 disabled:bg-zinc-700 text-white disabled:text-zinc-500 font-black text-xs rounded-xl transition cursor-pointer"
               >
                 ⏸️ Confirm Pause
               </button>
@@ -1634,8 +1639,14 @@ export const ProctorConsolePage: React.FC = () => {
 
       {/* ── Escalate/Terminate Modal (requires reason) ── */}
       {escalateCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-zinc-950 border border-rose-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+        <div
+          onClick={() => { setEscalateCandidate(null); setEscalateReason(''); }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-zinc-950 border border-rose-500/30 rounded-2xl p-6 w-full max-w-md space-y-4 shadow-2xl cursor-default"
+          >
             <div>
               <span className="text-[10px] font-black text-rose-400 uppercase tracking-wider">🚨 Escalate & Terminate</span>
               <h3 className="text-lg font-black text-white mt-1">Terminate: {escalateCandidate.name}</h3>
@@ -1649,11 +1660,18 @@ export const ProctorConsolePage: React.FC = () => {
               rows={3}
             />
             <div className="flex gap-3">
-              <button onClick={() => setEscalateCandidate(null)} className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition">Cancel</button>
               <button
+                type="button"
+                onClick={() => { setEscalateCandidate(null); setEscalateReason(''); }}
+                className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
                 onClick={handleConfirmEscalate}
                 disabled={escalateReason.trim().length < 5}
-                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 disabled:bg-zinc-700 text-white disabled:text-zinc-500 font-black text-xs rounded-xl transition"
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-500 disabled:bg-zinc-700 text-white disabled:text-zinc-500 font-black text-xs rounded-xl transition cursor-pointer"
               >
                 🚨 Confirm Termination
               </button>
@@ -1662,81 +1680,106 @@ export const ProctorConsolePage: React.FC = () => {
         </div>
       )}
 
-      {/* Spotlight View Modal — FIX #4: Uses ref-based imgs updated by RAF flush */}
-      {spotlightCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
-          <div className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-4xl p-6 space-y-4 shadow-2xl">
-            <div className="flex justify-between items-center border-b border-white/10 pb-4">
-              <div>
-                <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Candidate Live Spotlight</span>
-                <h2 className="text-xl font-black text-white">{spotlightCandidate.name} ({spotlightCandidate.email})</h2>
-                <p className="text-xs text-blue-400 font-mono mt-0.5">Contest: {spotlightCandidate.contestTitle}</p>
-              </div>
-              <button onClick={() => setSpotlightCandidate(null)} className="text-zinc-400 hover:text-white text-xl">✕</button>
-            </div>
+      {/* Spotlight View Modal */}
+      {spotlightCandidate && (() => {
+        const camFrame = liveFrames[spotlightCandidate.userId] || liveFramesRef.current[spotlightCandidate.userId];
+        const screenFrame = liveScreenFrames[spotlightCandidate.userId] || liveScreenFramesRef.current[spotlightCandidate.userId];
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Webcam — ref-based, updated by RAF loop at 15fps */}
-              <div className="h-64 bg-black rounded-xl border border-white/10 overflow-hidden relative">
-                <img
-                  ref={spotlightWebcamRef}
-                  alt="Live webcam"
-                  className="w-full h-full object-cover"
-                  style={{ display: liveFrames[spotlightCandidate.userId] ? 'block' : 'none' }}
-                />
-                {!liveFrames[spotlightCandidate.userId] && (
-                  <div className="w-full h-full flex items-center justify-center flex-col gap-2">
-                    <span className="text-4xl">📹</span>
-                    <span className="text-xs text-zinc-500">Waiting for webcam stream...</span>
-                  </div>
-                )}
-                <span className="absolute top-2 left-2 text-[10px] font-bold text-emerald-400 bg-black/80 px-2 py-0.5 rounded">
-                  {liveFrames[spotlightCandidate.userId] ? '🔴 LIVE WEBCAM' : 'Webcam Standby'}
-                </span>
+        return (
+          <div
+            onClick={() => setSpotlightCandidate(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-6 cursor-pointer"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-zinc-950 border border-white/10 rounded-2xl w-full max-w-4xl p-6 space-y-4 shadow-2xl cursor-default"
+            >
+              <div className="flex justify-between items-center border-b border-white/10 pb-4">
+                <div>
+                  <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Candidate Live Spotlight</span>
+                  <h2 className="text-xl font-black text-white">{spotlightCandidate.name} ({spotlightCandidate.email})</h2>
+                  <p className="text-xs text-blue-400 font-mono mt-0.5">Contest: {spotlightCandidate.contestTitle}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSpotlightCandidate(null)}
+                  className="text-zinc-400 hover:text-white text-xl cursor-pointer"
+                >
+                  ✕
+                </button>
               </div>
-              {/* Screen — ref-based, updated by RAF loop at 15fps */}
-              <div className="h-64 bg-black rounded-xl border border-white/10 overflow-hidden relative">
-                <img
-                  ref={spotlightScreenRef}
-                  alt="Live candidate desktop screen"
-                  className="w-full h-full object-contain bg-black"
-                  style={{ display: (liveScreenFrames[spotlightCandidate.userId] || liveFrames[spotlightCandidate.userId]) ? 'block' : 'none' }}
-                />
-                {!liveScreenFrames[spotlightCandidate.userId] && !liveFrames[spotlightCandidate.userId] && (
-                  <div className="w-full h-full flex items-center justify-center flex-col gap-2">
-                    <span className="text-4xl">🖥️</span>
-                    <span className="text-xs text-zinc-500">Waiting for candidate desktop screen stream...</span>
-                  </div>
-                )}
-                <div className="absolute top-2 left-2 flex items-center gap-2">
-                  <span className="text-[10px] font-bold text-blue-400 bg-black/80 px-2 py-0.5 rounded">
-                    {liveScreenFrames[spotlightCandidate.userId] ? '🔴 LIVE DESKTOP SCREEN' : 'Screen Standby'}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Webcam Box */}
+                <div className="h-64 bg-black rounded-xl border border-white/10 overflow-hidden relative">
+                  {camFrame ? (
+                    <img
+                      ref={spotlightWebcamRef}
+                      src={camFrame}
+                      alt="Live webcam"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center flex-col gap-2">
+                      <span className="text-4xl">📹</span>
+                      <span className="text-xs text-zinc-500">Waiting for webcam stream...</span>
+                    </div>
+                  )}
+                  <span className="absolute top-2 left-2 text-[10px] font-bold text-emerald-400 bg-black/80 px-2 py-0.5 rounded">
+                    {camFrame ? '🔴 LIVE WEBCAM' : 'Webcam Standby'}
                   </span>
-                  <button
-                    onClick={() => api.sendProctorAction('SNAPSHOT', spotlightCandidate.userId, spotlightCandidate.contestId, 'Proctor requested screen snapshot')}
-                    className="px-2 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 text-[10px] font-bold rounded transition cursor-pointer"
-                  >
-                    📸 Force Snapshot
-                  </button>
+                </div>
+
+                {/* Screen Box */}
+                <div className="h-64 bg-black rounded-xl border border-white/10 overflow-hidden relative">
+                  {(screenFrame || camFrame) ? (
+                    <img
+                      ref={spotlightScreenRef}
+                      src={screenFrame || camFrame}
+                      alt="Live candidate desktop screen"
+                      className="w-full h-full object-contain bg-black"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center flex-col gap-2">
+                      <span className="text-4xl">🖥️</span>
+                      <span className="text-xs text-zinc-500">Waiting for candidate desktop screen stream...</span>
+                    </div>
+                  )}
+                  <div className="absolute top-2 left-2 flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-blue-400 bg-black/80 px-2 py-0.5 rounded">
+                      {screenFrame ? '🔴 LIVE DESKTOP SCREEN' : camFrame ? '🔴 LIVE STREAM (COMPOSITE)' : 'Screen Standby'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => api.sendProctorAction('SNAPSHOT', spotlightCandidate.userId, spotlightCandidate.contestId, 'Proctor requested screen snapshot')}
+                      className="px-2 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 text-[10px] font-bold rounded transition cursor-pointer"
+                    >
+                      📸 Force Snapshot
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="p-4 bg-white/5 rounded-xl border border-white/5 grid grid-cols-4 gap-4 text-xs font-mono">
-              <div>Warnings: <span className="text-amber-400 font-bold">{spotlightCandidate.warnings}/{spotlightCandidate.maxWarnings}</span></div>
-              <div>Tab Switches: <span className="text-amber-400 font-bold">{spotlightCandidate.tabSwitchCount}</span></div>
-              <div>SEB Entries: <span className="text-cyan-400 font-bold">{(spotlightCandidate as any).sebEntryCount ?? 0}</span></div>
-              <div>Integrity: <span className="text-emerald-400 font-bold">{spotlightCandidate.integrityScore}%</span></div>
-            </div>
+              <div className="p-4 bg-white/5 rounded-xl border border-white/5 grid grid-cols-4 gap-4 text-xs font-mono">
+                <div>Warnings: <span className="text-amber-400 font-bold">{spotlightCandidate.warnings}/{spotlightCandidate.maxWarnings}</span></div>
+                <div>Tab Switches: <span className="text-amber-400 font-bold">{spotlightCandidate.tabSwitchCount}</span></div>
+                <div>SEB Entries: <span className="text-cyan-400 font-bold">{(spotlightCandidate as any).sebEntryCount ?? 0}</span></div>
+                <div>Integrity: <span className="text-emerald-400 font-bold">{spotlightCandidate.integrityScore}%</span></div>
+              </div>
 
-            <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setSpotlightCandidate(null)} className="px-5 py-2.5 bg-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/20 transition">
-                Close Spotlight
-              </button>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSpotlightCandidate(null)}
+                  className="px-5 py-2.5 bg-white/10 text-white text-xs font-bold rounded-xl hover:bg-white/20 transition cursor-pointer"
+                >
+                  Close Spotlight
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* FIX #9: Evidence Package Modal for permanently disqualified candidates */}
       {evidenceCandidate && (

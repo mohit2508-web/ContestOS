@@ -122,23 +122,20 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
         }
       }
 
-      // Screen frame at 2fps — FIX #2: SEB-safe screen capture
+      // Screen frame at 2fps — FIX #2: SEB-safe screen capture & continuous frame delivery
       if (now - lastScreenSend > SCREEN_INTERVAL) {
         let srcCanvas: HTMLCanvasElement | null = canvasRef.current;
-        // In SEB, getDisplayMedia is blocked; canvasRef may be null
-        // Fall back to capturing screenStreamRef video element if available
         if (screenCtx) {
           try {
             if (srcCanvas) {
               screenCtx.drawImage(srcCanvas, 0, 0, 480, 270);
             } else if (isSEB && screenStreamRef.current) {
-              // SEB native stream: use the video element from screenStream
               const sv = document.querySelector('video[data-seb-screen]') as HTMLVideoElement;
-              if (sv) screenCtx.drawImage(sv, 0, 0, 480, 270);
+              if (sv && sv.videoWidth > 0) screenCtx.drawImage(sv, 0, 0, 480, 270);
             }
             const frameBase64 = screenCanvas.toDataURL('image/jpeg', 0.25);
-            // Only send if we actually have meaningful content (not just black)
-            if (frameBase64.length > 1000) {
+            // Send frame if valid base64 data generated
+            if (frameBase64 && frameBase64.length > 100) {
               sendScreenFrame(frameBase64);
             }
             lastScreenSend = now;
@@ -425,14 +422,19 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
       const ctx = canvas.getContext("2d");
 
       const webcamVideoEl = document.createElement("video");
+      webcamVideoEl.setAttribute("playsinline", "true");
       webcamVideoEl.srcObject = webcamStream;
       webcamVideoEl.muted = true;
       webcamVideoEl.play().catch(console.error);
 
       const screenVideoEl = document.createElement("video");
+      screenVideoEl.setAttribute("playsinline", "true");
       if (screenStream) {
         screenVideoEl.srcObject = screenStream;
         screenVideoEl.muted = true;
+        screenVideoEl.onloadedmetadata = () => {
+          screenVideoEl.play().catch(console.error);
+        };
         screenVideoEl.play().catch(console.error);
       }
 
@@ -444,17 +446,19 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
         ctx.fillStyle = "#000000";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw screen capture as background (if stream present)
-        if (screenStream) {
+        // Draw screen capture as background (if stream present and ready)
+        if (screenStream && screenVideoEl.readyState >= 2 && screenVideoEl.videoWidth > 0) {
           ctx.drawImage(screenVideoEl, 0, 0, canvas.width, canvas.height);
         }
 
         // Draw webcam picture-in-picture in the bottom-right corner
-        const pipWidth = 160;
-        const pipHeight = 120;
-        const pipX = canvas.width - pipWidth - 10;
-        const pipY = canvas.height - pipHeight - 10;
-        ctx.drawImage(webcamVideoEl, pipX, pipY, pipWidth, pipHeight);
+        if (webcamVideoEl.readyState >= 2 && webcamVideoEl.videoWidth > 0) {
+          const pipWidth = 160;
+          const pipHeight = 120;
+          const pipX = canvas.width - pipWidth - 10;
+          const pipY = canvas.height - pipHeight - 10;
+          ctx.drawImage(webcamVideoEl, pipX, pipY, pipWidth, pipHeight);
+        }
 
         requestAnimationFrame(drawFrame);
       };
