@@ -209,22 +209,38 @@ export const ProctorConsolePage: React.FC = () => {
   // Map real candidates from leaderboard & logs
   const candidates: CandidateFeed[] = realLeaderboard.map((item: any, idx: number) => {
     const uid = item.userId || item.user?.id || `user-${idx}`;
-    const userLogs = realLogs.filter((l) => l.userId === uid || l.participantId === uid);
+    const userUserId = item.user?.id || item.userId || uid;
+    const userLogs = realLogs.filter((l) =>
+      l.userId === uid || l.userId === userUserId || l.participantId === uid || l.participantId === userUserId
+    );
 
     // ── ACCURATE EVENT CATEGORISATION ──
-    const warnings = userLogs.filter((l) => l.eventType === 'PROCTOR_WARNING').length;
-    const tabSwitchCount = userLogs.filter((l) => ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT'].includes(l.eventType)).length;
-    const sebLogs = userLogs.filter((l) => l.eventType === 'SEB_SESSION_START').sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+    // Warning count = all manual/automated proctor-issued warnings
+    const warnings = userLogs.filter((l) =>
+      ['PROCTOR_WARNING', 'PROCTOR_NUDGE', 'WARN', 'WARNING'].includes(l.eventType)
+    ).length;
+
+    // Tab switch count = auto-detected system violations
+    const tabSwitchCount = userLogs.filter((l) =>
+      ['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT'].includes(l.eventType)
+    ).length;
+
+    // SEB entry count = verified SEB launch sessions (deduplicated by 10s window)
+    const sebLogs = userLogs.filter((l) =>
+      ['SEB_SESSION_START', 'SEB_VERIFIED', 'SEB_LAUNCH', 'SEB_ENTRY', 'SEB_HANDSHAKE'].includes(l.eventType)
+    ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
     let sebEntryCountDB = 0;
     let lastSebTime = 0;
     sebLogs.forEach((l) => {
       const t = new Date(l.timestamp).getTime();
-      if (t - lastSebTime > 60000) {
+      if (t - lastSebTime > 10000) {
         sebEntryCountDB++;
         lastSebTime = t;
       }
     });
-    const sebEntryCount = Math.max(sebEntryCountDB, sebEntryCounts[uid] || 0);
+
+    const sebEntryCount = Math.max(sebEntryCountDB, sebEntryCounts[uid] || sebEntryCounts[userUserId] || 0);
     const pasteEvents = userLogs.filter((l) => l.eventType === 'PASTE_EVENT' || l.eventType === 'BULK_PASTE').length;
     const hasMultipleFaces = userLogs.some((l) => l.eventType === 'MULTIPLE_FACES');
     const hasNoFace = userLogs.some((l) => l.eventType === 'NO_FACE');
@@ -828,8 +844,14 @@ export const ProctorConsolePage: React.FC = () => {
                             : 'bg-zinc-800/80 text-zinc-300 border border-white/10'
                         }`}
                       >
-                        <span className={`w-1.5 h-1.5 rounded-full ${cand.status === 'PAUSED' ? 'bg-black animate-pulse' : cand.status === 'ESCALATED_TO_ADMIN' ? 'bg-rose-400 animate-ping' : 'bg-amber-400'}`} />
-                        <span>{cand.status === 'PAUSED' ? 'PAUSED BY PROCTOR' : cand.status === 'ACTIVE' ? `0/10 WARNINGS` : cand.status}</span>
+                        <span className={`w-1.5 h-1.5 rounded-full ${cand.status === 'PAUSED' ? 'bg-black animate-pulse' : cand.status === 'ESCALATED_TO_ADMIN' ? 'bg-rose-400 animate-ping' : cand.warnings > 0 ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+                        <span>
+                          {cand.status === 'PAUSED'
+                            ? 'PAUSED BY PROCTOR'
+                            : cand.status === 'ESCALATED_TO_ADMIN'
+                            ? 'ESCALATED TO ADMIN'
+                            : `${cand.warnings}/${cand.maxWarnings} WARNINGS`}
+                        </span>
                       </span>
                     </div>
 
@@ -923,29 +945,29 @@ export const ProctorConsolePage: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* 4-Tile Metric Matrix (2x2 Grid) */}
+                    {/* 4-Tile Metric Matrix (2x2 Grid with WARNINGS Prominently Displayed) */}
                     <div className="grid grid-cols-2 gap-2 text-xs">
-                      {/* Tile 1: Tab Switches */}
+                      {/* Tile 1: Warnings Issued */}
+                      <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
+                        <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">WARNINGS ISSUED</span>
+                        <span className={`text-base font-bold font-mono ${cand.warnings > 0 ? 'text-amber-400' : 'text-white'}`}>
+                          {cand.warnings}/{cand.maxWarnings}
+                        </span>
+                      </div>
+
+                      {/* Tile 2: Tab Switches */}
                       <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
                         <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">TAB SWITCHES</span>
-                        <span className={`text-base font-bold ${cand.tabSwitchCount > 2 ? 'text-amber-400' : 'text-white'}`}>
+                        <span className={`text-base font-bold font-mono ${cand.tabSwitchCount > 2 ? 'text-amber-400' : 'text-white'}`}>
                           {cand.tabSwitchCount}
                         </span>
                       </div>
 
-                      {/* Tile 2: SEB Entries */}
+                      {/* Tile 3: SEB Entries */}
                       <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
                         <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">SEB ENTRIES</span>
-                        <span className={`text-base font-bold ${((cand as any).sebEntryCount || 0) > 0 ? 'text-amber-400' : 'text-white'}`}>
+                        <span className={`text-base font-bold font-mono ${((cand as any).sebEntryCount || 0) > 0 ? 'text-cyan-400' : 'text-white'}`}>
                           {(cand as any).sebEntryCount ?? 0}
-                        </span>
-                      </div>
-
-                      {/* Tile 3: Paste Events */}
-                      <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
-                        <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">PASTE EVENTS</span>
-                        <span className={`text-base font-bold ${cand.pasteEvents > 0 ? 'text-purple-400' : 'text-white'}`}>
-                          {cand.pasteEvents}
                         </span>
                       </div>
 
@@ -968,6 +990,14 @@ export const ProctorConsolePage: React.FC = () => {
                         </div>
                       </div>
                     </div>
+
+                    {/* Secondary metric bar for Paste Events (if any) */}
+                    {cand.pasteEvents > 0 && (
+                      <div className="px-2.5 py-1 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-center justify-between text-[10px] font-mono">
+                        <span className="text-purple-400 font-bold">📋 Clipboard Paste Events</span>
+                        <span className="text-purple-300 font-black">{cand.pasteEvents}</span>
+                      </div>
+                    )}
 
                     {/* Highlighted Banner when candidate is PAUSED / BLOCKED */}
                     {cand.status === 'PAUSED' && (
