@@ -346,6 +346,19 @@ export function setupQuizTimerSocket(io: SocketIOServer) {
       });
     });
 
+    // ─── PROCTOR: Broadcast Announcement to Candidates ──────────────────────
+    socket.on('proctor:broadcast_message', ({ contestId, message, priority = 'NORMAL' }: { contestId: string; message: string; priority?: string }) => {
+      const payload = { message, priority, contestId, _ts: Date.now() };
+      quizNamespace.emit('proctor:broadcast', payload);
+    });
+
+    // ─── STUDENT: Heartbeat & Connection Health Ping ──────────────────────────
+    socket.on('candidate:ping', ({ contestId, userId, latencyMs }: { contestId: string; userId: string; latencyMs?: number }) => {
+      const payload = { userId, contestId, latencyMs: latencyMs || 25, lastHeartbeat: Date.now() };
+      quizNamespace.to(`proctor:contest:${contestId}`).emit('proctor:candidate_ping', payload);
+      quizNamespace.to('proctor:all').emit('proctor:candidate_ping', payload);
+    });
+
     socket.on('disconnect', () => {
       if (currentKey) {
         socket.leave(currentKey);

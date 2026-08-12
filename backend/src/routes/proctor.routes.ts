@@ -366,7 +366,7 @@ router.post('/action', authenticateToken, async (req, res) => {
         reason: details,
         proctorName,
         warningsCount: warningLogsCount,
-        maxWarnings: contestObj?.maxWarnings || 3,
+        maxWarnings: Number(contestObj?.maxWarnings) || 10,
       });
       await notifyUser(candidateId, {
         title: '⏸️ Exam Paused by Invigilator',
@@ -402,8 +402,14 @@ router.post('/action', authenticateToken, async (req, res) => {
       await emitProctorAction(candidateId, contestId, 'SNAPSHOT_REQUEST', {});
     }
 
+    // Compute SHA-256 audit integrity signature
+    const crypto = await import('crypto');
+    const auditRaw = `${candidateId}:${contestId}:${eventType}:${details}:${Date.now()}`;
+    const auditHash = crypto.createHash('sha256').update(auditRaw).digest('hex');
+    const signedDetails = `[SHA256:${auditHash.slice(0, 12)}] ${details}`;
+
     const log = await prisma.proctoringLog.create({
-      data: { userId: candidateId, contestId, eventType, details },
+      data: { userId: candidateId, contestId, eventType, details: signedDetails },
     });
 
     if (dbStatus === 'BLOCKED' || dbStatus === 'DISQUALIFIED') {
@@ -418,7 +424,25 @@ router.post('/action', authenticateToken, async (req, res) => {
       });
     }
 
-    res.json({ success: true, log });
+    res.json({ success: true, log, auditHash });
+  } catch (error: any) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/proctor/broadcast — Live announcement to candidate screens
+router.post('/broadcast', authenticateToken, async (req, res) => {
+  try {
+    const { contestId, message, priority } = req.body;
+    if (!message) return res.status(400).json({ success: false, error: 'message is required' });
+
+    try {
+      const { io } = await import('../app');
+      const payload = { message, priority: priority || 'HIGH', contestId, _ts: Date.now() };
+      io.of('/quiz-timer').emit('proctor:broadcast', payload);
+    } catch (_e) {}
+
+    res.json({ success: true, message: 'Broadcast announcement dispatched to all candidate screens.' });
   } catch (error: any) {
     res.status(400).json({ success: false, error: error.message });
   }

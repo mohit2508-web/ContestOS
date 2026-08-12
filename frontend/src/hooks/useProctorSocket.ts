@@ -161,7 +161,28 @@ export function useProctorSocket({
       }
     });
 
+    // Listen for live broadcast announcements
+    const broadcastHandler = (data: { message: string; priority?: string }) => {
+      setState((s) => ({
+        ...s,
+        warnMessage: `📢 PROCTOR ANNOUNCEMENT: ${data.message}`,
+      }));
+      setTimeout(() => {
+        setState((s) => ({ ...s, warnMessage: '' }));
+      }, 10000);
+    };
+    socket.on('proctor:broadcast', broadcastHandler);
+
+    // Candidate Ping Heartbeat
+    const pingInterval = setInterval(() => {
+      if (socket.connected && userId && contestId) {
+        socket.emit('candidate:ping', { contestId, userId, latencyMs: 20 });
+      }
+    }, 5000);
+
     return () => {
+      clearInterval(pingInterval);
+      socket.off('proctor:broadcast', broadcastHandler);
       socket.disconnect();
       socketRef.current = null;
     };

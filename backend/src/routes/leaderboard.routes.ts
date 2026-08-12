@@ -308,7 +308,7 @@ router.get('/contest/:contestId', async (req: Request, res: Response): Promise<v
       select: { maxWarnings: true },
     });
 
-    const maxWarnings = contest?.maxWarnings || 3;
+    const maxWarnings = Number(contest?.maxWarnings) || 10;
 
     const participants = await prisma.contestRegistration.findMany({
       where: { contestId },

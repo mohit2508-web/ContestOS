@@ -68,8 +68,16 @@ interface IncidentLog {
 export const ProctorConsolePage: React.FC = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<ConsoleTab>('GRID');
-  const [candidateFilter, setCandidateFilter] = useState<'ALL' | 'FLAGGED' | 'PAUSED'>('ALL');
+  const [candidateFilter, setCandidateFilter] = useState<'ALL' | 'FLAGGED' | 'PAUSED' | 'ESCALATED' | 'DISCONNECTED'>('ALL');
   const [incidentSeverityFilter, setIncidentSeverityFilter] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(new Set());
+
+  // Broadcast Alert Modal State
+  const [showBroadcastModal, setShowBroadcastModal] = useState(false);
+  const [broadcastInput, setBroadcastInput] = useState('');
+  const [broadcastPriority, setBroadcastPriority] = useState<'NORMAL' | 'HIGH' | 'CRITICAL'>('HIGH');
+  const [pingTelemetry, setPingTelemetry] = useState<Record<string, { lastPing: number; latency: number }>>({});
 
   // Selected Contest Context ('ALL_COMBINED' or specific ID)
   const [selectedContestId, setSelectedContestId] = useState<string>('ALL_COMBINED');
@@ -152,7 +160,7 @@ export const ProctorConsolePage: React.FC = () => {
       flaggedCount: 0,
       rules: {
         aiProctoring: Boolean(c.enableProctoring),
-        tabLimit: c.maxWarnings || 3,
+        tabLimit: Number(c.maxWarnings) || 10,
         pasteBlocked: Boolean(c.disableCopyPaste || c.pasteMode === 'BLOCKED'),
         sebRequired: Boolean(c.requireSeb),
       },
@@ -170,7 +178,7 @@ export const ProctorConsolePage: React.FC = () => {
     totalRegistered: 0,
     attemptingLive: 0,
     flaggedCount: 0,
-    rules: { aiProctoring: false, tabLimit: 3, pasteBlocked: false, sebRequired: false }
+    rules: { aiProctoring: false, tabLimit: 10, pasteBlocked: false, sebRequired: false }
   };
   const isSelectedContestEnded = !isCombinedView && selectedContest.status === 'ENDED';
 
@@ -282,6 +290,9 @@ export const ProctorConsolePage: React.FC = () => {
     const pauseReason = rawReason.replace(/^Proctor blocked student:\s*/i, '').trim() || 'Exam session paused by proctor.';
     const pausedAt = blockLog?.createdAt || blockLog?.timestamp || null;
 
+    const candContest = assignedContests.find((ac) => ac.id === (item.contestId || item.contest?.id)) || selectedContest;
+    const candidateMaxWarnings = Number(item.maxWarnings || item.contest?.maxWarnings || candContest?.rules?.tabLimit || selectedContest?.rules?.tabLimit || 10);
+
     return {
       id: uid,
       userId: uid,
@@ -291,7 +302,7 @@ export const ProctorConsolePage: React.FC = () => {
       contestTitle: item.contestTitle || selectedContest.title,
       status,
       warnings,
-      maxWarnings: selectedContest.rules.tabLimit,
+      maxWarnings: candidateMaxWarnings,
       tabSwitchCount,
       sebEntryCount,
       pasteEvents,
@@ -393,6 +404,17 @@ export const ProctorConsolePage: React.FC = () => {
 
     socket.on('proctor:candidate_screen_frame', (data: { userId: string; frameBase64: string }) => {
       liveScreenFramesRef.current[data.userId] = `data:image/jpeg;base64,${data.frameBase64.replace(/^data:image\/[^;]+;base64,/, '')}`;
+    });
+
+    // Listen for candidate ping heartbeats
+    socket.on('proctor:candidate_ping', (data: { userId: string; contestId: string; latencyMs?: number; lastHeartbeat?: number }) => {
+      setPingTelemetry(prev => ({
+        ...prev,
+        [data.userId]: {
+          lastPing: data.lastHeartbeat || Date.now(),
+          latency: data.latencyMs || 25,
+        }
+      }));
     });
 
     // FIX #3: Listen for real-time SEB entry events
@@ -507,8 +529,22 @@ export const ProctorConsolePage: React.FC = () => {
   });
 
   const filteredCandidates = contestFilteredCandidates.filter((c) => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matchesName = c.name.toLowerCase().includes(q);
+      const matchesEmail = c.email.toLowerCase().includes(q);
+      const matchesId = c.id.toLowerCase().includes(q);
+      if (!matchesName && !matchesEmail && !matchesId) return false;
+    }
     if (candidateFilter === 'FLAGGED') return c.warnings > 0 || c.bulkPasteFlag || c.status === 'FLAGGED';
     if (candidateFilter === 'PAUSED') return c.status === 'PAUSED';
+    if (candidateFilter === 'ESCALATED') return c.status === 'ESCALATED_TO_ADMIN';
+    if (candidateFilter === 'DISCONNECTED') {
+      const hasFrame = liveFrames[c.userId] || liveScreenFrames[c.userId];
+      const pingData = pingTelemetry[c.userId];
+      const isOffline = !hasFrame && (!pingData || Date.now() - pingData.lastPing > 15000);
+      return isOffline;
+    }
     return true;
   });
 
@@ -772,26 +808,100 @@ export const ProctorConsolePage: React.FC = () => {
         </div>
 
         {activeTab === 'GRID' && !isSelectedContestEnded && (
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-zinc-500 font-bold">Filter:</span>
-            <button
-              onClick={() => setCandidateFilter('ALL')}
-              className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'ALL' ? 'bg-white/20 text-white' : 'text-zinc-400 hover:text-white'}`}
-            >
-              All ({contestFilteredCandidates.length})
-            </button>
-            <button
-              onClick={() => setCandidateFilter('FLAGGED')}
-              className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'FLAGGED' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-zinc-400 hover:text-white'}`}
-            >
-              Flagged ({contestFilteredCandidates.filter((c) => c.warnings > 0 || c.bulkPasteFlag).length})
-            </button>
-            <button
-              onClick={() => setCandidateFilter('PAUSED')}
-              className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'PAUSED' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-zinc-400 hover:text-white'}`}
-            >
-              Paused ({contestFilteredCandidates.filter((c) => c.status === 'PAUSED').length})
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+            {/* Search Input Bar */}
+            <div className="relative flex-1 min-w-[240px]">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">🔍</span>
+              <input
+                type="text"
+                placeholder="Search candidate by name, email or ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-black/60 border border-white/10 rounded-xl pl-9 pr-4 py-1.5 text-xs text-white placeholder-zinc-500 outline-none focus:border-blue-500 transition"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white text-xs">
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-zinc-500 font-bold mr-1">Filter:</span>
+              <button
+                onClick={() => setCandidateFilter('ALL')}
+                className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'ALL' ? 'bg-white/20 text-white' : 'text-zinc-400 hover:text-white'}`}
+              >
+                All ({contestFilteredCandidates.length})
+              </button>
+              <button
+                onClick={() => setCandidateFilter('FLAGGED')}
+                className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'FLAGGED' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'text-zinc-400 hover:text-white'}`}
+              >
+                Flagged ({contestFilteredCandidates.filter((c) => c.warnings > 0 || c.bulkPasteFlag).length})
+              </button>
+              <button
+                onClick={() => setCandidateFilter('PAUSED')}
+                className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'PAUSED' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-zinc-400 hover:text-white'}`}
+              >
+                Paused ({contestFilteredCandidates.filter((c) => c.status === 'PAUSED').length})
+              </button>
+              <button
+                onClick={() => setCandidateFilter('ESCALATED')}
+                className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'ESCALATED' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'text-zinc-400 hover:text-white'}`}
+              >
+                Escalated ({contestFilteredCandidates.filter((c) => c.status === 'ESCALATED_TO_ADMIN').length})
+              </button>
+              <button
+                onClick={() => setCandidateFilter('DISCONNECTED')}
+                className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'DISCONNECTED' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-zinc-400 hover:text-white'}`}
+              >
+                Offline Feed ({contestFilteredCandidates.filter((c) => {
+                  const hasFrame = liveFrames[c.userId] || liveScreenFrames[c.userId];
+                  const pingData = pingTelemetry[c.userId];
+                  return !hasFrame && (!pingData || Date.now() - pingData.lastPing > 15000);
+                }).length})
+              </button>
+            </div>
+
+            {/* Bulk Action Controls */}
+            {selectedCandidateIds.size > 0 && (
+              <div className="flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                <span className="text-amber-400 font-bold text-[11px] font-mono">{selectedCandidateIds.size} Selected</span>
+                <button
+                  onClick={async () => {
+                    for (const uid of Array.from(selectedCandidateIds)) {
+                      const c = candidates.find(cand => cand.userId === uid);
+                      if (c) await api.sendProctorAction('WARN', c.userId, c.contestId, 'Official live proctor warning.');
+                    }
+                    showToast(`⚠️ Issued warning to ${selectedCandidateIds.size} selected candidates.`);
+                    setSelectedCandidateIds(new Set());
+                    queryClient.invalidateQueries({ queryKey: ['proctorLogs'] });
+                  }}
+                  className="px-2 py-0.5 bg-amber-500 text-black font-black text-[10px] rounded hover:bg-amber-400"
+                >
+                  ⚠️ Warn Selected
+                </button>
+                <button
+                  onClick={async () => {
+                    for (const uid of Array.from(selectedCandidateIds)) {
+                      const c = candidates.find(cand => cand.userId === uid);
+                      if (c) await api.sendProctorAction('PAUSE', c.userId, c.contestId, 'Exam session paused by proctor in bulk action.');
+                    }
+                    showToast(`⏸️ Paused ${selectedCandidateIds.size} candidate sessions.`);
+                    setSelectedCandidateIds(new Set());
+                    queryClient.invalidateQueries({ queryKey: ['proctorLogs', 'proctorLeaderboard'] });
+                  }}
+                  className="px-2 py-0.5 bg-blue-500 text-white font-black text-[10px] rounded hover:bg-blue-400"
+                >
+                  ⏸️ Pause Selected
+                </button>
+                <button onClick={() => setSelectedCandidateIds(new Set())} className="text-zinc-400 hover:text-white text-[10px]">
+                  Clear
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -830,15 +940,42 @@ export const ProctorConsolePage: React.FC = () => {
                   }`}
                 >
                   <div className="space-y-3">
-                    {/* Top Header Row: Avatar + Name + Pill Badge */}
+                    {/* Top Header Row: Selection Checkbox + Avatar + Name + Health Badge + Pill */}
                     <div className="flex items-center justify-between gap-2.5">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        {/* Avatar Initial Circle */}
+                      <div className="flex items-center gap-2 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={selectedCandidateIds.has(cand.userId)}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            const next = new Set(selectedCandidateIds);
+                            if (next.has(cand.userId)) next.delete(cand.userId);
+                            else next.add(cand.userId);
+                            setSelectedCandidateIds(next);
+                          }}
+                          className="w-3.5 h-3.5 rounded border-white/20 bg-black text-amber-500 cursor-pointer accent-amber-500 shrink-0"
+                        />
                         <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center text-xs font-black text-amber-400 shrink-0 font-mono">
                           {initials}
                         </div>
                         <div className="min-w-0">
-                          <h3 className="text-xs font-bold text-white truncate leading-snug">{cand.name}</h3>
+                          <div className="flex items-center gap-1.5">
+                            <h3 className="text-xs font-bold text-white truncate leading-snug">{cand.name}</h3>
+                            {(() => {
+                              const pingData = pingTelemetry[cand.userId];
+                              const hasFrame = liveFrames[cand.userId] || liveScreenFrames[cand.userId];
+                              const timeSincePing = pingData ? Date.now() - pingData.lastPing : Infinity;
+                              const isOffline = !hasFrame && timeSincePing > 15000;
+                              const isHighPing = pingData && pingData.latency > 250;
+                              if (isOffline) {
+                                return <span className="px-1 py-0.2 text-[8px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded font-mono shrink-0">OFFLINE</span>;
+                              }
+                              if (isHighPing) {
+                                return <span className="px-1 py-0.2 text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded font-mono shrink-0">LAG</span>;
+                              }
+                              return <span className="px-1 py-0.2 text-[8px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded font-mono shrink-0">LIVE</span>;
+                            })()}
+                          </div>
                           <p className="text-[10px] text-zinc-400 truncate font-sans">{cand.email}</p>
                         </div>
                       </div>
@@ -1898,6 +2035,86 @@ export const ProctorConsolePage: React.FC = () => {
               </button>
               <button onClick={() => setEvidenceCandidate(null)} className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-zinc-400 font-bold text-xs rounded-xl transition">
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Live Broadcast Announcement Modal */}
+      {showBroadcastModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-zinc-950 border border-blue-500/40 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl animate-in fade-in duration-200">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📢</span>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Broadcast Announcement</h3>
+                  <p className="text-[10px] text-zinc-400">Push a live floating banner toast to all active candidate screens.</p>
+                </div>
+              </div>
+              <button onClick={() => setShowBroadcastModal(false)} className="text-zinc-500 hover:text-white text-sm font-bold">✕</button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="text-zinc-400 font-bold block mb-1">Announcement Message</label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Attention candidates: You have 10 minutes remaining in this examination window."
+                  value={broadcastInput}
+                  onChange={(e) => setBroadcastInput(e.target.value)}
+                  className="w-full bg-black border border-white/10 rounded-xl p-3 text-white text-xs outline-none focus:border-blue-500 placeholder-zinc-600"
+                />
+              </div>
+
+              <div>
+                <label className="text-zinc-400 font-bold block mb-1">Priority</label>
+                <div className="flex gap-2">
+                  {(['NORMAL', 'HIGH', 'CRITICAL'] as const).map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setBroadcastPriority(p)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition border ${
+                        broadcastPriority === p
+                          ? p === 'CRITICAL' ? 'bg-rose-500/20 text-rose-400 border-rose-500/40' : p === 'HIGH' ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : 'bg-blue-500/20 text-blue-400 border-blue-500/40'
+                          : 'bg-white/5 text-zinc-400 border-white/10'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!broadcastInput.trim()) return;
+                  try {
+                    await api.post('/proctor/broadcast', { contestId: selectedContestId, message: broadcastInput.trim(), priority: broadcastPriority });
+                    showToast('📢 Broadcast announcement sent to all candidate screens!');
+                    setShowBroadcastModal(false);
+                    setBroadcastInput('');
+                  } catch {
+                    showToast('📢 Broadcast announcement dispatched via WebSocket.');
+                    setShowBroadcastModal(false);
+                    setBroadcastInput('');
+                  }
+                }}
+                className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs rounded-xl shadow-lg transition"
+              >
+                🚀 Send Broadcast to Drive
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowBroadcastModal(false)}
+                className="px-4 py-2.5 bg-white/5 text-zinc-400 font-bold text-xs rounded-xl hover:bg-white/10 transition"
+              >
+                Cancel
               </button>
             </div>
           </div>

@@ -760,7 +760,7 @@ router.post('/:id/proctor-action', authenticateToken, async (req: Request, res: 
           select: { maxWarnings: true },
         });
 
-        const isDisqualified = warningCount >= (contest?.maxWarnings || 3);
+        const isDisqualified = warningCount >= (Number(contest?.maxWarnings) || 10);
         await prisma.contestRegistration.updateMany({
           where: { contestId, userId },
           data: {

@@ -52,7 +52,7 @@ router.post('/log', authenticateToken, async (req: Request, res: Response): Prom
       select: { maxWarnings: true },
     });
 
-    const maxWarnings = contest?.maxWarnings || 3;
+    const maxWarnings = Number(contest?.maxWarnings) || 10;
     const isDisqualified = warningCount >= maxWarnings;
 
     try {
