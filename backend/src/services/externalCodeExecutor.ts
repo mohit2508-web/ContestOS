@@ -196,8 +196,8 @@ export class ExternalCodeExecutor {
         language,
         files: [{ name: filename, content: request.code }],
         stdin: request.input || "",
-        compile_timeout: 10000,
-        run_timeout: 5000,
+        compile_timeout: Math.min(10000, request.timeLimit || 10000),
+        run_timeout: Math.min(3000, request.timeLimit || 3000),
       };
       payload.version = PISTON_VERSION_MAP[request.language] || "*";
 
