@@ -280,7 +280,7 @@ export function FinishExamFAB({
 
   return (
     <motion.div
-      className="fixed bottom-20 right-6 z-[90] perspective-1200"
+      className="fixed bottom-36 right-6 z-[100] perspective-1200"
       style={{ x: springShakeX }}
     >
       <button
