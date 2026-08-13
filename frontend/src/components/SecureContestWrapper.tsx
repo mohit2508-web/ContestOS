@@ -74,7 +74,8 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
         }
       }
       if (action.action === 'WARNED' && action.message) {
-        notify.toast.warning(action.message);
+        setWarningReason(action.message);
+        setShowWarningModal(true);
       }
     },
   });
@@ -524,24 +525,31 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
 
   useEffect(() => {
     if (flags.enableProctoring && !showSystemCheck && hasRegistered) {
-      startProctoring();
+      if (!streamRef.current || !streamRef.current.active) {
+        startProctoring();
+      }
     }
     return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
+      // Only stop media streams when component unmounts from contest
+      if (document.hidden || isTerminated || isCompleted) {
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => track.stop());
+          streamRef.current = null;
+        }
+        if (screenStreamRef.current) {
+          screenStreamRef.current.getTracks().forEach(track => track.stop());
+          screenStreamRef.current = null;
+        }
+        if (recorderRef.current && recorderRef.current.state !== "inactive") {
+          recorderRef.current.stop();
+        }
+        if (recordingIntervalRef.current) {
+          clearInterval(recordingIntervalRef.current);
+        }
+        setProctoringStream(null);
       }
-      if (screenStreamRef.current) {
-        screenStreamRef.current.getTracks().forEach(track => track.stop());
-      }
-      if (recorderRef.current && recorderRef.current.state !== "inactive") {
-        recorderRef.current.stop();
-      }
-      if (recordingIntervalRef.current) {
-        clearInterval(recordingIntervalRef.current);
-      }
-      setProctoringStream(null);
     };
-  }, [flags.enableProctoring, showSystemCheck, hasRegistered]);
+  }, [flags.enableProctoring, showSystemCheck, hasRegistered, isTerminated, isCompleted]);
 
   // Periodically capture and upload proctoring snapshots
   useEffect(() => {
@@ -1604,6 +1612,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
         warnings={_warnings}
         maxWarnings={flags.maxWarnings || 3}
         reason={warningReason}
+        proctorName={proctorBlockerName || 'Invigilator System'}
         isTerminated={isTerminated || proctorTerminated}
         onResume={handleResumeExam}
         onExit={handleExitTerminated}

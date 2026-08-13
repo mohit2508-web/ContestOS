@@ -413,11 +413,20 @@ export const ProctorConsolePage: React.FC = () => {
     });
 
     socket.on('proctor:candidate_frame', (data: { userId: string; frameBase64: string }) => {
-      liveFramesRef.current[data.userId] = `data:image/jpeg;base64,${data.frameBase64.replace(/^data:image\/[^;]+;base64,/, '')}`;
+      const src = `data:image/jpeg;base64,${data.frameBase64.replace(/^data:image\/[^;]+;base64,/, '')}`;
+      liveFramesRef.current[data.userId] = src;
+      if (webcamImgRefs.current[data.userId]) {
+        webcamImgRefs.current[data.userId]!.src = src;
+      }
     });
 
     socket.on('proctor:candidate_screen_frame', (data: { userId: string; frameBase64: string }) => {
-      liveScreenFramesRef.current[data.userId] = `data:image/jpeg;base64,${data.frameBase64.replace(/^data:image\/[^;]+;base64,/, '')}`;
+      const src = `data:image/jpeg;base64,${data.frameBase64.replace(/^data:image\/[^;]+;base64,/, '')}`;
+      liveScreenFramesRef.current[data.userId] = src;
+      if (screenImgRefs.current[data.userId]) {
+        screenImgRefs.current[data.userId]!.src = src;
+      }
+      setLiveScreenFrames(prev => ({ ...prev, [data.userId]: src }));
     });
 
     // Listen for candidate ping heartbeats
