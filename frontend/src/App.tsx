@@ -278,7 +278,7 @@ export default function App() {
                   </ContestProtectedRoute>
                 }
               >
-                <Route index element={<Navigate to="problems" replace />} />
+                <Route index element={<Navigate to="overview" replace />} />
                 <Route path="overview" element={<OverviewTab />} />
                 <Route path="problems" element={<ProblemsTab />} />
                 <Route path="leaderboard" element={<Leaderboard />} />

@@ -319,27 +319,7 @@ export function ParticipantDashboard() {
     }
   };
 
-  const handleEnter = async (contestId: string) => {
-    const targetContest = contests.find(c => c.id === contestId);
-    const isSeb = navigator.userAgent.includes('SEB') || navigator.userAgent.includes('SafeExamBrowser');
-
-    // If contest requires SEB lockdown and student is opening from normal browser, auto-mint token & trigger 1-Click SEB Launch
-    if ((targetContest as any)?.requireSeb && !isSeb) {
-      try {
-        notify.toast.info('🚀 Minting SEB launch token & initiating Safe Exam Browser...');
-        const { sessionToken } = await api.getSebToken(contestId);
-        const frontendUrl = window.location.origin;
-        const protocol = window.location.protocol === 'https:' ? 'sebs:' : 'seb:';
-        const token = localStorage.getItem('accessToken') || '';
-        const userStr = localStorage.getItem('user') || '';
-        const userParam = userStr ? encodeURIComponent(userStr) : '';
-        const sebUrl = `${frontendUrl.replace(/^https?:/, protocol)}/contests/${contestId}?seb=1&token=${token}&user=${userParam}&sessionToken=${sessionToken}`;
-        window.location.href = sebUrl;
-        return;
-      } catch {
-        console.warn('Failed to auto-launch SEB token, navigating to contest gate...');
-      }
-    }
+  const handleEnter = (contestId: string) => {
     navigate(`/contests/${contestId}`);
   };
 
