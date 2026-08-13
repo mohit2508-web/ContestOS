@@ -200,7 +200,13 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
           }
 
           // Check if already registered via DB photo or session storage
-          if (res.participant.registrationPhoto) {
+          const isSEB = navigator.userAgent.includes('SEB') || navigator.userAgent.includes('SafeExamBrowser');
+          const requiresSeb = res.contest?.requireSeb;
+
+          if (requiresSeb && !isSEB) {
+            // Normal browser: DO NOT open camera or system check modal
+            setHasRegistered(true);
+          } else if (res.participant.registrationPhoto) {
             setHasRegistered(true);
             sessionStorage.setItem(`regPhoto_${contestId}`, res.participant.registrationPhoto);
           } else {
@@ -208,11 +214,10 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
             if (localPhoto) {
               setHasRegistered(true);
             } else {
-              // Only show system check if proctoring is required
+              // Only show system check inside SEB or for non-SEB proctored exams
               if (res.contest?.enableProctoring !== false) {
                 setShowSystemCheck(true);
               } else {
-                // No proctoring required, skip system check
                 setHasRegistered(true);
               }
             }

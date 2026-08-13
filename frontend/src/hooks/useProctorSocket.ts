@@ -11,6 +11,7 @@ export interface ProctorAction {
   contestId?: string;
   warningsCount?: number;
   maxWarnings?: number;
+  warnings?: number;
 }
 
 interface UseProctorSocketOptions {
