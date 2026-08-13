@@ -89,9 +89,9 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
   // Stream live webcam frames (4 FPS adaptive) & live screen frames (2 FPS) to invigilator live grid
   // FIX #1: RAF-driven adaptive quality loop — 4fps, smaller canvas, drops quality under load
   useEffect(() => {
+    const isSEB = navigator.userAgent.includes('SEB') || navigator.userAgent.includes('SafeExamBrowser') || new URLSearchParams(window.location.search).get('seb') === '1';
+    if (flags.requireSeb && !isSEB) return;
     if (!flags.enableProctoring || !user?.id || !contestId) return;
-
-    const isSEB = navigator.userAgent.includes('SEB') || navigator.userAgent.includes('SafeExamBrowser');
 
     // Webcam canvas: 160x120 (small = fast = smooth)
     const camCanvas = document.createElement('canvas');
@@ -540,6 +540,8 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
   };
 
   useEffect(() => {
+    const isSEB = navigator.userAgent.includes('SEB') || navigator.userAgent.includes('SafeExamBrowser') || new URLSearchParams(window.location.search).get('seb') === '1';
+    if (flags.requireSeb && !isSEB) return;
     if (flags.enableProctoring && !showSystemCheck && hasRegistered) {
       if (!streamRef.current || !streamRef.current.active) {
         startProctoring();
@@ -1485,6 +1487,8 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
   };
 
   const CornerIDBadge = () => {
+    const isSEB = navigator.userAgent.includes('SEB') || navigator.userAgent.includes('SafeExamBrowser') || new URLSearchParams(window.location.search).get('seb') === '1';
+    if (flags.requireSeb && !isSEB) return null;
     if (!hasRegistered) return null;
     
     // Get stored registration photo or fallback
