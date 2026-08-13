@@ -19,6 +19,7 @@ interface SecurityFlags {
   voiceCheckEnabled: boolean;
   snapshotIntervalSeconds: number;
   maxWarnings: number;
+  requireSeb?: boolean;
 }
 
 interface Props {
@@ -1443,7 +1444,9 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
     );
   }
 
-  if (flags.requireFullscreen && !isFullscreen) {
+  const isSEB = navigator.userAgent.includes('SEB') || navigator.userAgent.includes('SafeExamBrowser');
+
+  if (flags.requireFullscreen && !isFullscreen && (!flags.requireSeb || isSEB)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white p-4">
         <div className="bg-[var(--bg-card)] border border-[var(--accent-green)]/30 rounded-xl p-8 max-w-md text-center">

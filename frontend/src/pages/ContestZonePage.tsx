@@ -637,6 +637,7 @@ export function ContestZoneLayout() {
     voiceCheckEnabled: contest?.voiceCheckEnabled ?? false,
     snapshotIntervalSeconds: contest?.snapshotIntervalSeconds ?? 45,
     maxWarnings: contest?.maxWarnings ?? 3,
+    requireSeb: contest?.requireSeb ?? false,
   };
 
   return (
