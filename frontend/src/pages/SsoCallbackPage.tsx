@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { PortalLoader } from '../components/common/PortalLoader';
+import type { UserRole } from '../types';
 
 const HIERARCHY_MAP: Record<string, number> = {
   SUPER_ADMIN: 1,
@@ -76,7 +77,7 @@ export function SsoCallbackPage() {
       id: `sso-${email}`,
       name,
       email,
-      role,
+      role: (role.toUpperCase() as UserRole) || 'STUDENT',
       hierarchyLevel: HIERARCHY_MAP[role.toUpperCase()] || 5,
     });
 

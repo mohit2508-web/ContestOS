@@ -99,6 +99,7 @@ export const ProctorConsolePage: React.FC = () => {
   const [selectedDiffPair, setSelectedDiffPair] = useState<any | null>(null);
   const [evidenceCandidate, setEvidenceCandidate] = useState<CandidateFeed | null>(null);
   const [sebEntryCounts, setSebEntryCounts] = useState<Record<string, number>>({});
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const [elapsedTick, setElapsedTick] = useState(0);
 
   // Block/Escalate modals with mandatory reason
@@ -918,7 +919,7 @@ export const ProctorConsolePage: React.FC = () => {
               </p>
             </div>
           ) : (
-            filteredCandidates.map((cand) => {
+            filteredCandidates.map((cand, idx) => {
               const initials = cand.name
                 .split(' ')
                 .map((n) => n[0])
@@ -926,23 +927,126 @@ export const ProctorConsolePage: React.FC = () => {
                 .substring(0, 2)
                 .toUpperCase() || 'CD';
 
+              const isEscalated = cand.status === 'ESCALATED_TO_ADMIN';
+              const isPaused = cand.status === 'PAUSED';
+              const isCritical = isEscalated || cand.warnings >= 3 || cand.aiAlerts.phoneDetected || cand.aiAlerts.multipleFaces;
+              const isWarning = !isCritical && (isPaused || cand.warnings > 0 || cand.tabSwitchCount > 0 || cand.bulkPasteFlag);
+
+              const glowColor = isCritical ? '224,71,92' : isWarning ? '222,154,78' : '57,196,149';
+              const badgeColor = isCritical ? '#E5546A' : isWarning ? '#DE9A4E' : '#39C495';
+              const badgeLabel = isCritical ? 'CRITICAL' : isWarning ? 'WATCH' : 'CLEAN';
+              const badgeBgClass = isCritical ? 'bg-rose-500/10 text-rose-400 border-rose-500/30' : isWarning ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+
+              const isOpen = expandedCards[cand.userId] ?? (isCritical || isPaused);
+
+              const pingData = pingTelemetry[cand.userId];
+              const hasFrame = liveFrames[cand.userId] || liveScreenFrames[cand.userId];
+              const timeSincePing = pingData ? Date.now() - pingData.lastPing : Infinity;
+              const isOffline = !hasFrame && timeSincePing > 15000;
+              const isHighPing = pingData && pingData.latency > 250;
+
+              // SVG Circle parameters for 32px ring
+              const ringSize = 32;
+              const strokeWidth = 3.5;
+              const radius = (ringSize - strokeWidth) / 2;
+              const circumference = 2 * Math.PI * radius;
+              const scoreOffset = circumference - ((cand.integrityScore || 100) / 100) * circumference;
+
               return (
                 <div
                   key={cand.id}
-                  className={`p-4 rounded-2xl border flex flex-col justify-between space-y-3 bg-[#0d0e12]/95 backdrop-blur-xl transition-all shadow-xl ${
-                    cand.status === 'ESCALATED_TO_ADMIN'
-                      ? 'border-rose-500/70 bg-rose-500/5 shadow-rose-500/5'
-                      : cand.status === 'PAUSED'
-                      ? 'border-amber-500/80 bg-amber-500/10 shadow-amber-500/10'
-                      : cand.warnings > 1 || cand.bulkPasteFlag
-                      ? 'border-amber-500/60 bg-amber-500/5'
-                      : 'border-white/10 hover:border-white/20'
+                  style={{
+                    animationDelay: `${idx * 0.05}s`,
+                    ['--glow' as any]: glowColor,
+                  }}
+                  className={`relative rounded-xl overflow-hidden border backdrop-blur-xl transition-all duration-300 shadow-xl group flex flex-col justify-between ${
+                    isCritical
+                      ? 'bg-[#141014]/95 border-rose-500/40 hover:border-rose-500/70 hover:shadow-[0_16px_36px_-12px_rgba(224,71,92,0.22)]'
+                      : isPaused
+                      ? 'bg-[#181410]/95 border-amber-500/50 hover:border-amber-500/80 hover:shadow-[0_16px_36px_-12px_rgba(222,154,78,0.22)]'
+                      : isWarning
+                      ? 'bg-[#141310]/95 border-amber-500/30 hover:border-amber-500/60 hover:shadow-[0_16px_36px_-12px_rgba(222,154,78,0.18)]'
+                      : 'bg-[#101216]/95 border-white/10 hover:border-emerald-500/40 hover:shadow-[0_16px_36px_-12px_rgba(57,196,149,0.18)]'
                   }`}
                 >
-                  <div className="space-y-3">
-                    {/* Top Header Row: Selection Checkbox + Avatar + Name + Health Badge + Pill */}
-                    <div className="flex items-center justify-between gap-2.5">
-                      <div className="flex items-center gap-2 min-w-0">
+                  <div>
+                    {/* Top Cinematic Stream Viewport */}
+                    <div
+                      onClick={() => setSpotlightCandidate(cand)}
+                      className={`relative h-32 overflow-hidden border-b border-white/10 group/cam cursor-pointer transition-colors ${
+                        isOffline ? 'bg-[repeating-linear-gradient(135deg,#121318,#121318_7px,#1a1c22_7px,#1a1c22_14px)] flex items-center justify-center' : 'bg-[#090a0d]'
+                      }`}
+                    >
+                      {!isOffline && (
+                        <>
+                          {/* Radial Vignette & Color Grade Overlays */}
+                          <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(circle_at_32%_28%,rgba(255,255,255,0.06),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(255,255,255,0.04),transparent_50%)]" />
+                          <div className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-50 bg-gradient-to-b from-blue-900/10 via-transparent to-black/40" />
+                          <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.65)_100%)]" />
+
+                          {/* Live Video Images */}
+                          <img
+                            ref={(el) => { webcamImgRefs.current[cand.userId] = el; }}
+                            alt={`${cand.name} live webcam feed`}
+                            className={`w-full h-full object-cover group-hover/cam:scale-105 transition-transform duration-300 ${feedViewMode[cand.userId] !== 'screen' && liveFrames[cand.userId] ? 'block' : 'hidden'}`}
+                          />
+                          <img
+                            ref={(el) => { screenImgRefs.current[cand.userId] = el; }}
+                            alt={`${cand.name} live desktop screen feed`}
+                            className={`w-full h-full object-contain group-hover/cam:scale-105 transition-transform duration-300 ${feedViewMode[cand.userId] === 'screen' && liveScreenFrames[cand.userId] ? 'block' : 'hidden'}`}
+                          />
+
+                          {/* Top Left Live Tag */}
+                          <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/65 backdrop-blur-md border border-white/10 text-[9px] font-bold text-zinc-300 font-mono tracking-wider">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(57,196,149,0.8)]" />
+                            <span>LIVE</span>
+                          </div>
+                        </>
+                      )}
+
+                      {/* Offline Fallback Badge */}
+                      {isOffline && (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-black/80 backdrop-blur-md border border-white/10 text-[10.5px] text-zinc-400 font-mono">
+                          <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                          </svg>
+                          <span>Camera Offline</span>
+                        </div>
+                      )}
+
+                      {/* Severity Badge (Top Right) */}
+                      <div className={`absolute top-2 right-2 z-10 text-[9.5px] font-bold px-2 py-0.5 rounded-md border backdrop-blur-md font-mono uppercase tracking-wider ${badgeBgClass}`}>
+                        {badgeLabel}
+                      </div>
+
+                      {/* Stream Switcher Pill (Bottom Right) */}
+                      {!isOffline && (
+                        <div className="absolute bottom-2 right-2 z-10 flex gap-1 bg-black/80 p-0.5 rounded-md border border-white/10 text-[9px] font-bold">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setFeedViewMode(prev => ({ ...prev, [cand.userId]: 'webcam' })); }}
+                            className={`px-1.5 py-0.5 rounded transition ${feedViewMode[cand.userId] !== 'screen' ? 'bg-amber-500 text-black font-black' : 'text-zinc-400 hover:text-white'}`}
+                          >
+                            Cam
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setFeedViewMode(prev => ({ ...prev, [cand.userId]: 'screen' })); }}
+                            className={`px-1.5 py-0.5 rounded transition ${feedViewMode[cand.userId] === 'screen' ? 'bg-blue-500 text-white font-black' : 'text-zinc-400 hover:text-white'}`}
+                          >
+                            Screen
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Card Main Header Row (Click to toggle drawer) */}
+                    <div
+                      onClick={() => setExpandedCards(prev => ({ ...prev, [cand.userId]: !isOpen }))}
+                      className="p-3 flex items-center justify-between gap-2.5 cursor-pointer hover:bg-white/[0.02] transition-colors border-b border-white/5"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* Checkbox */}
                         <input
                           type="checkbox"
                           checked={selectedCandidateIds.has(cand.userId)}
@@ -955,304 +1059,238 @@ export const ProctorConsolePage: React.FC = () => {
                           }}
                           className="w-3.5 h-3.5 rounded border-white/20 bg-black text-amber-500 cursor-pointer accent-amber-500 shrink-0"
                         />
-                        <div className="w-8 h-8 rounded-xl bg-zinc-800 border border-white/10 flex items-center justify-center text-xs font-black text-amber-400 shrink-0 font-mono">
-                          {initials}
+
+                        {/* Avatar Ring */}
+                        <div
+                          className="w-8 h-8 rounded-lg p-[1.5px] shrink-0"
+                          style={{ background: `conic-gradient(${badgeColor}, ${badgeColor}88, transparent 75%)` }}
+                        >
+                          <div className="w-full h-full rounded-[6.5px] bg-[#1a1c22] flex items-center justify-center text-[10.5px] font-bold font-mono text-zinc-200">
+                            {initials}
+                          </div>
                         </div>
+
+                        {/* Candidate Identity */}
                         <div className="min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <h3 className="text-xs font-bold text-white truncate leading-snug">{cand.name}</h3>
-                            {(() => {
-                              const pingData = pingTelemetry[cand.userId];
-                              const hasFrame = liveFrames[cand.userId] || liveScreenFrames[cand.userId];
-                              const timeSincePing = pingData ? Date.now() - pingData.lastPing : Infinity;
-                              const isOffline = !hasFrame && timeSincePing > 15000;
-                              const isHighPing = pingData && pingData.latency > 250;
-                              if (isOffline) {
-                                return <span className="px-1 py-0.2 text-[8px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded font-mono shrink-0">OFFLINE</span>;
-                              }
-                              if (isHighPing) {
-                                return <span className="px-1 py-0.2 text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded font-mono shrink-0">LAG</span>;
-                              }
-                              return <span className="px-1 py-0.2 text-[8px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded font-mono shrink-0">LIVE</span>;
-                            })()}
+                            <h3 className="text-xs font-semibold text-zinc-100 truncate leading-snug tracking-tight">{cand.name}</h3>
+                            {isOffline ? (
+                              <span className="px-1 py-0.2 text-[8px] font-black bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded font-mono shrink-0">OFFLINE</span>
+                            ) : isHighPing ? (
+                              <span className="px-1 py-0.2 text-[8px] font-black bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded font-mono shrink-0">LAG</span>
+                            ) : (
+                              <span className="px-1 py-0.2 text-[8px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded font-mono shrink-0">LIVE</span>
+                            )}
                           </div>
-                          <p className="text-[10px] text-zinc-400 truncate font-sans">{cand.email}</p>
+                          <p className="text-[10.5px] text-zinc-400 truncate mt-0.5">
+                            {isEscalated ? 'Escalated to admin' : isPaused ? 'Paused by proctor' : cand.warnings > 0 ? `${cand.warnings}/${cand.maxWarnings} warnings · monitoring` : 'No flags · steady'}
+                          </p>
                         </div>
                       </div>
 
-                      {/* Pill Badge */}
-                      <span
-                        className={`text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1.5 ${
-                          cand.status === 'ESCALATED_TO_ADMIN'
-                            ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
-                            : cand.status === 'PAUSED'
-                            ? 'bg-amber-500 text-black font-black border border-amber-400'
-                            : cand.status === 'COMPLETED'
-                            ? 'bg-zinc-800 text-zinc-400 border border-zinc-700'
-                            : cand.warnings > 0
-                            ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
-                            : 'bg-zinc-800/80 text-zinc-300 border border-white/10'
-                        }`}
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${cand.status === 'PAUSED' ? 'bg-black animate-pulse' : cand.status === 'ESCALATED_TO_ADMIN' ? 'bg-rose-400 animate-ping' : cand.warnings > 0 ? 'bg-amber-400' : 'bg-emerald-400'}`} />
-                        <span>
-                          {cand.status === 'PAUSED'
-                            ? 'PAUSED BY PROCTOR'
-                            : cand.status === 'ESCALATED_TO_ADMIN'
-                            ? 'ESCALATED TO ADMIN'
-                            : `${cand.warnings}/${cand.maxWarnings} WARNINGS`}
-                        </span>
-                      </span>
-                    </div>
-
-                    {/* AI Anomaly Alert Badges (if any) */}
-                    {(cand.aiAlerts.multipleFaces || cand.aiAlerts.noFace || cand.aiAlerts.phoneDetected || cand.aiAlerts.audioSpike || cand.bulkPasteFlag) && (
-                      <div className="flex flex-wrap gap-1">
-                        {cand.aiAlerts.multipleFaces && (
-                          <span className="px-1.5 py-0.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] font-bold rounded">
-                            👥 Multi-Face
-                          </span>
-                        )}
-                        {cand.aiAlerts.noFace && (
-                          <span className="px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded">
-                            👤 No Face
-                          </span>
-                        )}
-                        {cand.aiAlerts.phoneDetected && (
-                          <span className="px-1.5 py-0.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] font-bold rounded">
-                            📱 Phone Detected
-                          </span>
-                        )}
-                        {cand.aiAlerts.audioSpike && (
-                          <span className="px-1.5 py-0.5 bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded">
-                            🗣️ Voice Activity
-                          </span>
-                        )}
-                        {cand.bulkPasteFlag && (
-                          <span className="px-1.5 py-0.5 bg-purple-500/20 border border-purple-500/30 text-purple-400 text-[9px] font-bold rounded">
-                            ⚠️ Bulk Paste (AI Flag)
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Stream Viewport with Live Overlays */}
-                    <div
-                      onClick={() => setSpotlightCandidate(cand)}
-                      className="relative h-36 bg-[#08090c] rounded-xl border border-white/10 flex items-center justify-center overflow-hidden group cursor-pointer"
-                    >
-                      {/* Top Overlay Badges */}
-                      <div className="absolute top-2 left-2 right-2 flex items-center justify-between z-10 pointer-events-none">
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/70 border border-white/10 text-[9px] font-black text-rose-400 uppercase font-mono">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
-                          LIVE
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-black/70 border border-white/10 text-[9px] font-black text-zinc-300 uppercase font-mono">
-                          {cand.assessmentType || 'CODING'}
-                        </span>
-                      </div>
-
-                      {/* Webcam Image */}
-                      <img
-                        ref={(el) => { webcamImgRefs.current[cand.userId] = el; }}
-                        alt={`${cand.name} live webcam stream`}
-                        className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${feedViewMode[cand.userId] !== 'screen' && liveFrames[cand.userId] ? 'block' : 'hidden'}`}
-                        style={{ imageRendering: 'auto' }}
-                      />
-
-                      {/* Screen Image */}
-                      <img
-                        ref={(el) => { screenImgRefs.current[cand.userId] = el; }}
-                        alt={`${cand.name} live desktop screen stream`}
-                        className={`w-full h-full object-contain group-hover:scale-105 transition-transform duration-200 ${feedViewMode[cand.userId] === 'screen' && liveScreenFrames[cand.userId] ? 'block' : 'hidden'}`}
-                        style={{ imageRendering: 'auto' }}
-                      />
-
-                      {/* Stream Fallback */}
-                      {(!liveFrames[cand.userId] && !liveScreenFrames[cand.userId]) && (
-                        <div className="text-center space-y-1 group-hover:scale-105 transition-transform">
-                          <svg className="w-8 h-8 mx-auto text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      {/* Gauge Ring + Chevron */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {/* Mini Circular Gauge Ring */}
+                        <div className="relative w-8 h-8 flex items-center justify-center shrink-0">
+                          <svg className="w-8 h-8 transform -rotate-90">
+                            <circle cx="16" cy="16" r={radius} stroke="#26282E" strokeWidth={strokeWidth} fill="transparent" />
+                            <circle
+                              cx="16"
+                              cy="16"
+                              r={radius}
+                              stroke={badgeColor}
+                              strokeWidth={strokeWidth}
+                              strokeDasharray={circumference}
+                              strokeDashoffset={scoreOffset}
+                              strokeLinecap="round"
+                              fill="transparent"
+                              className="transition-all duration-700 ease-out"
+                            />
                           </svg>
-                          <span className="text-[10px] text-zinc-500 font-mono block">Tap to spotlight</span>
-                        </div>
-                      )}
-
-                      {/* Bottom Stream Mode Switcher Pill */}
-                      <div className="absolute bottom-2 right-2 z-10 flex gap-1 bg-black/80 p-0.5 rounded-lg border border-white/10 text-[9px] font-bold">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setFeedViewMode(prev => ({ ...prev, [cand.userId]: 'webcam' })); }}
-                          className={`px-1.5 py-0.5 rounded transition ${feedViewMode[cand.userId] !== 'screen' ? 'bg-amber-500 text-black font-black' : 'text-zinc-400 hover:text-white'}`}
-                        >
-                          Cam
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setFeedViewMode(prev => ({ ...prev, [cand.userId]: 'screen' })); }}
-                          className={`px-1.5 py-0.5 rounded transition ${feedViewMode[cand.userId] === 'screen' ? 'bg-blue-500 text-white font-black' : 'text-zinc-400 hover:text-white'}`}
-                        >
-                          Screen
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* 4-Tile Metric Matrix (2x2 Grid with WARNINGS Prominently Displayed) */}
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      {/* Tile 1: Warnings Issued */}
-                      <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
-                        <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">WARNINGS ISSUED</span>
-                        <span className={`text-base font-bold font-mono ${cand.warnings > 0 ? 'text-amber-400' : 'text-white'}`}>
-                          {cand.warnings}/{cand.maxWarnings}
-                        </span>
-                      </div>
-
-                      {/* Tile 2: Tab Switches */}
-                      <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
-                        <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">TAB SWITCHES</span>
-                        <span className={`text-base font-bold font-mono ${cand.tabSwitchCount > 2 ? 'text-amber-400' : 'text-white'}`}>
-                          {cand.tabSwitchCount}
-                        </span>
-                      </div>
-
-                      {/* Tile 3: SEB Entries */}
-                      <div className="bg-[#12141c]/80 p-2.5 rounded-xl border border-white/5 space-y-1">
-                        <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">SEB ENTRIES</span>
-                        <span className={`text-base font-bold font-mono ${((cand as any).sebEntryCount || 0) > 0 ? 'text-cyan-400' : 'text-white'}`}>
-                          {(cand as any).sebEntryCount ?? 0}
-                        </span>
-                      </div>
-
-                      {/* Tile 4: Circular Integrity Rating Ring */}
-                      <div className="bg-[#12141c]/80 p-2 rounded-xl border border-white/5 flex items-center justify-between">
-                        <div>
-                          <span className="text-[9px] font-mono font-bold text-zinc-500 uppercase block">INTEGRITY</span>
-                          <span className="text-[10px] font-bold text-zinc-300">Rating</span>
-                        </div>
-                        <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
-                          <svg className="w-9 h-9 transform -rotate-90">
-                            <circle cx="18" cy="18" r="14" stroke="currentColor" strokeWidth="3.5" className="text-zinc-800" fill="transparent" />
-                            <circle cx="18" cy="18" r="14" stroke="currentColor" strokeWidth="3.5"
-                              strokeDasharray={88}
-                              strokeDashoffset={88 - (88 * (cand.integrityScore || 100)) / 100}
-                              className={cand.integrityScore >= 80 ? 'text-amber-400' : 'text-rose-500'}
-                              strokeLinecap="round" fill="transparent" />
-                          </svg>
-                          <span className="absolute text-[9px] font-black text-amber-400 font-mono">{cand.integrityScore}%</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Secondary metric bar for Paste Events (if any) */}
-                    {cand.pasteEvents > 0 && (
-                      <div className="px-2.5 py-1 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-center justify-between text-[10px] font-mono">
-                        <span className="text-purple-400 font-bold">📋 Clipboard Paste Events</span>
-                        <span className="text-purple-300 font-black">{cand.pasteEvents}</span>
-                      </div>
-                    )}
-
-                    {/* Highlighted Banner when candidate is PAUSED / BLOCKED */}
-                    {cand.status === 'PAUSED' && (
-                      <div className="p-3 bg-amber-500/15 border border-amber-500/40 rounded-xl space-y-1 text-left">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5 font-mono">
-                            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                            <span>EXAM SESSION BLOCKED - ACTION REQUIRED</span>
+                          <span className="absolute text-[9.5px] font-bold font-mono" style={{ color: badgeColor }}>
+                            {cand.integrityScore}%
                           </span>
-                          {/* FIX #7: Show elapsed time since pause */}
-                          {cand.pausedAt && (
-                            <span className="text-[9px] font-mono text-amber-300/80 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20" title={`Paused at ${new Date(cand.pausedAt).toLocaleTimeString()}`}>
-                              ⏱ {getElapsedSince(cand.pausedAt)}
+                        </div>
+
+                        {/* Chevron Toggle */}
+                        <svg
+                          className={`w-4 h-4 text-zinc-500 transition-transform duration-300 ${isOpen ? 'transform rotate-180 text-zinc-300' : ''}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.4} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Expandable Drawer Section */}
+                  <div className={`grid transition-all duration-300 ease-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 overflow-hidden'}`}>
+                    <div className="overflow-hidden space-y-3">
+                      {/* Stat Grid Row */}
+                      <div className="grid grid-cols-4 border-t border-b border-white/5 bg-[#0d0e12]">
+                        {/* Stat 1: Warnings */}
+                        <div className="p-2.5 flex flex-col items-start border-r border-white/5 space-y-1">
+                          <div className="flex items-center gap-1 text-zinc-500">
+                            <svg className={`w-3 h-3 ${cand.warnings > 0 ? 'text-amber-400' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider text-zinc-400">WARN</span>
+                          </div>
+                          <span className={`font-mono text-xs font-bold ${cand.warnings > 0 ? 'text-amber-400' : 'text-zinc-200'}`}>
+                            {cand.warnings}/{cand.maxWarnings}
+                          </span>
+                        </div>
+
+                        {/* Stat 2: Tab Switches */}
+                        <div className="p-2.5 flex flex-col items-start border-r border-white/5 space-y-1">
+                          <div className="flex items-center gap-1 text-zinc-500">
+                            <svg className={`w-3 h-3 ${cand.tabSwitchCount > 0 ? 'text-amber-400' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                            </svg>
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider text-zinc-400">TABS</span>
+                          </div>
+                          <span className={`font-mono text-xs font-bold ${cand.tabSwitchCount > 0 ? 'text-amber-400' : 'text-zinc-200'}`}>
+                            {cand.tabSwitchCount}
+                          </span>
+                        </div>
+
+                        {/* Stat 3: SEB Entries */}
+                        <div className="p-2.5 flex flex-col items-start border-r border-white/5 space-y-1">
+                          <div className="flex items-center gap-1 text-zinc-500">
+                            <svg className="w-3 h-3 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a5 5 0 0110 0v4h10z" />
+                            </svg>
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider text-zinc-400">SEB</span>
+                          </div>
+                          <span className="font-mono text-xs font-bold text-cyan-400">
+                            {(cand as any).sebEntryCount ?? 0}
+                          </span>
+                        </div>
+
+                        {/* Stat 4: Stream Status */}
+                        <div className="p-2.5 flex flex-col items-start space-y-1">
+                          <div className="flex items-center gap-1 text-zinc-500">
+                            <svg className="w-3 h-3 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider text-zinc-400">CAM</span>
+                          </div>
+                          <span className={`font-mono text-xs font-bold ${isOffline ? 'text-rose-400' : 'text-emerald-400'}`}>
+                            {isOffline ? 'Off' : 'On'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* AI Anomaly Alert Badges */}
+                      {(cand.aiAlerts.multipleFaces || cand.aiAlerts.noFace || cand.aiAlerts.phoneDetected || cand.aiAlerts.audioSpike || cand.bulkPasteFlag) && (
+                        <div className="px-3 flex flex-wrap gap-1">
+                          {cand.aiAlerts.multipleFaces && (
+                            <span className="px-1.5 py-0.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] font-bold rounded">
+                              👥 Multi-Face
+                            </span>
+                          )}
+                          {cand.aiAlerts.noFace && (
+                            <span className="px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[9px] font-bold rounded">
+                              👤 No Face
+                            </span>
+                          )}
+                          {cand.aiAlerts.phoneDetected && (
+                            <span className="px-1.5 py-0.5 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[9px] font-bold rounded">
+                              📱 Phone Detected
+                            </span>
+                          )}
+                          {cand.aiAlerts.audioSpike && (
+                            <span className="px-1.5 py-0.5 bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[9px] font-bold rounded">
+                              🗣️ Voice Activity
+                            </span>
+                          )}
+                          {cand.bulkPasteFlag && (
+                            <span className="px-1.5 py-0.5 bg-purple-500/20 border border-purple-500/30 text-purple-400 text-[9px] font-bold rounded">
+                              ⚠️ Bulk Paste
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-white font-bold leading-snug">
-                          {cand.pauseReason || 'Exam session paused by proctor.'}
-                        </p>
-                      </div>
-                    )}
+                      )}
 
-                    {/* Action Control Buttons */}
-                    {!isSelectedContestEnded ? (
-                      <div className="pt-2 border-t border-white/10 space-y-2">
-                        {cand.status === 'PAUSED' ? (
-                          <div className="space-y-2">
+                      {/* Highlighted Banner when Candidate is PAUSED */}
+                      {isPaused && (
+                        <div className="mx-3 p-2.5 bg-amber-500/15 border border-amber-500/40 rounded-xl space-y-1 text-left">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[9.5px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1 font-mono">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                              <span>SESSION BLOCKED</span>
+                            </span>
+                            {cand.pausedAt && (
+                              <span className="text-[8.5px] font-mono text-amber-300/80 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20">
+                                ⏱ {getElapsedSince(cand.pausedAt)}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-white font-bold leading-snug">
+                            {cand.pauseReason || 'Exam session paused by proctor.'}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Action Control Button Toolbar */}
+                      <div className="p-3 pt-1 border-t border-white/5 space-y-2">
+                        {!isSelectedContestEnded ? (
+                          isPaused ? (
                             <div className="grid grid-cols-2 gap-2">
                               <button
+                                type="button"
                                 onClick={() => handleTogglePause(cand)}
-                                className="py-2.5 px-3 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-1 cursor-pointer"
+                                className="py-2 px-2.5 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-lg shadow-lg shadow-emerald-500/20 transition flex items-center justify-center gap-1 cursor-pointer"
                               >
-                                <span>Resume candidate</span>
+                                <span>▶ Resume</span>
                               </button>
                               <button
+                                type="button"
                                 onClick={() => handleEscalate(cand)}
-                                className="py-2.5 px-3 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow-lg shadow-rose-600/20 transition flex items-center justify-center gap-1 cursor-pointer"
+                                className="py-2 px-2.5 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-lg shadow-lg shadow-rose-600/20 transition flex items-center justify-center gap-1 cursor-pointer"
                               >
-                                <span>Disqualify</span>
+                                <span>⛔ Disqualify</span>
                               </button>
                             </div>
+                          ) : isEscalated ? (
                             <button
-                              onClick={() => handleForceSnapshot(cand)}
-                              className="w-full py-2 px-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 font-bold text-xs rounded-xl transition cursor-pointer"
-                            >
-                              Take verification snapshot
-                            </button>
-                          </div>
-                        ) : cand.status === 'ESCALATED_TO_ADMIN' ? (
-                          /* FIX #9: Permanently blocked candidate — show evidence package CTA */
-                          <div className="space-y-2">
-                            <div className="p-2.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-center">
-                              <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest block">⛔ Permanently Disqualified</span>
-                              <span className="text-[9px] text-rose-300/70">{cand.violationReason?.replace(/^Proctor terminated student:\s*/i, '').slice(0, 80) || 'Exam terminated by proctor.'}</span>
-                            </div>
-                            <button
+                              type="button"
                               onClick={() => setEvidenceCandidate(cand)}
-                              className="w-full py-2.5 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-black text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
+                              className="w-full py-2 px-2.5 bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 border border-rose-500/30 font-bold text-xs rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer"
                             >
                               📋 View Evidence Package
                             </button>
-                          </div>
-                        ) : (
-                          <div className="space-y-2">
+                          ) : (
                             <div className="grid grid-cols-2 gap-2">
                               <button
+                                type="button"
+                                onClick={() => setSpotlightCandidate(cand)}
+                                className="py-2 px-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-semibold text-xs rounded-lg transition flex items-center justify-center gap-1 cursor-pointer"
+                              >
+                                <span>👁️ Spotlight</span>
+                              </button>
+                              <button
+                                type="button"
                                 onClick={() => setSelectedNudgeCandidate(cand)}
-                                className="py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 text-xs font-bold rounded-xl transition cursor-pointer"
+                                className="py-2 px-2.5 bg-white/5 hover:bg-white/10 text-zinc-300 border border-white/10 font-semibold text-xs rounded-lg transition flex items-center justify-center gap-1 cursor-pointer"
                               >
-                                Nudge
-                              </button>
-                              <button
-                                onClick={() => handleForceSnapshot(cand)}
-                                className="py-2 px-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 text-xs font-bold rounded-xl transition cursor-pointer"
-                              >
-                                Snapshot
+                                <span>⚠️ Nudge</span>
                               </button>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <button
-                                onClick={() => handleTogglePause(cand)}
-                                className="py-2 px-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-white/10 text-xs font-bold rounded-xl transition cursor-pointer"
-                              >
-                                Pause exam
-                              </button>
-                              <button
-                                onClick={() => handleEscalate(cand)}
-                                className="py-2 px-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold rounded-xl transition cursor-pointer"
-                              >
-                                Escalate / terminate
-                              </button>
-                            </div>
-                          </div>
+                          )
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setShowReportModal(true)}
+                            className="w-full py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5"
+                          >
+                            📄 View Evidence
+                          </button>
                         )}
                       </div>
-                    ) : (
-                      <div className="pt-2 border-t border-white/10">
-                        <button
-                          onClick={() => setShowReportModal(true)}
-                          className="w-full py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5"
-                        >
-                          📄 View Candidate Evidence
-                        </button>
-                      </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               );
