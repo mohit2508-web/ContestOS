@@ -464,11 +464,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
         requestAnimationFrame(drawFrame);
       };
 
-      webcamVideoEl.onloadedmetadata = () => {
-        screenVideoEl.onloadedmetadata = () => {
-          drawFrame();
-        };
-      };
+      drawFrame();
 
       // 4. Capture canvas as a stream and combine with webcam audio track
       const canvasStream = canvas.captureStream(10); // 10 fps is lightweight

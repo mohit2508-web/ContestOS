@@ -21,6 +21,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { io } from 'socket.io-client';
 import { syncOfflineTelemetryLogs } from '../services/offlineStorage';
 import SebDiagnosticCockpit from '../components/SebDiagnosticCockpit';
+import { SecureContestWrapper } from '../components/SecureContestWrapper';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import {
   PreExamInstructionsModal,
@@ -624,7 +625,21 @@ export function ContestZoneLayout() {
   const isLive = now >= contestStart && now <= contestEnd;
   const showSebWizard = isSebBrowser && isLive;
 
+  const securityFlags = {
+    requireFullscreen: contest?.requireFullscreen ?? false,
+    preventTabSwitch: contest?.preventTabSwitch ?? false,
+    disableCopyPaste: contest?.disableCopyPaste ?? false,
+    enableProctoring: contest?.enableProctoring ?? true,
+    allowMultipleMonitors: contest?.allowMultipleMonitors ?? false,
+    pasteMode: (contest?.pasteMode as any) ?? 'LOG_ONLY',
+    faceCheckEnabled: contest?.faceCheckEnabled ?? false,
+    voiceCheckEnabled: contest?.voiceCheckEnabled ?? false,
+    snapshotIntervalSeconds: contest?.snapshotIntervalSeconds ?? 45,
+    maxWarnings: contest?.maxWarnings ?? 3,
+  };
+
   return (
+    <SecureContestWrapper contestId={contestId!} flags={securityFlags}>
     <div className="relative min-h-screen bg-black font-sans selection:bg-amber-500/20 selection:text-amber-400">
 
       {/* ── EXAM TERMINATED SCREEN (permanent, full-screen) ── */}
@@ -815,6 +830,7 @@ export function ContestZoneLayout() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900 via-black to-zinc-950 -z-10" />
       <div className="absolute inset-0 pointer-events-none opacity-20 -z-10" style={{ backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
     </div>
+    </SecureContestWrapper>
   );
 }
 
