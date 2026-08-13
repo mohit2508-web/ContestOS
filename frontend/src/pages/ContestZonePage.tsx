@@ -372,14 +372,10 @@ export function ContestZoneLayout() {
 
   // TalentOS Warning Toast & Proctor Command Listener
   const [proctorToast, setProctorToast] = useState<{ message: string; type: 'warning' | 'info' | 'success' } | null>(null);
-  const [examPaused, setExamPaused] = useState(false);
-  const [pauseReason, setPauseReason] = useState('');
-  const [proctorName, setProctorName] = useState('Invigilator');
-  const [pauseTimeElapsed, setPauseTimeElapsed] = useState('00:00');
-  const [pauseWarningsCount, setPauseWarningsCount] = useState(0);
   const [pauseMaxWarnings, setPauseMaxWarnings] = useState(3);
   const [examTerminated, setExamTerminated] = useState(false);
   const [terminationReason, setTerminationReason] = useState('');
+  const [bypassSeb, setBypassSeb] = useState(false);
   const lastSeenLogIdRef = useRef<string | null>(null);
 
   // SEB session start tracking — ONLY fires once per SEB browser launch
@@ -641,6 +637,11 @@ export function ContestZoneLayout() {
   return (
     <SecureContestWrapper contestId={contestId!} flags={securityFlags}>
     <div className="relative min-h-screen bg-black font-sans selection:bg-amber-500/20 selection:text-amber-400">
+
+      {/* ── SEB MANDATORY LOCKDOWN GATE OVERLAY (when opening in normal browser) ── */}
+      {contest?.requireSeb && !isSebBrowser && !bypassSeb && (
+        <SebGateOverlay contest={contest} onBypass={() => setBypassSeb(true)} />
+      )}
 
       {/* ── EXAM TERMINATED SCREEN (permanent, full-screen) ── */}
       {examTerminated && (
@@ -2670,6 +2671,133 @@ function SebExamWizard({
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+// -------------------------------------------------------------
+// SEB Mandatory Lockdown Gate Overlay (shown in standard browser)
+// -------------------------------------------------------------
+function SebGateOverlay({ contest, onBypass }: { contest: any; onBypass: () => void }) {
+  const notify = useNotify();
+  const [sebLaunching, setSebLaunching] = useState(false);
+
+  const handleOneClickLaunch = async () => {
+    setSebLaunching(true);
+    try {
+      const { sessionToken } = await api.getSebToken(contest.id);
+      const frontendUrl = window.location.origin;
+      const protocol = window.location.protocol === 'https:' ? 'sebs:' : 'seb:';
+      const token = localStorage.getItem('accessToken') || '';
+      const userStr = localStorage.getItem('user') || '';
+      const userParam = userStr ? encodeURIComponent(userStr) : '';
+      const sebUrl = `${frontendUrl.replace(/^https?:/, protocol)}/contests/${contest.id}?seb=1&token=${token}&user=${userParam}&sessionToken=${sessionToken}`;
+      window.location.href = sebUrl;
+    } catch {
+      notify.toast.error('Failed to generate launch token. Please try again.');
+    } finally {
+      setSebLaunching(false);
+    }
+  };
+
+  const handleDownloadSebConfig = async () => {
+    try {
+      const blob = await api.downloadSebConfig(contest.id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${contest.title.replace(/\s+/g, '_')}_config.seb`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      notify.toast.success('SEB configuration downloaded! Open it to launch the exam.');
+    } catch {
+      notify.toast.error('Failed to download Safe Exam Browser configuration.');
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9990] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-6 text-white select-text">
+      <div className="max-w-2xl w-full bg-zinc-950 border border-amber-500/30 rounded-3xl p-8 space-y-6 shadow-2xl relative overflow-hidden">
+        {/* Glow */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-center gap-4 border-b border-white/10 pb-5">
+          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl shrink-0">
+            🔒
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-black uppercase rounded border border-amber-500/30 font-mono tracking-wider">
+                MANDATORY SECURITY LOCKDOWN
+              </span>
+            </div>
+            <h2 className="text-2xl font-black text-white mt-1">{contest.title}</h2>
+            <p className="text-xs text-zinc-400 mt-0.5">This assessment requires Safe Exam Browser (SEB) to launch.</p>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="bg-zinc-900/60 border border-white/10 rounded-2xl p-5 space-y-3">
+          <h4 className="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-1.5 font-mono">
+            <span>🛡️</span> Mandatory Pre-Exam Setup
+          </h4>
+          <div className="space-y-3 text-xs">
+            <div className="flex gap-3">
+              <span className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center shrink-0 text-xs">1</span>
+              <div>
+                <p className="font-bold text-white">Install Safe Exam Browser (SEB)</p>
+                <p className="text-[11px] text-zinc-400">If SEB is not installed on your device, download the official installer below.</p>
+                <a href="https://safeexambrowser.org/download_en.html" target="_blank" rel="noopener noreferrer" className="text-amber-400 font-bold hover:underline text-[11px] inline-block mt-1">
+                  Download Official SEB Installer ↗
+                </a>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <span className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 font-bold flex items-center justify-center shrink-0 text-xs">2</span>
+              <div>
+                <p className="font-bold text-white">Launch SEB or Download .seb Config File</p>
+                <p className="text-[11px] text-zinc-400">Click "1-Click Launch" to open SEB directly, or download the pre-configured `.seb` file and double-click it to start.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={handleOneClickLaunch}
+            disabled={sebLaunching}
+            className="py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-sm rounded-2xl shadow-lg shadow-amber-500/20 transition flex flex-col items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+          >
+            <span>🚀 1-Click Launch SEB</span>
+            <span className="text-[10px] text-black/70 font-bold">Opens Safe Exam Browser directly</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDownloadSebConfig}
+            className="py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold text-sm rounded-2xl transition flex flex-col items-center justify-center gap-1 cursor-pointer"
+          >
+            <span>📥 Download .seb Config</span>
+            <span className="text-[10px] text-zinc-400 font-medium">Executable config file</span>
+          </button>
+        </div>
+
+        {/* Bypass Dev Mode */}
+        <div className="pt-3 border-t border-white/10 flex items-center justify-between">
+          <span className="text-[10px] font-mono text-zinc-500">Kryptavia OS Security Engine</span>
+          <button
+            type="button"
+            onClick={onBypass}
+            className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-xl transition cursor-pointer"
+          >
+            ⚡ Continue in Testing/Preview Mode
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
