@@ -728,7 +728,17 @@ router.post('/:id/proctor-action', authenticateToken, async (req: Request, res: 
       return;
     }
 
-    if (action === 'nudge' || action === 'warn') {
+    const actionLower = String(action).toLowerCase();
+    const proctorName = (req.user as any)?.name || (req.user as any)?.email?.split('@')[0] || 'Invigilator System';
+
+    // Helper to get socket instance for real-time broadcast
+    let socketIO: any = null;
+    try {
+      const { ioInstance } = await import('../sockets/quizTimerSocket');
+      socketIO = ioInstance;
+    } catch (_e) {}
+
+    if (actionLower === 'nudge' || actionLower === 'warn') {
       if (userId) {
         await prisma.proctoringLog.create({
           data: {
@@ -760,7 +770,9 @@ router.post('/:id/proctor-action', authenticateToken, async (req: Request, res: 
           select: { maxWarnings: true },
         });
 
-        const isDisqualified = warningCount >= (Number(contest?.maxWarnings) || 10);
+        const maxWarn = Number(contest?.maxWarnings) || 3;
+        const isDisqualified = warningCount >= maxWarn;
+
         await prisma.contestRegistration.updateMany({
           where: { contestId, userId },
           data: {
@@ -768,8 +780,92 @@ router.post('/:id/proctor-action', authenticateToken, async (req: Request, res: 
             ...(isDisqualified ? { status: 'DISQUALIFIED' } : {}),
           },
         });
+
+        // ── Real-Time Socket Broadcast to Candidate ──
+        if (socketIO) {
+          const room = `user:${userId}:contest:${contestId}`;
+          const warnPayload = {
+            action: isDisqualified ? 'TERMINATED' : 'WARNED',
+            message: reason || 'Official live warning issued by invigilator.',
+            reason: reason || 'Official live warning issued by invigilator.',
+            contestId,
+            warnings: warningCount,
+            maxWarnings: maxWarn,
+            proctorName,
+          };
+          socketIO.of('/quiz-timer').to(room).emit('proctor:action', warnPayload);
+          socketIO.of('/quiz-timer').to(`proctor:contest:${contestId}`).emit('proctor:candidate_status_change', { userId, contestId, newStatus: isDisqualified ? 'DISQUALIFIED' : 'WARNED' });
+        }
       }
-    } else if (action === 'force_fullscreen') {
+    } else if (actionLower === 'pause' || actionLower === 'block') {
+      if (userId) {
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'PROCTOR_BLOCK',
+            details: `Proctor blocked student: ${reason || 'Session paused by invigilator.'}`,
+          },
+        });
+
+        if (socketIO) {
+          const room = `user:${userId}:contest:${contestId}`;
+          socketIO.of('/quiz-timer').to(room).emit('proctor:action', {
+            action: 'BLOCKED',
+            reason: reason || 'Your exam session has been paused by the invigilator.',
+            proctorName,
+            contestId,
+          });
+          socketIO.of('/quiz-timer').to(`proctor:contest:${contestId}`).emit('proctor:candidate_status_change', { userId, contestId, newStatus: 'BLOCKED' });
+        }
+      }
+    } else if (actionLower === 'resume' || actionLower === 'unblock') {
+      if (userId) {
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'PROCTOR_UNBLOCK',
+            details: 'Proctor unblocked student — exam resumed.',
+          },
+        });
+
+        if (socketIO) {
+          const room = `user:${userId}:contest:${contestId}`;
+          socketIO.of('/quiz-timer').to(room).emit('proctor:action', {
+            action: 'UNBLOCKED',
+            contestId,
+          });
+          socketIO.of('/quiz-timer').to(`proctor:contest:${contestId}`).emit('proctor:candidate_status_change', { userId, contestId, newStatus: 'RESUMED' });
+        }
+      }
+    } else if (actionLower === 'disqualify' || actionLower === 'terminate') {
+      if (userId) {
+        await prisma.contestRegistration.updateMany({
+          where: { contestId, userId },
+          data: { status: 'DISQUALIFIED' },
+        });
+
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'ESCALATED_FOR_DISQUALIFICATION',
+            details: `Proctor terminated student: ${reason || 'No reason provided'}`,
+          },
+        });
+
+        if (socketIO) {
+          const room = `user:${userId}:contest:${contestId}`;
+          socketIO.of('/quiz-timer').to(room).emit('proctor:action', {
+            action: 'TERMINATED',
+            reason: reason || 'You have been disqualified from this exam by the invigilator.',
+            contestId,
+          });
+          socketIO.of('/quiz-timer').to(`proctor:contest:${contestId}`).emit('proctor:candidate_status_change', { userId, contestId, newStatus: 'DISQUALIFIED' });
+        }
+      }
+    } else if (actionLower === 'force_fullscreen') {
       if (userId) {
         await prisma.proctoringLog.create({
           data: {
@@ -779,8 +875,16 @@ router.post('/:id/proctor-action', authenticateToken, async (req: Request, res: 
             details: 'Proctor enforced fullscreen mode for candidate.',
           },
         });
+
+        if (socketIO) {
+          const room = `user:${userId}:contest:${contestId}`;
+          socketIO.of('/quiz-timer').to(room).emit('proctor:action', {
+            action: 'FULLSCREEN_ENFORCED',
+            contestId,
+          });
+        }
       }
-    } else if (action === 'extend_time') {
+    } else if (actionLower === 'extend_time') {
       if (userId) {
         await prisma.proctoringLog.create({
           data: {
@@ -791,7 +895,7 @@ router.post('/:id/proctor-action', authenticateToken, async (req: Request, res: 
           },
         });
       }
-    } else if (action === 'force_submit') {
+    } else if (actionLower === 'force_submit') {
       if (userId) {
         await prisma.contestRegistration.updateMany({
           where: { contestId, userId },
@@ -806,8 +910,17 @@ router.post('/:id/proctor-action', authenticateToken, async (req: Request, res: 
             details: 'Exam force-submitted by proctor.',
           },
         });
+
+        if (socketIO) {
+          const room = `user:${userId}:contest:${contestId}`;
+          socketIO.of('/quiz-timer').to(room).emit('proctor:action', {
+            action: 'TERMINATED',
+            reason: 'Exam completed and submitted by proctor.',
+            contestId,
+          });
+        }
       }
-    } else if (action === 'reset_warnings') {
+    } else if (actionLower === 'reset_warnings') {
       if (userId) {
         await prisma.proctoringLog.deleteMany({
           where: { contestId, userId },

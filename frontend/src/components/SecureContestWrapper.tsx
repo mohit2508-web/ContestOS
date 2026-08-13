@@ -74,6 +74,11 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
         }
       }
       if (action.action === 'WARNED' && action.message) {
+        if (action.warnings !== undefined) {
+          setWarnings(action.warnings);
+        } else {
+          setWarnings((prev) => prev + 1);
+        }
         setWarningReason(action.message);
         setShowWarningModal(true);
       }
