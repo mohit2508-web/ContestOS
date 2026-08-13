@@ -643,11 +643,6 @@ export function ContestZoneLayout() {
     <SecureContestWrapper contestId={contestId!} flags={securityFlags}>
     <div className="relative min-h-screen bg-black font-sans selection:bg-amber-500/20 selection:text-amber-400">
 
-      {/* ── SEB MANDATORY LOCKDOWN GATE OVERLAY (when opening in normal browser) ── */}
-      {contest?.requireSeb && !isSebBrowser && !bypassSeb && (
-        <SebGateOverlay contest={contest} onBypass={() => setBypassSeb(true)} />
-      )}
-
       {/* ── EXAM TERMINATED SCREEN (permanent, full-screen) ── */}
       {examTerminated && (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black">
