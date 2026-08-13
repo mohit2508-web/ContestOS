@@ -372,6 +372,11 @@ export function ContestZoneLayout() {
 
   // TalentOS Warning Toast & Proctor Command Listener
   const [proctorToast, setProctorToast] = useState<{ message: string; type: 'warning' | 'info' | 'success' } | null>(null);
+  const [examPaused, setExamPaused] = useState(false);
+  const [pauseReason, setPauseReason] = useState('');
+  const [proctorName, setProctorName] = useState('Invigilator');
+  const [pauseTimeElapsed, setPauseTimeElapsed] = useState('00:00');
+  const [pauseWarningsCount, setPauseWarningsCount] = useState(0);
   const [pauseMaxWarnings, setPauseMaxWarnings] = useState(3);
   const [examTerminated, setExamTerminated] = useState(false);
   const [terminationReason, setTerminationReason] = useState('');
