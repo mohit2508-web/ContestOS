@@ -312,6 +312,7 @@ router.get('/contest/:contestId', async (req: Request, res: Response): Promise<v
 
     const participants = await prisma.contestRegistration.findMany({
       where: { contestId },
+      distinct: ['userId'],
       orderBy: [
         { score: 'desc' },
         { penalty: 'asc' },

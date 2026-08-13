@@ -213,7 +213,20 @@ export const ProctorConsolePage: React.FC = () => {
   });
 
   const realLogs: any[] = logsData?.logs || [];
-  const realLeaderboard: any[] = leaderboardData?.leaderboard || [];
+  const rawLeaderboard: any[] = leaderboardData?.leaderboard || [];
+
+  // Deduplicate leaderboard entries by user ID to guarantee zero duplicate cards
+  const uniqueLeaderboardMap = new Map<string, any>();
+  rawLeaderboard.forEach((item) => {
+    const uid = item.userId || item.user?.id || item.id;
+    if (!uid) return;
+    const existing = uniqueLeaderboardMap.get(uid);
+    // Prefer ACTIVE/PAUSED entries or most detailed record over duplicate registration records
+    if (!existing || item.status === 'ACTIVE' || item.status === 'PAUSED' || (item.warnings || 0) > (existing.warnings || 0)) {
+      uniqueLeaderboardMap.set(uid, item);
+    }
+  });
+  const realLeaderboard = Array.from(uniqueLeaderboardMap.values());
 
   // Map real candidates from leaderboard & logs
   const candidates: CandidateFeed[] = realLeaderboard.map((item: any, idx: number) => {
