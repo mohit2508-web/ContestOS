@@ -3,8 +3,7 @@ import prisma from '../lib/prisma';
 import { authenticateToken } from '../middlewares/auth';
 import { evaluateCodeSubmission } from '../services/languageAdapter';
 import { evaluateWebDev } from '../services/webDevEvaluator';
-
-
+import { runSqlTestCases, extractDdlString } from '../services/sqlExecutor';
 
 const router = Router();
 
@@ -33,6 +32,57 @@ async function evaluateWebDevSubmission(
     testResults: evaluation.results,
     passedCount: evaluation.summary.passed,
     totalCount: evaluation.summary.total,
+  };
+}
+
+async function evaluateSqlSubmission(problem: any, body: any) {
+  const code = body.code || '';
+  let casesToRun = problem.testCases || [];
+  let schemaDdl = extractDdlString(problem.starterCode) || extractDdlString(problem.schema);
+
+  if (!casesToRun || casesToRun.length === 0) {
+    const expectedOutputStr = problem.expectedOutput || '';
+    casesToRun = [{
+      id: 'default-sql-tc',
+      input: schemaDdl,
+      expectedOutput: expectedOutputStr,
+      setup: schemaDdl
+    }];
+  }
+
+  const sqlTestCases = casesToRun.map((tc: any) => {
+    const rawSetup = extractDdlString(tc.setup) || extractDdlString(tc.input) || schemaDdl;
+    const tcHasDDL = /CREATE\s+TABLE/i.test(rawSetup);
+    const finalSetup = tcHasDDL ? rawSetup : (schemaDdl ? schemaDdl + '\n' + rawSetup : rawSetup);
+    return {
+      setup: finalSetup,
+      input: extractDdlString(tc.input),
+      expectedOutput: tc.expectedOutput || '',
+    };
+  });
+
+  const sqlResult = await runSqlTestCases(code, sqlTestCases);
+  const passedCount = sqlResult.summary.passed;
+  const totalCount = sqlResult.summary.total;
+
+  return {
+    status: passedCount === totalCount ? 'ACCEPTED' : 'WRONG_ANSWER',
+    score: passedCount === totalCount ? 100 : Math.round((passedCount / Math.max(1, totalCount)) * 100),
+    executionTime: sqlResult.results[0]?.executionTime || 10,
+    memoryUsed: 64,
+    testResults: sqlResult.results.map((r, idx) => ({
+      testCase: idx + 1,
+      passed: r.passed,
+      columns: r.columns,
+      rows: r.rows,
+      rowCount: r.rowCount,
+      executionTime: r.executionTime,
+      error: r.error,
+      expectedOutput: r.expectedOutput,
+      actualOutput: r.actualOutput,
+    })),
+    passedCount,
+    totalCount,
   };
 }
 
@@ -109,25 +159,28 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
 
     // Evaluate code test cases via Codeforces-style languageAdapter
     const isWebDev = language === 'web-dev' || language === 'web';
+    const isSql = language === 'sql';
     const evalResult = isWebDev
       ? await evaluateWebDevSubmission(problem, req.body, res)
-      : await evaluateCodeSubmission({
-          problemId: problem.id,
-          code,
-          language,
-          testCases: problem.testCases.map((tc) => ({
-            id: tc.id,
-            input: tc.input,
-            expectedOutput: tc.expectedOutput,
-            isHidden: tc.isHidden,
-          })),
-          referenceSolution: problem.referenceSolution,
-          onProgress: (tcResult) => {
-            if (isStream) {
-              res.write(`data: ${JSON.stringify({ type: 'progress', result: tcResult })}\n\n`);
-            }
-          },
-        });
+      : isSql
+        ? await evaluateSqlSubmission(problem, req.body)
+        : await evaluateCodeSubmission({
+            problemId: problem.id,
+            code,
+            language,
+            testCases: problem.testCases.map((tc) => ({
+              id: tc.id,
+              input: tc.input,
+              expectedOutput: tc.expectedOutput,
+              isHidden: tc.isHidden,
+            })),
+            referenceSolution: problem.referenceSolution,
+            onProgress: (tcResult) => {
+              if (isStream) {
+                res.write(`data: ${JSON.stringify({ type: 'progress', result: tcResult })}\n\n`);
+              }
+            },
+          });
 
     // Fetch contest problem max points if part of a contest
     let maxPoints = 100;

@@ -113,10 +113,18 @@ router.post('/run-tests', authenticateToken, async (req: Request, res: Response)
           include: { testCases: { orderBy: { order: 'asc' } } }
         });
         if (dbProblem) {
+          schemaDdl = extractDdlString(dbProblem.starterCode) || extractDdlString((dbProblem as any).schema);
           if (dbProblem.testCases && dbProblem.testCases.length > 0) {
             casesToRun = dbProblem.testCases;
+          } else {
+            const expectedOutputStr = (dbProblem as any).expectedOutput || '';
+            casesToRun = [{
+              id: 'default-sql-tc',
+              input: schemaDdl,
+              expectedOutput: expectedOutputStr,
+              setup: schemaDdl
+            }];
           }
-          schemaDdl = extractDdlString(dbProblem.starterCode);
         }
       }
 
