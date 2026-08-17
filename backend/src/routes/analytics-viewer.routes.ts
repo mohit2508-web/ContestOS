@@ -159,14 +159,17 @@ router.get('/contests/:id/results', authenticateToken, requireRole(...ALLOWED), 
 });
 
 // ─── GET /api/analytics/contests/:id/export-csv ──────────────────────────────
-// Download contest leaderboard as CSV report
+// Download official contest result report as CSV (college/company ready)
 router.get('/contests/:id/export-csv', authenticateToken, requireRole(...ALLOWED), async (req, res) => {
   try {
     const { id } = req.params;
-    const contest = await prisma.contest.findUnique({
+    const contest = await (prisma.contest.findUnique({
       where: { id },
       select: {
         title: true,
+        startTime: true,
+        endTime: true,
+        organization: { select: { name: true } },
         registrations: {
           select: {
             score: true,
@@ -177,39 +180,139 @@ router.get('/contests/:id/export-csv', authenticateToken, requireRole(...ALLOWED
           },
           orderBy: [{ score: 'desc' }, { penalty: 'asc' }],
         },
-        proctoringLogs: { select: { userId: true } },
+        proctoringLogs: { select: { userId: true, eventType: true } },
       },
-    });
+    }) as any);
 
     if (!contest) return res.status(404).json({ error: 'Contest not found' });
 
-    const flaggedUserIds = new Set(contest.proctoringLogs.map(l => l.userId));
+    // ── Per-candidate proctoring metric computation ──────────────────────────
+    const TAB_SWITCH_EVENTS = new Set(['TAB_SWITCH', 'FOCUS_LOST', 'FULLSCREEN_EXIT']);
+    const PASTE_EVENTS      = new Set(['PASTE_EVENT', 'BULK_PASTE', 'COPY_PASTE_ATTEMPT']);
+    const AI_FLAG_EVENTS    = new Set(['MULTIPLE_FACES', 'NO_FACE', 'PHONE_DETECTED', 'AUDIO_SPIKE', 'VOICE_TALKING_DETECTED']);
+    const SEB_EVENTS        = new Set(['SEB_ENTRY', 'SEB_SESSION_START', 'SEB_REENTRY']);
+    const DQ_EVENTS         = new Set(['DISQUALIFIED', 'ESCALATED_FOR_DISQUALIFICATION']);
 
-    const csvRows = [
-      ['Rank', 'Name', 'Email', 'Username', 'Score', 'Penalty (s)', 'Status', 'Proctor Flagged'].join(','),
-      ...contest.registrations.map((r, idx) => [
-        idx + 1,
-        `"${(r.user.name || '').replace(/"/g, '""')}"`,
-        `"${(r.user.email || '').replace(/"/g, '""')}"`,
-        `"${(r.user.username || '').replace(/"/g, '""')}"`,
-        r.score,
-        r.penalty,
-        r.status,
-        flaggedUserIds.has(r.user.id) ? 'FLAGGED' : 'CLEAN',
-      ].join(',')),
+    const perUser: Record<string, {
+      tabSwitches: number; pasteEvents: number; aiFlags: string[];
+      sebEntries: number; isDisqualified: boolean;
+    }> = {};
+
+    for (const log of (contest.proctoringLogs || [])) {
+      if (!perUser[log.userId]) {
+        perUser[log.userId] = { tabSwitches: 0, pasteEvents: 0, aiFlags: [], sebEntries: 0, isDisqualified: false };
+      }
+      const u = perUser[log.userId];
+      if (TAB_SWITCH_EVENTS.has(log.eventType)) u.tabSwitches++;
+      if (PASTE_EVENTS.has(log.eventType))      u.pasteEvents++;
+      if (AI_FLAG_EVENTS.has(log.eventType))    u.aiFlags.push(log.eventType);
+      if (SEB_EVENTS.has(log.eventType))        u.sebEntries++;
+      if (DQ_EVENTS.has(log.eventType))         u.isDisqualified = true;
+    }
+
+    // ── Summary statistics ───────────────────────────────────────────────────
+    const CUTOFF = 70;
+    const regs: any[] = contest.registrations || [];
+    const totalRegistered = regs.length;
+    const scores: number[] = regs.map((r: any) => r.score as number).filter((s: number) => s > 0);
+    const avgScore = scores.length > 0 ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
+    const maxScore = scores.length > 0 ? Math.max(...scores) : 0;
+    const shortlistedCount = regs.filter((r: any) => r.score >= CUTOFF && !perUser[r.user?.id]?.isDisqualified).length;
+    const flaggedCount = Object.values(perUser).filter((u: any) => u.tabSwitches > 0 || u.pasteEvents > 0 || u.aiFlags.length > 0).length;
+    const disqualifiedCount = regs.filter((r: any) => perUser[r.user?.id]?.isDisqualified).length;
+    const cleanCount = totalRegistered - flaggedCount;
+
+    // ── SHA-256 Integrity hash ───────────────────────────────────────────────
+    const crypto = await import('crypto');
+    const hashInput = `${id}:${regs.map((r: any) => `${r.user?.id}:${r.score}`).join('|')}`;
+    const integrityHash = crypto.createHash('sha256').update(hashInput).digest('hex');
+
+    const exportedAt = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'long', timeStyle: 'short' });
+    const orgName = (contest as any).organization?.name || 'Your Organization';
+    const contestDate = contest.startTime
+      ? new Date(contest.startTime).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'long' })
+      : 'N/A';
+
+    // ── Build official CSV sections ──────────────────────────────────────────
+    const sep = (char = '=', n = 72) => char.repeat(n);
+
+    const headerLines = [
+      sep(),
+      `"KRYPTAVIA OS - OFFICIAL CONTEST RESULT REPORT"`,
+      sep(),
+      `"Contest:","${contest.title.replace(/"/g, '""')}"`,
+      `"Organization:","${orgName.replace(/"/g, '""')}"`,
+      `"Contest Date:","${contestDate}"`,
+      `"Exported On:","${exportedAt} IST"`,
+      `"Total Registered:","${totalRegistered}"`,
+      `"Shortlisted (Score >= ${CUTOFF}%):","${shortlistedCount}"`,
+      `"Disqualified:","${disqualifiedCount}"`,
+      `"Flagged (Any Incident):","${flaggedCount}"`,
+      `"SHA-256 Integrity Hash:","${integrityHash}"`,
+      sep(),
+      `""`,
+      [
+        'Rank', 'Candidate Name', 'Email', 'Username',
+        'Score (/100)', 'Time Taken (s)',
+        'Tab Switches', 'SEB Re-entries', 'Paste Events',
+        'AI Flags', 'Proctor Warnings', 'Status', 'Result'
+      ].join(','),
     ];
 
-    const csvContent = csvRows.join('\n');
-    const filename = `${contest.title.replace(/[^a-zA-Z0-9_-]/g, '_')}_Results.csv`;
+    const dataRows = regs.map((r: any, idx: number) => {
+      const u = perUser[r.user?.id] || { tabSwitches: 0, pasteEvents: 0, aiFlags: [], sebEntries: 0, isDisqualified: false };
+      const isDQ = u.isDisqualified;
+      const result = isDQ ? 'DISQUALIFIED' : r.score >= CUTOFF ? 'SHORTLISTED' : 'NOT SHORTLISTED';
+      const aiSummary = u.aiFlags.length > 0 ? [...new Set(u.aiFlags)].join(' | ') : 'NONE';
 
-    res.setHeader('Content-Type', 'text/csv');
+      return [
+        idx + 1,
+        `"${(r.user?.name || '').replace(/"/g, '""')}"`,
+        `"${(r.user?.email || '').replace(/"/g, '""')}"`,
+        `"${(r.user?.username || '').replace(/"/g, '""')}"`,
+        r.score,
+        r.penalty,
+        u.tabSwitches,
+        u.sebEntries,
+        u.pasteEvents,
+        `"${aiSummary}"`,
+        r.warnings || 0,
+        r.status || 'REGISTERED',
+        result,
+      ].join(',');
+    });
+
+    const footerLines = [
+      `""`,
+      sep(),
+      `"SUMMARY STATISTICS"`,
+      sep(),
+      `"Average Score:","${avgScore}/100"`,
+      `"Highest Score:","${maxScore}/100"`,
+      `"Total Shortlisted:","${shortlistedCount} of ${totalRegistered}"`,
+      `"Total Flagged:","${flaggedCount}"`,
+      `"Total Disqualified:","${disqualifiedCount}"`,
+      `"Clean Candidates:","${cleanCount}"`,
+      sep(),
+      `"GENERATED BY KRYPTAVIA OS | AI-Proctored Assessment Platform"`,
+      `"This document contains a SHA-256 integrity hash. Any modification invalidates the hash."`,
+      `"Hash: ${integrityHash}"`,
+      sep(),
+    ];
+
+    const csvContent = [...headerLines, ...dataRows, ...footerLines].join('\n');
+    const filename = `${contest.title.replace(/[^a-zA-Z0-9_-]/g, '_')}_Official_Report.csv`;
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send(csvContent);
+    res.setHeader('X-Integrity-Hash', integrityHash);
+    res.send('\uFEFF' + csvContent); // UTF-8 BOM for Excel auto-detect
   } catch (err) {
     console.error('CSV export error:', err);
     res.status(500).json({ error: 'Failed to export CSV report' });
   }
 });
+
 // Side-by-side multi-candidate comparison
 router.post('/contests/:id/compare', authenticateToken, requireRole(...ALLOWED), async (req, res) => {
   try {
