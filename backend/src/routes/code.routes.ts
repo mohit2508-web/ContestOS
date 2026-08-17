@@ -38,14 +38,17 @@ router.post('/run', authenticateToken, async (req: Request, res: Response): Prom
           include: { testCases: { orderBy: { order: 'asc' }, take: 1 } }
         });
         if (dbProblem) {
-          const schemaDdl = extractDdlString(dbProblem.starterCode);
+          const rawSchema = (dbProblem as any).schema || '';
+          const schemaDdl = /CREATE\s+TABLE/i.test(rawSchema)
+            ? rawSchema
+            : (/CREATE\s+TABLE/i.test(extractDdlString(dbProblem.starterCode)) ? extractDdlString(dbProblem.starterCode) : rawSchema);
           let sampleSeedDml = '';
           if (dbProblem.testCases && dbProblem.testCases.length > 0) {
             sampleSeedDml = extractDdlString((dbProblem.testCases[0] as any).setup) || extractDdlString(dbProblem.testCases[0].input);
           }
           const hasDdlInSetup = /CREATE\s+TABLE/i.test(finalSetup);
           if (!hasDdlInSetup) {
-            finalSetup = schemaDdl + (sampleSeedDml ? '\n' + sampleSeedDml : '') + (finalSetup ? '\n' + finalSetup : '');
+            finalSetup = (schemaDdl ? schemaDdl + '\n' : '') + (sampleSeedDml ? sampleSeedDml + '\n' : '') + (finalSetup || '');
           }
         }
       }
@@ -113,7 +116,11 @@ router.post('/run-tests', authenticateToken, async (req: Request, res: Response)
           include: { testCases: { orderBy: { order: 'asc' } } }
         });
         if (dbProblem) {
-          schemaDdl = extractDdlString(dbProblem.starterCode) || extractDdlString((dbProblem as any).schema);
+          const rawSchema = (dbProblem as any).schema || '';
+          schemaDdl = /CREATE\s+TABLE/i.test(rawSchema)
+            ? rawSchema
+            : (/CREATE\s+TABLE/i.test(extractDdlString(dbProblem.starterCode)) ? extractDdlString(dbProblem.starterCode) : rawSchema);
+
           if (dbProblem.testCases && dbProblem.testCases.length > 0) {
             casesToRun = dbProblem.testCases;
           } else {
