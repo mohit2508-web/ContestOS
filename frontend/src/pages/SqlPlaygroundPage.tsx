@@ -537,13 +537,23 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
     if (typeof starter === 'string') {
       try { starter = JSON.parse(starter); } catch {}
     }
+    let codeStr = '';
     if (starter && typeof starter === 'object' && typeof starter.sql === 'string' && starter.sql.trim()) {
-      if (!isNonSqlCode(starter.sql)) return starter.sql;
+      codeStr = starter.sql.trim();
+    } else if (typeof starter === 'string' && (starter.includes('SELECT') || starter.includes('CREATE') || starter.startsWith('--'))) {
+      codeStr = starter.trim();
     }
-    if (typeof starter === 'string' && !isNonSqlCode(starter) && (starter.includes('SELECT') || starter.includes('CREATE') || starter.startsWith('--'))) {
-      return starter;
+
+    // Sanitize: If starterCode matches referenceSolution or contains full JOIN/WHERE query, return clean template so solution isn't pre-filled!
+    const refSol = (prob.referenceSolution || '').trim();
+    if (codeStr && (
+      (refSol && codeStr.toLowerCase() === refSol.toLowerCase()) ||
+      (codeStr.toUpperCase().includes('SELECT') && codeStr.toUpperCase().includes('FROM') && codeStr.toUpperCase().includes('WHERE'))
+    )) {
+      return '-- Write your SQL query below\n';
     }
-    return DEFAULT_CODE.sql;
+
+    return codeStr || DEFAULT_CODE.sql;
   };
 
   function parseTableStructure(schemaDdl: string): DatabaseTable[] {
@@ -795,7 +805,12 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
       const savedCode = localStorage.getItem(savedKey);
       let codeToUse = getSqlStarterCode(selectedProblem);
       if (savedCode && !isNonSqlCode(savedCode)) {
-        codeToUse = savedCode;
+        const refSol = (selectedProblem.referenceSolution || '').trim();
+        if (refSol && savedCode.trim().toLowerCase() === refSol.toLowerCase()) {
+          localStorage.removeItem(savedKey);
+        } else {
+          codeToUse = savedCode;
+        }
       } else if (savedCode && isNonSqlCode(savedCode)) {
         localStorage.removeItem(savedKey);
       }

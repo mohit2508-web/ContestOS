@@ -251,12 +251,17 @@ router.get('/:id', optionalAuth, async (req: Request, res: Response): Promise<vo
 
     // Determine if user can see hidden testcases & reference solution
     const isStaff = userHierarchy <= 3; // Super admin, org admin, teacher
+
+    // For participants, filter out hidden testcases.
+    // If all testcases are hidden, include the 1st testcase as a sample testcase so student has at least 1 testcase to run against!
+    let visibleTestCases = problem.testCases.filter((tc) => !tc.isHidden);
+    if (!isStaff && visibleTestCases.length === 0 && problem.testCases.length > 0) {
+      visibleTestCases = [{ ...problem.testCases[0], isHidden: false }];
+    }
+
     const formattedProblem = {
       ...problem,
-      // Strip hidden test cases & reference solution for students/participants
-      testCases: isStaff
-        ? problem.testCases
-        : problem.testCases.filter((tc) => !tc.isHidden),
+      testCases: isStaff ? problem.testCases : visibleTestCases,
       referenceSolution: isStaff ? problem.referenceSolution : null,
     };
 
