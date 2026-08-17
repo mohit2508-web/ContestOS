@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Lock, ShieldCheck, ShieldAlert, X, Loader2, KeyRound, ShieldQuestion } from 'lucide-react';
+import { KryptaviaLogo } from '../common/KryptaviaLogo';
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_SECONDS = 30;
@@ -201,12 +202,7 @@ export function AccessCodeGate({
 
         {/* brand strip, matches sidebar wordmark style */}
         <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: `1px solid ${c.borderSoft}` }}>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center font-black text-[12px]" style={{ background: `linear-gradient(135deg, ${c.amber}, #C9832A)`, color: '#1A1000' }}>K</div>
-            <span className="text-[13px] font-bold tracking-tight" style={{ color: c.text }}>
-              Kryptavia <span style={{ color: c.amber }}>OS</span>
-            </span>
-          </div>
+          <KryptaviaLogo size="sm" />
           <button onClick={onClose} disabled={status === 'checking' || status === 'success'} className="acg-close p-1.5 rounded-lg" style={{ color: c.mutedDim, opacity: status === 'checking' || status === 'success' ? 0.25 : 1 }} aria-label="Close">
             <X size={16} />
           </button>
