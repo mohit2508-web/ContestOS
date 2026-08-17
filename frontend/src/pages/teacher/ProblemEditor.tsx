@@ -463,8 +463,8 @@ export function TeacherProblemEditorPage() {
             .replace(/\n/g, '\\n')
             .replace(/\t/g, '\\t');
           // Step B: fix lone backslashes that are not valid JSON escapes
-          // Valid JSON escape chars after \: " \ / b f n r t u
-          fixed = fixed.replace(/\\(?!["\\/bfnrtu])/g, '\\\\');
+          // Valid JSON escape chars after \: " \ / b f n r t or u followed by 4 hex digits
+          fixed = fixed.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\');
           return `"${fixed}"`;
         }
       );
