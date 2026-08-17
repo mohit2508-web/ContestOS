@@ -184,7 +184,7 @@ export function AccessCodeGate({
       `}</style>
 
       <div
-        className={`acg-shell relative w-full max-w-[404px] rounded-2xl overflow-hidden ${status === 'error' ? 'acg-shake' : ''}`}
+        className={`acg-shell relative w-full ${codeLength > 10 ? 'max-w-[520px]' : codeLength > 8 ? 'max-w-[460px]' : codeLength > 6 ? 'max-w-[430px]' : 'max-w-[404px]'} rounded-2xl overflow-hidden ${status === 'error' ? 'acg-shake' : ''}`}
         style={{
           background: `linear-gradient(180deg, ${c.panelTop} 0%, ${c.panel} 40%)`,
           border: `1px solid ${c.border}`,
@@ -238,7 +238,7 @@ export function AccessCodeGate({
 
           {status !== 'success' && (
             <>
-              <div className="flex items-center justify-center gap-2 mb-3" onPaste={handlePaste}>
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-3 flex-wrap" onPaste={handlePaste}>
                 {digits.map((d, i) => (
                   <input
                     key={i}
@@ -251,11 +251,11 @@ export function AccessCodeGate({
                     autoComplete="off"
                     maxLength={1}
                     aria-label={`Access code digit ${i + 1} of ${codeLength}`}
-                    className="acg-digit acg-mono text-center rounded-[10px]"
+                    className="acg-digit acg-mono text-center rounded-[10px] shrink-0"
                     style={{
-                      width: 42,
+                      width: codeLength > 10 ? 28 : codeLength > 8 ? 33 : codeLength > 6 ? 37 : 42,
                       height: 52,
-                      fontSize: 19,
+                      fontSize: codeLength > 10 ? 14 : codeLength > 8 ? 16 : codeLength > 6 ? 17 : 19,
                       fontWeight: 700,
                       color: status === 'error' ? c.error : c.text,
                       background: c.void,
