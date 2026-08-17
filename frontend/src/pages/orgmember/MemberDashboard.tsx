@@ -131,6 +131,7 @@ export function MemberDashboard() {
       preventTabSwitch: contest.preventTabSwitch,
       disableCopyPaste: contest.disableCopyPaste,
       enableProctoring: contest.enableProctoring,
+      accessCode: (contest as any).accessCode || '',
     });
     setEditingContest(contest);
   };
@@ -804,6 +805,20 @@ export function MemberDashboard() {
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-amber-400 outline-none placeholder-zinc-600 font-medium"
                         placeholder="Contest title..."
                       />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block mb-1 flex items-center gap-1.5">
+                        <span>🔑</span> Exam Access Code (Optional Gate)
+                      </label>
+                      <input
+                        type="text"
+                        value={ef.accessCode || ''}
+                        onChange={e => setF('accessCode', e.target.value.toUpperCase())}
+                        maxLength={10}
+                        className="w-full bg-black border border-amber-500/30 rounded-xl px-4 py-2.5 text-sm text-amber-300 font-mono font-bold tracking-wider focus:border-amber-400 outline-none placeholder-zinc-600 uppercase"
+                        placeholder="e.g. 4X9K7Q (leave blank for no code)"
+                      />
+                      <p className="text-[10px] text-zinc-500 mt-1">If set, candidates must enter this access code in the AccessCodeGate modal before entering the exam.</p>
                     </div>
                     <div>
                       <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Description</label>

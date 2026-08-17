@@ -88,6 +88,7 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
       maxWarnings,
       allowMultipleMonitors,
       randomizeQuestionOrder,
+      accessCode,
       // New Scoring Fields
       scoringMode,
       negativeMarkingEnabled,
@@ -169,6 +170,7 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
         duration: Number(duration) || 120,
         difficulty: difficulty || 'Medium',
         isPublic: isPublic ?? true,
+        accessCode: accessCode ? String(accessCode).trim().toUpperCase() : null,
         requireSeb: requireSeb ?? false,
         requireFullscreen: requireFullscreen ?? true,
         preventTabSwitch: preventTabSwitch ?? true,
@@ -447,7 +449,7 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response): Promi
       maxWarnings, snapshotIntervalSeconds,
       scoringMode, negativeMarkingEnabled, negativeMarkingValue,
       showLeaderboardDuringContest, freezeLeaderboardMins,
-      randomizeQuestionOrder, allowMultipleMonitors,
+      randomizeQuestionOrder, allowMultipleMonitors, accessCode,
     } = req.body;
 
     const isLive = (existing as any).status === 'LIVE';
@@ -485,6 +487,7 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response): Promi
       ...(freezeLeaderboardMins !== undefined && { freezeLeaderboardMins: Number(freezeLeaderboardMins) }),
       ...(randomizeQuestionOrder !== undefined && { randomizeQuestionOrder }),
       ...(allowMultipleMonitors !== undefined && { allowMultipleMonitors }),
+      ...(accessCode !== undefined && { accessCode: accessCode ? String(accessCode).trim().toUpperCase() : null }),
     };
 
     const updated = await prisma.contest.update({ where: { id }, data: updateData });
@@ -493,6 +496,42 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response): Promi
   } catch (error: any) {
     console.error('Update contest error:', error);
     res.status(500).json({ error: error.message || 'Failed to update contest' });
+  }
+});
+
+// POST /api/contests/manager/:id/verify-access-code — Verify Exam Access Code
+router.post('/:id/verify-access-code', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { accessCode } = req.body;
+
+    const contest = await prisma.contest.findUnique({
+      where: { id },
+      select: { id: true, title: true, accessCode: true } as any,
+    });
+
+    if (!contest) {
+      res.status(404).json({ valid: false, error: 'Contest not found' });
+      return;
+    }
+
+    // If contest has no access code required, return valid automatically
+    const requiredCode = (contest as any).accessCode;
+    if (!requiredCode || String(requiredCode).trim() === '') {
+      res.json({ valid: true, message: 'No access code required for this exam.' });
+      return;
+    }
+
+    const inputCode = String(accessCode || '').trim().toUpperCase();
+    if (inputCode === String(requiredCode).trim().toUpperCase()) {
+      const sessionToken = `session_access_${Date.now()}_${crypto.randomBytes(8).toString('hex')}`;
+      res.json({ valid: true, sessionToken, message: 'Access code verified' });
+    } else {
+      res.json({ valid: false, error: 'INVALID_ACCESS_CODE', message: 'Incorrect access code' });
+    }
+  } catch (error: any) {
+    console.error('Verify access code error:', error);
+    res.status(500).json({ valid: false, error: 'Verification failed' });
   }
 });
 

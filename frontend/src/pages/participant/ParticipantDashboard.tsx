@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNotify } from '../../components/notifications';
 import { CandidateSkillCockpit } from '../../components/participant/CandidateSkillCockpit';
 import { DiagnosticPreflightModal } from '../../components/participant/DiagnosticPreflightModal';
+import { AccessCodeGate } from '../../components/participant/AccessCodeGate';
 
 interface Contest {
   id: string;
@@ -270,6 +271,7 @@ export function ParticipantDashboard() {
 
   const [showCodeModal, setShowCodeModal] = useState(false);
   const [showPreflightModal, setShowPreflightModal] = useState(false);
+  const [gateContest, setGateContest] = useState<Contest | null>(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -320,7 +322,12 @@ export function ParticipantDashboard() {
   };
 
   const handleEnter = (contestId: string) => {
-    navigate(`/contests/${contestId}`);
+    const target = contests.find((c) => c.id === contestId);
+    if (target) {
+      setGateContest(target);
+    } else {
+      navigate(`/contests/${contestId}`);
+    }
   };
 
   const filteredContests = contests.filter((c) => {
@@ -629,6 +636,28 @@ export function ParticipantDashboard() {
           notify.toast.success('Pre-Flight Diagnostics Passed 100%! Ready to launch exam.');
         }}
       />
+
+      {gateContest && (
+        <AccessCodeGate
+          examTitle={gateContest.title}
+          orgLabel={gateContest.organization?.name || 'Kryptavia OS Assessment Portal'}
+          codeLength={6}
+          onClose={() => setGateContest(null)}
+          onVerify={async (code) => {
+            try {
+              const res = await api.verifyAccessCode(gateContest.id, code);
+              return res;
+            } catch (err: any) {
+              return { valid: false, error: err?.response?.data?.error || 'Verification failed' };
+            }
+          }}
+          onSuccess={() => {
+            const contestId = gateContest.id;
+            setGateContest(null);
+            navigate(`/contests/${contestId}`);
+          }}
+        />
+      )}
     </div>
   );
 }
