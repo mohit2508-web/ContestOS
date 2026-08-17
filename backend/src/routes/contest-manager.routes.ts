@@ -239,16 +239,11 @@ router.get('/:id/problems', authenticateToken, async (req: Request, res: Respons
       orderBy: { order: 'asc' },
       include: {
         problem: {
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            difficulty: true,
-            category: true,
-            problemType: true,
-            isPublic: true,
-            organizationId: true,
-          } as any,
+          include: {
+            testCases: {
+              orderBy: { order: 'asc' },
+            },
+          },
         },
       },
     });
@@ -386,7 +381,13 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response): Promi
       include: {
         problems: {
           include: {
-            problem: true,
+            problem: {
+              include: {
+                testCases: {
+                  orderBy: { order: 'asc' },
+                },
+              },
+            },
           },
           orderBy: { order: 'asc' },
         },

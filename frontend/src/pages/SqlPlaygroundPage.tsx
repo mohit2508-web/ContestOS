@@ -772,7 +772,7 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
     const targetProblemId = problemId || (cid && contestProblems.length > 0 ? contestProblems[0].problem?.id : savedProblemId);
 
     if (targetProblemId) {
-      if (selectedProblem && selectedProblem.id === targetProblemId && selectedProblem.description) return;
+      if (selectedProblem && selectedProblem.id === targetProblemId && selectedProblem.description && selectedProblem.testCases && selectedProblem.testCases.length > 0) return;
       const fetch = async () => {
         try {
           const res = await api.getProblem(targetProblemId);
@@ -793,7 +793,7 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
       fetch();
     } else if (!selectedProblem && (problems.length > 0 || contestProblems.length > 0)) {
       const first = problems[0] || contestProblems[0]?.problem;
-      if (first) selectProblem(first as any);
+      if (first) setSelectedProblem(first as any);
     }
   }, [problems, playMode, selectedProblem, contestProblems]);
 
@@ -806,8 +806,13 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
       let codeToUse = getSqlStarterCode(selectedProblem);
       if (savedCode && !isNonSqlCode(savedCode)) {
         const refSol = (selectedProblem.referenceSolution || '').trim();
-        if (refSol && savedCode.trim().toLowerCase() === refSol.toLowerCase()) {
+        // Purge if saved code contains complete answer query
+        if (
+          (refSol && savedCode.trim().toLowerCase() === refSol.toLowerCase()) ||
+          (savedCode.toUpperCase().includes('SELECT') && savedCode.toUpperCase().includes('JOIN') && savedCode.toUpperCase().includes('WHERE'))
+        ) {
           localStorage.removeItem(savedKey);
+          codeToUse = getSqlStarterCode(selectedProblem);
         } else {
           codeToUse = savedCode;
         }
