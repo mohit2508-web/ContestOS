@@ -219,6 +219,7 @@ model Contest {
   allowJoin   Boolean  @default(true)
 
   // Security Settings
+  accessCode              String?
   requireSeb              Boolean @default(false)
   sebConfig               String?
   sebQuitPassword         String?

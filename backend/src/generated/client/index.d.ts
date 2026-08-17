@@ -9269,6 +9269,7 @@ export namespace Prisma {
     difficulty: string | null
     isPublic: boolean | null
     allowJoin: boolean | null
+    accessCode: string | null
     requireSeb: boolean | null
     sebConfig: string | null
     sebQuitPassword: string | null
@@ -9304,6 +9305,7 @@ export namespace Prisma {
     difficulty: string | null
     isPublic: boolean | null
     allowJoin: boolean | null
+    accessCode: string | null
     requireSeb: boolean | null
     sebConfig: string | null
     sebQuitPassword: string | null
@@ -9339,6 +9341,7 @@ export namespace Prisma {
     difficulty: number
     isPublic: number
     allowJoin: number
+    accessCode: number
     requireSeb: number
     sebConfig: number
     sebQuitPassword: number
@@ -9392,6 +9395,7 @@ export namespace Prisma {
     difficulty?: true
     isPublic?: true
     allowJoin?: true
+    accessCode?: true
     requireSeb?: true
     sebConfig?: true
     sebQuitPassword?: true
@@ -9427,6 +9431,7 @@ export namespace Prisma {
     difficulty?: true
     isPublic?: true
     allowJoin?: true
+    accessCode?: true
     requireSeb?: true
     sebConfig?: true
     sebQuitPassword?: true
@@ -9462,6 +9467,7 @@ export namespace Prisma {
     difficulty?: true
     isPublic?: true
     allowJoin?: true
+    accessCode?: true
     requireSeb?: true
     sebConfig?: true
     sebQuitPassword?: true
@@ -9584,6 +9590,7 @@ export namespace Prisma {
     difficulty: string
     isPublic: boolean
     allowJoin: boolean
+    accessCode: string | null
     requireSeb: boolean
     sebConfig: string | null
     sebQuitPassword: string | null
@@ -9638,6 +9645,7 @@ export namespace Prisma {
     difficulty?: boolean
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: boolean
     requireSeb?: boolean
     sebConfig?: boolean
     sebQuitPassword?: boolean
@@ -9686,6 +9694,7 @@ export namespace Prisma {
     difficulty?: boolean
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: boolean
     requireSeb?: boolean
     sebConfig?: boolean
     sebQuitPassword?: boolean
@@ -9723,6 +9732,7 @@ export namespace Prisma {
     difficulty?: boolean
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: boolean
     requireSeb?: boolean
     sebConfig?: boolean
     sebQuitPassword?: boolean
@@ -9794,6 +9804,7 @@ export namespace Prisma {
       difficulty: string
       isPublic: boolean
       allowJoin: boolean
+      accessCode: string | null
       requireSeb: boolean
       sebConfig: string | null
       sebQuitPassword: string | null
@@ -10231,6 +10242,7 @@ export namespace Prisma {
     readonly difficulty: FieldRef<"Contest", 'String'>
     readonly isPublic: FieldRef<"Contest", 'Boolean'>
     readonly allowJoin: FieldRef<"Contest", 'Boolean'>
+    readonly accessCode: FieldRef<"Contest", 'String'>
     readonly requireSeb: FieldRef<"Contest", 'Boolean'>
     readonly sebConfig: FieldRef<"Contest", 'String'>
     readonly sebQuitPassword: FieldRef<"Contest", 'String'>
@@ -37587,6 +37599,7 @@ export namespace Prisma {
     difficulty: 'difficulty',
     isPublic: 'isPublic',
     allowJoin: 'allowJoin',
+    accessCode: 'accessCode',
     requireSeb: 'requireSeb',
     sebConfig: 'sebConfig',
     sebQuitPassword: 'sebQuitPassword',
@@ -38864,6 +38877,7 @@ export namespace Prisma {
     difficulty?: StringFilter<"Contest"> | string
     isPublic?: BoolFilter<"Contest"> | boolean
     allowJoin?: BoolFilter<"Contest"> | boolean
+    accessCode?: StringNullableFilter<"Contest"> | string | null
     requireSeb?: BoolFilter<"Contest"> | boolean
     sebConfig?: StringNullableFilter<"Contest"> | string | null
     sebQuitPassword?: StringNullableFilter<"Contest"> | string | null
@@ -38911,6 +38925,7 @@ export namespace Prisma {
     difficulty?: SortOrder
     isPublic?: SortOrder
     allowJoin?: SortOrder
+    accessCode?: SortOrderInput | SortOrder
     requireSeb?: SortOrder
     sebConfig?: SortOrderInput | SortOrder
     sebQuitPassword?: SortOrderInput | SortOrder
@@ -38961,6 +38976,7 @@ export namespace Prisma {
     difficulty?: StringFilter<"Contest"> | string
     isPublic?: BoolFilter<"Contest"> | boolean
     allowJoin?: BoolFilter<"Contest"> | boolean
+    accessCode?: StringNullableFilter<"Contest"> | string | null
     requireSeb?: BoolFilter<"Contest"> | boolean
     sebConfig?: StringNullableFilter<"Contest"> | string | null
     sebQuitPassword?: StringNullableFilter<"Contest"> | string | null
@@ -39008,6 +39024,7 @@ export namespace Prisma {
     difficulty?: SortOrder
     isPublic?: SortOrder
     allowJoin?: SortOrder
+    accessCode?: SortOrderInput | SortOrder
     requireSeb?: SortOrder
     sebConfig?: SortOrderInput | SortOrder
     sebQuitPassword?: SortOrderInput | SortOrder
@@ -39051,6 +39068,7 @@ export namespace Prisma {
     difficulty?: StringWithAggregatesFilter<"Contest"> | string
     isPublic?: BoolWithAggregatesFilter<"Contest"> | boolean
     allowJoin?: BoolWithAggregatesFilter<"Contest"> | boolean
+    accessCode?: StringNullableWithAggregatesFilter<"Contest"> | string | null
     requireSeb?: BoolWithAggregatesFilter<"Contest"> | boolean
     sebConfig?: StringNullableWithAggregatesFilter<"Contest"> | string | null
     sebQuitPassword?: StringNullableWithAggregatesFilter<"Contest"> | string | null
@@ -41874,6 +41892,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -41919,6 +41938,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -41964,6 +41984,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42009,6 +42030,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42054,6 +42076,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -42089,6 +42112,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -42122,6 +42146,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -45341,6 +45366,7 @@ export namespace Prisma {
     difficulty?: SortOrder
     isPublic?: SortOrder
     allowJoin?: SortOrder
+    accessCode?: SortOrder
     requireSeb?: SortOrder
     sebConfig?: SortOrder
     sebQuitPassword?: SortOrder
@@ -45384,6 +45410,7 @@ export namespace Prisma {
     difficulty?: SortOrder
     isPublic?: SortOrder
     allowJoin?: SortOrder
+    accessCode?: SortOrder
     requireSeb?: SortOrder
     sebConfig?: SortOrder
     sebQuitPassword?: SortOrder
@@ -45419,6 +45446,7 @@ export namespace Prisma {
     difficulty?: SortOrder
     isPublic?: SortOrder
     allowJoin?: SortOrder
+    accessCode?: SortOrder
     requireSeb?: SortOrder
     sebConfig?: SortOrder
     sebQuitPassword?: SortOrder
@@ -50429,6 +50457,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -50473,6 +50502,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -50734,6 +50764,7 @@ export namespace Prisma {
     difficulty?: StringFilter<"Contest"> | string
     isPublic?: BoolFilter<"Contest"> | boolean
     allowJoin?: BoolFilter<"Contest"> | boolean
+    accessCode?: StringNullableFilter<"Contest"> | string | null
     requireSeb?: BoolFilter<"Contest"> | boolean
     sebConfig?: StringNullableFilter<"Contest"> | string | null
     sebQuitPassword?: StringNullableFilter<"Contest"> | string | null
@@ -51034,6 +51065,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -51078,6 +51110,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -53856,6 +53889,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -53900,6 +53934,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -54009,6 +54044,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54053,6 +54089,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54152,6 +54189,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -54196,6 +54234,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -54335,6 +54374,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54379,6 +54419,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54508,6 +54549,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -54552,6 +54594,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -54819,6 +54862,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -54863,6 +54907,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55132,6 +55177,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -55176,6 +55222,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -55315,6 +55362,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55359,6 +55407,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55488,6 +55537,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -55532,6 +55582,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -55592,6 +55643,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55636,6 +55688,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -55960,6 +56013,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -56004,6 +56058,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -56222,6 +56277,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56266,6 +56322,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57088,6 +57145,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -57132,6 +57190,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -57320,6 +57379,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57364,6 +57424,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -59071,6 +59132,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -59115,6 +59177,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -59375,6 +59438,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -59419,6 +59483,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60066,6 +60131,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -60110,6 +60176,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -60170,6 +60237,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60214,6 +60282,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60258,6 +60327,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -60302,6 +60372,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -60441,6 +60512,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60485,6 +60557,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -60796,6 +60869,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -60973,6 +61047,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -61017,6 +61092,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -61061,6 +61137,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -61256,6 +61333,7 @@ export namespace Prisma {
     difficulty?: string
     isPublic?: boolean
     allowJoin?: boolean
+    accessCode?: string | null
     requireSeb?: boolean
     sebConfig?: string | null
     sebQuitPassword?: string | null
@@ -61534,6 +61612,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -61578,6 +61657,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null
@@ -61622,6 +61702,7 @@ export namespace Prisma {
     difficulty?: StringFieldUpdateOperationsInput | string
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     allowJoin?: BoolFieldUpdateOperationsInput | boolean
+    accessCode?: NullableStringFieldUpdateOperationsInput | string | null
     requireSeb?: BoolFieldUpdateOperationsInput | boolean
     sebConfig?: NullableStringFieldUpdateOperationsInput | string | null
     sebQuitPassword?: NullableStringFieldUpdateOperationsInput | string | null

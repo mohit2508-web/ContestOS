@@ -198,6 +198,7 @@ exports.Prisma.ContestScalarFieldEnum = {
   difficulty: 'difficulty',
   isPublic: 'isPublic',
   allowJoin: 'allowJoin',
+  accessCode: 'accessCode',
   requireSeb: 'requireSeb',
   sebConfig: 'sebConfig',
   sebQuitPassword: 'sebQuitPassword',
