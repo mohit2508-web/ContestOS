@@ -663,10 +663,23 @@ router.get('/:id/seb-config', authenticateToken, async (req: Request, res: Respo
     <false/>
     <key>allowBrowsingBackForward</key>
     <false/>
+    <!-- 2 = BLOCK all new windows/tabs — prevents ANY external link from opening -->
     <key>newBrowserWindowByLinkPolicy</key>
-    <integer>0</integer>
+    <integer>2</integer>
     <key>enableZoomText</key>
     <true/>
+    <!-- Disable right-click context menu -->
+    <key>enableRightMouse</key>
+    <false/>
+    <!-- Disable F12 / DevTools -->
+    <key>allowDeveloperConsole</key>
+    <false/>
+    <!-- Disable Ctrl+F / Find -->
+    <key>allowFind</key>
+    <false/>
+    <!-- Disable F5 / page reload -->
+    <key>browserWindowAllowReload</key>
+    <false/>
 
     <!-- ── Keyboard Restrictions ── -->
     <key>allowScreenSharing</key>
@@ -700,6 +713,33 @@ router.get('/:id/seb-config', authenticateToken, async (req: Request, res: Respo
             <key>active</key><true/>
             <key>expression</key><string>${(process.env.FRONTEND_URL || 'http://localhost:5173').replace(/^https?:\/\//, '')}</string>
             <key>regex</key><false/>
+        </dict>
+        <!-- ALLOW: Vercel deployment domain -->
+        <dict>
+            <key>action</key><integer>1</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>kryptaviaos.vercel.app</string>
+            <key>regex</key><false/>
+        </dict>
+        <!-- ALLOW: Google Fonts (UI typography) -->
+        <dict>
+            <key>action</key><integer>1</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>fonts.googleapis.com</string>
+            <key>regex</key><false/>
+        </dict>
+        <dict>
+            <key>action</key><integer>1</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>fonts.gstatic.com</string>
+            <key>regex</key><false/>
+        </dict>
+        <!-- BLOCK ALL: Default deny — MUST be LAST rule (SEB evaluates top-to-bottom) -->
+        <dict>
+            <key>action</key><integer>0</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>.*</string>
+            <key>regex</key><true/>
         </dict>
     </array>
 
