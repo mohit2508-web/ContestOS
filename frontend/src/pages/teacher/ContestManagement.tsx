@@ -52,6 +52,7 @@ export function ContestManagementPage() {
   const [formData, setFormData] = useState({
     title: '', 
     description: '', 
+    accessCode: '',
     startTime: '', 
     endTime: '', 
     duration: 120, 
@@ -895,6 +896,7 @@ export function ContestManagementPage() {
       setFormData({
         title: '', 
         description: '', 
+        accessCode: '',
         startTime: '', 
         endTime: '', 
         duration: 120, 
@@ -1190,6 +1192,20 @@ export function ContestManagementPage() {
                     <option value="private">Private (Invite Only)</option>
                     <option value="public">Public (Anyone can join)</option>
                   </select>
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-amber-400 mb-1 flex items-center gap-1.5">
+                    <span>🔑</span> Exam Access Code (Optional Gate)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 4X9K7Q (leave blank for no code)"
+                    maxLength={10}
+                    className="w-full bg-black border border-amber-500/30 rounded-lg px-4 py-2 text-sm text-amber-300 font-mono font-bold tracking-wider focus:border-amber-400 outline-none uppercase placeholder-zinc-600"
+                    value={formData.accessCode}
+                    onChange={e => setFormData({...formData, accessCode: e.target.value.toUpperCase()})}
+                  />
+                  <p className="text-[11px] text-gray-500 mt-1">If set, candidates must enter this code in the AccessCodeGate modal to enter the exam.</p>
                 </div>
               </div>
 
