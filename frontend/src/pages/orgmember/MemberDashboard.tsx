@@ -106,6 +106,50 @@ export function MemberDashboard() {
   const [isExportUnlocked, setIsExportUnlocked] = useState(false);
   const [exportPasscodeError, setExportPasscodeError] = useState('');
 
+  // ── Edit Contest Modal State ───────────────────────────────────────────────
+  const [editingContest, setEditingContest] = useState<Contest | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editForm, setEditForm] = useState<any>({});
+
+  const openEditModal = (contest: Contest) => {
+    const toLocal = (iso: string) => {
+      if (!iso) return '';
+      const d = new Date(iso);
+      // Convert to IST (UTC+5:30) datetime-local string
+      const offset = 5.5 * 60 * 60000;
+      return new Date(d.getTime() + offset).toISOString().slice(0, 16);
+    };
+    setEditForm({
+      title: contest.title,
+      description: contest.description || '',
+      startTime: toLocal(contest.startTime),
+      endTime: toLocal(contest.endTime),
+      duration: contest.duration,
+      isPublic: contest.isPublic,
+      requireSeb: contest.requireSeb,
+      requireFullscreen: contest.requireFullscreen,
+      preventTabSwitch: contest.preventTabSwitch,
+      disableCopyPaste: contest.disableCopyPaste,
+      enableProctoring: contest.enableProctoring,
+    });
+    setEditingContest(contest);
+  };
+
+  const saveContest = async () => {
+    if (!editingContest) return;
+    setEditSaving(true);
+    try {
+      await api.updateManagerContest(editingContest.id, editForm);
+      notify.toast.success('Contest updated successfully!');
+      setEditingContest(null);
+      loadAssignedContests();
+    } catch (err: any) {
+      notify.toast.error(err?.response?.data?.error || 'Failed to update contest');
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
   // SHA-256 Hash Digest for Results Authenticity
   const resultsSha256Hash = 'a7b8c9d0e1f234567890abcdef1234567890abcdef1234567890abcdef123456';
 
@@ -252,6 +296,13 @@ export function MemberDashboard() {
                   className="py-2 px-3 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl text-xs transition-all border border-white/10 flex items-center justify-center gap-1"
                 >
                   <span>📊</span> Results
+                </button>
+                <button
+                  onClick={() => openEditModal(c)}
+                  className="py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1"
+                  title="Edit Contest Settings"
+                >
+                  <span>✏️</span> Edit
                 </button>
               </div>
             </div>
@@ -716,6 +767,169 @@ export function MemberDashboard() {
             </div>
           </div>
         )}
+
+        {/* ✏️ EDIT CONTEST MODAL */}
+        {editingContest && (() => {
+          const isLive = getContestStatus(editingContest) === 'LIVE';
+          const ef = editForm;
+          const setF = (k: string, v: any) => setEditForm((prev: any) => ({ ...prev, [k]: v }));
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={(e) => e.target === e.currentTarget && setEditingContest(null)}>
+              <div className="bg-zinc-950 border border-amber-500/30 rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl flex flex-col">
+                {/* Header */}
+                <div className="flex justify-between items-start p-6 border-b border-white/10">
+                  <div>
+                    <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Edit Contest Settings</span>
+                    <h2 className="text-xl font-black text-white mt-0.5 truncate max-w-md">{editingContest.title}</h2>
+                    {isLive && (
+                      <div className="mt-2 flex items-center gap-2 px-3 py-1.5 bg-rose-500/10 border border-rose-500/30 rounded-lg">
+                        <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse" />
+                        <span className="text-[11px] font-bold text-rose-400">LIVE — Start time, Duration & SEB are locked</span>
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={() => setEditingContest(null)} className="text-zinc-500 hover:text-white text-xl ml-4 flex-shrink-0">✕</button>
+                </div>
+
+                <div className="p-6 space-y-5 flex-1">
+                  {/* Basic Info */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black text-zinc-400 uppercase tracking-wider">Basic Information</h3>
+                    <div>
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Contest Title *</label>
+                      <input
+                        type="text"
+                        value={ef.title || ''}
+                        onChange={e => setF('title', e.target.value)}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-amber-400 outline-none placeholder-zinc-600 font-medium"
+                        placeholder="Contest title..."
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">Description</label>
+                      <textarea
+                        value={ef.description || ''}
+                        onChange={e => setF('description', e.target.value)}
+                        rows={2}
+                        className="w-full bg-black border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:border-amber-400 outline-none placeholder-zinc-600 font-medium resize-none"
+                        placeholder="Optional description..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Schedule */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black text-zinc-400 uppercase tracking-wider">Schedule</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1 flex items-center gap-1">
+                          Start Time {isLive && <span className="text-rose-400">🔒</span>}
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={ef.startTime || ''}
+                          onChange={e => setF('startTime', e.target.value)}
+                          disabled={isLive}
+                          className={`w-full bg-black border rounded-xl px-3 py-2.5 text-sm text-white focus:border-amber-400 outline-none font-mono ${
+                            isLive ? 'border-white/5 text-zinc-600 cursor-not-allowed' : 'border-white/10'
+                          }`}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">End Time</label>
+                        <input
+                          type="datetime-local"
+                          value={ef.endTime || ''}
+                          onChange={e => setF('endTime', e.target.value)}
+                          className="w-full bg-black border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white focus:border-amber-400 outline-none font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1 flex items-center gap-1">
+                          Duration (mins) {isLive && <span className="text-rose-400">🔒</span>}
+                        </label>
+                        <input
+                          type="number"
+                          value={ef.duration || ''}
+                          onChange={e => setF('duration', e.target.value)}
+                          disabled={isLive}
+                          className={`w-full bg-black border rounded-xl px-3 py-2.5 text-sm text-white focus:border-amber-400 outline-none font-mono ${
+                            isLive ? 'border-white/5 text-zinc-600 cursor-not-allowed' : 'border-white/10'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Security Toggles */}
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-black text-zinc-400 uppercase tracking-wider">Security & Proctoring</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { key: 'requireFullscreen', label: '🖥 Fullscreen Required' },
+                        { key: 'preventTabSwitch',  label: '🚫 No Tab Switching' },
+                        { key: 'disableCopyPaste',  label: '📋 Disable Copy-Paste' },
+                        { key: 'enableProctoring',  label: '👁 AI Proctoring' },
+                        { key: 'isPublic',          label: '🌐 Public Contest' },
+                        { key: 'requireSeb',        label: `🔒 Require SEB${isLive ? ' 🔒' : ''}` },
+                      ] as { key: string; label: string }[]).map(({ key, label }) => {
+                        const locked = isLive && key === 'requireSeb';
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => !locked && setF(key, !ef[key])}
+                            disabled={locked}
+                            className={`flex items-center justify-between px-4 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+                              locked
+                                ? 'border-white/5 text-zinc-600 cursor-not-allowed bg-black'
+                                : ef[key]
+                                ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
+                                : 'bg-white/5 border-white/10 text-zinc-400 hover:border-white/20'
+                            }`}
+                          >
+                            <span>{label}</span>
+                            <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              ef[key] ? 'bg-emerald-400 border-emerald-400' : 'border-zinc-600'
+                            }`}>
+                              {ef[key] && <span className="text-black text-[8px] font-black">✓</span>}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 border-t border-white/10 flex items-center justify-between gap-3">
+                  <p className="text-[10px] text-zinc-500 font-mono">ID: {editingContest.id.slice(0, 8)}...</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setEditingContest(null)}
+                      className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white font-bold text-xs rounded-xl border border-white/10 transition"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={saveContest}
+                      disabled={editSaving || !ef.title?.trim()}
+                      className="px-6 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black text-xs rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center gap-2"
+                    >
+                      {editSaving ? (
+                        <><span className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" /> Saving...</>
+                      ) : (
+                        <><span>💾</span> Save Changes</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

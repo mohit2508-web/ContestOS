@@ -418,6 +418,84 @@ router.get('/:id', authenticateToken, async (req: Request, res: Response): Promi
   }
 });
 
+// PUT /api/contests/manager/:id — Edit / Update Contest Settings
+router.put('/:id', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
+    const isSuperAdmin = req.user?.role === 'SUPER_ADMIN' || (req.user as any)?.hierarchyLevel === 1;
+    const isOrgAdmin = req.user?.role === 'ORG_ADMIN';
+
+    const existing = await prisma.contest.findUnique({ where: { id } });
+    if (!existing) {
+      res.status(404).json({ error: 'Contest not found' });
+      return;
+    }
+
+    // RBAC: only contest creator, ORG_ADMIN, or SUPER_ADMIN can edit
+    const isOwner = (existing as any).createdById === userId;
+    if (!isOwner && !isOrgAdmin && !isSuperAdmin) {
+      res.status(403).json({ error: 'Permission denied: only the contest creator or admin can edit' });
+      return;
+    }
+
+    const {
+      title, description, startTime, endTime, duration,
+      difficulty, isPublic, requireSeb,
+      requireFullscreen, preventTabSwitch, disableCopyPaste,
+      enableProctoring, faceCheckEnabled, voiceCheckEnabled,
+      maxWarnings, snapshotIntervalSeconds,
+      scoringMode, negativeMarkingEnabled, negativeMarkingValue,
+      showLeaderboardDuringContest, freezeLeaderboardMins,
+      randomizeQuestionOrder, allowMultipleMonitors,
+    } = req.body;
+
+    const isLive = (existing as any).status === 'LIVE';
+
+    // Parse IST datetime-local (same as create route)
+    const parseAsLocal = (val: string) => {
+      if (!val) return undefined;
+      if (val.includes('Z') || /[+-]\d{2}:\d{2}$/.test(val)) return new Date(val);
+      return new Date(val + '+05:30');
+    };
+
+    const updateData: any = {
+      ...(title && { title }),
+      ...(description !== undefined && { description: description || null }),
+      // startTime + duration locked if LIVE
+      ...(!isLive && startTime && { startTime: parseAsLocal(startTime) }),
+      ...(endTime && { endTime: parseAsLocal(endTime) }),
+      ...(!isLive && duration !== undefined && { duration: Number(duration) }),
+      ...(difficulty && { difficulty }),
+      ...(isPublic !== undefined && { isPublic }),
+      // requireSeb locked if LIVE
+      ...(!isLive && requireSeb !== undefined && { requireSeb }),
+      ...(requireFullscreen !== undefined && { requireFullscreen }),
+      ...(preventTabSwitch !== undefined && { preventTabSwitch }),
+      ...(disableCopyPaste !== undefined && { disableCopyPaste }),
+      ...(enableProctoring !== undefined && { enableProctoring }),
+      ...(faceCheckEnabled !== undefined && { faceCheckEnabled }),
+      ...(voiceCheckEnabled !== undefined && { voiceCheckEnabled }),
+      ...(maxWarnings !== undefined && { maxWarnings: Number(maxWarnings) }),
+      ...(snapshotIntervalSeconds !== undefined && { snapshotIntervalSeconds: Number(snapshotIntervalSeconds) }),
+      ...(scoringMode && { scoringMode }),
+      ...(negativeMarkingEnabled !== undefined && { negativeMarkingEnabled }),
+      ...(negativeMarkingValue !== undefined && { negativeMarkingValue: Number(negativeMarkingValue) }),
+      ...(showLeaderboardDuringContest !== undefined && { showLeaderboardDuringContest }),
+      ...(freezeLeaderboardMins !== undefined && { freezeLeaderboardMins: Number(freezeLeaderboardMins) }),
+      ...(randomizeQuestionOrder !== undefined && { randomizeQuestionOrder }),
+      ...(allowMultipleMonitors !== undefined && { allowMultipleMonitors }),
+    };
+
+    const updated = await prisma.contest.update({ where: { id }, data: updateData });
+
+    res.json({ success: true, contest: updated, isLive, lockedFields: isLive ? ['startTime', 'duration', 'requireSeb'] : [] });
+  } catch (error: any) {
+    console.error('Update contest error:', error);
+    res.status(500).json({ error: error.message || 'Failed to update contest' });
+  }
+});
+
 // POST /api/contests/manager/:id/join — Candidate Join Contest
 router.post('/:id/join', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   try {

@@ -258,6 +258,8 @@ export const api = {
     catch { return { success: true, message: 'Exam finalized.' }; }
   },
   createManagerContest: (data: any) => apiAxios.post('/contests/manager/create', data).then((res) => res.data),
+  updateManagerContest: (id: string, data: any) => apiAxios.put(`/contests/manager/${id}`, data).then((res) => res.data),
+
   getTeacherManagedContests: () => apiAxios.get('/contests/manager/list').then((res) => res.data),
   getAllClasses: async () => {
     try { const res = await apiAxios.get('/classes'); return res.data || { classes: [] }; }
