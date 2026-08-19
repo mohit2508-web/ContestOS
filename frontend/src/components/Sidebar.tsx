@@ -31,6 +31,7 @@ const icons = {
   close: 'M6 18L18 6M6 6l12 12',
   logout: 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1',
   globe: 'M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9',
+  video: 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z',
 };
 
 interface NavItem {
@@ -83,6 +84,7 @@ function getNavSections(role: string): NavSection[] {
         { title: 'Organization', items: [
           { path: '/admin/org', label: 'Dashboard & Command', icon: icons.dashboard },
           { path: '/admin/contests', label: 'Contest Management', icon: icons.trophy },
+          { path: '/interview/dashboard', label: 'Live 1-on-1 Mock Interview', icon: icons.video },
         ]},
         { title: 'Content & Governance', items: [
           { path: '/governance/banks', label: 'Question Banks Repository', icon: icons.doc },
@@ -173,6 +175,7 @@ function getNavSections(role: string): NavSection[] {
       return [
         { title: 'Assessment & Exams', items: [
           { path: '/dashboard', label: '🎯 Exam Hall & Drives', icon: icons.dashboard },
+          { path: '/interview/dashboard', label: '📹 Live 1-on-1 Mock Interview', icon: icons.video },
           { path: '/dashboard?tab=skills', label: '📊 Skill Analytics & Radar', icon: icons.chart },
           { path: '/dashboard?tab=credentials', label: '📜 Verified Credentials', icon: icons.doc },
           { path: '/dashboard?tab=scorecards', label: '📁 My Scorecards', icon: icons.clipboard },

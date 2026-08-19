@@ -121,6 +121,7 @@ model Organization {
   invitations     TeamInvitation[]
   auditLogs       AuditLog[]
   questionBanks   QuestionBank[]
+  interviewSessions MockInterviewSession[]
 }
 
 model User {
@@ -165,6 +166,11 @@ model User {
   breakGlassLogs     BreakGlassAuditLog[]  @relation("SuperAdminBreakGlass")
   moderatorAssignments ContestModerationAssignment[] @relation("ModeratorAssignments")
   notifications      Notification[]
+  
+  // Live 1-on-1 Mock Interview Relations
+  interviewerSessions MockInterviewSession[] @relation("InterviewerSessions")
+  candidateSessions   MockInterviewSession[] @relation("CandidateSessions")
+  interviewParticipants InterviewParticipant[]
 }
 
 model Problem {
@@ -188,9 +194,10 @@ model Problem {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  testCases       TestCase[]
-  contestProblems ContestProblem[]
-  submissions     Submission[]
+  testCases         TestCase[]
+  contestProblems   ContestProblem[]
+  submissions       Submission[]
+  interviewSessions MockInterviewSession[]
 
   @@index([organizationId, isPublic])
   @@index([createdById])
@@ -727,3 +734,157 @@ model Notification {
 
   @@index([userId, isRead])
 }
+
+// ─────────────────────────────────────────────────────────────
+// LIVE 1-ON-1 MOCK INTERVIEW & COLLABORATIVE PAIR PROGRAMMING
+// ─────────────────────────────────────────────────────────────
+
+enum InterviewStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum InterviewPhase {
+  UNDERSTAND
+  PLAN
+  CODE
+  OPTIMIZE
+  COMPLETED
+}
+
+enum Recommendation {
+  STRONG_HIRE
+  HIRE
+  LEAN_HIRE
+  NO_HIRE
+}
+
+enum InterviewParticipantRole {
+  INTERVIEWER
+  CANDIDATE
+  OBSERVER
+}
+
+model MockInterviewSession {
+  id              String          @id @default(uuid())
+  title           String
+  description     String?
+  scheduledAt     DateTime
+  durationMinutes Int             @default(45)
+  
+  // Security Passcode Gate
+  accessCode      String          // bcrypt-hashed 6-char passcode
+  accessCodePlain String?         // Plain text code for initial email invite
+  
+  status          InterviewStatus @default(SCHEDULED)
+  currentPhase    InterviewPhase  @default(UNDERSTAND)
+  
+  // Phase durations in minutes
+  phaseUnderstandMins Int         @default(5)
+  planMins            Int         @default(10)
+  codeMins            Int         @default(25)
+  optimizeMins        Int         @default(5)
+  
+  // Settings
+  allowHints      Boolean         @default(true)
+  allowObservers  Boolean         @default(false)
+  
+  interviewerId   String
+  interviewer     User            @relation("InterviewerSessions", fields: [interviewerId], references: [id])
+  
+  candidateId     String?
+  candidate       User?           @relation("CandidateSessions", fields: [candidateId], references: [id])
+  candidateEmail  String?         // For external or invited students
+  
+  problemId       String?
+  problem         Problem?        @relation(fields: [problemId], references: [id])
+  
+  organizationId  String?
+  organization    Organization?   @relation(fields: [organizationId], references: [id])
+  
+  startedAt       DateTime?
+  endedAt         DateTime?
+  yjsDocumentId   String?         // Yjs collaborative document ID
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  feedback          InterviewFeedback?
+  codeSnapshots     InterviewCodeSnapshot[]
+  participants      InterviewParticipant[]
+  hintRequests      InterviewHintRequest[]
+  executionResults  InterviewExecutionResult[]
+
+  @@index([interviewerId])
+  @@index([candidateId])
+  @@index([accessCode])
+}
+
+model InterviewParticipant {
+  id          String                   @id @default(uuid())
+  sessionId   String
+  session     MockInterviewSession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User                     @relation(fields: [userId], references: [id])
+  role        InterviewParticipantRole @default(OBSERVER)
+  joinedAt    DateTime                 @default(now())
+  leftAt      DateTime?
+
+  @@unique([sessionId, userId])
+}
+
+model InterviewFeedback {
+  id                        String               @id @default(uuid())
+  sessionId                 String               @unique
+  session                   MockInterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  problemUnderstandingScore Int                  @default(3) // 1-5
+  algorithmDesignScore      Int                  @default(3) // 1-5
+  codeQualityScore          Int                  @default(3) // 1-5
+  communicationScore        Int                  @default(3) // 1-5
+  edgeCaseHandlingScore     Int                  @default(3) // 1-5
+  
+  recommendation            Recommendation       @default(HIRE)
+  privateNotes              String?              // Only visible to interviewer
+  candidateFeedback         String?              // Shared with candidate after interview
+  evaluatedAt               DateTime             @default(now())
+}
+
+model InterviewCodeSnapshot {
+  id          String               @id @default(uuid())
+  sessionId   String
+  session     MockInterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  code        String
+  language    String
+  phase       InterviewPhase       @default(CODE)
+  snapshotAt  DateTime             @default(now())
+
+  @@index([sessionId, snapshotAt])
+}
+
+model InterviewHintRequest {
+  id          String               @id @default(uuid())
+  sessionId   String
+  session     MockInterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  requestedAt DateTime             @default(now())
+  hintLevel   Int                  @default(1)  // 1, 2, 3
+  approved    Boolean              @default(false)
+  hintContent String?
+
+  @@index([sessionId])
+}
+
+model InterviewExecutionResult {
+  id          String               @id @default(uuid())
+  sessionId   String
+  session     MockInterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  code        String
+  language    String
+  output      String
+  status      SubmissionStatus
+  executedAt  DateTime             @default(now())
+
+  @@index([sessionId])
+}
+

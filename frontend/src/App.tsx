@@ -43,6 +43,8 @@ import { ModeratorDashboard } from './pages/moderator/ModeratorDashboard';
 import { AcceptInvitePage } from './pages/AcceptInvitePage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { SsoCallbackPage } from './pages/SsoCallbackPage';
+import { InterviewDashboardPage } from './pages/InterviewDashboardPage';
+import { LiveInterviewRoomPage } from './pages/LiveInterviewRoomPage';
 
 import LandingPageApp from './landing/LandingPageApp';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
@@ -344,6 +346,15 @@ export default function App() {
                   <CodePlaygroundPage />
                 </RoleRoute>
               } />
+
+              {/* ========== Live 1-on-1 Mock Interview & Pair Programming ========== */}
+              <Route path="/interview/dashboard" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE']}>
+                  <InterviewDashboardPage />
+                </RoleRoute>
+              } />
+              <Route path="/interview/join/:sessionId" element={<LiveInterviewRoomPage />} />
+              <Route path="/interview/room/:sessionId" element={<LiveInterviewRoomPage />} />
 
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

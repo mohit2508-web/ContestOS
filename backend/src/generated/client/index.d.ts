@@ -168,6 +168,36 @@ export type ContestModerationAssignment = $Result.DefaultSelection<Prisma.$Conte
  * 
  */
 export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
+/**
+ * Model MockInterviewSession
+ * 
+ */
+export type MockInterviewSession = $Result.DefaultSelection<Prisma.$MockInterviewSessionPayload>
+/**
+ * Model InterviewParticipant
+ * 
+ */
+export type InterviewParticipant = $Result.DefaultSelection<Prisma.$InterviewParticipantPayload>
+/**
+ * Model InterviewFeedback
+ * 
+ */
+export type InterviewFeedback = $Result.DefaultSelection<Prisma.$InterviewFeedbackPayload>
+/**
+ * Model InterviewCodeSnapshot
+ * 
+ */
+export type InterviewCodeSnapshot = $Result.DefaultSelection<Prisma.$InterviewCodeSnapshotPayload>
+/**
+ * Model InterviewHintRequest
+ * 
+ */
+export type InterviewHintRequest = $Result.DefaultSelection<Prisma.$InterviewHintRequestPayload>
+/**
+ * Model InterviewExecutionResult
+ * 
+ */
+export type InterviewExecutionResult = $Result.DefaultSelection<Prisma.$InterviewExecutionResultPayload>
 
 /**
  * Enums
@@ -319,6 +349,46 @@ export const EvaluationStatus: {
 
 export type EvaluationStatus = (typeof EvaluationStatus)[keyof typeof EvaluationStatus]
 
+
+export const InterviewStatus: {
+  SCHEDULED: 'SCHEDULED',
+  LIVE: 'LIVE',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+};
+
+export type InterviewStatus = (typeof InterviewStatus)[keyof typeof InterviewStatus]
+
+
+export const InterviewPhase: {
+  UNDERSTAND: 'UNDERSTAND',
+  PLAN: 'PLAN',
+  CODE: 'CODE',
+  OPTIMIZE: 'OPTIMIZE',
+  COMPLETED: 'COMPLETED'
+};
+
+export type InterviewPhase = (typeof InterviewPhase)[keyof typeof InterviewPhase]
+
+
+export const InterviewParticipantRole: {
+  INTERVIEWER: 'INTERVIEWER',
+  CANDIDATE: 'CANDIDATE',
+  OBSERVER: 'OBSERVER'
+};
+
+export type InterviewParticipantRole = (typeof InterviewParticipantRole)[keyof typeof InterviewParticipantRole]
+
+
+export const Recommendation: {
+  STRONG_HIRE: 'STRONG_HIRE',
+  HIRE: 'HIRE',
+  LEAN_HIRE: 'LEAN_HIRE',
+  NO_HIRE: 'NO_HIRE'
+};
+
+export type Recommendation = (typeof Recommendation)[keyof typeof Recommendation]
+
 }
 
 export type OrgStatus = $Enums.OrgStatus
@@ -376,6 +446,22 @@ export const QuestionReviewStatus: typeof $Enums.QuestionReviewStatus
 export type EvaluationStatus = $Enums.EvaluationStatus
 
 export const EvaluationStatus: typeof $Enums.EvaluationStatus
+
+export type InterviewStatus = $Enums.InterviewStatus
+
+export const InterviewStatus: typeof $Enums.InterviewStatus
+
+export type InterviewPhase = $Enums.InterviewPhase
+
+export const InterviewPhase: typeof $Enums.InterviewPhase
+
+export type InterviewParticipantRole = $Enums.InterviewParticipantRole
+
+export const InterviewParticipantRole: typeof $Enums.InterviewParticipantRole
+
+export type Recommendation = $Enums.Recommendation
+
+export const Recommendation: typeof $Enums.Recommendation
 
 /**
  * ##  Prisma Client ʲˢ
@@ -809,6 +895,66 @@ export class PrismaClient<
     * ```
     */
   get notification(): Prisma.NotificationDelegate<ExtArgs>;
+
+  /**
+   * `prisma.mockInterviewSession`: Exposes CRUD operations for the **MockInterviewSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MockInterviewSessions
+    * const mockInterviewSessions = await prisma.mockInterviewSession.findMany()
+    * ```
+    */
+  get mockInterviewSession(): Prisma.MockInterviewSessionDelegate<ExtArgs>;
+
+  /**
+   * `prisma.interviewParticipant`: Exposes CRUD operations for the **InterviewParticipant** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more InterviewParticipants
+    * const interviewParticipants = await prisma.interviewParticipant.findMany()
+    * ```
+    */
+  get interviewParticipant(): Prisma.InterviewParticipantDelegate<ExtArgs>;
+
+  /**
+   * `prisma.interviewFeedback`: Exposes CRUD operations for the **InterviewFeedback** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more InterviewFeedbacks
+    * const interviewFeedbacks = await prisma.interviewFeedback.findMany()
+    * ```
+    */
+  get interviewFeedback(): Prisma.InterviewFeedbackDelegate<ExtArgs>;
+
+  /**
+   * `prisma.interviewCodeSnapshot`: Exposes CRUD operations for the **InterviewCodeSnapshot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more InterviewCodeSnapshots
+    * const interviewCodeSnapshots = await prisma.interviewCodeSnapshot.findMany()
+    * ```
+    */
+  get interviewCodeSnapshot(): Prisma.InterviewCodeSnapshotDelegate<ExtArgs>;
+
+  /**
+   * `prisma.interviewHintRequest`: Exposes CRUD operations for the **InterviewHintRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more InterviewHintRequests
+    * const interviewHintRequests = await prisma.interviewHintRequest.findMany()
+    * ```
+    */
+  get interviewHintRequest(): Prisma.InterviewHintRequestDelegate<ExtArgs>;
+
+  /**
+   * `prisma.interviewExecutionResult`: Exposes CRUD operations for the **InterviewExecutionResult** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more InterviewExecutionResults
+    * const interviewExecutionResults = await prisma.interviewExecutionResult.findMany()
+    * ```
+    */
+  get interviewExecutionResult(): Prisma.InterviewExecutionResultDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1280,7 +1426,13 @@ export namespace Prisma {
     GuestInvite: 'GuestInvite',
     GdprErasureRequest: 'GdprErasureRequest',
     ContestModerationAssignment: 'ContestModerationAssignment',
-    Notification: 'Notification'
+    Notification: 'Notification',
+    MockInterviewSession: 'MockInterviewSession',
+    InterviewParticipant: 'InterviewParticipant',
+    InterviewFeedback: 'InterviewFeedback',
+    InterviewCodeSnapshot: 'InterviewCodeSnapshot',
+    InterviewHintRequest: 'InterviewHintRequest',
+    InterviewExecutionResult: 'InterviewExecutionResult'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1296,7 +1448,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organization" | "user" | "problem" | "testCase" | "contest" | "contestProblem" | "contestRegistration" | "submission" | "proctoringLog" | "plagiarismReport" | "teamInvitation" | "contestAssignment" | "auditLog" | "refreshToken" | "organizationRequest" | "contestSection" | "questionBank" | "quizPassage" | "quizQuestion" | "questionVersion" | "questionReviewLog" | "contestAssemblyRule" | "quizOption" | "quizAttemptQuestion" | "quizResponse" | "quizItemAnalytics" | "breakGlassAuditLog" | "guestInvite" | "gdprErasureRequest" | "contestModerationAssignment" | "notification"
+      modelProps: "organization" | "user" | "problem" | "testCase" | "contest" | "contestProblem" | "contestRegistration" | "submission" | "proctoringLog" | "plagiarismReport" | "teamInvitation" | "contestAssignment" | "auditLog" | "refreshToken" | "organizationRequest" | "contestSection" | "questionBank" | "quizPassage" | "quizQuestion" | "questionVersion" | "questionReviewLog" | "contestAssemblyRule" | "quizOption" | "quizAttemptQuestion" | "quizResponse" | "quizItemAnalytics" | "breakGlassAuditLog" | "guestInvite" | "gdprErasureRequest" | "contestModerationAssignment" | "notification" | "mockInterviewSession" | "interviewParticipant" | "interviewFeedback" | "interviewCodeSnapshot" | "interviewHintRequest" | "interviewExecutionResult"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3470,6 +3622,426 @@ export namespace Prisma {
           }
         }
       }
+      MockInterviewSession: {
+        payload: Prisma.$MockInterviewSessionPayload<ExtArgs>
+        fields: Prisma.MockInterviewSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MockInterviewSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MockInterviewSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.MockInterviewSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MockInterviewSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload>
+          }
+          findMany: {
+            args: Prisma.MockInterviewSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload>[]
+          }
+          create: {
+            args: Prisma.MockInterviewSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload>
+          }
+          createMany: {
+            args: Prisma.MockInterviewSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.MockInterviewSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.MockInterviewSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload>
+          }
+          update: {
+            args: Prisma.MockInterviewSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.MockInterviewSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MockInterviewSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.MockInterviewSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MockInterviewSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.MockInterviewSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMockInterviewSession>
+          }
+          groupBy: {
+            args: Prisma.MockInterviewSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MockInterviewSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.MockInterviewSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<MockInterviewSessionCountAggregateOutputType> | number
+          }
+        }
+      }
+      InterviewParticipant: {
+        payload: Prisma.$InterviewParticipantPayload<ExtArgs>
+        fields: Prisma.InterviewParticipantFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InterviewParticipantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InterviewParticipantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload>
+          }
+          findFirst: {
+            args: Prisma.InterviewParticipantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InterviewParticipantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload>
+          }
+          findMany: {
+            args: Prisma.InterviewParticipantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload>[]
+          }
+          create: {
+            args: Prisma.InterviewParticipantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload>
+          }
+          createMany: {
+            args: Prisma.InterviewParticipantCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InterviewParticipantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload>[]
+          }
+          delete: {
+            args: Prisma.InterviewParticipantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload>
+          }
+          update: {
+            args: Prisma.InterviewParticipantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload>
+          }
+          deleteMany: {
+            args: Prisma.InterviewParticipantDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InterviewParticipantUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.InterviewParticipantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewParticipantPayload>
+          }
+          aggregate: {
+            args: Prisma.InterviewParticipantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInterviewParticipant>
+          }
+          groupBy: {
+            args: Prisma.InterviewParticipantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InterviewParticipantGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InterviewParticipantCountArgs<ExtArgs>
+            result: $Utils.Optional<InterviewParticipantCountAggregateOutputType> | number
+          }
+        }
+      }
+      InterviewFeedback: {
+        payload: Prisma.$InterviewFeedbackPayload<ExtArgs>
+        fields: Prisma.InterviewFeedbackFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InterviewFeedbackFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InterviewFeedbackFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload>
+          }
+          findFirst: {
+            args: Prisma.InterviewFeedbackFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InterviewFeedbackFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload>
+          }
+          findMany: {
+            args: Prisma.InterviewFeedbackFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload>[]
+          }
+          create: {
+            args: Prisma.InterviewFeedbackCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload>
+          }
+          createMany: {
+            args: Prisma.InterviewFeedbackCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InterviewFeedbackCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload>[]
+          }
+          delete: {
+            args: Prisma.InterviewFeedbackDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload>
+          }
+          update: {
+            args: Prisma.InterviewFeedbackUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload>
+          }
+          deleteMany: {
+            args: Prisma.InterviewFeedbackDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InterviewFeedbackUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.InterviewFeedbackUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewFeedbackPayload>
+          }
+          aggregate: {
+            args: Prisma.InterviewFeedbackAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInterviewFeedback>
+          }
+          groupBy: {
+            args: Prisma.InterviewFeedbackGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InterviewFeedbackGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InterviewFeedbackCountArgs<ExtArgs>
+            result: $Utils.Optional<InterviewFeedbackCountAggregateOutputType> | number
+          }
+        }
+      }
+      InterviewCodeSnapshot: {
+        payload: Prisma.$InterviewCodeSnapshotPayload<ExtArgs>
+        fields: Prisma.InterviewCodeSnapshotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InterviewCodeSnapshotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InterviewCodeSnapshotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload>
+          }
+          findFirst: {
+            args: Prisma.InterviewCodeSnapshotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InterviewCodeSnapshotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload>
+          }
+          findMany: {
+            args: Prisma.InterviewCodeSnapshotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload>[]
+          }
+          create: {
+            args: Prisma.InterviewCodeSnapshotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload>
+          }
+          createMany: {
+            args: Prisma.InterviewCodeSnapshotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InterviewCodeSnapshotCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload>[]
+          }
+          delete: {
+            args: Prisma.InterviewCodeSnapshotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload>
+          }
+          update: {
+            args: Prisma.InterviewCodeSnapshotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload>
+          }
+          deleteMany: {
+            args: Prisma.InterviewCodeSnapshotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InterviewCodeSnapshotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.InterviewCodeSnapshotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewCodeSnapshotPayload>
+          }
+          aggregate: {
+            args: Prisma.InterviewCodeSnapshotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInterviewCodeSnapshot>
+          }
+          groupBy: {
+            args: Prisma.InterviewCodeSnapshotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InterviewCodeSnapshotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InterviewCodeSnapshotCountArgs<ExtArgs>
+            result: $Utils.Optional<InterviewCodeSnapshotCountAggregateOutputType> | number
+          }
+        }
+      }
+      InterviewHintRequest: {
+        payload: Prisma.$InterviewHintRequestPayload<ExtArgs>
+        fields: Prisma.InterviewHintRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InterviewHintRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InterviewHintRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.InterviewHintRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InterviewHintRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload>
+          }
+          findMany: {
+            args: Prisma.InterviewHintRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload>[]
+          }
+          create: {
+            args: Prisma.InterviewHintRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload>
+          }
+          createMany: {
+            args: Prisma.InterviewHintRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InterviewHintRequestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload>[]
+          }
+          delete: {
+            args: Prisma.InterviewHintRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload>
+          }
+          update: {
+            args: Prisma.InterviewHintRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.InterviewHintRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InterviewHintRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.InterviewHintRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewHintRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.InterviewHintRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInterviewHintRequest>
+          }
+          groupBy: {
+            args: Prisma.InterviewHintRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InterviewHintRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InterviewHintRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<InterviewHintRequestCountAggregateOutputType> | number
+          }
+        }
+      }
+      InterviewExecutionResult: {
+        payload: Prisma.$InterviewExecutionResultPayload<ExtArgs>
+        fields: Prisma.InterviewExecutionResultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InterviewExecutionResultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InterviewExecutionResultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload>
+          }
+          findFirst: {
+            args: Prisma.InterviewExecutionResultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InterviewExecutionResultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload>
+          }
+          findMany: {
+            args: Prisma.InterviewExecutionResultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload>[]
+          }
+          create: {
+            args: Prisma.InterviewExecutionResultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload>
+          }
+          createMany: {
+            args: Prisma.InterviewExecutionResultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InterviewExecutionResultCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload>[]
+          }
+          delete: {
+            args: Prisma.InterviewExecutionResultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload>
+          }
+          update: {
+            args: Prisma.InterviewExecutionResultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload>
+          }
+          deleteMany: {
+            args: Prisma.InterviewExecutionResultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InterviewExecutionResultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.InterviewExecutionResultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InterviewExecutionResultPayload>
+          }
+          aggregate: {
+            args: Prisma.InterviewExecutionResultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInterviewExecutionResult>
+          }
+          groupBy: {
+            args: Prisma.InterviewExecutionResultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InterviewExecutionResultGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InterviewExecutionResultCountArgs<ExtArgs>
+            result: $Utils.Optional<InterviewExecutionResultCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3637,6 +4209,7 @@ export namespace Prisma {
     invitations: number
     auditLogs: number
     questionBanks: number
+    interviewSessions: number
   }
 
   export type OrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3646,6 +4219,7 @@ export namespace Prisma {
     invitations?: boolean | OrganizationCountOutputTypeCountInvitationsArgs
     auditLogs?: boolean | OrganizationCountOutputTypeCountAuditLogsArgs
     questionBanks?: boolean | OrganizationCountOutputTypeCountQuestionBanksArgs
+    interviewSessions?: boolean | OrganizationCountOutputTypeCountInterviewSessionsArgs
   }
 
   // Custom InputTypes
@@ -3701,6 +4275,13 @@ export namespace Prisma {
     where?: QuestionBankWhereInput
   }
 
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountInterviewSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MockInterviewSessionWhereInput
+  }
+
 
   /**
    * Count Type UserCountOutputType
@@ -3726,6 +4307,9 @@ export namespace Prisma {
     breakGlassLogs: number
     moderatorAssignments: number
     notifications: number
+    interviewerSessions: number
+    candidateSessions: number
+    interviewParticipants: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3748,6 +4332,9 @@ export namespace Prisma {
     breakGlassLogs?: boolean | UserCountOutputTypeCountBreakGlassLogsArgs
     moderatorAssignments?: boolean | UserCountOutputTypeCountModeratorAssignmentsArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+    interviewerSessions?: boolean | UserCountOutputTypeCountInterviewerSessionsArgs
+    candidateSessions?: boolean | UserCountOutputTypeCountCandidateSessionsArgs
+    interviewParticipants?: boolean | UserCountOutputTypeCountInterviewParticipantsArgs
   }
 
   // Custom InputTypes
@@ -3894,6 +4481,27 @@ export namespace Prisma {
     where?: NotificationWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountInterviewerSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MockInterviewSessionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCandidateSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MockInterviewSessionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountInterviewParticipantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewParticipantWhereInput
+  }
+
 
   /**
    * Count Type ProblemCountOutputType
@@ -3903,12 +4511,14 @@ export namespace Prisma {
     testCases: number
     contestProblems: number
     submissions: number
+    interviewSessions: number
   }
 
   export type ProblemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     testCases?: boolean | ProblemCountOutputTypeCountTestCasesArgs
     contestProblems?: boolean | ProblemCountOutputTypeCountContestProblemsArgs
     submissions?: boolean | ProblemCountOutputTypeCountSubmissionsArgs
+    interviewSessions?: boolean | ProblemCountOutputTypeCountInterviewSessionsArgs
   }
 
   // Custom InputTypes
@@ -3941,6 +4551,13 @@ export namespace Prisma {
    */
   export type ProblemCountOutputTypeCountSubmissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SubmissionWhereInput
+  }
+
+  /**
+   * ProblemCountOutputType without action
+   */
+  export type ProblemCountOutputTypeCountInterviewSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MockInterviewSessionWhereInput
   }
 
 
@@ -4257,6 +4874,64 @@ export namespace Prisma {
 
 
   /**
+   * Count Type MockInterviewSessionCountOutputType
+   */
+
+  export type MockInterviewSessionCountOutputType = {
+    codeSnapshots: number
+    participants: number
+    hintRequests: number
+    executionResults: number
+  }
+
+  export type MockInterviewSessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    codeSnapshots?: boolean | MockInterviewSessionCountOutputTypeCountCodeSnapshotsArgs
+    participants?: boolean | MockInterviewSessionCountOutputTypeCountParticipantsArgs
+    hintRequests?: boolean | MockInterviewSessionCountOutputTypeCountHintRequestsArgs
+    executionResults?: boolean | MockInterviewSessionCountOutputTypeCountExecutionResultsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * MockInterviewSessionCountOutputType without action
+   */
+  export type MockInterviewSessionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSessionCountOutputType
+     */
+    select?: MockInterviewSessionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * MockInterviewSessionCountOutputType without action
+   */
+  export type MockInterviewSessionCountOutputTypeCountCodeSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewCodeSnapshotWhereInput
+  }
+
+  /**
+   * MockInterviewSessionCountOutputType without action
+   */
+  export type MockInterviewSessionCountOutputTypeCountParticipantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewParticipantWhereInput
+  }
+
+  /**
+   * MockInterviewSessionCountOutputType without action
+   */
+  export type MockInterviewSessionCountOutputTypeCountHintRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewHintRequestWhereInput
+  }
+
+  /**
+   * MockInterviewSessionCountOutputType without action
+   */
+  export type MockInterviewSessionCountOutputTypeCountExecutionResultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewExecutionResultWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -4560,6 +5235,7 @@ export namespace Prisma {
     invitations?: boolean | Organization$invitationsArgs<ExtArgs>
     auditLogs?: boolean | Organization$auditLogsArgs<ExtArgs>
     questionBanks?: boolean | Organization$questionBanksArgs<ExtArgs>
+    interviewSessions?: boolean | Organization$interviewSessionsArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
@@ -4610,6 +5286,7 @@ export namespace Prisma {
     invitations?: boolean | Organization$invitationsArgs<ExtArgs>
     auditLogs?: boolean | Organization$auditLogsArgs<ExtArgs>
     questionBanks?: boolean | Organization$questionBanksArgs<ExtArgs>
+    interviewSessions?: boolean | Organization$interviewSessionsArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4623,6 +5300,7 @@ export namespace Prisma {
       invitations: Prisma.$TeamInvitationPayload<ExtArgs>[]
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       questionBanks: Prisma.$QuestionBankPayload<ExtArgs>[]
+      interviewSessions: Prisma.$MockInterviewSessionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5012,6 +5690,7 @@ export namespace Prisma {
     invitations<T extends Organization$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TeamInvitationPayload<ExtArgs>, T, "findMany"> | Null>
     auditLogs<T extends Organization$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany"> | Null>
     questionBanks<T extends Organization$questionBanksArgs<ExtArgs> = {}>(args?: Subset<T, Organization$questionBanksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuestionBankPayload<ExtArgs>, T, "findMany"> | Null>
+    interviewSessions<T extends Organization$interviewSessionsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$interviewSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5492,6 +6171,26 @@ export namespace Prisma {
   }
 
   /**
+   * Organization.interviewSessions
+   */
+  export type Organization$interviewSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    where?: MockInterviewSessionWhereInput
+    orderBy?: MockInterviewSessionOrderByWithRelationInput | MockInterviewSessionOrderByWithRelationInput[]
+    cursor?: MockInterviewSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MockInterviewSessionScalarFieldEnum | MockInterviewSessionScalarFieldEnum[]
+  }
+
+  /**
    * Organization without action
    */
   export type OrganizationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5779,6 +6478,9 @@ export namespace Prisma {
     breakGlassLogs?: boolean | User$breakGlassLogsArgs<ExtArgs>
     moderatorAssignments?: boolean | User$moderatorAssignmentsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
+    interviewerSessions?: boolean | User$interviewerSessionsArgs<ExtArgs>
+    candidateSessions?: boolean | User$candidateSessionsArgs<ExtArgs>
+    interviewParticipants?: boolean | User$interviewParticipantsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -5844,6 +6546,9 @@ export namespace Prisma {
     breakGlassLogs?: boolean | User$breakGlassLogsArgs<ExtArgs>
     moderatorAssignments?: boolean | User$moderatorAssignmentsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
+    interviewerSessions?: boolean | User$interviewerSessionsArgs<ExtArgs>
+    candidateSessions?: boolean | User$candidateSessionsArgs<ExtArgs>
+    interviewParticipants?: boolean | User$interviewParticipantsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5875,6 +6580,9 @@ export namespace Prisma {
       breakGlassLogs: Prisma.$BreakGlassAuditLogPayload<ExtArgs>[]
       moderatorAssignments: Prisma.$ContestModerationAssignmentPayload<ExtArgs>[]
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
+      interviewerSessions: Prisma.$MockInterviewSessionPayload<ExtArgs>[]
+      candidateSessions: Prisma.$MockInterviewSessionPayload<ExtArgs>[]
+      interviewParticipants: Prisma.$InterviewParticipantPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6278,6 +6986,9 @@ export namespace Prisma {
     breakGlassLogs<T extends User$breakGlassLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$breakGlassLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BreakGlassAuditLogPayload<ExtArgs>, T, "findMany"> | Null>
     moderatorAssignments<T extends User$moderatorAssignmentsArgs<ExtArgs> = {}>(args?: Subset<T, User$moderatorAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContestModerationAssignmentPayload<ExtArgs>, T, "findMany"> | Null>
     notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany"> | Null>
+    interviewerSessions<T extends User$interviewerSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$interviewerSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    candidateSessions<T extends User$candidateSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$candidateSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    interviewParticipants<T extends User$interviewParticipantsArgs<ExtArgs> = {}>(args?: Subset<T, User$interviewParticipantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7051,6 +7762,66 @@ export namespace Prisma {
   }
 
   /**
+   * User.interviewerSessions
+   */
+  export type User$interviewerSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    where?: MockInterviewSessionWhereInput
+    orderBy?: MockInterviewSessionOrderByWithRelationInput | MockInterviewSessionOrderByWithRelationInput[]
+    cursor?: MockInterviewSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MockInterviewSessionScalarFieldEnum | MockInterviewSessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.candidateSessions
+   */
+  export type User$candidateSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    where?: MockInterviewSessionWhereInput
+    orderBy?: MockInterviewSessionOrderByWithRelationInput | MockInterviewSessionOrderByWithRelationInput[]
+    cursor?: MockInterviewSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MockInterviewSessionScalarFieldEnum | MockInterviewSessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.interviewParticipants
+   */
+  export type User$interviewParticipantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    where?: InterviewParticipantWhereInput
+    orderBy?: InterviewParticipantOrderByWithRelationInput | InterviewParticipantOrderByWithRelationInput[]
+    cursor?: InterviewParticipantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InterviewParticipantScalarFieldEnum | InterviewParticipantScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7318,6 +8089,7 @@ export namespace Prisma {
     testCases?: boolean | Problem$testCasesArgs<ExtArgs>
     contestProblems?: boolean | Problem$contestProblemsArgs<ExtArgs>
     submissions?: boolean | Problem$submissionsArgs<ExtArgs>
+    interviewSessions?: boolean | Problem$interviewSessionsArgs<ExtArgs>
     _count?: boolean | ProblemCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["problem"]>
 
@@ -7369,6 +8141,7 @@ export namespace Prisma {
     testCases?: boolean | Problem$testCasesArgs<ExtArgs>
     contestProblems?: boolean | Problem$contestProblemsArgs<ExtArgs>
     submissions?: boolean | Problem$submissionsArgs<ExtArgs>
+    interviewSessions?: boolean | Problem$interviewSessionsArgs<ExtArgs>
     _count?: boolean | ProblemCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ProblemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7384,6 +8157,7 @@ export namespace Prisma {
       testCases: Prisma.$TestCasePayload<ExtArgs>[]
       contestProblems: Prisma.$ContestProblemPayload<ExtArgs>[]
       submissions: Prisma.$SubmissionPayload<ExtArgs>[]
+      interviewSessions: Prisma.$MockInterviewSessionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7772,6 +8546,7 @@ export namespace Prisma {
     testCases<T extends Problem$testCasesArgs<ExtArgs> = {}>(args?: Subset<T, Problem$testCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestCasePayload<ExtArgs>, T, "findMany"> | Null>
     contestProblems<T extends Problem$contestProblemsArgs<ExtArgs> = {}>(args?: Subset<T, Problem$contestProblemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContestProblemPayload<ExtArgs>, T, "findMany"> | Null>
     submissions<T extends Problem$submissionsArgs<ExtArgs> = {}>(args?: Subset<T, Problem$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubmissionPayload<ExtArgs>, T, "findMany"> | Null>
+    interviewSessions<T extends Problem$interviewSessionsArgs<ExtArgs> = {}>(args?: Subset<T, Problem$interviewSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8223,6 +8998,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SubmissionScalarFieldEnum | SubmissionScalarFieldEnum[]
+  }
+
+  /**
+   * Problem.interviewSessions
+   */
+  export type Problem$interviewSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    where?: MockInterviewSessionWhereInput
+    orderBy?: MockInterviewSessionOrderByWithRelationInput | MockInterviewSessionOrderByWithRelationInput[]
+    cursor?: MockInterviewSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MockInterviewSessionScalarFieldEnum | MockInterviewSessionScalarFieldEnum[]
   }
 
   /**
@@ -37498,6 +38293,6296 @@ export namespace Prisma {
 
 
   /**
+   * Model MockInterviewSession
+   */
+
+  export type AggregateMockInterviewSession = {
+    _count: MockInterviewSessionCountAggregateOutputType | null
+    _avg: MockInterviewSessionAvgAggregateOutputType | null
+    _sum: MockInterviewSessionSumAggregateOutputType | null
+    _min: MockInterviewSessionMinAggregateOutputType | null
+    _max: MockInterviewSessionMaxAggregateOutputType | null
+  }
+
+  export type MockInterviewSessionAvgAggregateOutputType = {
+    durationMinutes: number | null
+    phaseUnderstandMins: number | null
+    planMins: number | null
+    codeMins: number | null
+    optimizeMins: number | null
+  }
+
+  export type MockInterviewSessionSumAggregateOutputType = {
+    durationMinutes: number | null
+    phaseUnderstandMins: number | null
+    planMins: number | null
+    codeMins: number | null
+    optimizeMins: number | null
+  }
+
+  export type MockInterviewSessionMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    description: string | null
+    scheduledAt: Date | null
+    durationMinutes: number | null
+    accessCode: string | null
+    accessCodePlain: string | null
+    status: $Enums.InterviewStatus | null
+    currentPhase: $Enums.InterviewPhase | null
+    phaseUnderstandMins: number | null
+    planMins: number | null
+    codeMins: number | null
+    optimizeMins: number | null
+    allowHints: boolean | null
+    allowObservers: boolean | null
+    interviewerId: string | null
+    candidateId: string | null
+    candidateEmail: string | null
+    problemId: string | null
+    organizationId: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    yjsDocumentId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MockInterviewSessionMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    description: string | null
+    scheduledAt: Date | null
+    durationMinutes: number | null
+    accessCode: string | null
+    accessCodePlain: string | null
+    status: $Enums.InterviewStatus | null
+    currentPhase: $Enums.InterviewPhase | null
+    phaseUnderstandMins: number | null
+    planMins: number | null
+    codeMins: number | null
+    optimizeMins: number | null
+    allowHints: boolean | null
+    allowObservers: boolean | null
+    interviewerId: string | null
+    candidateId: string | null
+    candidateEmail: string | null
+    problemId: string | null
+    organizationId: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    yjsDocumentId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MockInterviewSessionCountAggregateOutputType = {
+    id: number
+    title: number
+    description: number
+    scheduledAt: number
+    durationMinutes: number
+    accessCode: number
+    accessCodePlain: number
+    status: number
+    currentPhase: number
+    phaseUnderstandMins: number
+    planMins: number
+    codeMins: number
+    optimizeMins: number
+    allowHints: number
+    allowObservers: number
+    interviewerId: number
+    candidateId: number
+    candidateEmail: number
+    problemId: number
+    organizationId: number
+    startedAt: number
+    endedAt: number
+    yjsDocumentId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MockInterviewSessionAvgAggregateInputType = {
+    durationMinutes?: true
+    phaseUnderstandMins?: true
+    planMins?: true
+    codeMins?: true
+    optimizeMins?: true
+  }
+
+  export type MockInterviewSessionSumAggregateInputType = {
+    durationMinutes?: true
+    phaseUnderstandMins?: true
+    planMins?: true
+    codeMins?: true
+    optimizeMins?: true
+  }
+
+  export type MockInterviewSessionMinAggregateInputType = {
+    id?: true
+    title?: true
+    description?: true
+    scheduledAt?: true
+    durationMinutes?: true
+    accessCode?: true
+    accessCodePlain?: true
+    status?: true
+    currentPhase?: true
+    phaseUnderstandMins?: true
+    planMins?: true
+    codeMins?: true
+    optimizeMins?: true
+    allowHints?: true
+    allowObservers?: true
+    interviewerId?: true
+    candidateId?: true
+    candidateEmail?: true
+    problemId?: true
+    organizationId?: true
+    startedAt?: true
+    endedAt?: true
+    yjsDocumentId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MockInterviewSessionMaxAggregateInputType = {
+    id?: true
+    title?: true
+    description?: true
+    scheduledAt?: true
+    durationMinutes?: true
+    accessCode?: true
+    accessCodePlain?: true
+    status?: true
+    currentPhase?: true
+    phaseUnderstandMins?: true
+    planMins?: true
+    codeMins?: true
+    optimizeMins?: true
+    allowHints?: true
+    allowObservers?: true
+    interviewerId?: true
+    candidateId?: true
+    candidateEmail?: true
+    problemId?: true
+    organizationId?: true
+    startedAt?: true
+    endedAt?: true
+    yjsDocumentId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MockInterviewSessionCountAggregateInputType = {
+    id?: true
+    title?: true
+    description?: true
+    scheduledAt?: true
+    durationMinutes?: true
+    accessCode?: true
+    accessCodePlain?: true
+    status?: true
+    currentPhase?: true
+    phaseUnderstandMins?: true
+    planMins?: true
+    codeMins?: true
+    optimizeMins?: true
+    allowHints?: true
+    allowObservers?: true
+    interviewerId?: true
+    candidateId?: true
+    candidateEmail?: true
+    problemId?: true
+    organizationId?: true
+    startedAt?: true
+    endedAt?: true
+    yjsDocumentId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MockInterviewSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MockInterviewSession to aggregate.
+     */
+    where?: MockInterviewSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MockInterviewSessions to fetch.
+     */
+    orderBy?: MockInterviewSessionOrderByWithRelationInput | MockInterviewSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MockInterviewSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MockInterviewSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MockInterviewSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MockInterviewSessions
+    **/
+    _count?: true | MockInterviewSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MockInterviewSessionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MockInterviewSessionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MockInterviewSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MockInterviewSessionMaxAggregateInputType
+  }
+
+  export type GetMockInterviewSessionAggregateType<T extends MockInterviewSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateMockInterviewSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMockInterviewSession[P]>
+      : GetScalarType<T[P], AggregateMockInterviewSession[P]>
+  }
+
+
+
+
+  export type MockInterviewSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MockInterviewSessionWhereInput
+    orderBy?: MockInterviewSessionOrderByWithAggregationInput | MockInterviewSessionOrderByWithAggregationInput[]
+    by: MockInterviewSessionScalarFieldEnum[] | MockInterviewSessionScalarFieldEnum
+    having?: MockInterviewSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MockInterviewSessionCountAggregateInputType | true
+    _avg?: MockInterviewSessionAvgAggregateInputType
+    _sum?: MockInterviewSessionSumAggregateInputType
+    _min?: MockInterviewSessionMinAggregateInputType
+    _max?: MockInterviewSessionMaxAggregateInputType
+  }
+
+  export type MockInterviewSessionGroupByOutputType = {
+    id: string
+    title: string
+    description: string | null
+    scheduledAt: Date
+    durationMinutes: number
+    accessCode: string
+    accessCodePlain: string | null
+    status: $Enums.InterviewStatus
+    currentPhase: $Enums.InterviewPhase
+    phaseUnderstandMins: number
+    planMins: number
+    codeMins: number
+    optimizeMins: number
+    allowHints: boolean
+    allowObservers: boolean
+    interviewerId: string
+    candidateId: string | null
+    candidateEmail: string | null
+    problemId: string | null
+    organizationId: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    yjsDocumentId: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: MockInterviewSessionCountAggregateOutputType | null
+    _avg: MockInterviewSessionAvgAggregateOutputType | null
+    _sum: MockInterviewSessionSumAggregateOutputType | null
+    _min: MockInterviewSessionMinAggregateOutputType | null
+    _max: MockInterviewSessionMaxAggregateOutputType | null
+  }
+
+  type GetMockInterviewSessionGroupByPayload<T extends MockInterviewSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MockInterviewSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MockInterviewSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MockInterviewSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], MockInterviewSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MockInterviewSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    description?: boolean
+    scheduledAt?: boolean
+    durationMinutes?: boolean
+    accessCode?: boolean
+    accessCodePlain?: boolean
+    status?: boolean
+    currentPhase?: boolean
+    phaseUnderstandMins?: boolean
+    planMins?: boolean
+    codeMins?: boolean
+    optimizeMins?: boolean
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId?: boolean
+    candidateId?: boolean
+    candidateEmail?: boolean
+    problemId?: boolean
+    organizationId?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    yjsDocumentId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    interviewer?: boolean | UserDefaultArgs<ExtArgs>
+    candidate?: boolean | MockInterviewSession$candidateArgs<ExtArgs>
+    problem?: boolean | MockInterviewSession$problemArgs<ExtArgs>
+    organization?: boolean | MockInterviewSession$organizationArgs<ExtArgs>
+    feedback?: boolean | MockInterviewSession$feedbackArgs<ExtArgs>
+    codeSnapshots?: boolean | MockInterviewSession$codeSnapshotsArgs<ExtArgs>
+    participants?: boolean | MockInterviewSession$participantsArgs<ExtArgs>
+    hintRequests?: boolean | MockInterviewSession$hintRequestsArgs<ExtArgs>
+    executionResults?: boolean | MockInterviewSession$executionResultsArgs<ExtArgs>
+    _count?: boolean | MockInterviewSessionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["mockInterviewSession"]>
+
+  export type MockInterviewSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    description?: boolean
+    scheduledAt?: boolean
+    durationMinutes?: boolean
+    accessCode?: boolean
+    accessCodePlain?: boolean
+    status?: boolean
+    currentPhase?: boolean
+    phaseUnderstandMins?: boolean
+    planMins?: boolean
+    codeMins?: boolean
+    optimizeMins?: boolean
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId?: boolean
+    candidateId?: boolean
+    candidateEmail?: boolean
+    problemId?: boolean
+    organizationId?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    yjsDocumentId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    interviewer?: boolean | UserDefaultArgs<ExtArgs>
+    candidate?: boolean | MockInterviewSession$candidateArgs<ExtArgs>
+    problem?: boolean | MockInterviewSession$problemArgs<ExtArgs>
+    organization?: boolean | MockInterviewSession$organizationArgs<ExtArgs>
+  }, ExtArgs["result"]["mockInterviewSession"]>
+
+  export type MockInterviewSessionSelectScalar = {
+    id?: boolean
+    title?: boolean
+    description?: boolean
+    scheduledAt?: boolean
+    durationMinutes?: boolean
+    accessCode?: boolean
+    accessCodePlain?: boolean
+    status?: boolean
+    currentPhase?: boolean
+    phaseUnderstandMins?: boolean
+    planMins?: boolean
+    codeMins?: boolean
+    optimizeMins?: boolean
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId?: boolean
+    candidateId?: boolean
+    candidateEmail?: boolean
+    problemId?: boolean
+    organizationId?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    yjsDocumentId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MockInterviewSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    interviewer?: boolean | UserDefaultArgs<ExtArgs>
+    candidate?: boolean | MockInterviewSession$candidateArgs<ExtArgs>
+    problem?: boolean | MockInterviewSession$problemArgs<ExtArgs>
+    organization?: boolean | MockInterviewSession$organizationArgs<ExtArgs>
+    feedback?: boolean | MockInterviewSession$feedbackArgs<ExtArgs>
+    codeSnapshots?: boolean | MockInterviewSession$codeSnapshotsArgs<ExtArgs>
+    participants?: boolean | MockInterviewSession$participantsArgs<ExtArgs>
+    hintRequests?: boolean | MockInterviewSession$hintRequestsArgs<ExtArgs>
+    executionResults?: boolean | MockInterviewSession$executionResultsArgs<ExtArgs>
+    _count?: boolean | MockInterviewSessionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type MockInterviewSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    interviewer?: boolean | UserDefaultArgs<ExtArgs>
+    candidate?: boolean | MockInterviewSession$candidateArgs<ExtArgs>
+    problem?: boolean | MockInterviewSession$problemArgs<ExtArgs>
+    organization?: boolean | MockInterviewSession$organizationArgs<ExtArgs>
+  }
+
+  export type $MockInterviewSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MockInterviewSession"
+    objects: {
+      interviewer: Prisma.$UserPayload<ExtArgs>
+      candidate: Prisma.$UserPayload<ExtArgs> | null
+      problem: Prisma.$ProblemPayload<ExtArgs> | null
+      organization: Prisma.$OrganizationPayload<ExtArgs> | null
+      feedback: Prisma.$InterviewFeedbackPayload<ExtArgs> | null
+      codeSnapshots: Prisma.$InterviewCodeSnapshotPayload<ExtArgs>[]
+      participants: Prisma.$InterviewParticipantPayload<ExtArgs>[]
+      hintRequests: Prisma.$InterviewHintRequestPayload<ExtArgs>[]
+      executionResults: Prisma.$InterviewExecutionResultPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      description: string | null
+      scheduledAt: Date
+      durationMinutes: number
+      accessCode: string
+      accessCodePlain: string | null
+      status: $Enums.InterviewStatus
+      currentPhase: $Enums.InterviewPhase
+      phaseUnderstandMins: number
+      planMins: number
+      codeMins: number
+      optimizeMins: number
+      allowHints: boolean
+      allowObservers: boolean
+      interviewerId: string
+      candidateId: string | null
+      candidateEmail: string | null
+      problemId: string | null
+      organizationId: string | null
+      startedAt: Date | null
+      endedAt: Date | null
+      yjsDocumentId: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["mockInterviewSession"]>
+    composites: {}
+  }
+
+  type MockInterviewSessionGetPayload<S extends boolean | null | undefined | MockInterviewSessionDefaultArgs> = $Result.GetResult<Prisma.$MockInterviewSessionPayload, S>
+
+  type MockInterviewSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<MockInterviewSessionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: MockInterviewSessionCountAggregateInputType | true
+    }
+
+  export interface MockInterviewSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MockInterviewSession'], meta: { name: 'MockInterviewSession' } }
+    /**
+     * Find zero or one MockInterviewSession that matches the filter.
+     * @param {MockInterviewSessionFindUniqueArgs} args - Arguments to find a MockInterviewSession
+     * @example
+     * // Get one MockInterviewSession
+     * const mockInterviewSession = await prisma.mockInterviewSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MockInterviewSessionFindUniqueArgs>(args: SelectSubset<T, MockInterviewSessionFindUniqueArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one MockInterviewSession that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {MockInterviewSessionFindUniqueOrThrowArgs} args - Arguments to find a MockInterviewSession
+     * @example
+     * // Get one MockInterviewSession
+     * const mockInterviewSession = await prisma.mockInterviewSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MockInterviewSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, MockInterviewSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first MockInterviewSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MockInterviewSessionFindFirstArgs} args - Arguments to find a MockInterviewSession
+     * @example
+     * // Get one MockInterviewSession
+     * const mockInterviewSession = await prisma.mockInterviewSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MockInterviewSessionFindFirstArgs>(args?: SelectSubset<T, MockInterviewSessionFindFirstArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first MockInterviewSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MockInterviewSessionFindFirstOrThrowArgs} args - Arguments to find a MockInterviewSession
+     * @example
+     * // Get one MockInterviewSession
+     * const mockInterviewSession = await prisma.mockInterviewSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MockInterviewSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, MockInterviewSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more MockInterviewSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MockInterviewSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MockInterviewSessions
+     * const mockInterviewSessions = await prisma.mockInterviewSession.findMany()
+     * 
+     * // Get first 10 MockInterviewSessions
+     * const mockInterviewSessions = await prisma.mockInterviewSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mockInterviewSessionWithIdOnly = await prisma.mockInterviewSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MockInterviewSessionFindManyArgs>(args?: SelectSubset<T, MockInterviewSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a MockInterviewSession.
+     * @param {MockInterviewSessionCreateArgs} args - Arguments to create a MockInterviewSession.
+     * @example
+     * // Create one MockInterviewSession
+     * const MockInterviewSession = await prisma.mockInterviewSession.create({
+     *   data: {
+     *     // ... data to create a MockInterviewSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends MockInterviewSessionCreateArgs>(args: SelectSubset<T, MockInterviewSessionCreateArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many MockInterviewSessions.
+     * @param {MockInterviewSessionCreateManyArgs} args - Arguments to create many MockInterviewSessions.
+     * @example
+     * // Create many MockInterviewSessions
+     * const mockInterviewSession = await prisma.mockInterviewSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MockInterviewSessionCreateManyArgs>(args?: SelectSubset<T, MockInterviewSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many MockInterviewSessions and returns the data saved in the database.
+     * @param {MockInterviewSessionCreateManyAndReturnArgs} args - Arguments to create many MockInterviewSessions.
+     * @example
+     * // Create many MockInterviewSessions
+     * const mockInterviewSession = await prisma.mockInterviewSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many MockInterviewSessions and only return the `id`
+     * const mockInterviewSessionWithIdOnly = await prisma.mockInterviewSession.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends MockInterviewSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, MockInterviewSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a MockInterviewSession.
+     * @param {MockInterviewSessionDeleteArgs} args - Arguments to delete one MockInterviewSession.
+     * @example
+     * // Delete one MockInterviewSession
+     * const MockInterviewSession = await prisma.mockInterviewSession.delete({
+     *   where: {
+     *     // ... filter to delete one MockInterviewSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MockInterviewSessionDeleteArgs>(args: SelectSubset<T, MockInterviewSessionDeleteArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one MockInterviewSession.
+     * @param {MockInterviewSessionUpdateArgs} args - Arguments to update one MockInterviewSession.
+     * @example
+     * // Update one MockInterviewSession
+     * const mockInterviewSession = await prisma.mockInterviewSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MockInterviewSessionUpdateArgs>(args: SelectSubset<T, MockInterviewSessionUpdateArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more MockInterviewSessions.
+     * @param {MockInterviewSessionDeleteManyArgs} args - Arguments to filter MockInterviewSessions to delete.
+     * @example
+     * // Delete a few MockInterviewSessions
+     * const { count } = await prisma.mockInterviewSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MockInterviewSessionDeleteManyArgs>(args?: SelectSubset<T, MockInterviewSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MockInterviewSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MockInterviewSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MockInterviewSessions
+     * const mockInterviewSession = await prisma.mockInterviewSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MockInterviewSessionUpdateManyArgs>(args: SelectSubset<T, MockInterviewSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one MockInterviewSession.
+     * @param {MockInterviewSessionUpsertArgs} args - Arguments to update or create a MockInterviewSession.
+     * @example
+     * // Update or create a MockInterviewSession
+     * const mockInterviewSession = await prisma.mockInterviewSession.upsert({
+     *   create: {
+     *     // ... data to create a MockInterviewSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MockInterviewSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MockInterviewSessionUpsertArgs>(args: SelectSubset<T, MockInterviewSessionUpsertArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of MockInterviewSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MockInterviewSessionCountArgs} args - Arguments to filter MockInterviewSessions to count.
+     * @example
+     * // Count the number of MockInterviewSessions
+     * const count = await prisma.mockInterviewSession.count({
+     *   where: {
+     *     // ... the filter for the MockInterviewSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends MockInterviewSessionCountArgs>(
+      args?: Subset<T, MockInterviewSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MockInterviewSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MockInterviewSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MockInterviewSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MockInterviewSessionAggregateArgs>(args: Subset<T, MockInterviewSessionAggregateArgs>): Prisma.PrismaPromise<GetMockInterviewSessionAggregateType<T>>
+
+    /**
+     * Group by MockInterviewSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MockInterviewSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MockInterviewSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MockInterviewSessionGroupByArgs['orderBy'] }
+        : { orderBy?: MockInterviewSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MockInterviewSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMockInterviewSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MockInterviewSession model
+   */
+  readonly fields: MockInterviewSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MockInterviewSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MockInterviewSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    interviewer<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    candidate<T extends MockInterviewSession$candidateArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSession$candidateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    problem<T extends MockInterviewSession$problemArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSession$problemArgs<ExtArgs>>): Prisma__ProblemClient<$Result.GetResult<Prisma.$ProblemPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    organization<T extends MockInterviewSession$organizationArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSession$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    feedback<T extends MockInterviewSession$feedbackArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSession$feedbackArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    codeSnapshots<T extends MockInterviewSession$codeSnapshotsArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSession$codeSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "findMany"> | Null>
+    participants<T extends MockInterviewSession$participantsArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSession$participantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findMany"> | Null>
+    hintRequests<T extends MockInterviewSession$hintRequestsArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSession$hintRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "findMany"> | Null>
+    executionResults<T extends MockInterviewSession$executionResultsArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSession$executionResultsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MockInterviewSession model
+   */ 
+  interface MockInterviewSessionFieldRefs {
+    readonly id: FieldRef<"MockInterviewSession", 'String'>
+    readonly title: FieldRef<"MockInterviewSession", 'String'>
+    readonly description: FieldRef<"MockInterviewSession", 'String'>
+    readonly scheduledAt: FieldRef<"MockInterviewSession", 'DateTime'>
+    readonly durationMinutes: FieldRef<"MockInterviewSession", 'Int'>
+    readonly accessCode: FieldRef<"MockInterviewSession", 'String'>
+    readonly accessCodePlain: FieldRef<"MockInterviewSession", 'String'>
+    readonly status: FieldRef<"MockInterviewSession", 'InterviewStatus'>
+    readonly currentPhase: FieldRef<"MockInterviewSession", 'InterviewPhase'>
+    readonly phaseUnderstandMins: FieldRef<"MockInterviewSession", 'Int'>
+    readonly planMins: FieldRef<"MockInterviewSession", 'Int'>
+    readonly codeMins: FieldRef<"MockInterviewSession", 'Int'>
+    readonly optimizeMins: FieldRef<"MockInterviewSession", 'Int'>
+    readonly allowHints: FieldRef<"MockInterviewSession", 'Boolean'>
+    readonly allowObservers: FieldRef<"MockInterviewSession", 'Boolean'>
+    readonly interviewerId: FieldRef<"MockInterviewSession", 'String'>
+    readonly candidateId: FieldRef<"MockInterviewSession", 'String'>
+    readonly candidateEmail: FieldRef<"MockInterviewSession", 'String'>
+    readonly problemId: FieldRef<"MockInterviewSession", 'String'>
+    readonly organizationId: FieldRef<"MockInterviewSession", 'String'>
+    readonly startedAt: FieldRef<"MockInterviewSession", 'DateTime'>
+    readonly endedAt: FieldRef<"MockInterviewSession", 'DateTime'>
+    readonly yjsDocumentId: FieldRef<"MockInterviewSession", 'String'>
+    readonly createdAt: FieldRef<"MockInterviewSession", 'DateTime'>
+    readonly updatedAt: FieldRef<"MockInterviewSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MockInterviewSession findUnique
+   */
+  export type MockInterviewSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which MockInterviewSession to fetch.
+     */
+    where: MockInterviewSessionWhereUniqueInput
+  }
+
+  /**
+   * MockInterviewSession findUniqueOrThrow
+   */
+  export type MockInterviewSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which MockInterviewSession to fetch.
+     */
+    where: MockInterviewSessionWhereUniqueInput
+  }
+
+  /**
+   * MockInterviewSession findFirst
+   */
+  export type MockInterviewSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which MockInterviewSession to fetch.
+     */
+    where?: MockInterviewSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MockInterviewSessions to fetch.
+     */
+    orderBy?: MockInterviewSessionOrderByWithRelationInput | MockInterviewSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MockInterviewSessions.
+     */
+    cursor?: MockInterviewSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MockInterviewSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MockInterviewSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MockInterviewSessions.
+     */
+    distinct?: MockInterviewSessionScalarFieldEnum | MockInterviewSessionScalarFieldEnum[]
+  }
+
+  /**
+   * MockInterviewSession findFirstOrThrow
+   */
+  export type MockInterviewSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which MockInterviewSession to fetch.
+     */
+    where?: MockInterviewSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MockInterviewSessions to fetch.
+     */
+    orderBy?: MockInterviewSessionOrderByWithRelationInput | MockInterviewSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MockInterviewSessions.
+     */
+    cursor?: MockInterviewSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MockInterviewSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MockInterviewSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MockInterviewSessions.
+     */
+    distinct?: MockInterviewSessionScalarFieldEnum | MockInterviewSessionScalarFieldEnum[]
+  }
+
+  /**
+   * MockInterviewSession findMany
+   */
+  export type MockInterviewSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which MockInterviewSessions to fetch.
+     */
+    where?: MockInterviewSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MockInterviewSessions to fetch.
+     */
+    orderBy?: MockInterviewSessionOrderByWithRelationInput | MockInterviewSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MockInterviewSessions.
+     */
+    cursor?: MockInterviewSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MockInterviewSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MockInterviewSessions.
+     */
+    skip?: number
+    distinct?: MockInterviewSessionScalarFieldEnum | MockInterviewSessionScalarFieldEnum[]
+  }
+
+  /**
+   * MockInterviewSession create
+   */
+  export type MockInterviewSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MockInterviewSession.
+     */
+    data: XOR<MockInterviewSessionCreateInput, MockInterviewSessionUncheckedCreateInput>
+  }
+
+  /**
+   * MockInterviewSession createMany
+   */
+  export type MockInterviewSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MockInterviewSessions.
+     */
+    data: MockInterviewSessionCreateManyInput | MockInterviewSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * MockInterviewSession createManyAndReturn
+   */
+  export type MockInterviewSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many MockInterviewSessions.
+     */
+    data: MockInterviewSessionCreateManyInput | MockInterviewSessionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * MockInterviewSession update
+   */
+  export type MockInterviewSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MockInterviewSession.
+     */
+    data: XOR<MockInterviewSessionUpdateInput, MockInterviewSessionUncheckedUpdateInput>
+    /**
+     * Choose, which MockInterviewSession to update.
+     */
+    where: MockInterviewSessionWhereUniqueInput
+  }
+
+  /**
+   * MockInterviewSession updateMany
+   */
+  export type MockInterviewSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MockInterviewSessions.
+     */
+    data: XOR<MockInterviewSessionUpdateManyMutationInput, MockInterviewSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which MockInterviewSessions to update
+     */
+    where?: MockInterviewSessionWhereInput
+  }
+
+  /**
+   * MockInterviewSession upsert
+   */
+  export type MockInterviewSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MockInterviewSession to update in case it exists.
+     */
+    where: MockInterviewSessionWhereUniqueInput
+    /**
+     * In case the MockInterviewSession found by the `where` argument doesn't exist, create a new MockInterviewSession with this data.
+     */
+    create: XOR<MockInterviewSessionCreateInput, MockInterviewSessionUncheckedCreateInput>
+    /**
+     * In case the MockInterviewSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MockInterviewSessionUpdateInput, MockInterviewSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * MockInterviewSession delete
+   */
+  export type MockInterviewSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+    /**
+     * Filter which MockInterviewSession to delete.
+     */
+    where: MockInterviewSessionWhereUniqueInput
+  }
+
+  /**
+   * MockInterviewSession deleteMany
+   */
+  export type MockInterviewSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MockInterviewSessions to delete
+     */
+    where?: MockInterviewSessionWhereInput
+  }
+
+  /**
+   * MockInterviewSession.candidate
+   */
+  export type MockInterviewSession$candidateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * MockInterviewSession.problem
+   */
+  export type MockInterviewSession$problemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Problem
+     */
+    select?: ProblemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemInclude<ExtArgs> | null
+    where?: ProblemWhereInput
+  }
+
+  /**
+   * MockInterviewSession.organization
+   */
+  export type MockInterviewSession$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * MockInterviewSession.feedback
+   */
+  export type MockInterviewSession$feedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    where?: InterviewFeedbackWhereInput
+  }
+
+  /**
+   * MockInterviewSession.codeSnapshots
+   */
+  export type MockInterviewSession$codeSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    where?: InterviewCodeSnapshotWhereInput
+    orderBy?: InterviewCodeSnapshotOrderByWithRelationInput | InterviewCodeSnapshotOrderByWithRelationInput[]
+    cursor?: InterviewCodeSnapshotWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InterviewCodeSnapshotScalarFieldEnum | InterviewCodeSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * MockInterviewSession.participants
+   */
+  export type MockInterviewSession$participantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    where?: InterviewParticipantWhereInput
+    orderBy?: InterviewParticipantOrderByWithRelationInput | InterviewParticipantOrderByWithRelationInput[]
+    cursor?: InterviewParticipantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InterviewParticipantScalarFieldEnum | InterviewParticipantScalarFieldEnum[]
+  }
+
+  /**
+   * MockInterviewSession.hintRequests
+   */
+  export type MockInterviewSession$hintRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    where?: InterviewHintRequestWhereInput
+    orderBy?: InterviewHintRequestOrderByWithRelationInput | InterviewHintRequestOrderByWithRelationInput[]
+    cursor?: InterviewHintRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InterviewHintRequestScalarFieldEnum | InterviewHintRequestScalarFieldEnum[]
+  }
+
+  /**
+   * MockInterviewSession.executionResults
+   */
+  export type MockInterviewSession$executionResultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    where?: InterviewExecutionResultWhereInput
+    orderBy?: InterviewExecutionResultOrderByWithRelationInput | InterviewExecutionResultOrderByWithRelationInput[]
+    cursor?: InterviewExecutionResultWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InterviewExecutionResultScalarFieldEnum | InterviewExecutionResultScalarFieldEnum[]
+  }
+
+  /**
+   * MockInterviewSession without action
+   */
+  export type MockInterviewSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MockInterviewSession
+     */
+    select?: MockInterviewSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MockInterviewSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model InterviewParticipant
+   */
+
+  export type AggregateInterviewParticipant = {
+    _count: InterviewParticipantCountAggregateOutputType | null
+    _min: InterviewParticipantMinAggregateOutputType | null
+    _max: InterviewParticipantMaxAggregateOutputType | null
+  }
+
+  export type InterviewParticipantMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    userId: string | null
+    role: $Enums.InterviewParticipantRole | null
+    joinedAt: Date | null
+    leftAt: Date | null
+  }
+
+  export type InterviewParticipantMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    userId: string | null
+    role: $Enums.InterviewParticipantRole | null
+    joinedAt: Date | null
+    leftAt: Date | null
+  }
+
+  export type InterviewParticipantCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    userId: number
+    role: number
+    joinedAt: number
+    leftAt: number
+    _all: number
+  }
+
+
+  export type InterviewParticipantMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    userId?: true
+    role?: true
+    joinedAt?: true
+    leftAt?: true
+  }
+
+  export type InterviewParticipantMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    userId?: true
+    role?: true
+    joinedAt?: true
+    leftAt?: true
+  }
+
+  export type InterviewParticipantCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    userId?: true
+    role?: true
+    joinedAt?: true
+    leftAt?: true
+    _all?: true
+  }
+
+  export type InterviewParticipantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewParticipant to aggregate.
+     */
+    where?: InterviewParticipantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewParticipants to fetch.
+     */
+    orderBy?: InterviewParticipantOrderByWithRelationInput | InterviewParticipantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InterviewParticipantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewParticipants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewParticipants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned InterviewParticipants
+    **/
+    _count?: true | InterviewParticipantCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InterviewParticipantMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InterviewParticipantMaxAggregateInputType
+  }
+
+  export type GetInterviewParticipantAggregateType<T extends InterviewParticipantAggregateArgs> = {
+        [P in keyof T & keyof AggregateInterviewParticipant]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInterviewParticipant[P]>
+      : GetScalarType<T[P], AggregateInterviewParticipant[P]>
+  }
+
+
+
+
+  export type InterviewParticipantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewParticipantWhereInput
+    orderBy?: InterviewParticipantOrderByWithAggregationInput | InterviewParticipantOrderByWithAggregationInput[]
+    by: InterviewParticipantScalarFieldEnum[] | InterviewParticipantScalarFieldEnum
+    having?: InterviewParticipantScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InterviewParticipantCountAggregateInputType | true
+    _min?: InterviewParticipantMinAggregateInputType
+    _max?: InterviewParticipantMaxAggregateInputType
+  }
+
+  export type InterviewParticipantGroupByOutputType = {
+    id: string
+    sessionId: string
+    userId: string
+    role: $Enums.InterviewParticipantRole
+    joinedAt: Date
+    leftAt: Date | null
+    _count: InterviewParticipantCountAggregateOutputType | null
+    _min: InterviewParticipantMinAggregateOutputType | null
+    _max: InterviewParticipantMaxAggregateOutputType | null
+  }
+
+  type GetInterviewParticipantGroupByPayload<T extends InterviewParticipantGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InterviewParticipantGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InterviewParticipantGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InterviewParticipantGroupByOutputType[P]>
+            : GetScalarType<T[P], InterviewParticipantGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InterviewParticipantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    role?: boolean
+    joinedAt?: boolean
+    leftAt?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewParticipant"]>
+
+  export type InterviewParticipantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    role?: boolean
+    joinedAt?: boolean
+    leftAt?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewParticipant"]>
+
+  export type InterviewParticipantSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    userId?: boolean
+    role?: boolean
+    joinedAt?: boolean
+    leftAt?: boolean
+  }
+
+  export type InterviewParticipantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type InterviewParticipantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $InterviewParticipantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "InterviewParticipant"
+    objects: {
+      session: Prisma.$MockInterviewSessionPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      userId: string
+      role: $Enums.InterviewParticipantRole
+      joinedAt: Date
+      leftAt: Date | null
+    }, ExtArgs["result"]["interviewParticipant"]>
+    composites: {}
+  }
+
+  type InterviewParticipantGetPayload<S extends boolean | null | undefined | InterviewParticipantDefaultArgs> = $Result.GetResult<Prisma.$InterviewParticipantPayload, S>
+
+  type InterviewParticipantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<InterviewParticipantFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: InterviewParticipantCountAggregateInputType | true
+    }
+
+  export interface InterviewParticipantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['InterviewParticipant'], meta: { name: 'InterviewParticipant' } }
+    /**
+     * Find zero or one InterviewParticipant that matches the filter.
+     * @param {InterviewParticipantFindUniqueArgs} args - Arguments to find a InterviewParticipant
+     * @example
+     * // Get one InterviewParticipant
+     * const interviewParticipant = await prisma.interviewParticipant.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InterviewParticipantFindUniqueArgs>(args: SelectSubset<T, InterviewParticipantFindUniqueArgs<ExtArgs>>): Prisma__InterviewParticipantClient<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one InterviewParticipant that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {InterviewParticipantFindUniqueOrThrowArgs} args - Arguments to find a InterviewParticipant
+     * @example
+     * // Get one InterviewParticipant
+     * const interviewParticipant = await prisma.interviewParticipant.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InterviewParticipantFindUniqueOrThrowArgs>(args: SelectSubset<T, InterviewParticipantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InterviewParticipantClient<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first InterviewParticipant that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewParticipantFindFirstArgs} args - Arguments to find a InterviewParticipant
+     * @example
+     * // Get one InterviewParticipant
+     * const interviewParticipant = await prisma.interviewParticipant.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InterviewParticipantFindFirstArgs>(args?: SelectSubset<T, InterviewParticipantFindFirstArgs<ExtArgs>>): Prisma__InterviewParticipantClient<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first InterviewParticipant that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewParticipantFindFirstOrThrowArgs} args - Arguments to find a InterviewParticipant
+     * @example
+     * // Get one InterviewParticipant
+     * const interviewParticipant = await prisma.interviewParticipant.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InterviewParticipantFindFirstOrThrowArgs>(args?: SelectSubset<T, InterviewParticipantFindFirstOrThrowArgs<ExtArgs>>): Prisma__InterviewParticipantClient<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more InterviewParticipants that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewParticipantFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all InterviewParticipants
+     * const interviewParticipants = await prisma.interviewParticipant.findMany()
+     * 
+     * // Get first 10 InterviewParticipants
+     * const interviewParticipants = await prisma.interviewParticipant.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const interviewParticipantWithIdOnly = await prisma.interviewParticipant.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InterviewParticipantFindManyArgs>(args?: SelectSubset<T, InterviewParticipantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a InterviewParticipant.
+     * @param {InterviewParticipantCreateArgs} args - Arguments to create a InterviewParticipant.
+     * @example
+     * // Create one InterviewParticipant
+     * const InterviewParticipant = await prisma.interviewParticipant.create({
+     *   data: {
+     *     // ... data to create a InterviewParticipant
+     *   }
+     * })
+     * 
+     */
+    create<T extends InterviewParticipantCreateArgs>(args: SelectSubset<T, InterviewParticipantCreateArgs<ExtArgs>>): Prisma__InterviewParticipantClient<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many InterviewParticipants.
+     * @param {InterviewParticipantCreateManyArgs} args - Arguments to create many InterviewParticipants.
+     * @example
+     * // Create many InterviewParticipants
+     * const interviewParticipant = await prisma.interviewParticipant.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InterviewParticipantCreateManyArgs>(args?: SelectSubset<T, InterviewParticipantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many InterviewParticipants and returns the data saved in the database.
+     * @param {InterviewParticipantCreateManyAndReturnArgs} args - Arguments to create many InterviewParticipants.
+     * @example
+     * // Create many InterviewParticipants
+     * const interviewParticipant = await prisma.interviewParticipant.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many InterviewParticipants and only return the `id`
+     * const interviewParticipantWithIdOnly = await prisma.interviewParticipant.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InterviewParticipantCreateManyAndReturnArgs>(args?: SelectSubset<T, InterviewParticipantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a InterviewParticipant.
+     * @param {InterviewParticipantDeleteArgs} args - Arguments to delete one InterviewParticipant.
+     * @example
+     * // Delete one InterviewParticipant
+     * const InterviewParticipant = await prisma.interviewParticipant.delete({
+     *   where: {
+     *     // ... filter to delete one InterviewParticipant
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InterviewParticipantDeleteArgs>(args: SelectSubset<T, InterviewParticipantDeleteArgs<ExtArgs>>): Prisma__InterviewParticipantClient<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one InterviewParticipant.
+     * @param {InterviewParticipantUpdateArgs} args - Arguments to update one InterviewParticipant.
+     * @example
+     * // Update one InterviewParticipant
+     * const interviewParticipant = await prisma.interviewParticipant.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InterviewParticipantUpdateArgs>(args: SelectSubset<T, InterviewParticipantUpdateArgs<ExtArgs>>): Prisma__InterviewParticipantClient<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more InterviewParticipants.
+     * @param {InterviewParticipantDeleteManyArgs} args - Arguments to filter InterviewParticipants to delete.
+     * @example
+     * // Delete a few InterviewParticipants
+     * const { count } = await prisma.interviewParticipant.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InterviewParticipantDeleteManyArgs>(args?: SelectSubset<T, InterviewParticipantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InterviewParticipants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewParticipantUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many InterviewParticipants
+     * const interviewParticipant = await prisma.interviewParticipant.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InterviewParticipantUpdateManyArgs>(args: SelectSubset<T, InterviewParticipantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one InterviewParticipant.
+     * @param {InterviewParticipantUpsertArgs} args - Arguments to update or create a InterviewParticipant.
+     * @example
+     * // Update or create a InterviewParticipant
+     * const interviewParticipant = await prisma.interviewParticipant.upsert({
+     *   create: {
+     *     // ... data to create a InterviewParticipant
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the InterviewParticipant we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InterviewParticipantUpsertArgs>(args: SelectSubset<T, InterviewParticipantUpsertArgs<ExtArgs>>): Prisma__InterviewParticipantClient<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of InterviewParticipants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewParticipantCountArgs} args - Arguments to filter InterviewParticipants to count.
+     * @example
+     * // Count the number of InterviewParticipants
+     * const count = await prisma.interviewParticipant.count({
+     *   where: {
+     *     // ... the filter for the InterviewParticipants we want to count
+     *   }
+     * })
+    **/
+    count<T extends InterviewParticipantCountArgs>(
+      args?: Subset<T, InterviewParticipantCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InterviewParticipantCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a InterviewParticipant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewParticipantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InterviewParticipantAggregateArgs>(args: Subset<T, InterviewParticipantAggregateArgs>): Prisma.PrismaPromise<GetInterviewParticipantAggregateType<T>>
+
+    /**
+     * Group by InterviewParticipant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewParticipantGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InterviewParticipantGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InterviewParticipantGroupByArgs['orderBy'] }
+        : { orderBy?: InterviewParticipantGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InterviewParticipantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInterviewParticipantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the InterviewParticipant model
+   */
+  readonly fields: InterviewParticipantFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for InterviewParticipant.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InterviewParticipantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends MockInterviewSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSessionDefaultArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the InterviewParticipant model
+   */ 
+  interface InterviewParticipantFieldRefs {
+    readonly id: FieldRef<"InterviewParticipant", 'String'>
+    readonly sessionId: FieldRef<"InterviewParticipant", 'String'>
+    readonly userId: FieldRef<"InterviewParticipant", 'String'>
+    readonly role: FieldRef<"InterviewParticipant", 'InterviewParticipantRole'>
+    readonly joinedAt: FieldRef<"InterviewParticipant", 'DateTime'>
+    readonly leftAt: FieldRef<"InterviewParticipant", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * InterviewParticipant findUnique
+   */
+  export type InterviewParticipantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewParticipant to fetch.
+     */
+    where: InterviewParticipantWhereUniqueInput
+  }
+
+  /**
+   * InterviewParticipant findUniqueOrThrow
+   */
+  export type InterviewParticipantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewParticipant to fetch.
+     */
+    where: InterviewParticipantWhereUniqueInput
+  }
+
+  /**
+   * InterviewParticipant findFirst
+   */
+  export type InterviewParticipantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewParticipant to fetch.
+     */
+    where?: InterviewParticipantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewParticipants to fetch.
+     */
+    orderBy?: InterviewParticipantOrderByWithRelationInput | InterviewParticipantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewParticipants.
+     */
+    cursor?: InterviewParticipantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewParticipants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewParticipants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewParticipants.
+     */
+    distinct?: InterviewParticipantScalarFieldEnum | InterviewParticipantScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewParticipant findFirstOrThrow
+   */
+  export type InterviewParticipantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewParticipant to fetch.
+     */
+    where?: InterviewParticipantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewParticipants to fetch.
+     */
+    orderBy?: InterviewParticipantOrderByWithRelationInput | InterviewParticipantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewParticipants.
+     */
+    cursor?: InterviewParticipantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewParticipants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewParticipants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewParticipants.
+     */
+    distinct?: InterviewParticipantScalarFieldEnum | InterviewParticipantScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewParticipant findMany
+   */
+  export type InterviewParticipantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewParticipants to fetch.
+     */
+    where?: InterviewParticipantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewParticipants to fetch.
+     */
+    orderBy?: InterviewParticipantOrderByWithRelationInput | InterviewParticipantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing InterviewParticipants.
+     */
+    cursor?: InterviewParticipantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewParticipants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewParticipants.
+     */
+    skip?: number
+    distinct?: InterviewParticipantScalarFieldEnum | InterviewParticipantScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewParticipant create
+   */
+  export type InterviewParticipantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * The data needed to create a InterviewParticipant.
+     */
+    data: XOR<InterviewParticipantCreateInput, InterviewParticipantUncheckedCreateInput>
+  }
+
+  /**
+   * InterviewParticipant createMany
+   */
+  export type InterviewParticipantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many InterviewParticipants.
+     */
+    data: InterviewParticipantCreateManyInput | InterviewParticipantCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * InterviewParticipant createManyAndReturn
+   */
+  export type InterviewParticipantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many InterviewParticipants.
+     */
+    data: InterviewParticipantCreateManyInput | InterviewParticipantCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InterviewParticipant update
+   */
+  export type InterviewParticipantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * The data needed to update a InterviewParticipant.
+     */
+    data: XOR<InterviewParticipantUpdateInput, InterviewParticipantUncheckedUpdateInput>
+    /**
+     * Choose, which InterviewParticipant to update.
+     */
+    where: InterviewParticipantWhereUniqueInput
+  }
+
+  /**
+   * InterviewParticipant updateMany
+   */
+  export type InterviewParticipantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update InterviewParticipants.
+     */
+    data: XOR<InterviewParticipantUpdateManyMutationInput, InterviewParticipantUncheckedUpdateManyInput>
+    /**
+     * Filter which InterviewParticipants to update
+     */
+    where?: InterviewParticipantWhereInput
+  }
+
+  /**
+   * InterviewParticipant upsert
+   */
+  export type InterviewParticipantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * The filter to search for the InterviewParticipant to update in case it exists.
+     */
+    where: InterviewParticipantWhereUniqueInput
+    /**
+     * In case the InterviewParticipant found by the `where` argument doesn't exist, create a new InterviewParticipant with this data.
+     */
+    create: XOR<InterviewParticipantCreateInput, InterviewParticipantUncheckedCreateInput>
+    /**
+     * In case the InterviewParticipant was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InterviewParticipantUpdateInput, InterviewParticipantUncheckedUpdateInput>
+  }
+
+  /**
+   * InterviewParticipant delete
+   */
+  export type InterviewParticipantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+    /**
+     * Filter which InterviewParticipant to delete.
+     */
+    where: InterviewParticipantWhereUniqueInput
+  }
+
+  /**
+   * InterviewParticipant deleteMany
+   */
+  export type InterviewParticipantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewParticipants to delete
+     */
+    where?: InterviewParticipantWhereInput
+  }
+
+  /**
+   * InterviewParticipant without action
+   */
+  export type InterviewParticipantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewParticipant
+     */
+    select?: InterviewParticipantSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewParticipantInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model InterviewFeedback
+   */
+
+  export type AggregateInterviewFeedback = {
+    _count: InterviewFeedbackCountAggregateOutputType | null
+    _avg: InterviewFeedbackAvgAggregateOutputType | null
+    _sum: InterviewFeedbackSumAggregateOutputType | null
+    _min: InterviewFeedbackMinAggregateOutputType | null
+    _max: InterviewFeedbackMaxAggregateOutputType | null
+  }
+
+  export type InterviewFeedbackAvgAggregateOutputType = {
+    problemUnderstandingScore: number | null
+    algorithmDesignScore: number | null
+    codeQualityScore: number | null
+    communicationScore: number | null
+    edgeCaseHandlingScore: number | null
+  }
+
+  export type InterviewFeedbackSumAggregateOutputType = {
+    problemUnderstandingScore: number | null
+    algorithmDesignScore: number | null
+    codeQualityScore: number | null
+    communicationScore: number | null
+    edgeCaseHandlingScore: number | null
+  }
+
+  export type InterviewFeedbackMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    problemUnderstandingScore: number | null
+    algorithmDesignScore: number | null
+    codeQualityScore: number | null
+    communicationScore: number | null
+    edgeCaseHandlingScore: number | null
+    recommendation: $Enums.Recommendation | null
+    privateNotes: string | null
+    candidateFeedback: string | null
+    evaluatedAt: Date | null
+  }
+
+  export type InterviewFeedbackMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    problemUnderstandingScore: number | null
+    algorithmDesignScore: number | null
+    codeQualityScore: number | null
+    communicationScore: number | null
+    edgeCaseHandlingScore: number | null
+    recommendation: $Enums.Recommendation | null
+    privateNotes: string | null
+    candidateFeedback: string | null
+    evaluatedAt: Date | null
+  }
+
+  export type InterviewFeedbackCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    problemUnderstandingScore: number
+    algorithmDesignScore: number
+    codeQualityScore: number
+    communicationScore: number
+    edgeCaseHandlingScore: number
+    recommendation: number
+    privateNotes: number
+    candidateFeedback: number
+    evaluatedAt: number
+    _all: number
+  }
+
+
+  export type InterviewFeedbackAvgAggregateInputType = {
+    problemUnderstandingScore?: true
+    algorithmDesignScore?: true
+    codeQualityScore?: true
+    communicationScore?: true
+    edgeCaseHandlingScore?: true
+  }
+
+  export type InterviewFeedbackSumAggregateInputType = {
+    problemUnderstandingScore?: true
+    algorithmDesignScore?: true
+    codeQualityScore?: true
+    communicationScore?: true
+    edgeCaseHandlingScore?: true
+  }
+
+  export type InterviewFeedbackMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    problemUnderstandingScore?: true
+    algorithmDesignScore?: true
+    codeQualityScore?: true
+    communicationScore?: true
+    edgeCaseHandlingScore?: true
+    recommendation?: true
+    privateNotes?: true
+    candidateFeedback?: true
+    evaluatedAt?: true
+  }
+
+  export type InterviewFeedbackMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    problemUnderstandingScore?: true
+    algorithmDesignScore?: true
+    codeQualityScore?: true
+    communicationScore?: true
+    edgeCaseHandlingScore?: true
+    recommendation?: true
+    privateNotes?: true
+    candidateFeedback?: true
+    evaluatedAt?: true
+  }
+
+  export type InterviewFeedbackCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    problemUnderstandingScore?: true
+    algorithmDesignScore?: true
+    codeQualityScore?: true
+    communicationScore?: true
+    edgeCaseHandlingScore?: true
+    recommendation?: true
+    privateNotes?: true
+    candidateFeedback?: true
+    evaluatedAt?: true
+    _all?: true
+  }
+
+  export type InterviewFeedbackAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewFeedback to aggregate.
+     */
+    where?: InterviewFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewFeedbacks to fetch.
+     */
+    orderBy?: InterviewFeedbackOrderByWithRelationInput | InterviewFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InterviewFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned InterviewFeedbacks
+    **/
+    _count?: true | InterviewFeedbackCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: InterviewFeedbackAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: InterviewFeedbackSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InterviewFeedbackMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InterviewFeedbackMaxAggregateInputType
+  }
+
+  export type GetInterviewFeedbackAggregateType<T extends InterviewFeedbackAggregateArgs> = {
+        [P in keyof T & keyof AggregateInterviewFeedback]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInterviewFeedback[P]>
+      : GetScalarType<T[P], AggregateInterviewFeedback[P]>
+  }
+
+
+
+
+  export type InterviewFeedbackGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewFeedbackWhereInput
+    orderBy?: InterviewFeedbackOrderByWithAggregationInput | InterviewFeedbackOrderByWithAggregationInput[]
+    by: InterviewFeedbackScalarFieldEnum[] | InterviewFeedbackScalarFieldEnum
+    having?: InterviewFeedbackScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InterviewFeedbackCountAggregateInputType | true
+    _avg?: InterviewFeedbackAvgAggregateInputType
+    _sum?: InterviewFeedbackSumAggregateInputType
+    _min?: InterviewFeedbackMinAggregateInputType
+    _max?: InterviewFeedbackMaxAggregateInputType
+  }
+
+  export type InterviewFeedbackGroupByOutputType = {
+    id: string
+    sessionId: string
+    problemUnderstandingScore: number
+    algorithmDesignScore: number
+    codeQualityScore: number
+    communicationScore: number
+    edgeCaseHandlingScore: number
+    recommendation: $Enums.Recommendation
+    privateNotes: string | null
+    candidateFeedback: string | null
+    evaluatedAt: Date
+    _count: InterviewFeedbackCountAggregateOutputType | null
+    _avg: InterviewFeedbackAvgAggregateOutputType | null
+    _sum: InterviewFeedbackSumAggregateOutputType | null
+    _min: InterviewFeedbackMinAggregateOutputType | null
+    _max: InterviewFeedbackMaxAggregateOutputType | null
+  }
+
+  type GetInterviewFeedbackGroupByPayload<T extends InterviewFeedbackGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InterviewFeedbackGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InterviewFeedbackGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InterviewFeedbackGroupByOutputType[P]>
+            : GetScalarType<T[P], InterviewFeedbackGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InterviewFeedbackSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    problemUnderstandingScore?: boolean
+    algorithmDesignScore?: boolean
+    codeQualityScore?: boolean
+    communicationScore?: boolean
+    edgeCaseHandlingScore?: boolean
+    recommendation?: boolean
+    privateNotes?: boolean
+    candidateFeedback?: boolean
+    evaluatedAt?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewFeedback"]>
+
+  export type InterviewFeedbackSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    problemUnderstandingScore?: boolean
+    algorithmDesignScore?: boolean
+    codeQualityScore?: boolean
+    communicationScore?: boolean
+    edgeCaseHandlingScore?: boolean
+    recommendation?: boolean
+    privateNotes?: boolean
+    candidateFeedback?: boolean
+    evaluatedAt?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewFeedback"]>
+
+  export type InterviewFeedbackSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    problemUnderstandingScore?: boolean
+    algorithmDesignScore?: boolean
+    codeQualityScore?: boolean
+    communicationScore?: boolean
+    edgeCaseHandlingScore?: boolean
+    recommendation?: boolean
+    privateNotes?: boolean
+    candidateFeedback?: boolean
+    evaluatedAt?: boolean
+  }
+
+  export type InterviewFeedbackInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }
+  export type InterviewFeedbackIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $InterviewFeedbackPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "InterviewFeedback"
+    objects: {
+      session: Prisma.$MockInterviewSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      problemUnderstandingScore: number
+      algorithmDesignScore: number
+      codeQualityScore: number
+      communicationScore: number
+      edgeCaseHandlingScore: number
+      recommendation: $Enums.Recommendation
+      privateNotes: string | null
+      candidateFeedback: string | null
+      evaluatedAt: Date
+    }, ExtArgs["result"]["interviewFeedback"]>
+    composites: {}
+  }
+
+  type InterviewFeedbackGetPayload<S extends boolean | null | undefined | InterviewFeedbackDefaultArgs> = $Result.GetResult<Prisma.$InterviewFeedbackPayload, S>
+
+  type InterviewFeedbackCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<InterviewFeedbackFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: InterviewFeedbackCountAggregateInputType | true
+    }
+
+  export interface InterviewFeedbackDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['InterviewFeedback'], meta: { name: 'InterviewFeedback' } }
+    /**
+     * Find zero or one InterviewFeedback that matches the filter.
+     * @param {InterviewFeedbackFindUniqueArgs} args - Arguments to find a InterviewFeedback
+     * @example
+     * // Get one InterviewFeedback
+     * const interviewFeedback = await prisma.interviewFeedback.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InterviewFeedbackFindUniqueArgs>(args: SelectSubset<T, InterviewFeedbackFindUniqueArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one InterviewFeedback that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {InterviewFeedbackFindUniqueOrThrowArgs} args - Arguments to find a InterviewFeedback
+     * @example
+     * // Get one InterviewFeedback
+     * const interviewFeedback = await prisma.interviewFeedback.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InterviewFeedbackFindUniqueOrThrowArgs>(args: SelectSubset<T, InterviewFeedbackFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first InterviewFeedback that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewFeedbackFindFirstArgs} args - Arguments to find a InterviewFeedback
+     * @example
+     * // Get one InterviewFeedback
+     * const interviewFeedback = await prisma.interviewFeedback.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InterviewFeedbackFindFirstArgs>(args?: SelectSubset<T, InterviewFeedbackFindFirstArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first InterviewFeedback that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewFeedbackFindFirstOrThrowArgs} args - Arguments to find a InterviewFeedback
+     * @example
+     * // Get one InterviewFeedback
+     * const interviewFeedback = await prisma.interviewFeedback.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InterviewFeedbackFindFirstOrThrowArgs>(args?: SelectSubset<T, InterviewFeedbackFindFirstOrThrowArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more InterviewFeedbacks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewFeedbackFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all InterviewFeedbacks
+     * const interviewFeedbacks = await prisma.interviewFeedback.findMany()
+     * 
+     * // Get first 10 InterviewFeedbacks
+     * const interviewFeedbacks = await prisma.interviewFeedback.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const interviewFeedbackWithIdOnly = await prisma.interviewFeedback.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InterviewFeedbackFindManyArgs>(args?: SelectSubset<T, InterviewFeedbackFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a InterviewFeedback.
+     * @param {InterviewFeedbackCreateArgs} args - Arguments to create a InterviewFeedback.
+     * @example
+     * // Create one InterviewFeedback
+     * const InterviewFeedback = await prisma.interviewFeedback.create({
+     *   data: {
+     *     // ... data to create a InterviewFeedback
+     *   }
+     * })
+     * 
+     */
+    create<T extends InterviewFeedbackCreateArgs>(args: SelectSubset<T, InterviewFeedbackCreateArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many InterviewFeedbacks.
+     * @param {InterviewFeedbackCreateManyArgs} args - Arguments to create many InterviewFeedbacks.
+     * @example
+     * // Create many InterviewFeedbacks
+     * const interviewFeedback = await prisma.interviewFeedback.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InterviewFeedbackCreateManyArgs>(args?: SelectSubset<T, InterviewFeedbackCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many InterviewFeedbacks and returns the data saved in the database.
+     * @param {InterviewFeedbackCreateManyAndReturnArgs} args - Arguments to create many InterviewFeedbacks.
+     * @example
+     * // Create many InterviewFeedbacks
+     * const interviewFeedback = await prisma.interviewFeedback.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many InterviewFeedbacks and only return the `id`
+     * const interviewFeedbackWithIdOnly = await prisma.interviewFeedback.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InterviewFeedbackCreateManyAndReturnArgs>(args?: SelectSubset<T, InterviewFeedbackCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a InterviewFeedback.
+     * @param {InterviewFeedbackDeleteArgs} args - Arguments to delete one InterviewFeedback.
+     * @example
+     * // Delete one InterviewFeedback
+     * const InterviewFeedback = await prisma.interviewFeedback.delete({
+     *   where: {
+     *     // ... filter to delete one InterviewFeedback
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InterviewFeedbackDeleteArgs>(args: SelectSubset<T, InterviewFeedbackDeleteArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one InterviewFeedback.
+     * @param {InterviewFeedbackUpdateArgs} args - Arguments to update one InterviewFeedback.
+     * @example
+     * // Update one InterviewFeedback
+     * const interviewFeedback = await prisma.interviewFeedback.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InterviewFeedbackUpdateArgs>(args: SelectSubset<T, InterviewFeedbackUpdateArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more InterviewFeedbacks.
+     * @param {InterviewFeedbackDeleteManyArgs} args - Arguments to filter InterviewFeedbacks to delete.
+     * @example
+     * // Delete a few InterviewFeedbacks
+     * const { count } = await prisma.interviewFeedback.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InterviewFeedbackDeleteManyArgs>(args?: SelectSubset<T, InterviewFeedbackDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InterviewFeedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewFeedbackUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many InterviewFeedbacks
+     * const interviewFeedback = await prisma.interviewFeedback.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InterviewFeedbackUpdateManyArgs>(args: SelectSubset<T, InterviewFeedbackUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one InterviewFeedback.
+     * @param {InterviewFeedbackUpsertArgs} args - Arguments to update or create a InterviewFeedback.
+     * @example
+     * // Update or create a InterviewFeedback
+     * const interviewFeedback = await prisma.interviewFeedback.upsert({
+     *   create: {
+     *     // ... data to create a InterviewFeedback
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the InterviewFeedback we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InterviewFeedbackUpsertArgs>(args: SelectSubset<T, InterviewFeedbackUpsertArgs<ExtArgs>>): Prisma__InterviewFeedbackClient<$Result.GetResult<Prisma.$InterviewFeedbackPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of InterviewFeedbacks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewFeedbackCountArgs} args - Arguments to filter InterviewFeedbacks to count.
+     * @example
+     * // Count the number of InterviewFeedbacks
+     * const count = await prisma.interviewFeedback.count({
+     *   where: {
+     *     // ... the filter for the InterviewFeedbacks we want to count
+     *   }
+     * })
+    **/
+    count<T extends InterviewFeedbackCountArgs>(
+      args?: Subset<T, InterviewFeedbackCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InterviewFeedbackCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a InterviewFeedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewFeedbackAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InterviewFeedbackAggregateArgs>(args: Subset<T, InterviewFeedbackAggregateArgs>): Prisma.PrismaPromise<GetInterviewFeedbackAggregateType<T>>
+
+    /**
+     * Group by InterviewFeedback.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewFeedbackGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InterviewFeedbackGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InterviewFeedbackGroupByArgs['orderBy'] }
+        : { orderBy?: InterviewFeedbackGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InterviewFeedbackGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInterviewFeedbackGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the InterviewFeedback model
+   */
+  readonly fields: InterviewFeedbackFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for InterviewFeedback.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InterviewFeedbackClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends MockInterviewSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSessionDefaultArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the InterviewFeedback model
+   */ 
+  interface InterviewFeedbackFieldRefs {
+    readonly id: FieldRef<"InterviewFeedback", 'String'>
+    readonly sessionId: FieldRef<"InterviewFeedback", 'String'>
+    readonly problemUnderstandingScore: FieldRef<"InterviewFeedback", 'Int'>
+    readonly algorithmDesignScore: FieldRef<"InterviewFeedback", 'Int'>
+    readonly codeQualityScore: FieldRef<"InterviewFeedback", 'Int'>
+    readonly communicationScore: FieldRef<"InterviewFeedback", 'Int'>
+    readonly edgeCaseHandlingScore: FieldRef<"InterviewFeedback", 'Int'>
+    readonly recommendation: FieldRef<"InterviewFeedback", 'Recommendation'>
+    readonly privateNotes: FieldRef<"InterviewFeedback", 'String'>
+    readonly candidateFeedback: FieldRef<"InterviewFeedback", 'String'>
+    readonly evaluatedAt: FieldRef<"InterviewFeedback", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * InterviewFeedback findUnique
+   */
+  export type InterviewFeedbackFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewFeedback to fetch.
+     */
+    where: InterviewFeedbackWhereUniqueInput
+  }
+
+  /**
+   * InterviewFeedback findUniqueOrThrow
+   */
+  export type InterviewFeedbackFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewFeedback to fetch.
+     */
+    where: InterviewFeedbackWhereUniqueInput
+  }
+
+  /**
+   * InterviewFeedback findFirst
+   */
+  export type InterviewFeedbackFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewFeedback to fetch.
+     */
+    where?: InterviewFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewFeedbacks to fetch.
+     */
+    orderBy?: InterviewFeedbackOrderByWithRelationInput | InterviewFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewFeedbacks.
+     */
+    cursor?: InterviewFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewFeedbacks.
+     */
+    distinct?: InterviewFeedbackScalarFieldEnum | InterviewFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewFeedback findFirstOrThrow
+   */
+  export type InterviewFeedbackFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewFeedback to fetch.
+     */
+    where?: InterviewFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewFeedbacks to fetch.
+     */
+    orderBy?: InterviewFeedbackOrderByWithRelationInput | InterviewFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewFeedbacks.
+     */
+    cursor?: InterviewFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewFeedbacks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewFeedbacks.
+     */
+    distinct?: InterviewFeedbackScalarFieldEnum | InterviewFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewFeedback findMany
+   */
+  export type InterviewFeedbackFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewFeedbacks to fetch.
+     */
+    where?: InterviewFeedbackWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewFeedbacks to fetch.
+     */
+    orderBy?: InterviewFeedbackOrderByWithRelationInput | InterviewFeedbackOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing InterviewFeedbacks.
+     */
+    cursor?: InterviewFeedbackWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewFeedbacks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewFeedbacks.
+     */
+    skip?: number
+    distinct?: InterviewFeedbackScalarFieldEnum | InterviewFeedbackScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewFeedback create
+   */
+  export type InterviewFeedbackCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to create a InterviewFeedback.
+     */
+    data: XOR<InterviewFeedbackCreateInput, InterviewFeedbackUncheckedCreateInput>
+  }
+
+  /**
+   * InterviewFeedback createMany
+   */
+  export type InterviewFeedbackCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many InterviewFeedbacks.
+     */
+    data: InterviewFeedbackCreateManyInput | InterviewFeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * InterviewFeedback createManyAndReturn
+   */
+  export type InterviewFeedbackCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many InterviewFeedbacks.
+     */
+    data: InterviewFeedbackCreateManyInput | InterviewFeedbackCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InterviewFeedback update
+   */
+  export type InterviewFeedbackUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * The data needed to update a InterviewFeedback.
+     */
+    data: XOR<InterviewFeedbackUpdateInput, InterviewFeedbackUncheckedUpdateInput>
+    /**
+     * Choose, which InterviewFeedback to update.
+     */
+    where: InterviewFeedbackWhereUniqueInput
+  }
+
+  /**
+   * InterviewFeedback updateMany
+   */
+  export type InterviewFeedbackUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update InterviewFeedbacks.
+     */
+    data: XOR<InterviewFeedbackUpdateManyMutationInput, InterviewFeedbackUncheckedUpdateManyInput>
+    /**
+     * Filter which InterviewFeedbacks to update
+     */
+    where?: InterviewFeedbackWhereInput
+  }
+
+  /**
+   * InterviewFeedback upsert
+   */
+  export type InterviewFeedbackUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * The filter to search for the InterviewFeedback to update in case it exists.
+     */
+    where: InterviewFeedbackWhereUniqueInput
+    /**
+     * In case the InterviewFeedback found by the `where` argument doesn't exist, create a new InterviewFeedback with this data.
+     */
+    create: XOR<InterviewFeedbackCreateInput, InterviewFeedbackUncheckedCreateInput>
+    /**
+     * In case the InterviewFeedback was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InterviewFeedbackUpdateInput, InterviewFeedbackUncheckedUpdateInput>
+  }
+
+  /**
+   * InterviewFeedback delete
+   */
+  export type InterviewFeedbackDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+    /**
+     * Filter which InterviewFeedback to delete.
+     */
+    where: InterviewFeedbackWhereUniqueInput
+  }
+
+  /**
+   * InterviewFeedback deleteMany
+   */
+  export type InterviewFeedbackDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewFeedbacks to delete
+     */
+    where?: InterviewFeedbackWhereInput
+  }
+
+  /**
+   * InterviewFeedback without action
+   */
+  export type InterviewFeedbackDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewFeedback
+     */
+    select?: InterviewFeedbackSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewFeedbackInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model InterviewCodeSnapshot
+   */
+
+  export type AggregateInterviewCodeSnapshot = {
+    _count: InterviewCodeSnapshotCountAggregateOutputType | null
+    _min: InterviewCodeSnapshotMinAggregateOutputType | null
+    _max: InterviewCodeSnapshotMaxAggregateOutputType | null
+  }
+
+  export type InterviewCodeSnapshotMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    code: string | null
+    language: string | null
+    phase: $Enums.InterviewPhase | null
+    snapshotAt: Date | null
+  }
+
+  export type InterviewCodeSnapshotMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    code: string | null
+    language: string | null
+    phase: $Enums.InterviewPhase | null
+    snapshotAt: Date | null
+  }
+
+  export type InterviewCodeSnapshotCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    code: number
+    language: number
+    phase: number
+    snapshotAt: number
+    _all: number
+  }
+
+
+  export type InterviewCodeSnapshotMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    language?: true
+    phase?: true
+    snapshotAt?: true
+  }
+
+  export type InterviewCodeSnapshotMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    language?: true
+    phase?: true
+    snapshotAt?: true
+  }
+
+  export type InterviewCodeSnapshotCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    language?: true
+    phase?: true
+    snapshotAt?: true
+    _all?: true
+  }
+
+  export type InterviewCodeSnapshotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewCodeSnapshot to aggregate.
+     */
+    where?: InterviewCodeSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewCodeSnapshots to fetch.
+     */
+    orderBy?: InterviewCodeSnapshotOrderByWithRelationInput | InterviewCodeSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InterviewCodeSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewCodeSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewCodeSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned InterviewCodeSnapshots
+    **/
+    _count?: true | InterviewCodeSnapshotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InterviewCodeSnapshotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InterviewCodeSnapshotMaxAggregateInputType
+  }
+
+  export type GetInterviewCodeSnapshotAggregateType<T extends InterviewCodeSnapshotAggregateArgs> = {
+        [P in keyof T & keyof AggregateInterviewCodeSnapshot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInterviewCodeSnapshot[P]>
+      : GetScalarType<T[P], AggregateInterviewCodeSnapshot[P]>
+  }
+
+
+
+
+  export type InterviewCodeSnapshotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewCodeSnapshotWhereInput
+    orderBy?: InterviewCodeSnapshotOrderByWithAggregationInput | InterviewCodeSnapshotOrderByWithAggregationInput[]
+    by: InterviewCodeSnapshotScalarFieldEnum[] | InterviewCodeSnapshotScalarFieldEnum
+    having?: InterviewCodeSnapshotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InterviewCodeSnapshotCountAggregateInputType | true
+    _min?: InterviewCodeSnapshotMinAggregateInputType
+    _max?: InterviewCodeSnapshotMaxAggregateInputType
+  }
+
+  export type InterviewCodeSnapshotGroupByOutputType = {
+    id: string
+    sessionId: string
+    code: string
+    language: string
+    phase: $Enums.InterviewPhase
+    snapshotAt: Date
+    _count: InterviewCodeSnapshotCountAggregateOutputType | null
+    _min: InterviewCodeSnapshotMinAggregateOutputType | null
+    _max: InterviewCodeSnapshotMaxAggregateOutputType | null
+  }
+
+  type GetInterviewCodeSnapshotGroupByPayload<T extends InterviewCodeSnapshotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InterviewCodeSnapshotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InterviewCodeSnapshotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InterviewCodeSnapshotGroupByOutputType[P]>
+            : GetScalarType<T[P], InterviewCodeSnapshotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InterviewCodeSnapshotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    language?: boolean
+    phase?: boolean
+    snapshotAt?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewCodeSnapshot"]>
+
+  export type InterviewCodeSnapshotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    language?: boolean
+    phase?: boolean
+    snapshotAt?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewCodeSnapshot"]>
+
+  export type InterviewCodeSnapshotSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    language?: boolean
+    phase?: boolean
+    snapshotAt?: boolean
+  }
+
+  export type InterviewCodeSnapshotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }
+  export type InterviewCodeSnapshotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $InterviewCodeSnapshotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "InterviewCodeSnapshot"
+    objects: {
+      session: Prisma.$MockInterviewSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      code: string
+      language: string
+      phase: $Enums.InterviewPhase
+      snapshotAt: Date
+    }, ExtArgs["result"]["interviewCodeSnapshot"]>
+    composites: {}
+  }
+
+  type InterviewCodeSnapshotGetPayload<S extends boolean | null | undefined | InterviewCodeSnapshotDefaultArgs> = $Result.GetResult<Prisma.$InterviewCodeSnapshotPayload, S>
+
+  type InterviewCodeSnapshotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<InterviewCodeSnapshotFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: InterviewCodeSnapshotCountAggregateInputType | true
+    }
+
+  export interface InterviewCodeSnapshotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['InterviewCodeSnapshot'], meta: { name: 'InterviewCodeSnapshot' } }
+    /**
+     * Find zero or one InterviewCodeSnapshot that matches the filter.
+     * @param {InterviewCodeSnapshotFindUniqueArgs} args - Arguments to find a InterviewCodeSnapshot
+     * @example
+     * // Get one InterviewCodeSnapshot
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InterviewCodeSnapshotFindUniqueArgs>(args: SelectSubset<T, InterviewCodeSnapshotFindUniqueArgs<ExtArgs>>): Prisma__InterviewCodeSnapshotClient<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one InterviewCodeSnapshot that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {InterviewCodeSnapshotFindUniqueOrThrowArgs} args - Arguments to find a InterviewCodeSnapshot
+     * @example
+     * // Get one InterviewCodeSnapshot
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InterviewCodeSnapshotFindUniqueOrThrowArgs>(args: SelectSubset<T, InterviewCodeSnapshotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InterviewCodeSnapshotClient<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first InterviewCodeSnapshot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewCodeSnapshotFindFirstArgs} args - Arguments to find a InterviewCodeSnapshot
+     * @example
+     * // Get one InterviewCodeSnapshot
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InterviewCodeSnapshotFindFirstArgs>(args?: SelectSubset<T, InterviewCodeSnapshotFindFirstArgs<ExtArgs>>): Prisma__InterviewCodeSnapshotClient<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first InterviewCodeSnapshot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewCodeSnapshotFindFirstOrThrowArgs} args - Arguments to find a InterviewCodeSnapshot
+     * @example
+     * // Get one InterviewCodeSnapshot
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InterviewCodeSnapshotFindFirstOrThrowArgs>(args?: SelectSubset<T, InterviewCodeSnapshotFindFirstOrThrowArgs<ExtArgs>>): Prisma__InterviewCodeSnapshotClient<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more InterviewCodeSnapshots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewCodeSnapshotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all InterviewCodeSnapshots
+     * const interviewCodeSnapshots = await prisma.interviewCodeSnapshot.findMany()
+     * 
+     * // Get first 10 InterviewCodeSnapshots
+     * const interviewCodeSnapshots = await prisma.interviewCodeSnapshot.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const interviewCodeSnapshotWithIdOnly = await prisma.interviewCodeSnapshot.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InterviewCodeSnapshotFindManyArgs>(args?: SelectSubset<T, InterviewCodeSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a InterviewCodeSnapshot.
+     * @param {InterviewCodeSnapshotCreateArgs} args - Arguments to create a InterviewCodeSnapshot.
+     * @example
+     * // Create one InterviewCodeSnapshot
+     * const InterviewCodeSnapshot = await prisma.interviewCodeSnapshot.create({
+     *   data: {
+     *     // ... data to create a InterviewCodeSnapshot
+     *   }
+     * })
+     * 
+     */
+    create<T extends InterviewCodeSnapshotCreateArgs>(args: SelectSubset<T, InterviewCodeSnapshotCreateArgs<ExtArgs>>): Prisma__InterviewCodeSnapshotClient<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many InterviewCodeSnapshots.
+     * @param {InterviewCodeSnapshotCreateManyArgs} args - Arguments to create many InterviewCodeSnapshots.
+     * @example
+     * // Create many InterviewCodeSnapshots
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InterviewCodeSnapshotCreateManyArgs>(args?: SelectSubset<T, InterviewCodeSnapshotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many InterviewCodeSnapshots and returns the data saved in the database.
+     * @param {InterviewCodeSnapshotCreateManyAndReturnArgs} args - Arguments to create many InterviewCodeSnapshots.
+     * @example
+     * // Create many InterviewCodeSnapshots
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many InterviewCodeSnapshots and only return the `id`
+     * const interviewCodeSnapshotWithIdOnly = await prisma.interviewCodeSnapshot.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InterviewCodeSnapshotCreateManyAndReturnArgs>(args?: SelectSubset<T, InterviewCodeSnapshotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a InterviewCodeSnapshot.
+     * @param {InterviewCodeSnapshotDeleteArgs} args - Arguments to delete one InterviewCodeSnapshot.
+     * @example
+     * // Delete one InterviewCodeSnapshot
+     * const InterviewCodeSnapshot = await prisma.interviewCodeSnapshot.delete({
+     *   where: {
+     *     // ... filter to delete one InterviewCodeSnapshot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InterviewCodeSnapshotDeleteArgs>(args: SelectSubset<T, InterviewCodeSnapshotDeleteArgs<ExtArgs>>): Prisma__InterviewCodeSnapshotClient<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one InterviewCodeSnapshot.
+     * @param {InterviewCodeSnapshotUpdateArgs} args - Arguments to update one InterviewCodeSnapshot.
+     * @example
+     * // Update one InterviewCodeSnapshot
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InterviewCodeSnapshotUpdateArgs>(args: SelectSubset<T, InterviewCodeSnapshotUpdateArgs<ExtArgs>>): Prisma__InterviewCodeSnapshotClient<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more InterviewCodeSnapshots.
+     * @param {InterviewCodeSnapshotDeleteManyArgs} args - Arguments to filter InterviewCodeSnapshots to delete.
+     * @example
+     * // Delete a few InterviewCodeSnapshots
+     * const { count } = await prisma.interviewCodeSnapshot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InterviewCodeSnapshotDeleteManyArgs>(args?: SelectSubset<T, InterviewCodeSnapshotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InterviewCodeSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewCodeSnapshotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many InterviewCodeSnapshots
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InterviewCodeSnapshotUpdateManyArgs>(args: SelectSubset<T, InterviewCodeSnapshotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one InterviewCodeSnapshot.
+     * @param {InterviewCodeSnapshotUpsertArgs} args - Arguments to update or create a InterviewCodeSnapshot.
+     * @example
+     * // Update or create a InterviewCodeSnapshot
+     * const interviewCodeSnapshot = await prisma.interviewCodeSnapshot.upsert({
+     *   create: {
+     *     // ... data to create a InterviewCodeSnapshot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the InterviewCodeSnapshot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InterviewCodeSnapshotUpsertArgs>(args: SelectSubset<T, InterviewCodeSnapshotUpsertArgs<ExtArgs>>): Prisma__InterviewCodeSnapshotClient<$Result.GetResult<Prisma.$InterviewCodeSnapshotPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of InterviewCodeSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewCodeSnapshotCountArgs} args - Arguments to filter InterviewCodeSnapshots to count.
+     * @example
+     * // Count the number of InterviewCodeSnapshots
+     * const count = await prisma.interviewCodeSnapshot.count({
+     *   where: {
+     *     // ... the filter for the InterviewCodeSnapshots we want to count
+     *   }
+     * })
+    **/
+    count<T extends InterviewCodeSnapshotCountArgs>(
+      args?: Subset<T, InterviewCodeSnapshotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InterviewCodeSnapshotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a InterviewCodeSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewCodeSnapshotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InterviewCodeSnapshotAggregateArgs>(args: Subset<T, InterviewCodeSnapshotAggregateArgs>): Prisma.PrismaPromise<GetInterviewCodeSnapshotAggregateType<T>>
+
+    /**
+     * Group by InterviewCodeSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewCodeSnapshotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InterviewCodeSnapshotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InterviewCodeSnapshotGroupByArgs['orderBy'] }
+        : { orderBy?: InterviewCodeSnapshotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InterviewCodeSnapshotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInterviewCodeSnapshotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the InterviewCodeSnapshot model
+   */
+  readonly fields: InterviewCodeSnapshotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for InterviewCodeSnapshot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InterviewCodeSnapshotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends MockInterviewSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSessionDefaultArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the InterviewCodeSnapshot model
+   */ 
+  interface InterviewCodeSnapshotFieldRefs {
+    readonly id: FieldRef<"InterviewCodeSnapshot", 'String'>
+    readonly sessionId: FieldRef<"InterviewCodeSnapshot", 'String'>
+    readonly code: FieldRef<"InterviewCodeSnapshot", 'String'>
+    readonly language: FieldRef<"InterviewCodeSnapshot", 'String'>
+    readonly phase: FieldRef<"InterviewCodeSnapshot", 'InterviewPhase'>
+    readonly snapshotAt: FieldRef<"InterviewCodeSnapshot", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * InterviewCodeSnapshot findUnique
+   */
+  export type InterviewCodeSnapshotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewCodeSnapshot to fetch.
+     */
+    where: InterviewCodeSnapshotWhereUniqueInput
+  }
+
+  /**
+   * InterviewCodeSnapshot findUniqueOrThrow
+   */
+  export type InterviewCodeSnapshotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewCodeSnapshot to fetch.
+     */
+    where: InterviewCodeSnapshotWhereUniqueInput
+  }
+
+  /**
+   * InterviewCodeSnapshot findFirst
+   */
+  export type InterviewCodeSnapshotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewCodeSnapshot to fetch.
+     */
+    where?: InterviewCodeSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewCodeSnapshots to fetch.
+     */
+    orderBy?: InterviewCodeSnapshotOrderByWithRelationInput | InterviewCodeSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewCodeSnapshots.
+     */
+    cursor?: InterviewCodeSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewCodeSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewCodeSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewCodeSnapshots.
+     */
+    distinct?: InterviewCodeSnapshotScalarFieldEnum | InterviewCodeSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewCodeSnapshot findFirstOrThrow
+   */
+  export type InterviewCodeSnapshotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewCodeSnapshot to fetch.
+     */
+    where?: InterviewCodeSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewCodeSnapshots to fetch.
+     */
+    orderBy?: InterviewCodeSnapshotOrderByWithRelationInput | InterviewCodeSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewCodeSnapshots.
+     */
+    cursor?: InterviewCodeSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewCodeSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewCodeSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewCodeSnapshots.
+     */
+    distinct?: InterviewCodeSnapshotScalarFieldEnum | InterviewCodeSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewCodeSnapshot findMany
+   */
+  export type InterviewCodeSnapshotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewCodeSnapshots to fetch.
+     */
+    where?: InterviewCodeSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewCodeSnapshots to fetch.
+     */
+    orderBy?: InterviewCodeSnapshotOrderByWithRelationInput | InterviewCodeSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing InterviewCodeSnapshots.
+     */
+    cursor?: InterviewCodeSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewCodeSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewCodeSnapshots.
+     */
+    skip?: number
+    distinct?: InterviewCodeSnapshotScalarFieldEnum | InterviewCodeSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewCodeSnapshot create
+   */
+  export type InterviewCodeSnapshotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * The data needed to create a InterviewCodeSnapshot.
+     */
+    data: XOR<InterviewCodeSnapshotCreateInput, InterviewCodeSnapshotUncheckedCreateInput>
+  }
+
+  /**
+   * InterviewCodeSnapshot createMany
+   */
+  export type InterviewCodeSnapshotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many InterviewCodeSnapshots.
+     */
+    data: InterviewCodeSnapshotCreateManyInput | InterviewCodeSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * InterviewCodeSnapshot createManyAndReturn
+   */
+  export type InterviewCodeSnapshotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many InterviewCodeSnapshots.
+     */
+    data: InterviewCodeSnapshotCreateManyInput | InterviewCodeSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InterviewCodeSnapshot update
+   */
+  export type InterviewCodeSnapshotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * The data needed to update a InterviewCodeSnapshot.
+     */
+    data: XOR<InterviewCodeSnapshotUpdateInput, InterviewCodeSnapshotUncheckedUpdateInput>
+    /**
+     * Choose, which InterviewCodeSnapshot to update.
+     */
+    where: InterviewCodeSnapshotWhereUniqueInput
+  }
+
+  /**
+   * InterviewCodeSnapshot updateMany
+   */
+  export type InterviewCodeSnapshotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update InterviewCodeSnapshots.
+     */
+    data: XOR<InterviewCodeSnapshotUpdateManyMutationInput, InterviewCodeSnapshotUncheckedUpdateManyInput>
+    /**
+     * Filter which InterviewCodeSnapshots to update
+     */
+    where?: InterviewCodeSnapshotWhereInput
+  }
+
+  /**
+   * InterviewCodeSnapshot upsert
+   */
+  export type InterviewCodeSnapshotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * The filter to search for the InterviewCodeSnapshot to update in case it exists.
+     */
+    where: InterviewCodeSnapshotWhereUniqueInput
+    /**
+     * In case the InterviewCodeSnapshot found by the `where` argument doesn't exist, create a new InterviewCodeSnapshot with this data.
+     */
+    create: XOR<InterviewCodeSnapshotCreateInput, InterviewCodeSnapshotUncheckedCreateInput>
+    /**
+     * In case the InterviewCodeSnapshot was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InterviewCodeSnapshotUpdateInput, InterviewCodeSnapshotUncheckedUpdateInput>
+  }
+
+  /**
+   * InterviewCodeSnapshot delete
+   */
+  export type InterviewCodeSnapshotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter which InterviewCodeSnapshot to delete.
+     */
+    where: InterviewCodeSnapshotWhereUniqueInput
+  }
+
+  /**
+   * InterviewCodeSnapshot deleteMany
+   */
+  export type InterviewCodeSnapshotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewCodeSnapshots to delete
+     */
+    where?: InterviewCodeSnapshotWhereInput
+  }
+
+  /**
+   * InterviewCodeSnapshot without action
+   */
+  export type InterviewCodeSnapshotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewCodeSnapshot
+     */
+    select?: InterviewCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewCodeSnapshotInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model InterviewHintRequest
+   */
+
+  export type AggregateInterviewHintRequest = {
+    _count: InterviewHintRequestCountAggregateOutputType | null
+    _avg: InterviewHintRequestAvgAggregateOutputType | null
+    _sum: InterviewHintRequestSumAggregateOutputType | null
+    _min: InterviewHintRequestMinAggregateOutputType | null
+    _max: InterviewHintRequestMaxAggregateOutputType | null
+  }
+
+  export type InterviewHintRequestAvgAggregateOutputType = {
+    hintLevel: number | null
+  }
+
+  export type InterviewHintRequestSumAggregateOutputType = {
+    hintLevel: number | null
+  }
+
+  export type InterviewHintRequestMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    requestedAt: Date | null
+    hintLevel: number | null
+    approved: boolean | null
+    hintContent: string | null
+  }
+
+  export type InterviewHintRequestMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    requestedAt: Date | null
+    hintLevel: number | null
+    approved: boolean | null
+    hintContent: string | null
+  }
+
+  export type InterviewHintRequestCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    requestedAt: number
+    hintLevel: number
+    approved: number
+    hintContent: number
+    _all: number
+  }
+
+
+  export type InterviewHintRequestAvgAggregateInputType = {
+    hintLevel?: true
+  }
+
+  export type InterviewHintRequestSumAggregateInputType = {
+    hintLevel?: true
+  }
+
+  export type InterviewHintRequestMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    requestedAt?: true
+    hintLevel?: true
+    approved?: true
+    hintContent?: true
+  }
+
+  export type InterviewHintRequestMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    requestedAt?: true
+    hintLevel?: true
+    approved?: true
+    hintContent?: true
+  }
+
+  export type InterviewHintRequestCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    requestedAt?: true
+    hintLevel?: true
+    approved?: true
+    hintContent?: true
+    _all?: true
+  }
+
+  export type InterviewHintRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewHintRequest to aggregate.
+     */
+    where?: InterviewHintRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewHintRequests to fetch.
+     */
+    orderBy?: InterviewHintRequestOrderByWithRelationInput | InterviewHintRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InterviewHintRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewHintRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewHintRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned InterviewHintRequests
+    **/
+    _count?: true | InterviewHintRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: InterviewHintRequestAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: InterviewHintRequestSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InterviewHintRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InterviewHintRequestMaxAggregateInputType
+  }
+
+  export type GetInterviewHintRequestAggregateType<T extends InterviewHintRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateInterviewHintRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInterviewHintRequest[P]>
+      : GetScalarType<T[P], AggregateInterviewHintRequest[P]>
+  }
+
+
+
+
+  export type InterviewHintRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewHintRequestWhereInput
+    orderBy?: InterviewHintRequestOrderByWithAggregationInput | InterviewHintRequestOrderByWithAggregationInput[]
+    by: InterviewHintRequestScalarFieldEnum[] | InterviewHintRequestScalarFieldEnum
+    having?: InterviewHintRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InterviewHintRequestCountAggregateInputType | true
+    _avg?: InterviewHintRequestAvgAggregateInputType
+    _sum?: InterviewHintRequestSumAggregateInputType
+    _min?: InterviewHintRequestMinAggregateInputType
+    _max?: InterviewHintRequestMaxAggregateInputType
+  }
+
+  export type InterviewHintRequestGroupByOutputType = {
+    id: string
+    sessionId: string
+    requestedAt: Date
+    hintLevel: number
+    approved: boolean
+    hintContent: string | null
+    _count: InterviewHintRequestCountAggregateOutputType | null
+    _avg: InterviewHintRequestAvgAggregateOutputType | null
+    _sum: InterviewHintRequestSumAggregateOutputType | null
+    _min: InterviewHintRequestMinAggregateOutputType | null
+    _max: InterviewHintRequestMaxAggregateOutputType | null
+  }
+
+  type GetInterviewHintRequestGroupByPayload<T extends InterviewHintRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InterviewHintRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InterviewHintRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InterviewHintRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], InterviewHintRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InterviewHintRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    requestedAt?: boolean
+    hintLevel?: boolean
+    approved?: boolean
+    hintContent?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewHintRequest"]>
+
+  export type InterviewHintRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    requestedAt?: boolean
+    hintLevel?: boolean
+    approved?: boolean
+    hintContent?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewHintRequest"]>
+
+  export type InterviewHintRequestSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    requestedAt?: boolean
+    hintLevel?: boolean
+    approved?: boolean
+    hintContent?: boolean
+  }
+
+  export type InterviewHintRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }
+  export type InterviewHintRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $InterviewHintRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "InterviewHintRequest"
+    objects: {
+      session: Prisma.$MockInterviewSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      requestedAt: Date
+      hintLevel: number
+      approved: boolean
+      hintContent: string | null
+    }, ExtArgs["result"]["interviewHintRequest"]>
+    composites: {}
+  }
+
+  type InterviewHintRequestGetPayload<S extends boolean | null | undefined | InterviewHintRequestDefaultArgs> = $Result.GetResult<Prisma.$InterviewHintRequestPayload, S>
+
+  type InterviewHintRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<InterviewHintRequestFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: InterviewHintRequestCountAggregateInputType | true
+    }
+
+  export interface InterviewHintRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['InterviewHintRequest'], meta: { name: 'InterviewHintRequest' } }
+    /**
+     * Find zero or one InterviewHintRequest that matches the filter.
+     * @param {InterviewHintRequestFindUniqueArgs} args - Arguments to find a InterviewHintRequest
+     * @example
+     * // Get one InterviewHintRequest
+     * const interviewHintRequest = await prisma.interviewHintRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InterviewHintRequestFindUniqueArgs>(args: SelectSubset<T, InterviewHintRequestFindUniqueArgs<ExtArgs>>): Prisma__InterviewHintRequestClient<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one InterviewHintRequest that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {InterviewHintRequestFindUniqueOrThrowArgs} args - Arguments to find a InterviewHintRequest
+     * @example
+     * // Get one InterviewHintRequest
+     * const interviewHintRequest = await prisma.interviewHintRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InterviewHintRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, InterviewHintRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InterviewHintRequestClient<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first InterviewHintRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewHintRequestFindFirstArgs} args - Arguments to find a InterviewHintRequest
+     * @example
+     * // Get one InterviewHintRequest
+     * const interviewHintRequest = await prisma.interviewHintRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InterviewHintRequestFindFirstArgs>(args?: SelectSubset<T, InterviewHintRequestFindFirstArgs<ExtArgs>>): Prisma__InterviewHintRequestClient<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first InterviewHintRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewHintRequestFindFirstOrThrowArgs} args - Arguments to find a InterviewHintRequest
+     * @example
+     * // Get one InterviewHintRequest
+     * const interviewHintRequest = await prisma.interviewHintRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InterviewHintRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, InterviewHintRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__InterviewHintRequestClient<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more InterviewHintRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewHintRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all InterviewHintRequests
+     * const interviewHintRequests = await prisma.interviewHintRequest.findMany()
+     * 
+     * // Get first 10 InterviewHintRequests
+     * const interviewHintRequests = await prisma.interviewHintRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const interviewHintRequestWithIdOnly = await prisma.interviewHintRequest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InterviewHintRequestFindManyArgs>(args?: SelectSubset<T, InterviewHintRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a InterviewHintRequest.
+     * @param {InterviewHintRequestCreateArgs} args - Arguments to create a InterviewHintRequest.
+     * @example
+     * // Create one InterviewHintRequest
+     * const InterviewHintRequest = await prisma.interviewHintRequest.create({
+     *   data: {
+     *     // ... data to create a InterviewHintRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends InterviewHintRequestCreateArgs>(args: SelectSubset<T, InterviewHintRequestCreateArgs<ExtArgs>>): Prisma__InterviewHintRequestClient<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many InterviewHintRequests.
+     * @param {InterviewHintRequestCreateManyArgs} args - Arguments to create many InterviewHintRequests.
+     * @example
+     * // Create many InterviewHintRequests
+     * const interviewHintRequest = await prisma.interviewHintRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InterviewHintRequestCreateManyArgs>(args?: SelectSubset<T, InterviewHintRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many InterviewHintRequests and returns the data saved in the database.
+     * @param {InterviewHintRequestCreateManyAndReturnArgs} args - Arguments to create many InterviewHintRequests.
+     * @example
+     * // Create many InterviewHintRequests
+     * const interviewHintRequest = await prisma.interviewHintRequest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many InterviewHintRequests and only return the `id`
+     * const interviewHintRequestWithIdOnly = await prisma.interviewHintRequest.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InterviewHintRequestCreateManyAndReturnArgs>(args?: SelectSubset<T, InterviewHintRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a InterviewHintRequest.
+     * @param {InterviewHintRequestDeleteArgs} args - Arguments to delete one InterviewHintRequest.
+     * @example
+     * // Delete one InterviewHintRequest
+     * const InterviewHintRequest = await prisma.interviewHintRequest.delete({
+     *   where: {
+     *     // ... filter to delete one InterviewHintRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InterviewHintRequestDeleteArgs>(args: SelectSubset<T, InterviewHintRequestDeleteArgs<ExtArgs>>): Prisma__InterviewHintRequestClient<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one InterviewHintRequest.
+     * @param {InterviewHintRequestUpdateArgs} args - Arguments to update one InterviewHintRequest.
+     * @example
+     * // Update one InterviewHintRequest
+     * const interviewHintRequest = await prisma.interviewHintRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InterviewHintRequestUpdateArgs>(args: SelectSubset<T, InterviewHintRequestUpdateArgs<ExtArgs>>): Prisma__InterviewHintRequestClient<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more InterviewHintRequests.
+     * @param {InterviewHintRequestDeleteManyArgs} args - Arguments to filter InterviewHintRequests to delete.
+     * @example
+     * // Delete a few InterviewHintRequests
+     * const { count } = await prisma.interviewHintRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InterviewHintRequestDeleteManyArgs>(args?: SelectSubset<T, InterviewHintRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InterviewHintRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewHintRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many InterviewHintRequests
+     * const interviewHintRequest = await prisma.interviewHintRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InterviewHintRequestUpdateManyArgs>(args: SelectSubset<T, InterviewHintRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one InterviewHintRequest.
+     * @param {InterviewHintRequestUpsertArgs} args - Arguments to update or create a InterviewHintRequest.
+     * @example
+     * // Update or create a InterviewHintRequest
+     * const interviewHintRequest = await prisma.interviewHintRequest.upsert({
+     *   create: {
+     *     // ... data to create a InterviewHintRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the InterviewHintRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InterviewHintRequestUpsertArgs>(args: SelectSubset<T, InterviewHintRequestUpsertArgs<ExtArgs>>): Prisma__InterviewHintRequestClient<$Result.GetResult<Prisma.$InterviewHintRequestPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of InterviewHintRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewHintRequestCountArgs} args - Arguments to filter InterviewHintRequests to count.
+     * @example
+     * // Count the number of InterviewHintRequests
+     * const count = await prisma.interviewHintRequest.count({
+     *   where: {
+     *     // ... the filter for the InterviewHintRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends InterviewHintRequestCountArgs>(
+      args?: Subset<T, InterviewHintRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InterviewHintRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a InterviewHintRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewHintRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InterviewHintRequestAggregateArgs>(args: Subset<T, InterviewHintRequestAggregateArgs>): Prisma.PrismaPromise<GetInterviewHintRequestAggregateType<T>>
+
+    /**
+     * Group by InterviewHintRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewHintRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InterviewHintRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InterviewHintRequestGroupByArgs['orderBy'] }
+        : { orderBy?: InterviewHintRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InterviewHintRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInterviewHintRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the InterviewHintRequest model
+   */
+  readonly fields: InterviewHintRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for InterviewHintRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InterviewHintRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends MockInterviewSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSessionDefaultArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the InterviewHintRequest model
+   */ 
+  interface InterviewHintRequestFieldRefs {
+    readonly id: FieldRef<"InterviewHintRequest", 'String'>
+    readonly sessionId: FieldRef<"InterviewHintRequest", 'String'>
+    readonly requestedAt: FieldRef<"InterviewHintRequest", 'DateTime'>
+    readonly hintLevel: FieldRef<"InterviewHintRequest", 'Int'>
+    readonly approved: FieldRef<"InterviewHintRequest", 'Boolean'>
+    readonly hintContent: FieldRef<"InterviewHintRequest", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * InterviewHintRequest findUnique
+   */
+  export type InterviewHintRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewHintRequest to fetch.
+     */
+    where: InterviewHintRequestWhereUniqueInput
+  }
+
+  /**
+   * InterviewHintRequest findUniqueOrThrow
+   */
+  export type InterviewHintRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewHintRequest to fetch.
+     */
+    where: InterviewHintRequestWhereUniqueInput
+  }
+
+  /**
+   * InterviewHintRequest findFirst
+   */
+  export type InterviewHintRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewHintRequest to fetch.
+     */
+    where?: InterviewHintRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewHintRequests to fetch.
+     */
+    orderBy?: InterviewHintRequestOrderByWithRelationInput | InterviewHintRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewHintRequests.
+     */
+    cursor?: InterviewHintRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewHintRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewHintRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewHintRequests.
+     */
+    distinct?: InterviewHintRequestScalarFieldEnum | InterviewHintRequestScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewHintRequest findFirstOrThrow
+   */
+  export type InterviewHintRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewHintRequest to fetch.
+     */
+    where?: InterviewHintRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewHintRequests to fetch.
+     */
+    orderBy?: InterviewHintRequestOrderByWithRelationInput | InterviewHintRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewHintRequests.
+     */
+    cursor?: InterviewHintRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewHintRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewHintRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewHintRequests.
+     */
+    distinct?: InterviewHintRequestScalarFieldEnum | InterviewHintRequestScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewHintRequest findMany
+   */
+  export type InterviewHintRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewHintRequests to fetch.
+     */
+    where?: InterviewHintRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewHintRequests to fetch.
+     */
+    orderBy?: InterviewHintRequestOrderByWithRelationInput | InterviewHintRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing InterviewHintRequests.
+     */
+    cursor?: InterviewHintRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewHintRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewHintRequests.
+     */
+    skip?: number
+    distinct?: InterviewHintRequestScalarFieldEnum | InterviewHintRequestScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewHintRequest create
+   */
+  export type InterviewHintRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a InterviewHintRequest.
+     */
+    data: XOR<InterviewHintRequestCreateInput, InterviewHintRequestUncheckedCreateInput>
+  }
+
+  /**
+   * InterviewHintRequest createMany
+   */
+  export type InterviewHintRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many InterviewHintRequests.
+     */
+    data: InterviewHintRequestCreateManyInput | InterviewHintRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * InterviewHintRequest createManyAndReturn
+   */
+  export type InterviewHintRequestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many InterviewHintRequests.
+     */
+    data: InterviewHintRequestCreateManyInput | InterviewHintRequestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InterviewHintRequest update
+   */
+  export type InterviewHintRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a InterviewHintRequest.
+     */
+    data: XOR<InterviewHintRequestUpdateInput, InterviewHintRequestUncheckedUpdateInput>
+    /**
+     * Choose, which InterviewHintRequest to update.
+     */
+    where: InterviewHintRequestWhereUniqueInput
+  }
+
+  /**
+   * InterviewHintRequest updateMany
+   */
+  export type InterviewHintRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update InterviewHintRequests.
+     */
+    data: XOR<InterviewHintRequestUpdateManyMutationInput, InterviewHintRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which InterviewHintRequests to update
+     */
+    where?: InterviewHintRequestWhereInput
+  }
+
+  /**
+   * InterviewHintRequest upsert
+   */
+  export type InterviewHintRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the InterviewHintRequest to update in case it exists.
+     */
+    where: InterviewHintRequestWhereUniqueInput
+    /**
+     * In case the InterviewHintRequest found by the `where` argument doesn't exist, create a new InterviewHintRequest with this data.
+     */
+    create: XOR<InterviewHintRequestCreateInput, InterviewHintRequestUncheckedCreateInput>
+    /**
+     * In case the InterviewHintRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InterviewHintRequestUpdateInput, InterviewHintRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * InterviewHintRequest delete
+   */
+  export type InterviewHintRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+    /**
+     * Filter which InterviewHintRequest to delete.
+     */
+    where: InterviewHintRequestWhereUniqueInput
+  }
+
+  /**
+   * InterviewHintRequest deleteMany
+   */
+  export type InterviewHintRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewHintRequests to delete
+     */
+    where?: InterviewHintRequestWhereInput
+  }
+
+  /**
+   * InterviewHintRequest without action
+   */
+  export type InterviewHintRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewHintRequest
+     */
+    select?: InterviewHintRequestSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewHintRequestInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model InterviewExecutionResult
+   */
+
+  export type AggregateInterviewExecutionResult = {
+    _count: InterviewExecutionResultCountAggregateOutputType | null
+    _min: InterviewExecutionResultMinAggregateOutputType | null
+    _max: InterviewExecutionResultMaxAggregateOutputType | null
+  }
+
+  export type InterviewExecutionResultMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    code: string | null
+    language: string | null
+    output: string | null
+    status: $Enums.SubmissionStatus | null
+    executedAt: Date | null
+  }
+
+  export type InterviewExecutionResultMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    code: string | null
+    language: string | null
+    output: string | null
+    status: $Enums.SubmissionStatus | null
+    executedAt: Date | null
+  }
+
+  export type InterviewExecutionResultCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    code: number
+    language: number
+    output: number
+    status: number
+    executedAt: number
+    _all: number
+  }
+
+
+  export type InterviewExecutionResultMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    language?: true
+    output?: true
+    status?: true
+    executedAt?: true
+  }
+
+  export type InterviewExecutionResultMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    language?: true
+    output?: true
+    status?: true
+    executedAt?: true
+  }
+
+  export type InterviewExecutionResultCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    language?: true
+    output?: true
+    status?: true
+    executedAt?: true
+    _all?: true
+  }
+
+  export type InterviewExecutionResultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewExecutionResult to aggregate.
+     */
+    where?: InterviewExecutionResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewExecutionResults to fetch.
+     */
+    orderBy?: InterviewExecutionResultOrderByWithRelationInput | InterviewExecutionResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InterviewExecutionResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewExecutionResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewExecutionResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned InterviewExecutionResults
+    **/
+    _count?: true | InterviewExecutionResultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InterviewExecutionResultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InterviewExecutionResultMaxAggregateInputType
+  }
+
+  export type GetInterviewExecutionResultAggregateType<T extends InterviewExecutionResultAggregateArgs> = {
+        [P in keyof T & keyof AggregateInterviewExecutionResult]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInterviewExecutionResult[P]>
+      : GetScalarType<T[P], AggregateInterviewExecutionResult[P]>
+  }
+
+
+
+
+  export type InterviewExecutionResultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InterviewExecutionResultWhereInput
+    orderBy?: InterviewExecutionResultOrderByWithAggregationInput | InterviewExecutionResultOrderByWithAggregationInput[]
+    by: InterviewExecutionResultScalarFieldEnum[] | InterviewExecutionResultScalarFieldEnum
+    having?: InterviewExecutionResultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InterviewExecutionResultCountAggregateInputType | true
+    _min?: InterviewExecutionResultMinAggregateInputType
+    _max?: InterviewExecutionResultMaxAggregateInputType
+  }
+
+  export type InterviewExecutionResultGroupByOutputType = {
+    id: string
+    sessionId: string
+    code: string
+    language: string
+    output: string
+    status: $Enums.SubmissionStatus
+    executedAt: Date
+    _count: InterviewExecutionResultCountAggregateOutputType | null
+    _min: InterviewExecutionResultMinAggregateOutputType | null
+    _max: InterviewExecutionResultMaxAggregateOutputType | null
+  }
+
+  type GetInterviewExecutionResultGroupByPayload<T extends InterviewExecutionResultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InterviewExecutionResultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InterviewExecutionResultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InterviewExecutionResultGroupByOutputType[P]>
+            : GetScalarType<T[P], InterviewExecutionResultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InterviewExecutionResultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    language?: boolean
+    output?: boolean
+    status?: boolean
+    executedAt?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewExecutionResult"]>
+
+  export type InterviewExecutionResultSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    language?: boolean
+    output?: boolean
+    status?: boolean
+    executedAt?: boolean
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["interviewExecutionResult"]>
+
+  export type InterviewExecutionResultSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    language?: boolean
+    output?: boolean
+    status?: boolean
+    executedAt?: boolean
+  }
+
+  export type InterviewExecutionResultInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }
+  export type InterviewExecutionResultIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | MockInterviewSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $InterviewExecutionResultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "InterviewExecutionResult"
+    objects: {
+      session: Prisma.$MockInterviewSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      code: string
+      language: string
+      output: string
+      status: $Enums.SubmissionStatus
+      executedAt: Date
+    }, ExtArgs["result"]["interviewExecutionResult"]>
+    composites: {}
+  }
+
+  type InterviewExecutionResultGetPayload<S extends boolean | null | undefined | InterviewExecutionResultDefaultArgs> = $Result.GetResult<Prisma.$InterviewExecutionResultPayload, S>
+
+  type InterviewExecutionResultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<InterviewExecutionResultFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: InterviewExecutionResultCountAggregateInputType | true
+    }
+
+  export interface InterviewExecutionResultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['InterviewExecutionResult'], meta: { name: 'InterviewExecutionResult' } }
+    /**
+     * Find zero or one InterviewExecutionResult that matches the filter.
+     * @param {InterviewExecutionResultFindUniqueArgs} args - Arguments to find a InterviewExecutionResult
+     * @example
+     * // Get one InterviewExecutionResult
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InterviewExecutionResultFindUniqueArgs>(args: SelectSubset<T, InterviewExecutionResultFindUniqueArgs<ExtArgs>>): Prisma__InterviewExecutionResultClient<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one InterviewExecutionResult that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {InterviewExecutionResultFindUniqueOrThrowArgs} args - Arguments to find a InterviewExecutionResult
+     * @example
+     * // Get one InterviewExecutionResult
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InterviewExecutionResultFindUniqueOrThrowArgs>(args: SelectSubset<T, InterviewExecutionResultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InterviewExecutionResultClient<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first InterviewExecutionResult that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewExecutionResultFindFirstArgs} args - Arguments to find a InterviewExecutionResult
+     * @example
+     * // Get one InterviewExecutionResult
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InterviewExecutionResultFindFirstArgs>(args?: SelectSubset<T, InterviewExecutionResultFindFirstArgs<ExtArgs>>): Prisma__InterviewExecutionResultClient<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first InterviewExecutionResult that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewExecutionResultFindFirstOrThrowArgs} args - Arguments to find a InterviewExecutionResult
+     * @example
+     * // Get one InterviewExecutionResult
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InterviewExecutionResultFindFirstOrThrowArgs>(args?: SelectSubset<T, InterviewExecutionResultFindFirstOrThrowArgs<ExtArgs>>): Prisma__InterviewExecutionResultClient<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more InterviewExecutionResults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewExecutionResultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all InterviewExecutionResults
+     * const interviewExecutionResults = await prisma.interviewExecutionResult.findMany()
+     * 
+     * // Get first 10 InterviewExecutionResults
+     * const interviewExecutionResults = await prisma.interviewExecutionResult.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const interviewExecutionResultWithIdOnly = await prisma.interviewExecutionResult.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InterviewExecutionResultFindManyArgs>(args?: SelectSubset<T, InterviewExecutionResultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a InterviewExecutionResult.
+     * @param {InterviewExecutionResultCreateArgs} args - Arguments to create a InterviewExecutionResult.
+     * @example
+     * // Create one InterviewExecutionResult
+     * const InterviewExecutionResult = await prisma.interviewExecutionResult.create({
+     *   data: {
+     *     // ... data to create a InterviewExecutionResult
+     *   }
+     * })
+     * 
+     */
+    create<T extends InterviewExecutionResultCreateArgs>(args: SelectSubset<T, InterviewExecutionResultCreateArgs<ExtArgs>>): Prisma__InterviewExecutionResultClient<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many InterviewExecutionResults.
+     * @param {InterviewExecutionResultCreateManyArgs} args - Arguments to create many InterviewExecutionResults.
+     * @example
+     * // Create many InterviewExecutionResults
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InterviewExecutionResultCreateManyArgs>(args?: SelectSubset<T, InterviewExecutionResultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many InterviewExecutionResults and returns the data saved in the database.
+     * @param {InterviewExecutionResultCreateManyAndReturnArgs} args - Arguments to create many InterviewExecutionResults.
+     * @example
+     * // Create many InterviewExecutionResults
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many InterviewExecutionResults and only return the `id`
+     * const interviewExecutionResultWithIdOnly = await prisma.interviewExecutionResult.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InterviewExecutionResultCreateManyAndReturnArgs>(args?: SelectSubset<T, InterviewExecutionResultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a InterviewExecutionResult.
+     * @param {InterviewExecutionResultDeleteArgs} args - Arguments to delete one InterviewExecutionResult.
+     * @example
+     * // Delete one InterviewExecutionResult
+     * const InterviewExecutionResult = await prisma.interviewExecutionResult.delete({
+     *   where: {
+     *     // ... filter to delete one InterviewExecutionResult
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InterviewExecutionResultDeleteArgs>(args: SelectSubset<T, InterviewExecutionResultDeleteArgs<ExtArgs>>): Prisma__InterviewExecutionResultClient<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one InterviewExecutionResult.
+     * @param {InterviewExecutionResultUpdateArgs} args - Arguments to update one InterviewExecutionResult.
+     * @example
+     * // Update one InterviewExecutionResult
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InterviewExecutionResultUpdateArgs>(args: SelectSubset<T, InterviewExecutionResultUpdateArgs<ExtArgs>>): Prisma__InterviewExecutionResultClient<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more InterviewExecutionResults.
+     * @param {InterviewExecutionResultDeleteManyArgs} args - Arguments to filter InterviewExecutionResults to delete.
+     * @example
+     * // Delete a few InterviewExecutionResults
+     * const { count } = await prisma.interviewExecutionResult.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InterviewExecutionResultDeleteManyArgs>(args?: SelectSubset<T, InterviewExecutionResultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more InterviewExecutionResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewExecutionResultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many InterviewExecutionResults
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InterviewExecutionResultUpdateManyArgs>(args: SelectSubset<T, InterviewExecutionResultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one InterviewExecutionResult.
+     * @param {InterviewExecutionResultUpsertArgs} args - Arguments to update or create a InterviewExecutionResult.
+     * @example
+     * // Update or create a InterviewExecutionResult
+     * const interviewExecutionResult = await prisma.interviewExecutionResult.upsert({
+     *   create: {
+     *     // ... data to create a InterviewExecutionResult
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the InterviewExecutionResult we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InterviewExecutionResultUpsertArgs>(args: SelectSubset<T, InterviewExecutionResultUpsertArgs<ExtArgs>>): Prisma__InterviewExecutionResultClient<$Result.GetResult<Prisma.$InterviewExecutionResultPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of InterviewExecutionResults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewExecutionResultCountArgs} args - Arguments to filter InterviewExecutionResults to count.
+     * @example
+     * // Count the number of InterviewExecutionResults
+     * const count = await prisma.interviewExecutionResult.count({
+     *   where: {
+     *     // ... the filter for the InterviewExecutionResults we want to count
+     *   }
+     * })
+    **/
+    count<T extends InterviewExecutionResultCountArgs>(
+      args?: Subset<T, InterviewExecutionResultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InterviewExecutionResultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a InterviewExecutionResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewExecutionResultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InterviewExecutionResultAggregateArgs>(args: Subset<T, InterviewExecutionResultAggregateArgs>): Prisma.PrismaPromise<GetInterviewExecutionResultAggregateType<T>>
+
+    /**
+     * Group by InterviewExecutionResult.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InterviewExecutionResultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InterviewExecutionResultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InterviewExecutionResultGroupByArgs['orderBy'] }
+        : { orderBy?: InterviewExecutionResultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InterviewExecutionResultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInterviewExecutionResultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the InterviewExecutionResult model
+   */
+  readonly fields: InterviewExecutionResultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for InterviewExecutionResult.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InterviewExecutionResultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends MockInterviewSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, MockInterviewSessionDefaultArgs<ExtArgs>>): Prisma__MockInterviewSessionClient<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the InterviewExecutionResult model
+   */ 
+  interface InterviewExecutionResultFieldRefs {
+    readonly id: FieldRef<"InterviewExecutionResult", 'String'>
+    readonly sessionId: FieldRef<"InterviewExecutionResult", 'String'>
+    readonly code: FieldRef<"InterviewExecutionResult", 'String'>
+    readonly language: FieldRef<"InterviewExecutionResult", 'String'>
+    readonly output: FieldRef<"InterviewExecutionResult", 'String'>
+    readonly status: FieldRef<"InterviewExecutionResult", 'SubmissionStatus'>
+    readonly executedAt: FieldRef<"InterviewExecutionResult", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * InterviewExecutionResult findUnique
+   */
+  export type InterviewExecutionResultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewExecutionResult to fetch.
+     */
+    where: InterviewExecutionResultWhereUniqueInput
+  }
+
+  /**
+   * InterviewExecutionResult findUniqueOrThrow
+   */
+  export type InterviewExecutionResultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewExecutionResult to fetch.
+     */
+    where: InterviewExecutionResultWhereUniqueInput
+  }
+
+  /**
+   * InterviewExecutionResult findFirst
+   */
+  export type InterviewExecutionResultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewExecutionResult to fetch.
+     */
+    where?: InterviewExecutionResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewExecutionResults to fetch.
+     */
+    orderBy?: InterviewExecutionResultOrderByWithRelationInput | InterviewExecutionResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewExecutionResults.
+     */
+    cursor?: InterviewExecutionResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewExecutionResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewExecutionResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewExecutionResults.
+     */
+    distinct?: InterviewExecutionResultScalarFieldEnum | InterviewExecutionResultScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewExecutionResult findFirstOrThrow
+   */
+  export type InterviewExecutionResultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewExecutionResult to fetch.
+     */
+    where?: InterviewExecutionResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewExecutionResults to fetch.
+     */
+    orderBy?: InterviewExecutionResultOrderByWithRelationInput | InterviewExecutionResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for InterviewExecutionResults.
+     */
+    cursor?: InterviewExecutionResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewExecutionResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewExecutionResults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of InterviewExecutionResults.
+     */
+    distinct?: InterviewExecutionResultScalarFieldEnum | InterviewExecutionResultScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewExecutionResult findMany
+   */
+  export type InterviewExecutionResultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * Filter, which InterviewExecutionResults to fetch.
+     */
+    where?: InterviewExecutionResultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of InterviewExecutionResults to fetch.
+     */
+    orderBy?: InterviewExecutionResultOrderByWithRelationInput | InterviewExecutionResultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing InterviewExecutionResults.
+     */
+    cursor?: InterviewExecutionResultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` InterviewExecutionResults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` InterviewExecutionResults.
+     */
+    skip?: number
+    distinct?: InterviewExecutionResultScalarFieldEnum | InterviewExecutionResultScalarFieldEnum[]
+  }
+
+  /**
+   * InterviewExecutionResult create
+   */
+  export type InterviewExecutionResultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * The data needed to create a InterviewExecutionResult.
+     */
+    data: XOR<InterviewExecutionResultCreateInput, InterviewExecutionResultUncheckedCreateInput>
+  }
+
+  /**
+   * InterviewExecutionResult createMany
+   */
+  export type InterviewExecutionResultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many InterviewExecutionResults.
+     */
+    data: InterviewExecutionResultCreateManyInput | InterviewExecutionResultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * InterviewExecutionResult createManyAndReturn
+   */
+  export type InterviewExecutionResultCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many InterviewExecutionResults.
+     */
+    data: InterviewExecutionResultCreateManyInput | InterviewExecutionResultCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * InterviewExecutionResult update
+   */
+  export type InterviewExecutionResultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * The data needed to update a InterviewExecutionResult.
+     */
+    data: XOR<InterviewExecutionResultUpdateInput, InterviewExecutionResultUncheckedUpdateInput>
+    /**
+     * Choose, which InterviewExecutionResult to update.
+     */
+    where: InterviewExecutionResultWhereUniqueInput
+  }
+
+  /**
+   * InterviewExecutionResult updateMany
+   */
+  export type InterviewExecutionResultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update InterviewExecutionResults.
+     */
+    data: XOR<InterviewExecutionResultUpdateManyMutationInput, InterviewExecutionResultUncheckedUpdateManyInput>
+    /**
+     * Filter which InterviewExecutionResults to update
+     */
+    where?: InterviewExecutionResultWhereInput
+  }
+
+  /**
+   * InterviewExecutionResult upsert
+   */
+  export type InterviewExecutionResultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * The filter to search for the InterviewExecutionResult to update in case it exists.
+     */
+    where: InterviewExecutionResultWhereUniqueInput
+    /**
+     * In case the InterviewExecutionResult found by the `where` argument doesn't exist, create a new InterviewExecutionResult with this data.
+     */
+    create: XOR<InterviewExecutionResultCreateInput, InterviewExecutionResultUncheckedCreateInput>
+    /**
+     * In case the InterviewExecutionResult was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InterviewExecutionResultUpdateInput, InterviewExecutionResultUncheckedUpdateInput>
+  }
+
+  /**
+   * InterviewExecutionResult delete
+   */
+  export type InterviewExecutionResultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+    /**
+     * Filter which InterviewExecutionResult to delete.
+     */
+    where: InterviewExecutionResultWhereUniqueInput
+  }
+
+  /**
+   * InterviewExecutionResult deleteMany
+   */
+  export type InterviewExecutionResultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which InterviewExecutionResults to delete
+     */
+    where?: InterviewExecutionResultWhereInput
+  }
+
+  /**
+   * InterviewExecutionResult without action
+   */
+  export type InterviewExecutionResultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the InterviewExecutionResult
+     */
+    select?: InterviewExecutionResultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InterviewExecutionResultInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -38046,6 +45131,103 @@ export namespace Prisma {
   export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+  export const MockInterviewSessionScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    description: 'description',
+    scheduledAt: 'scheduledAt',
+    durationMinutes: 'durationMinutes',
+    accessCode: 'accessCode',
+    accessCodePlain: 'accessCodePlain',
+    status: 'status',
+    currentPhase: 'currentPhase',
+    phaseUnderstandMins: 'phaseUnderstandMins',
+    planMins: 'planMins',
+    codeMins: 'codeMins',
+    optimizeMins: 'optimizeMins',
+    allowHints: 'allowHints',
+    allowObservers: 'allowObservers',
+    interviewerId: 'interviewerId',
+    candidateId: 'candidateId',
+    candidateEmail: 'candidateEmail',
+    problemId: 'problemId',
+    organizationId: 'organizationId',
+    startedAt: 'startedAt',
+    endedAt: 'endedAt',
+    yjsDocumentId: 'yjsDocumentId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MockInterviewSessionScalarFieldEnum = (typeof MockInterviewSessionScalarFieldEnum)[keyof typeof MockInterviewSessionScalarFieldEnum]
+
+
+  export const InterviewParticipantScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    userId: 'userId',
+    role: 'role',
+    joinedAt: 'joinedAt',
+    leftAt: 'leftAt'
+  };
+
+  export type InterviewParticipantScalarFieldEnum = (typeof InterviewParticipantScalarFieldEnum)[keyof typeof InterviewParticipantScalarFieldEnum]
+
+
+  export const InterviewFeedbackScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    problemUnderstandingScore: 'problemUnderstandingScore',
+    algorithmDesignScore: 'algorithmDesignScore',
+    codeQualityScore: 'codeQualityScore',
+    communicationScore: 'communicationScore',
+    edgeCaseHandlingScore: 'edgeCaseHandlingScore',
+    recommendation: 'recommendation',
+    privateNotes: 'privateNotes',
+    candidateFeedback: 'candidateFeedback',
+    evaluatedAt: 'evaluatedAt'
+  };
+
+  export type InterviewFeedbackScalarFieldEnum = (typeof InterviewFeedbackScalarFieldEnum)[keyof typeof InterviewFeedbackScalarFieldEnum]
+
+
+  export const InterviewCodeSnapshotScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    code: 'code',
+    language: 'language',
+    phase: 'phase',
+    snapshotAt: 'snapshotAt'
+  };
+
+  export type InterviewCodeSnapshotScalarFieldEnum = (typeof InterviewCodeSnapshotScalarFieldEnum)[keyof typeof InterviewCodeSnapshotScalarFieldEnum]
+
+
+  export const InterviewHintRequestScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    requestedAt: 'requestedAt',
+    hintLevel: 'hintLevel',
+    approved: 'approved',
+    hintContent: 'hintContent'
+  };
+
+  export type InterviewHintRequestScalarFieldEnum = (typeof InterviewHintRequestScalarFieldEnum)[keyof typeof InterviewHintRequestScalarFieldEnum]
+
+
+  export const InterviewExecutionResultScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    code: 'code',
+    language: 'language',
+    output: 'output',
+    status: 'status',
+    executedAt: 'executedAt'
+  };
+
+  export type InterviewExecutionResultScalarFieldEnum = (typeof InterviewExecutionResultScalarFieldEnum)[keyof typeof InterviewExecutionResultScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -38363,6 +45545,62 @@ export namespace Prisma {
    */
   export type ListEnumEvaluationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EvaluationStatus[]'>
     
+
+
+  /**
+   * Reference to a field of type 'InterviewStatus'
+   */
+  export type EnumInterviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InterviewStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'InterviewStatus[]'
+   */
+  export type ListEnumInterviewStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InterviewStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'InterviewPhase'
+   */
+  export type EnumInterviewPhaseFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InterviewPhase'>
+    
+
+
+  /**
+   * Reference to a field of type 'InterviewPhase[]'
+   */
+  export type ListEnumInterviewPhaseFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InterviewPhase[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'InterviewParticipantRole'
+   */
+  export type EnumInterviewParticipantRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InterviewParticipantRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'InterviewParticipantRole[]'
+   */
+  export type ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InterviewParticipantRole[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Recommendation'
+   */
+  export type EnumRecommendationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Recommendation'>
+    
+
+
+  /**
+   * Reference to a field of type 'Recommendation[]'
+   */
+  export type ListEnumRecommendationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Recommendation[]'>
+    
   /**
    * Deep Input Types
    */
@@ -38395,6 +45633,7 @@ export namespace Prisma {
     invitations?: TeamInvitationListRelationFilter
     auditLogs?: AuditLogListRelationFilter
     questionBanks?: QuestionBankListRelationFilter
+    interviewSessions?: MockInterviewSessionListRelationFilter
   }
 
   export type OrganizationOrderByWithRelationInput = {
@@ -38421,6 +45660,7 @@ export namespace Prisma {
     invitations?: TeamInvitationOrderByRelationAggregateInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
     questionBanks?: QuestionBankOrderByRelationAggregateInput
+    interviewSessions?: MockInterviewSessionOrderByRelationAggregateInput
   }
 
   export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -38450,6 +45690,7 @@ export namespace Prisma {
     invitations?: TeamInvitationListRelationFilter
     auditLogs?: AuditLogListRelationFilter
     questionBanks?: QuestionBankListRelationFilter
+    interviewSessions?: MockInterviewSessionListRelationFilter
   }, "id" | "slug" | "domain">
 
   export type OrganizationOrderByWithAggregationInput = {
@@ -38541,6 +45782,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogListRelationFilter
     moderatorAssignments?: ContestModerationAssignmentListRelationFilter
     notifications?: NotificationListRelationFilter
+    interviewerSessions?: MockInterviewSessionListRelationFilter
+    candidateSessions?: MockInterviewSessionListRelationFilter
+    interviewParticipants?: InterviewParticipantListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -38581,6 +45825,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogOrderByRelationAggregateInput
     moderatorAssignments?: ContestModerationAssignmentOrderByRelationAggregateInput
     notifications?: NotificationOrderByRelationAggregateInput
+    interviewerSessions?: MockInterviewSessionOrderByRelationAggregateInput
+    candidateSessions?: MockInterviewSessionOrderByRelationAggregateInput
+    interviewParticipants?: InterviewParticipantOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -38624,6 +45871,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogListRelationFilter
     moderatorAssignments?: ContestModerationAssignmentListRelationFilter
     notifications?: NotificationListRelationFilter
+    interviewerSessions?: MockInterviewSessionListRelationFilter
+    candidateSessions?: MockInterviewSessionListRelationFilter
+    interviewParticipants?: InterviewParticipantListRelationFilter
   }, "id" | "email" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -38696,6 +45946,7 @@ export namespace Prisma {
     testCases?: TestCaseListRelationFilter
     contestProblems?: ContestProblemListRelationFilter
     submissions?: SubmissionListRelationFilter
+    interviewSessions?: MockInterviewSessionListRelationFilter
   }
 
   export type ProblemOrderByWithRelationInput = {
@@ -38721,6 +45972,7 @@ export namespace Prisma {
     testCases?: TestCaseOrderByRelationAggregateInput
     contestProblems?: ContestProblemOrderByRelationAggregateInput
     submissions?: SubmissionOrderByRelationAggregateInput
+    interviewSessions?: MockInterviewSessionOrderByRelationAggregateInput
   }
 
   export type ProblemWhereUniqueInput = Prisma.AtLeast<{
@@ -38749,6 +46001,7 @@ export namespace Prisma {
     testCases?: TestCaseListRelationFilter
     contestProblems?: ContestProblemListRelationFilter
     submissions?: SubmissionListRelationFilter
+    interviewSessions?: MockInterviewSessionListRelationFilter
   }, "id" | "slug">
 
   export type ProblemOrderByWithAggregationInput = {
@@ -41292,6 +48545,525 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
   }
 
+  export type MockInterviewSessionWhereInput = {
+    AND?: MockInterviewSessionWhereInput | MockInterviewSessionWhereInput[]
+    OR?: MockInterviewSessionWhereInput[]
+    NOT?: MockInterviewSessionWhereInput | MockInterviewSessionWhereInput[]
+    id?: StringFilter<"MockInterviewSession"> | string
+    title?: StringFilter<"MockInterviewSession"> | string
+    description?: StringNullableFilter<"MockInterviewSession"> | string | null
+    scheduledAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+    durationMinutes?: IntFilter<"MockInterviewSession"> | number
+    accessCode?: StringFilter<"MockInterviewSession"> | string
+    accessCodePlain?: StringNullableFilter<"MockInterviewSession"> | string | null
+    status?: EnumInterviewStatusFilter<"MockInterviewSession"> | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFilter<"MockInterviewSession"> | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFilter<"MockInterviewSession"> | number
+    planMins?: IntFilter<"MockInterviewSession"> | number
+    codeMins?: IntFilter<"MockInterviewSession"> | number
+    optimizeMins?: IntFilter<"MockInterviewSession"> | number
+    allowHints?: BoolFilter<"MockInterviewSession"> | boolean
+    allowObservers?: BoolFilter<"MockInterviewSession"> | boolean
+    interviewerId?: StringFilter<"MockInterviewSession"> | string
+    candidateId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    candidateEmail?: StringNullableFilter<"MockInterviewSession"> | string | null
+    problemId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    organizationId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    startedAt?: DateTimeNullableFilter<"MockInterviewSession"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"MockInterviewSession"> | Date | string | null
+    yjsDocumentId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    createdAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+    updatedAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+    interviewer?: XOR<UserRelationFilter, UserWhereInput>
+    candidate?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    problem?: XOR<ProblemNullableRelationFilter, ProblemWhereInput> | null
+    organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
+    feedback?: XOR<InterviewFeedbackNullableRelationFilter, InterviewFeedbackWhereInput> | null
+    codeSnapshots?: InterviewCodeSnapshotListRelationFilter
+    participants?: InterviewParticipantListRelationFilter
+    hintRequests?: InterviewHintRequestListRelationFilter
+    executionResults?: InterviewExecutionResultListRelationFilter
+  }
+
+  export type MockInterviewSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    scheduledAt?: SortOrder
+    durationMinutes?: SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrderInput | SortOrder
+    status?: SortOrder
+    currentPhase?: SortOrder
+    phaseUnderstandMins?: SortOrder
+    planMins?: SortOrder
+    codeMins?: SortOrder
+    optimizeMins?: SortOrder
+    allowHints?: SortOrder
+    allowObservers?: SortOrder
+    interviewerId?: SortOrder
+    candidateId?: SortOrderInput | SortOrder
+    candidateEmail?: SortOrderInput | SortOrder
+    problemId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    yjsDocumentId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    interviewer?: UserOrderByWithRelationInput
+    candidate?: UserOrderByWithRelationInput
+    problem?: ProblemOrderByWithRelationInput
+    organization?: OrganizationOrderByWithRelationInput
+    feedback?: InterviewFeedbackOrderByWithRelationInput
+    codeSnapshots?: InterviewCodeSnapshotOrderByRelationAggregateInput
+    participants?: InterviewParticipantOrderByRelationAggregateInput
+    hintRequests?: InterviewHintRequestOrderByRelationAggregateInput
+    executionResults?: InterviewExecutionResultOrderByRelationAggregateInput
+  }
+
+  export type MockInterviewSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MockInterviewSessionWhereInput | MockInterviewSessionWhereInput[]
+    OR?: MockInterviewSessionWhereInput[]
+    NOT?: MockInterviewSessionWhereInput | MockInterviewSessionWhereInput[]
+    title?: StringFilter<"MockInterviewSession"> | string
+    description?: StringNullableFilter<"MockInterviewSession"> | string | null
+    scheduledAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+    durationMinutes?: IntFilter<"MockInterviewSession"> | number
+    accessCode?: StringFilter<"MockInterviewSession"> | string
+    accessCodePlain?: StringNullableFilter<"MockInterviewSession"> | string | null
+    status?: EnumInterviewStatusFilter<"MockInterviewSession"> | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFilter<"MockInterviewSession"> | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFilter<"MockInterviewSession"> | number
+    planMins?: IntFilter<"MockInterviewSession"> | number
+    codeMins?: IntFilter<"MockInterviewSession"> | number
+    optimizeMins?: IntFilter<"MockInterviewSession"> | number
+    allowHints?: BoolFilter<"MockInterviewSession"> | boolean
+    allowObservers?: BoolFilter<"MockInterviewSession"> | boolean
+    interviewerId?: StringFilter<"MockInterviewSession"> | string
+    candidateId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    candidateEmail?: StringNullableFilter<"MockInterviewSession"> | string | null
+    problemId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    organizationId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    startedAt?: DateTimeNullableFilter<"MockInterviewSession"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"MockInterviewSession"> | Date | string | null
+    yjsDocumentId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    createdAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+    updatedAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+    interviewer?: XOR<UserRelationFilter, UserWhereInput>
+    candidate?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    problem?: XOR<ProblemNullableRelationFilter, ProblemWhereInput> | null
+    organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
+    feedback?: XOR<InterviewFeedbackNullableRelationFilter, InterviewFeedbackWhereInput> | null
+    codeSnapshots?: InterviewCodeSnapshotListRelationFilter
+    participants?: InterviewParticipantListRelationFilter
+    hintRequests?: InterviewHintRequestListRelationFilter
+    executionResults?: InterviewExecutionResultListRelationFilter
+  }, "id">
+
+  export type MockInterviewSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrderInput | SortOrder
+    scheduledAt?: SortOrder
+    durationMinutes?: SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrderInput | SortOrder
+    status?: SortOrder
+    currentPhase?: SortOrder
+    phaseUnderstandMins?: SortOrder
+    planMins?: SortOrder
+    codeMins?: SortOrder
+    optimizeMins?: SortOrder
+    allowHints?: SortOrder
+    allowObservers?: SortOrder
+    interviewerId?: SortOrder
+    candidateId?: SortOrderInput | SortOrder
+    candidateEmail?: SortOrderInput | SortOrder
+    problemId?: SortOrderInput | SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    yjsDocumentId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MockInterviewSessionCountOrderByAggregateInput
+    _avg?: MockInterviewSessionAvgOrderByAggregateInput
+    _max?: MockInterviewSessionMaxOrderByAggregateInput
+    _min?: MockInterviewSessionMinOrderByAggregateInput
+    _sum?: MockInterviewSessionSumOrderByAggregateInput
+  }
+
+  export type MockInterviewSessionScalarWhereWithAggregatesInput = {
+    AND?: MockInterviewSessionScalarWhereWithAggregatesInput | MockInterviewSessionScalarWhereWithAggregatesInput[]
+    OR?: MockInterviewSessionScalarWhereWithAggregatesInput[]
+    NOT?: MockInterviewSessionScalarWhereWithAggregatesInput | MockInterviewSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MockInterviewSession"> | string
+    title?: StringWithAggregatesFilter<"MockInterviewSession"> | string
+    description?: StringNullableWithAggregatesFilter<"MockInterviewSession"> | string | null
+    scheduledAt?: DateTimeWithAggregatesFilter<"MockInterviewSession"> | Date | string
+    durationMinutes?: IntWithAggregatesFilter<"MockInterviewSession"> | number
+    accessCode?: StringWithAggregatesFilter<"MockInterviewSession"> | string
+    accessCodePlain?: StringNullableWithAggregatesFilter<"MockInterviewSession"> | string | null
+    status?: EnumInterviewStatusWithAggregatesFilter<"MockInterviewSession"> | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseWithAggregatesFilter<"MockInterviewSession"> | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntWithAggregatesFilter<"MockInterviewSession"> | number
+    planMins?: IntWithAggregatesFilter<"MockInterviewSession"> | number
+    codeMins?: IntWithAggregatesFilter<"MockInterviewSession"> | number
+    optimizeMins?: IntWithAggregatesFilter<"MockInterviewSession"> | number
+    allowHints?: BoolWithAggregatesFilter<"MockInterviewSession"> | boolean
+    allowObservers?: BoolWithAggregatesFilter<"MockInterviewSession"> | boolean
+    interviewerId?: StringWithAggregatesFilter<"MockInterviewSession"> | string
+    candidateId?: StringNullableWithAggregatesFilter<"MockInterviewSession"> | string | null
+    candidateEmail?: StringNullableWithAggregatesFilter<"MockInterviewSession"> | string | null
+    problemId?: StringNullableWithAggregatesFilter<"MockInterviewSession"> | string | null
+    organizationId?: StringNullableWithAggregatesFilter<"MockInterviewSession"> | string | null
+    startedAt?: DateTimeNullableWithAggregatesFilter<"MockInterviewSession"> | Date | string | null
+    endedAt?: DateTimeNullableWithAggregatesFilter<"MockInterviewSession"> | Date | string | null
+    yjsDocumentId?: StringNullableWithAggregatesFilter<"MockInterviewSession"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"MockInterviewSession"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MockInterviewSession"> | Date | string
+  }
+
+  export type InterviewParticipantWhereInput = {
+    AND?: InterviewParticipantWhereInput | InterviewParticipantWhereInput[]
+    OR?: InterviewParticipantWhereInput[]
+    NOT?: InterviewParticipantWhereInput | InterviewParticipantWhereInput[]
+    id?: StringFilter<"InterviewParticipant"> | string
+    sessionId?: StringFilter<"InterviewParticipant"> | string
+    userId?: StringFilter<"InterviewParticipant"> | string
+    role?: EnumInterviewParticipantRoleFilter<"InterviewParticipant"> | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFilter<"InterviewParticipant"> | Date | string
+    leftAt?: DateTimeNullableFilter<"InterviewParticipant"> | Date | string | null
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }
+
+  export type InterviewParticipantOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    joinedAt?: SortOrder
+    leftAt?: SortOrderInput | SortOrder
+    session?: MockInterviewSessionOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type InterviewParticipantWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    sessionId_userId?: InterviewParticipantSessionIdUserIdCompoundUniqueInput
+    AND?: InterviewParticipantWhereInput | InterviewParticipantWhereInput[]
+    OR?: InterviewParticipantWhereInput[]
+    NOT?: InterviewParticipantWhereInput | InterviewParticipantWhereInput[]
+    sessionId?: StringFilter<"InterviewParticipant"> | string
+    userId?: StringFilter<"InterviewParticipant"> | string
+    role?: EnumInterviewParticipantRoleFilter<"InterviewParticipant"> | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFilter<"InterviewParticipant"> | Date | string
+    leftAt?: DateTimeNullableFilter<"InterviewParticipant"> | Date | string | null
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }, "id" | "sessionId_userId">
+
+  export type InterviewParticipantOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    joinedAt?: SortOrder
+    leftAt?: SortOrderInput | SortOrder
+    _count?: InterviewParticipantCountOrderByAggregateInput
+    _max?: InterviewParticipantMaxOrderByAggregateInput
+    _min?: InterviewParticipantMinOrderByAggregateInput
+  }
+
+  export type InterviewParticipantScalarWhereWithAggregatesInput = {
+    AND?: InterviewParticipantScalarWhereWithAggregatesInput | InterviewParticipantScalarWhereWithAggregatesInput[]
+    OR?: InterviewParticipantScalarWhereWithAggregatesInput[]
+    NOT?: InterviewParticipantScalarWhereWithAggregatesInput | InterviewParticipantScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"InterviewParticipant"> | string
+    sessionId?: StringWithAggregatesFilter<"InterviewParticipant"> | string
+    userId?: StringWithAggregatesFilter<"InterviewParticipant"> | string
+    role?: EnumInterviewParticipantRoleWithAggregatesFilter<"InterviewParticipant"> | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeWithAggregatesFilter<"InterviewParticipant"> | Date | string
+    leftAt?: DateTimeNullableWithAggregatesFilter<"InterviewParticipant"> | Date | string | null
+  }
+
+  export type InterviewFeedbackWhereInput = {
+    AND?: InterviewFeedbackWhereInput | InterviewFeedbackWhereInput[]
+    OR?: InterviewFeedbackWhereInput[]
+    NOT?: InterviewFeedbackWhereInput | InterviewFeedbackWhereInput[]
+    id?: StringFilter<"InterviewFeedback"> | string
+    sessionId?: StringFilter<"InterviewFeedback"> | string
+    problemUnderstandingScore?: IntFilter<"InterviewFeedback"> | number
+    algorithmDesignScore?: IntFilter<"InterviewFeedback"> | number
+    codeQualityScore?: IntFilter<"InterviewFeedback"> | number
+    communicationScore?: IntFilter<"InterviewFeedback"> | number
+    edgeCaseHandlingScore?: IntFilter<"InterviewFeedback"> | number
+    recommendation?: EnumRecommendationFilter<"InterviewFeedback"> | $Enums.Recommendation
+    privateNotes?: StringNullableFilter<"InterviewFeedback"> | string | null
+    candidateFeedback?: StringNullableFilter<"InterviewFeedback"> | string | null
+    evaluatedAt?: DateTimeFilter<"InterviewFeedback"> | Date | string
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+  }
+
+  export type InterviewFeedbackOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    problemUnderstandingScore?: SortOrder
+    algorithmDesignScore?: SortOrder
+    codeQualityScore?: SortOrder
+    communicationScore?: SortOrder
+    edgeCaseHandlingScore?: SortOrder
+    recommendation?: SortOrder
+    privateNotes?: SortOrderInput | SortOrder
+    candidateFeedback?: SortOrderInput | SortOrder
+    evaluatedAt?: SortOrder
+    session?: MockInterviewSessionOrderByWithRelationInput
+  }
+
+  export type InterviewFeedbackWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    sessionId?: string
+    AND?: InterviewFeedbackWhereInput | InterviewFeedbackWhereInput[]
+    OR?: InterviewFeedbackWhereInput[]
+    NOT?: InterviewFeedbackWhereInput | InterviewFeedbackWhereInput[]
+    problemUnderstandingScore?: IntFilter<"InterviewFeedback"> | number
+    algorithmDesignScore?: IntFilter<"InterviewFeedback"> | number
+    codeQualityScore?: IntFilter<"InterviewFeedback"> | number
+    communicationScore?: IntFilter<"InterviewFeedback"> | number
+    edgeCaseHandlingScore?: IntFilter<"InterviewFeedback"> | number
+    recommendation?: EnumRecommendationFilter<"InterviewFeedback"> | $Enums.Recommendation
+    privateNotes?: StringNullableFilter<"InterviewFeedback"> | string | null
+    candidateFeedback?: StringNullableFilter<"InterviewFeedback"> | string | null
+    evaluatedAt?: DateTimeFilter<"InterviewFeedback"> | Date | string
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+  }, "id" | "sessionId">
+
+  export type InterviewFeedbackOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    problemUnderstandingScore?: SortOrder
+    algorithmDesignScore?: SortOrder
+    codeQualityScore?: SortOrder
+    communicationScore?: SortOrder
+    edgeCaseHandlingScore?: SortOrder
+    recommendation?: SortOrder
+    privateNotes?: SortOrderInput | SortOrder
+    candidateFeedback?: SortOrderInput | SortOrder
+    evaluatedAt?: SortOrder
+    _count?: InterviewFeedbackCountOrderByAggregateInput
+    _avg?: InterviewFeedbackAvgOrderByAggregateInput
+    _max?: InterviewFeedbackMaxOrderByAggregateInput
+    _min?: InterviewFeedbackMinOrderByAggregateInput
+    _sum?: InterviewFeedbackSumOrderByAggregateInput
+  }
+
+  export type InterviewFeedbackScalarWhereWithAggregatesInput = {
+    AND?: InterviewFeedbackScalarWhereWithAggregatesInput | InterviewFeedbackScalarWhereWithAggregatesInput[]
+    OR?: InterviewFeedbackScalarWhereWithAggregatesInput[]
+    NOT?: InterviewFeedbackScalarWhereWithAggregatesInput | InterviewFeedbackScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"InterviewFeedback"> | string
+    sessionId?: StringWithAggregatesFilter<"InterviewFeedback"> | string
+    problemUnderstandingScore?: IntWithAggregatesFilter<"InterviewFeedback"> | number
+    algorithmDesignScore?: IntWithAggregatesFilter<"InterviewFeedback"> | number
+    codeQualityScore?: IntWithAggregatesFilter<"InterviewFeedback"> | number
+    communicationScore?: IntWithAggregatesFilter<"InterviewFeedback"> | number
+    edgeCaseHandlingScore?: IntWithAggregatesFilter<"InterviewFeedback"> | number
+    recommendation?: EnumRecommendationWithAggregatesFilter<"InterviewFeedback"> | $Enums.Recommendation
+    privateNotes?: StringNullableWithAggregatesFilter<"InterviewFeedback"> | string | null
+    candidateFeedback?: StringNullableWithAggregatesFilter<"InterviewFeedback"> | string | null
+    evaluatedAt?: DateTimeWithAggregatesFilter<"InterviewFeedback"> | Date | string
+  }
+
+  export type InterviewCodeSnapshotWhereInput = {
+    AND?: InterviewCodeSnapshotWhereInput | InterviewCodeSnapshotWhereInput[]
+    OR?: InterviewCodeSnapshotWhereInput[]
+    NOT?: InterviewCodeSnapshotWhereInput | InterviewCodeSnapshotWhereInput[]
+    id?: StringFilter<"InterviewCodeSnapshot"> | string
+    sessionId?: StringFilter<"InterviewCodeSnapshot"> | string
+    code?: StringFilter<"InterviewCodeSnapshot"> | string
+    language?: StringFilter<"InterviewCodeSnapshot"> | string
+    phase?: EnumInterviewPhaseFilter<"InterviewCodeSnapshot"> | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFilter<"InterviewCodeSnapshot"> | Date | string
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+  }
+
+  export type InterviewCodeSnapshotOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    phase?: SortOrder
+    snapshotAt?: SortOrder
+    session?: MockInterviewSessionOrderByWithRelationInput
+  }
+
+  export type InterviewCodeSnapshotWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: InterviewCodeSnapshotWhereInput | InterviewCodeSnapshotWhereInput[]
+    OR?: InterviewCodeSnapshotWhereInput[]
+    NOT?: InterviewCodeSnapshotWhereInput | InterviewCodeSnapshotWhereInput[]
+    sessionId?: StringFilter<"InterviewCodeSnapshot"> | string
+    code?: StringFilter<"InterviewCodeSnapshot"> | string
+    language?: StringFilter<"InterviewCodeSnapshot"> | string
+    phase?: EnumInterviewPhaseFilter<"InterviewCodeSnapshot"> | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFilter<"InterviewCodeSnapshot"> | Date | string
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+  }, "id">
+
+  export type InterviewCodeSnapshotOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    phase?: SortOrder
+    snapshotAt?: SortOrder
+    _count?: InterviewCodeSnapshotCountOrderByAggregateInput
+    _max?: InterviewCodeSnapshotMaxOrderByAggregateInput
+    _min?: InterviewCodeSnapshotMinOrderByAggregateInput
+  }
+
+  export type InterviewCodeSnapshotScalarWhereWithAggregatesInput = {
+    AND?: InterviewCodeSnapshotScalarWhereWithAggregatesInput | InterviewCodeSnapshotScalarWhereWithAggregatesInput[]
+    OR?: InterviewCodeSnapshotScalarWhereWithAggregatesInput[]
+    NOT?: InterviewCodeSnapshotScalarWhereWithAggregatesInput | InterviewCodeSnapshotScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"InterviewCodeSnapshot"> | string
+    sessionId?: StringWithAggregatesFilter<"InterviewCodeSnapshot"> | string
+    code?: StringWithAggregatesFilter<"InterviewCodeSnapshot"> | string
+    language?: StringWithAggregatesFilter<"InterviewCodeSnapshot"> | string
+    phase?: EnumInterviewPhaseWithAggregatesFilter<"InterviewCodeSnapshot"> | $Enums.InterviewPhase
+    snapshotAt?: DateTimeWithAggregatesFilter<"InterviewCodeSnapshot"> | Date | string
+  }
+
+  export type InterviewHintRequestWhereInput = {
+    AND?: InterviewHintRequestWhereInput | InterviewHintRequestWhereInput[]
+    OR?: InterviewHintRequestWhereInput[]
+    NOT?: InterviewHintRequestWhereInput | InterviewHintRequestWhereInput[]
+    id?: StringFilter<"InterviewHintRequest"> | string
+    sessionId?: StringFilter<"InterviewHintRequest"> | string
+    requestedAt?: DateTimeFilter<"InterviewHintRequest"> | Date | string
+    hintLevel?: IntFilter<"InterviewHintRequest"> | number
+    approved?: BoolFilter<"InterviewHintRequest"> | boolean
+    hintContent?: StringNullableFilter<"InterviewHintRequest"> | string | null
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+  }
+
+  export type InterviewHintRequestOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    requestedAt?: SortOrder
+    hintLevel?: SortOrder
+    approved?: SortOrder
+    hintContent?: SortOrderInput | SortOrder
+    session?: MockInterviewSessionOrderByWithRelationInput
+  }
+
+  export type InterviewHintRequestWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: InterviewHintRequestWhereInput | InterviewHintRequestWhereInput[]
+    OR?: InterviewHintRequestWhereInput[]
+    NOT?: InterviewHintRequestWhereInput | InterviewHintRequestWhereInput[]
+    sessionId?: StringFilter<"InterviewHintRequest"> | string
+    requestedAt?: DateTimeFilter<"InterviewHintRequest"> | Date | string
+    hintLevel?: IntFilter<"InterviewHintRequest"> | number
+    approved?: BoolFilter<"InterviewHintRequest"> | boolean
+    hintContent?: StringNullableFilter<"InterviewHintRequest"> | string | null
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+  }, "id">
+
+  export type InterviewHintRequestOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    requestedAt?: SortOrder
+    hintLevel?: SortOrder
+    approved?: SortOrder
+    hintContent?: SortOrderInput | SortOrder
+    _count?: InterviewHintRequestCountOrderByAggregateInput
+    _avg?: InterviewHintRequestAvgOrderByAggregateInput
+    _max?: InterviewHintRequestMaxOrderByAggregateInput
+    _min?: InterviewHintRequestMinOrderByAggregateInput
+    _sum?: InterviewHintRequestSumOrderByAggregateInput
+  }
+
+  export type InterviewHintRequestScalarWhereWithAggregatesInput = {
+    AND?: InterviewHintRequestScalarWhereWithAggregatesInput | InterviewHintRequestScalarWhereWithAggregatesInput[]
+    OR?: InterviewHintRequestScalarWhereWithAggregatesInput[]
+    NOT?: InterviewHintRequestScalarWhereWithAggregatesInput | InterviewHintRequestScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"InterviewHintRequest"> | string
+    sessionId?: StringWithAggregatesFilter<"InterviewHintRequest"> | string
+    requestedAt?: DateTimeWithAggregatesFilter<"InterviewHintRequest"> | Date | string
+    hintLevel?: IntWithAggregatesFilter<"InterviewHintRequest"> | number
+    approved?: BoolWithAggregatesFilter<"InterviewHintRequest"> | boolean
+    hintContent?: StringNullableWithAggregatesFilter<"InterviewHintRequest"> | string | null
+  }
+
+  export type InterviewExecutionResultWhereInput = {
+    AND?: InterviewExecutionResultWhereInput | InterviewExecutionResultWhereInput[]
+    OR?: InterviewExecutionResultWhereInput[]
+    NOT?: InterviewExecutionResultWhereInput | InterviewExecutionResultWhereInput[]
+    id?: StringFilter<"InterviewExecutionResult"> | string
+    sessionId?: StringFilter<"InterviewExecutionResult"> | string
+    code?: StringFilter<"InterviewExecutionResult"> | string
+    language?: StringFilter<"InterviewExecutionResult"> | string
+    output?: StringFilter<"InterviewExecutionResult"> | string
+    status?: EnumSubmissionStatusFilter<"InterviewExecutionResult"> | $Enums.SubmissionStatus
+    executedAt?: DateTimeFilter<"InterviewExecutionResult"> | Date | string
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+  }
+
+  export type InterviewExecutionResultOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    output?: SortOrder
+    status?: SortOrder
+    executedAt?: SortOrder
+    session?: MockInterviewSessionOrderByWithRelationInput
+  }
+
+  export type InterviewExecutionResultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: InterviewExecutionResultWhereInput | InterviewExecutionResultWhereInput[]
+    OR?: InterviewExecutionResultWhereInput[]
+    NOT?: InterviewExecutionResultWhereInput | InterviewExecutionResultWhereInput[]
+    sessionId?: StringFilter<"InterviewExecutionResult"> | string
+    code?: StringFilter<"InterviewExecutionResult"> | string
+    language?: StringFilter<"InterviewExecutionResult"> | string
+    output?: StringFilter<"InterviewExecutionResult"> | string
+    status?: EnumSubmissionStatusFilter<"InterviewExecutionResult"> | $Enums.SubmissionStatus
+    executedAt?: DateTimeFilter<"InterviewExecutionResult"> | Date | string
+    session?: XOR<MockInterviewSessionRelationFilter, MockInterviewSessionWhereInput>
+  }, "id">
+
+  export type InterviewExecutionResultOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    output?: SortOrder
+    status?: SortOrder
+    executedAt?: SortOrder
+    _count?: InterviewExecutionResultCountOrderByAggregateInput
+    _max?: InterviewExecutionResultMaxOrderByAggregateInput
+    _min?: InterviewExecutionResultMinOrderByAggregateInput
+  }
+
+  export type InterviewExecutionResultScalarWhereWithAggregatesInput = {
+    AND?: InterviewExecutionResultScalarWhereWithAggregatesInput | InterviewExecutionResultScalarWhereWithAggregatesInput[]
+    OR?: InterviewExecutionResultScalarWhereWithAggregatesInput[]
+    NOT?: InterviewExecutionResultScalarWhereWithAggregatesInput | InterviewExecutionResultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"InterviewExecutionResult"> | string
+    sessionId?: StringWithAggregatesFilter<"InterviewExecutionResult"> | string
+    code?: StringWithAggregatesFilter<"InterviewExecutionResult"> | string
+    language?: StringWithAggregatesFilter<"InterviewExecutionResult"> | string
+    output?: StringWithAggregatesFilter<"InterviewExecutionResult"> | string
+    status?: EnumSubmissionStatusWithAggregatesFilter<"InterviewExecutionResult"> | $Enums.SubmissionStatus
+    executedAt?: DateTimeWithAggregatesFilter<"InterviewExecutionResult"> | Date | string
+  }
+
   export type OrganizationCreateInput = {
     id?: string
     name: string
@@ -41316,6 +49088,7 @@ export namespace Prisma {
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateInput = {
@@ -41342,6 +49115,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUpdateInput = {
@@ -41368,6 +49142,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateInput = {
@@ -41394,6 +49169,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationCreateManyInput = {
@@ -41492,6 +49268,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -41530,6 +49309,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -41568,6 +49350,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -41606,6 +49391,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -41684,6 +49472,7 @@ export namespace Prisma {
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemUncheckedCreateInput = {
@@ -41707,6 +49496,7 @@ export namespace Prisma {
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemUpdateInput = {
@@ -41730,6 +49520,7 @@ export namespace Prisma {
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemUncheckedUpdateInput = {
@@ -41753,6 +49544,7 @@ export namespace Prisma {
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemCreateManyInput = {
@@ -44554,6 +52346,569 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MockInterviewSessionCreateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionCreateManyInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MockInterviewSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MockInterviewSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewParticipantCreateInput = {
+    id?: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+    session: MockInterviewSessionCreateNestedOneWithoutParticipantsInput
+    user: UserCreateNestedOneWithoutInterviewParticipantsInput
+  }
+
+  export type InterviewParticipantUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    userId: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+  }
+
+  export type InterviewParticipantUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    session?: MockInterviewSessionUpdateOneRequiredWithoutParticipantsNestedInput
+    user?: UserUpdateOneRequiredWithoutInterviewParticipantsNestedInput
+  }
+
+  export type InterviewParticipantUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type InterviewParticipantCreateManyInput = {
+    id?: string
+    sessionId: string
+    userId: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+  }
+
+  export type InterviewParticipantUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type InterviewParticipantUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type InterviewFeedbackCreateInput = {
+    id?: string
+    problemUnderstandingScore?: number
+    algorithmDesignScore?: number
+    codeQualityScore?: number
+    communicationScore?: number
+    edgeCaseHandlingScore?: number
+    recommendation?: $Enums.Recommendation
+    privateNotes?: string | null
+    candidateFeedback?: string | null
+    evaluatedAt?: Date | string
+    session: MockInterviewSessionCreateNestedOneWithoutFeedbackInput
+  }
+
+  export type InterviewFeedbackUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    problemUnderstandingScore?: number
+    algorithmDesignScore?: number
+    codeQualityScore?: number
+    communicationScore?: number
+    edgeCaseHandlingScore?: number
+    recommendation?: $Enums.Recommendation
+    privateNotes?: string | null
+    candidateFeedback?: string | null
+    evaluatedAt?: Date | string
+  }
+
+  export type InterviewFeedbackUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemUnderstandingScore?: IntFieldUpdateOperationsInput | number
+    algorithmDesignScore?: IntFieldUpdateOperationsInput | number
+    codeQualityScore?: IntFieldUpdateOperationsInput | number
+    communicationScore?: IntFieldUpdateOperationsInput | number
+    edgeCaseHandlingScore?: IntFieldUpdateOperationsInput | number
+    recommendation?: EnumRecommendationFieldUpdateOperationsInput | $Enums.Recommendation
+    privateNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateFeedback?: NullableStringFieldUpdateOperationsInput | string | null
+    evaluatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: MockInterviewSessionUpdateOneRequiredWithoutFeedbackNestedInput
+  }
+
+  export type InterviewFeedbackUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    problemUnderstandingScore?: IntFieldUpdateOperationsInput | number
+    algorithmDesignScore?: IntFieldUpdateOperationsInput | number
+    codeQualityScore?: IntFieldUpdateOperationsInput | number
+    communicationScore?: IntFieldUpdateOperationsInput | number
+    edgeCaseHandlingScore?: IntFieldUpdateOperationsInput | number
+    recommendation?: EnumRecommendationFieldUpdateOperationsInput | $Enums.Recommendation
+    privateNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateFeedback?: NullableStringFieldUpdateOperationsInput | string | null
+    evaluatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewFeedbackCreateManyInput = {
+    id?: string
+    sessionId: string
+    problemUnderstandingScore?: number
+    algorithmDesignScore?: number
+    codeQualityScore?: number
+    communicationScore?: number
+    edgeCaseHandlingScore?: number
+    recommendation?: $Enums.Recommendation
+    privateNotes?: string | null
+    candidateFeedback?: string | null
+    evaluatedAt?: Date | string
+  }
+
+  export type InterviewFeedbackUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemUnderstandingScore?: IntFieldUpdateOperationsInput | number
+    algorithmDesignScore?: IntFieldUpdateOperationsInput | number
+    codeQualityScore?: IntFieldUpdateOperationsInput | number
+    communicationScore?: IntFieldUpdateOperationsInput | number
+    edgeCaseHandlingScore?: IntFieldUpdateOperationsInput | number
+    recommendation?: EnumRecommendationFieldUpdateOperationsInput | $Enums.Recommendation
+    privateNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateFeedback?: NullableStringFieldUpdateOperationsInput | string | null
+    evaluatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewFeedbackUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    problemUnderstandingScore?: IntFieldUpdateOperationsInput | number
+    algorithmDesignScore?: IntFieldUpdateOperationsInput | number
+    codeQualityScore?: IntFieldUpdateOperationsInput | number
+    communicationScore?: IntFieldUpdateOperationsInput | number
+    edgeCaseHandlingScore?: IntFieldUpdateOperationsInput | number
+    recommendation?: EnumRecommendationFieldUpdateOperationsInput | $Enums.Recommendation
+    privateNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateFeedback?: NullableStringFieldUpdateOperationsInput | string | null
+    evaluatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewCodeSnapshotCreateInput = {
+    id?: string
+    code: string
+    language: string
+    phase?: $Enums.InterviewPhase
+    snapshotAt?: Date | string
+    session: MockInterviewSessionCreateNestedOneWithoutCodeSnapshotsInput
+  }
+
+  export type InterviewCodeSnapshotUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    code: string
+    language: string
+    phase?: $Enums.InterviewPhase
+    snapshotAt?: Date | string
+  }
+
+  export type InterviewCodeSnapshotUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    phase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: MockInterviewSessionUpdateOneRequiredWithoutCodeSnapshotsNestedInput
+  }
+
+  export type InterviewCodeSnapshotUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    phase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewCodeSnapshotCreateManyInput = {
+    id?: string
+    sessionId: string
+    code: string
+    language: string
+    phase?: $Enums.InterviewPhase
+    snapshotAt?: Date | string
+  }
+
+  export type InterviewCodeSnapshotUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    phase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewCodeSnapshotUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    phase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewHintRequestCreateInput = {
+    id?: string
+    requestedAt?: Date | string
+    hintLevel?: number
+    approved?: boolean
+    hintContent?: string | null
+    session: MockInterviewSessionCreateNestedOneWithoutHintRequestsInput
+  }
+
+  export type InterviewHintRequestUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    requestedAt?: Date | string
+    hintLevel?: number
+    approved?: boolean
+    hintContent?: string | null
+  }
+
+  export type InterviewHintRequestUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hintLevel?: IntFieldUpdateOperationsInput | number
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    hintContent?: NullableStringFieldUpdateOperationsInput | string | null
+    session?: MockInterviewSessionUpdateOneRequiredWithoutHintRequestsNestedInput
+  }
+
+  export type InterviewHintRequestUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hintLevel?: IntFieldUpdateOperationsInput | number
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    hintContent?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type InterviewHintRequestCreateManyInput = {
+    id?: string
+    sessionId: string
+    requestedAt?: Date | string
+    hintLevel?: number
+    approved?: boolean
+    hintContent?: string | null
+  }
+
+  export type InterviewHintRequestUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hintLevel?: IntFieldUpdateOperationsInput | number
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    hintContent?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type InterviewHintRequestUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hintLevel?: IntFieldUpdateOperationsInput | number
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    hintContent?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type InterviewExecutionResultCreateInput = {
+    id?: string
+    code: string
+    language: string
+    output: string
+    status: $Enums.SubmissionStatus
+    executedAt?: Date | string
+    session: MockInterviewSessionCreateNestedOneWithoutExecutionResultsInput
+  }
+
+  export type InterviewExecutionResultUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    code: string
+    language: string
+    output: string
+    status: $Enums.SubmissionStatus
+    executedAt?: Date | string
+  }
+
+  export type InterviewExecutionResultUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    output?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: MockInterviewSessionUpdateOneRequiredWithoutExecutionResultsNestedInput
+  }
+
+  export type InterviewExecutionResultUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    output?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewExecutionResultCreateManyInput = {
+    id?: string
+    sessionId: string
+    code: string
+    language: string
+    output: string
+    status: $Enums.SubmissionStatus
+    executedAt?: Date | string
+  }
+
+  export type InterviewExecutionResultUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    output?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewExecutionResultUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    output?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -44679,6 +53034,12 @@ export namespace Prisma {
     none?: QuestionBankWhereInput
   }
 
+  export type MockInterviewSessionListRelationFilter = {
+    every?: MockInterviewSessionWhereInput
+    some?: MockInterviewSessionWhereInput
+    none?: MockInterviewSessionWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -44705,6 +53066,10 @@ export namespace Prisma {
   }
 
   export type QuestionBankOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MockInterviewSessionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -44998,6 +53363,12 @@ export namespace Prisma {
     none?: NotificationWhereInput
   }
 
+  export type InterviewParticipantListRelationFilter = {
+    every?: InterviewParticipantWhereInput
+    some?: InterviewParticipantWhereInput
+    none?: InterviewParticipantWhereInput
+  }
+
   export type ContestRegistrationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -45043,6 +53414,10 @@ export namespace Prisma {
   }
 
   export type NotificationOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InterviewParticipantOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -46961,6 +55336,401 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type EnumInterviewStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewStatus | EnumInterviewStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewStatus[] | ListEnumInterviewStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewStatus[] | ListEnumInterviewStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewStatusFilter<$PrismaModel> | $Enums.InterviewStatus
+  }
+
+  export type EnumInterviewPhaseFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewPhase | EnumInterviewPhaseFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewPhase[] | ListEnumInterviewPhaseFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewPhase[] | ListEnumInterviewPhaseFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewPhaseFilter<$PrismaModel> | $Enums.InterviewPhase
+  }
+
+  export type ProblemNullableRelationFilter = {
+    is?: ProblemWhereInput | null
+    isNot?: ProblemWhereInput | null
+  }
+
+  export type InterviewFeedbackNullableRelationFilter = {
+    is?: InterviewFeedbackWhereInput | null
+    isNot?: InterviewFeedbackWhereInput | null
+  }
+
+  export type InterviewCodeSnapshotListRelationFilter = {
+    every?: InterviewCodeSnapshotWhereInput
+    some?: InterviewCodeSnapshotWhereInput
+    none?: InterviewCodeSnapshotWhereInput
+  }
+
+  export type InterviewHintRequestListRelationFilter = {
+    every?: InterviewHintRequestWhereInput
+    some?: InterviewHintRequestWhereInput
+    none?: InterviewHintRequestWhereInput
+  }
+
+  export type InterviewExecutionResultListRelationFilter = {
+    every?: InterviewExecutionResultWhereInput
+    some?: InterviewExecutionResultWhereInput
+    none?: InterviewExecutionResultWhereInput
+  }
+
+  export type InterviewCodeSnapshotOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InterviewHintRequestOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InterviewExecutionResultOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MockInterviewSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    scheduledAt?: SortOrder
+    durationMinutes?: SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrder
+    status?: SortOrder
+    currentPhase?: SortOrder
+    phaseUnderstandMins?: SortOrder
+    planMins?: SortOrder
+    codeMins?: SortOrder
+    optimizeMins?: SortOrder
+    allowHints?: SortOrder
+    allowObservers?: SortOrder
+    interviewerId?: SortOrder
+    candidateId?: SortOrder
+    candidateEmail?: SortOrder
+    problemId?: SortOrder
+    organizationId?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    yjsDocumentId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MockInterviewSessionAvgOrderByAggregateInput = {
+    durationMinutes?: SortOrder
+    phaseUnderstandMins?: SortOrder
+    planMins?: SortOrder
+    codeMins?: SortOrder
+    optimizeMins?: SortOrder
+  }
+
+  export type MockInterviewSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    scheduledAt?: SortOrder
+    durationMinutes?: SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrder
+    status?: SortOrder
+    currentPhase?: SortOrder
+    phaseUnderstandMins?: SortOrder
+    planMins?: SortOrder
+    codeMins?: SortOrder
+    optimizeMins?: SortOrder
+    allowHints?: SortOrder
+    allowObservers?: SortOrder
+    interviewerId?: SortOrder
+    candidateId?: SortOrder
+    candidateEmail?: SortOrder
+    problemId?: SortOrder
+    organizationId?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    yjsDocumentId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MockInterviewSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    scheduledAt?: SortOrder
+    durationMinutes?: SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrder
+    status?: SortOrder
+    currentPhase?: SortOrder
+    phaseUnderstandMins?: SortOrder
+    planMins?: SortOrder
+    codeMins?: SortOrder
+    optimizeMins?: SortOrder
+    allowHints?: SortOrder
+    allowObservers?: SortOrder
+    interviewerId?: SortOrder
+    candidateId?: SortOrder
+    candidateEmail?: SortOrder
+    problemId?: SortOrder
+    organizationId?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    yjsDocumentId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MockInterviewSessionSumOrderByAggregateInput = {
+    durationMinutes?: SortOrder
+    phaseUnderstandMins?: SortOrder
+    planMins?: SortOrder
+    codeMins?: SortOrder
+    optimizeMins?: SortOrder
+  }
+
+  export type EnumInterviewStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewStatus | EnumInterviewStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewStatus[] | ListEnumInterviewStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewStatus[] | ListEnumInterviewStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewStatusWithAggregatesFilter<$PrismaModel> | $Enums.InterviewStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInterviewStatusFilter<$PrismaModel>
+    _max?: NestedEnumInterviewStatusFilter<$PrismaModel>
+  }
+
+  export type EnumInterviewPhaseWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewPhase | EnumInterviewPhaseFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewPhase[] | ListEnumInterviewPhaseFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewPhase[] | ListEnumInterviewPhaseFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewPhaseWithAggregatesFilter<$PrismaModel> | $Enums.InterviewPhase
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInterviewPhaseFilter<$PrismaModel>
+    _max?: NestedEnumInterviewPhaseFilter<$PrismaModel>
+  }
+
+  export type EnumInterviewParticipantRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewParticipantRole | EnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewParticipantRole[] | ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewParticipantRole[] | ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewParticipantRoleFilter<$PrismaModel> | $Enums.InterviewParticipantRole
+  }
+
+  export type MockInterviewSessionRelationFilter = {
+    is?: MockInterviewSessionWhereInput
+    isNot?: MockInterviewSessionWhereInput
+  }
+
+  export type InterviewParticipantSessionIdUserIdCompoundUniqueInput = {
+    sessionId: string
+    userId: string
+  }
+
+  export type InterviewParticipantCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    joinedAt?: SortOrder
+    leftAt?: SortOrder
+  }
+
+  export type InterviewParticipantMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    joinedAt?: SortOrder
+    leftAt?: SortOrder
+  }
+
+  export type InterviewParticipantMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    userId?: SortOrder
+    role?: SortOrder
+    joinedAt?: SortOrder
+    leftAt?: SortOrder
+  }
+
+  export type EnumInterviewParticipantRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewParticipantRole | EnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewParticipantRole[] | ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewParticipantRole[] | ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewParticipantRoleWithAggregatesFilter<$PrismaModel> | $Enums.InterviewParticipantRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInterviewParticipantRoleFilter<$PrismaModel>
+    _max?: NestedEnumInterviewParticipantRoleFilter<$PrismaModel>
+  }
+
+  export type EnumRecommendationFilter<$PrismaModel = never> = {
+    equals?: $Enums.Recommendation | EnumRecommendationFieldRefInput<$PrismaModel>
+    in?: $Enums.Recommendation[] | ListEnumRecommendationFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Recommendation[] | ListEnumRecommendationFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecommendationFilter<$PrismaModel> | $Enums.Recommendation
+  }
+
+  export type InterviewFeedbackCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    problemUnderstandingScore?: SortOrder
+    algorithmDesignScore?: SortOrder
+    codeQualityScore?: SortOrder
+    communicationScore?: SortOrder
+    edgeCaseHandlingScore?: SortOrder
+    recommendation?: SortOrder
+    privateNotes?: SortOrder
+    candidateFeedback?: SortOrder
+    evaluatedAt?: SortOrder
+  }
+
+  export type InterviewFeedbackAvgOrderByAggregateInput = {
+    problemUnderstandingScore?: SortOrder
+    algorithmDesignScore?: SortOrder
+    codeQualityScore?: SortOrder
+    communicationScore?: SortOrder
+    edgeCaseHandlingScore?: SortOrder
+  }
+
+  export type InterviewFeedbackMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    problemUnderstandingScore?: SortOrder
+    algorithmDesignScore?: SortOrder
+    codeQualityScore?: SortOrder
+    communicationScore?: SortOrder
+    edgeCaseHandlingScore?: SortOrder
+    recommendation?: SortOrder
+    privateNotes?: SortOrder
+    candidateFeedback?: SortOrder
+    evaluatedAt?: SortOrder
+  }
+
+  export type InterviewFeedbackMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    problemUnderstandingScore?: SortOrder
+    algorithmDesignScore?: SortOrder
+    codeQualityScore?: SortOrder
+    communicationScore?: SortOrder
+    edgeCaseHandlingScore?: SortOrder
+    recommendation?: SortOrder
+    privateNotes?: SortOrder
+    candidateFeedback?: SortOrder
+    evaluatedAt?: SortOrder
+  }
+
+  export type InterviewFeedbackSumOrderByAggregateInput = {
+    problemUnderstandingScore?: SortOrder
+    algorithmDesignScore?: SortOrder
+    codeQualityScore?: SortOrder
+    communicationScore?: SortOrder
+    edgeCaseHandlingScore?: SortOrder
+  }
+
+  export type EnumRecommendationWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Recommendation | EnumRecommendationFieldRefInput<$PrismaModel>
+    in?: $Enums.Recommendation[] | ListEnumRecommendationFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Recommendation[] | ListEnumRecommendationFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecommendationWithAggregatesFilter<$PrismaModel> | $Enums.Recommendation
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecommendationFilter<$PrismaModel>
+    _max?: NestedEnumRecommendationFilter<$PrismaModel>
+  }
+
+  export type InterviewCodeSnapshotCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    phase?: SortOrder
+    snapshotAt?: SortOrder
+  }
+
+  export type InterviewCodeSnapshotMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    phase?: SortOrder
+    snapshotAt?: SortOrder
+  }
+
+  export type InterviewCodeSnapshotMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    phase?: SortOrder
+    snapshotAt?: SortOrder
+  }
+
+  export type InterviewHintRequestCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    requestedAt?: SortOrder
+    hintLevel?: SortOrder
+    approved?: SortOrder
+    hintContent?: SortOrder
+  }
+
+  export type InterviewHintRequestAvgOrderByAggregateInput = {
+    hintLevel?: SortOrder
+  }
+
+  export type InterviewHintRequestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    requestedAt?: SortOrder
+    hintLevel?: SortOrder
+    approved?: SortOrder
+    hintContent?: SortOrder
+  }
+
+  export type InterviewHintRequestMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    requestedAt?: SortOrder
+    hintLevel?: SortOrder
+    approved?: SortOrder
+    hintContent?: SortOrder
+  }
+
+  export type InterviewHintRequestSumOrderByAggregateInput = {
+    hintLevel?: SortOrder
+  }
+
+  export type InterviewExecutionResultCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    output?: SortOrder
+    status?: SortOrder
+    executedAt?: SortOrder
+  }
+
+  export type InterviewExecutionResultMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    output?: SortOrder
+    status?: SortOrder
+    executedAt?: SortOrder
+  }
+
+  export type InterviewExecutionResultMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    language?: SortOrder
+    output?: SortOrder
+    status?: SortOrder
+    executedAt?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -47003,6 +55773,13 @@ export namespace Prisma {
     connect?: QuestionBankWhereUniqueInput | QuestionBankWhereUniqueInput[]
   }
 
+  export type MockInterviewSessionCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutOrganizationInput, MockInterviewSessionUncheckedCreateWithoutOrganizationInput> | MockInterviewSessionCreateWithoutOrganizationInput[] | MockInterviewSessionUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutOrganizationInput | MockInterviewSessionCreateOrConnectWithoutOrganizationInput[]
+    createMany?: MockInterviewSessionCreateManyOrganizationInputEnvelope
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -47043,6 +55820,13 @@ export namespace Prisma {
     connectOrCreate?: QuestionBankCreateOrConnectWithoutOrganizationInput | QuestionBankCreateOrConnectWithoutOrganizationInput[]
     createMany?: QuestionBankCreateManyOrganizationInputEnvelope
     connect?: QuestionBankWhereUniqueInput | QuestionBankWhereUniqueInput[]
+  }
+
+  export type MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutOrganizationInput, MockInterviewSessionUncheckedCreateWithoutOrganizationInput> | MockInterviewSessionCreateWithoutOrganizationInput[] | MockInterviewSessionUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutOrganizationInput | MockInterviewSessionCreateOrConnectWithoutOrganizationInput[]
+    createMany?: MockInterviewSessionCreateManyOrganizationInputEnvelope
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -47161,6 +55945,20 @@ export namespace Prisma {
     deleteMany?: QuestionBankScalarWhereInput | QuestionBankScalarWhereInput[]
   }
 
+  export type MockInterviewSessionUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutOrganizationInput, MockInterviewSessionUncheckedCreateWithoutOrganizationInput> | MockInterviewSessionCreateWithoutOrganizationInput[] | MockInterviewSessionUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutOrganizationInput | MockInterviewSessionCreateOrConnectWithoutOrganizationInput[]
+    upsert?: MockInterviewSessionUpsertWithWhereUniqueWithoutOrganizationInput | MockInterviewSessionUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: MockInterviewSessionCreateManyOrganizationInputEnvelope
+    set?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    disconnect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    delete?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    update?: MockInterviewSessionUpdateWithWhereUniqueWithoutOrganizationInput | MockInterviewSessionUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutOrganizationInput | MockInterviewSessionUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -47243,6 +56041,20 @@ export namespace Prisma {
     update?: QuestionBankUpdateWithWhereUniqueWithoutOrganizationInput | QuestionBankUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: QuestionBankUpdateManyWithWhereWithoutOrganizationInput | QuestionBankUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: QuestionBankScalarWhereInput | QuestionBankScalarWhereInput[]
+  }
+
+  export type MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutOrganizationInput, MockInterviewSessionUncheckedCreateWithoutOrganizationInput> | MockInterviewSessionCreateWithoutOrganizationInput[] | MockInterviewSessionUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutOrganizationInput | MockInterviewSessionCreateOrConnectWithoutOrganizationInput[]
+    upsert?: MockInterviewSessionUpsertWithWhereUniqueWithoutOrganizationInput | MockInterviewSessionUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: MockInterviewSessionCreateManyOrganizationInputEnvelope
+    set?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    disconnect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    delete?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    update?: MockInterviewSessionUpdateWithWhereUniqueWithoutOrganizationInput | MockInterviewSessionUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutOrganizationInput | MockInterviewSessionUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutInvitedUsersInput = {
@@ -47390,6 +56202,27 @@ export namespace Prisma {
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
   }
 
+  export type MockInterviewSessionCreateNestedManyWithoutInterviewerInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutInterviewerInput, MockInterviewSessionUncheckedCreateWithoutInterviewerInput> | MockInterviewSessionCreateWithoutInterviewerInput[] | MockInterviewSessionUncheckedCreateWithoutInterviewerInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutInterviewerInput | MockInterviewSessionCreateOrConnectWithoutInterviewerInput[]
+    createMany?: MockInterviewSessionCreateManyInterviewerInputEnvelope
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+  }
+
+  export type MockInterviewSessionCreateNestedManyWithoutCandidateInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutCandidateInput, MockInterviewSessionUncheckedCreateWithoutCandidateInput> | MockInterviewSessionCreateWithoutCandidateInput[] | MockInterviewSessionUncheckedCreateWithoutCandidateInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutCandidateInput | MockInterviewSessionCreateOrConnectWithoutCandidateInput[]
+    createMany?: MockInterviewSessionCreateManyCandidateInputEnvelope
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+  }
+
+  export type InterviewParticipantCreateNestedManyWithoutUserInput = {
+    create?: XOR<InterviewParticipantCreateWithoutUserInput, InterviewParticipantUncheckedCreateWithoutUserInput> | InterviewParticipantCreateWithoutUserInput[] | InterviewParticipantUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: InterviewParticipantCreateOrConnectWithoutUserInput | InterviewParticipantCreateOrConnectWithoutUserInput[]
+    createMany?: InterviewParticipantCreateManyUserInputEnvelope
+    connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+  }
+
   export type ContestUncheckedCreateNestedManyWithoutCreatedByInput = {
     create?: XOR<ContestCreateWithoutCreatedByInput, ContestUncheckedCreateWithoutCreatedByInput> | ContestCreateWithoutCreatedByInput[] | ContestUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: ContestCreateOrConnectWithoutCreatedByInput | ContestCreateOrConnectWithoutCreatedByInput[]
@@ -47521,6 +56354,27 @@ export namespace Prisma {
     connectOrCreate?: NotificationCreateOrConnectWithoutUserInput | NotificationCreateOrConnectWithoutUserInput[]
     createMany?: NotificationCreateManyUserInputEnvelope
     connect?: NotificationWhereUniqueInput | NotificationWhereUniqueInput[]
+  }
+
+  export type MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutInterviewerInput, MockInterviewSessionUncheckedCreateWithoutInterviewerInput> | MockInterviewSessionCreateWithoutInterviewerInput[] | MockInterviewSessionUncheckedCreateWithoutInterviewerInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutInterviewerInput | MockInterviewSessionCreateOrConnectWithoutInterviewerInput[]
+    createMany?: MockInterviewSessionCreateManyInterviewerInputEnvelope
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+  }
+
+  export type MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutCandidateInput, MockInterviewSessionUncheckedCreateWithoutCandidateInput> | MockInterviewSessionCreateWithoutCandidateInput[] | MockInterviewSessionUncheckedCreateWithoutCandidateInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutCandidateInput | MockInterviewSessionCreateOrConnectWithoutCandidateInput[]
+    createMany?: MockInterviewSessionCreateManyCandidateInputEnvelope
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+  }
+
+  export type InterviewParticipantUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<InterviewParticipantCreateWithoutUserInput, InterviewParticipantUncheckedCreateWithoutUserInput> | InterviewParticipantCreateWithoutUserInput[] | InterviewParticipantUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: InterviewParticipantCreateOrConnectWithoutUserInput | InterviewParticipantCreateOrConnectWithoutUserInput[]
+    createMany?: InterviewParticipantCreateManyUserInputEnvelope
+    connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
   }
 
   export type EnumRoleFieldUpdateOperationsInput = {
@@ -47821,6 +56675,48 @@ export namespace Prisma {
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
+  export type MockInterviewSessionUpdateManyWithoutInterviewerNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutInterviewerInput, MockInterviewSessionUncheckedCreateWithoutInterviewerInput> | MockInterviewSessionCreateWithoutInterviewerInput[] | MockInterviewSessionUncheckedCreateWithoutInterviewerInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutInterviewerInput | MockInterviewSessionCreateOrConnectWithoutInterviewerInput[]
+    upsert?: MockInterviewSessionUpsertWithWhereUniqueWithoutInterviewerInput | MockInterviewSessionUpsertWithWhereUniqueWithoutInterviewerInput[]
+    createMany?: MockInterviewSessionCreateManyInterviewerInputEnvelope
+    set?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    disconnect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    delete?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    update?: MockInterviewSessionUpdateWithWhereUniqueWithoutInterviewerInput | MockInterviewSessionUpdateWithWhereUniqueWithoutInterviewerInput[]
+    updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutInterviewerInput | MockInterviewSessionUpdateManyWithWhereWithoutInterviewerInput[]
+    deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+  }
+
+  export type MockInterviewSessionUpdateManyWithoutCandidateNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutCandidateInput, MockInterviewSessionUncheckedCreateWithoutCandidateInput> | MockInterviewSessionCreateWithoutCandidateInput[] | MockInterviewSessionUncheckedCreateWithoutCandidateInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutCandidateInput | MockInterviewSessionCreateOrConnectWithoutCandidateInput[]
+    upsert?: MockInterviewSessionUpsertWithWhereUniqueWithoutCandidateInput | MockInterviewSessionUpsertWithWhereUniqueWithoutCandidateInput[]
+    createMany?: MockInterviewSessionCreateManyCandidateInputEnvelope
+    set?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    disconnect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    delete?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    update?: MockInterviewSessionUpdateWithWhereUniqueWithoutCandidateInput | MockInterviewSessionUpdateWithWhereUniqueWithoutCandidateInput[]
+    updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutCandidateInput | MockInterviewSessionUpdateManyWithWhereWithoutCandidateInput[]
+    deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+  }
+
+  export type InterviewParticipantUpdateManyWithoutUserNestedInput = {
+    create?: XOR<InterviewParticipantCreateWithoutUserInput, InterviewParticipantUncheckedCreateWithoutUserInput> | InterviewParticipantCreateWithoutUserInput[] | InterviewParticipantUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: InterviewParticipantCreateOrConnectWithoutUserInput | InterviewParticipantCreateOrConnectWithoutUserInput[]
+    upsert?: InterviewParticipantUpsertWithWhereUniqueWithoutUserInput | InterviewParticipantUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: InterviewParticipantCreateManyUserInputEnvelope
+    set?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    disconnect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    delete?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    update?: InterviewParticipantUpdateWithWhereUniqueWithoutUserInput | InterviewParticipantUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: InterviewParticipantUpdateManyWithWhereWithoutUserInput | InterviewParticipantUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: InterviewParticipantScalarWhereInput | InterviewParticipantScalarWhereInput[]
+  }
+
   export type ContestUncheckedUpdateManyWithoutCreatedByNestedInput = {
     create?: XOR<ContestCreateWithoutCreatedByInput, ContestUncheckedCreateWithoutCreatedByInput> | ContestCreateWithoutCreatedByInput[] | ContestUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: ContestCreateOrConnectWithoutCreatedByInput | ContestCreateOrConnectWithoutCreatedByInput[]
@@ -48087,6 +56983,48 @@ export namespace Prisma {
     deleteMany?: NotificationScalarWhereInput | NotificationScalarWhereInput[]
   }
 
+  export type MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutInterviewerInput, MockInterviewSessionUncheckedCreateWithoutInterviewerInput> | MockInterviewSessionCreateWithoutInterviewerInput[] | MockInterviewSessionUncheckedCreateWithoutInterviewerInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutInterviewerInput | MockInterviewSessionCreateOrConnectWithoutInterviewerInput[]
+    upsert?: MockInterviewSessionUpsertWithWhereUniqueWithoutInterviewerInput | MockInterviewSessionUpsertWithWhereUniqueWithoutInterviewerInput[]
+    createMany?: MockInterviewSessionCreateManyInterviewerInputEnvelope
+    set?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    disconnect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    delete?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    update?: MockInterviewSessionUpdateWithWhereUniqueWithoutInterviewerInput | MockInterviewSessionUpdateWithWhereUniqueWithoutInterviewerInput[]
+    updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutInterviewerInput | MockInterviewSessionUpdateManyWithWhereWithoutInterviewerInput[]
+    deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+  }
+
+  export type MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutCandidateInput, MockInterviewSessionUncheckedCreateWithoutCandidateInput> | MockInterviewSessionCreateWithoutCandidateInput[] | MockInterviewSessionUncheckedCreateWithoutCandidateInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutCandidateInput | MockInterviewSessionCreateOrConnectWithoutCandidateInput[]
+    upsert?: MockInterviewSessionUpsertWithWhereUniqueWithoutCandidateInput | MockInterviewSessionUpsertWithWhereUniqueWithoutCandidateInput[]
+    createMany?: MockInterviewSessionCreateManyCandidateInputEnvelope
+    set?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    disconnect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    delete?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    update?: MockInterviewSessionUpdateWithWhereUniqueWithoutCandidateInput | MockInterviewSessionUpdateWithWhereUniqueWithoutCandidateInput[]
+    updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutCandidateInput | MockInterviewSessionUpdateManyWithWhereWithoutCandidateInput[]
+    deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+  }
+
+  export type InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<InterviewParticipantCreateWithoutUserInput, InterviewParticipantUncheckedCreateWithoutUserInput> | InterviewParticipantCreateWithoutUserInput[] | InterviewParticipantUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: InterviewParticipantCreateOrConnectWithoutUserInput | InterviewParticipantCreateOrConnectWithoutUserInput[]
+    upsert?: InterviewParticipantUpsertWithWhereUniqueWithoutUserInput | InterviewParticipantUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: InterviewParticipantCreateManyUserInputEnvelope
+    set?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    disconnect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    delete?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    update?: InterviewParticipantUpdateWithWhereUniqueWithoutUserInput | InterviewParticipantUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: InterviewParticipantUpdateManyWithWhereWithoutUserInput | InterviewParticipantUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: InterviewParticipantScalarWhereInput | InterviewParticipantScalarWhereInput[]
+  }
+
   export type OrganizationCreateNestedOneWithoutProblemsInput = {
     create?: XOR<OrganizationCreateWithoutProblemsInput, OrganizationUncheckedCreateWithoutProblemsInput>
     connectOrCreate?: OrganizationCreateOrConnectWithoutProblemsInput
@@ -48120,6 +57058,13 @@ export namespace Prisma {
     connect?: SubmissionWhereUniqueInput | SubmissionWhereUniqueInput[]
   }
 
+  export type MockInterviewSessionCreateNestedManyWithoutProblemInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutProblemInput, MockInterviewSessionUncheckedCreateWithoutProblemInput> | MockInterviewSessionCreateWithoutProblemInput[] | MockInterviewSessionUncheckedCreateWithoutProblemInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutProblemInput | MockInterviewSessionCreateOrConnectWithoutProblemInput[]
+    createMany?: MockInterviewSessionCreateManyProblemInputEnvelope
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+  }
+
   export type TestCaseUncheckedCreateNestedManyWithoutProblemInput = {
     create?: XOR<TestCaseCreateWithoutProblemInput, TestCaseUncheckedCreateWithoutProblemInput> | TestCaseCreateWithoutProblemInput[] | TestCaseUncheckedCreateWithoutProblemInput[]
     connectOrCreate?: TestCaseCreateOrConnectWithoutProblemInput | TestCaseCreateOrConnectWithoutProblemInput[]
@@ -48139,6 +57084,13 @@ export namespace Prisma {
     connectOrCreate?: SubmissionCreateOrConnectWithoutProblemInput | SubmissionCreateOrConnectWithoutProblemInput[]
     createMany?: SubmissionCreateManyProblemInputEnvelope
     connect?: SubmissionWhereUniqueInput | SubmissionWhereUniqueInput[]
+  }
+
+  export type MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutProblemInput, MockInterviewSessionUncheckedCreateWithoutProblemInput> | MockInterviewSessionCreateWithoutProblemInput[] | MockInterviewSessionUncheckedCreateWithoutProblemInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutProblemInput | MockInterviewSessionCreateOrConnectWithoutProblemInput[]
+    createMany?: MockInterviewSessionCreateManyProblemInputEnvelope
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
   }
 
   export type EnumEvaluationStrategyFieldUpdateOperationsInput = {
@@ -48207,6 +57159,20 @@ export namespace Prisma {
     deleteMany?: SubmissionScalarWhereInput | SubmissionScalarWhereInput[]
   }
 
+  export type MockInterviewSessionUpdateManyWithoutProblemNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutProblemInput, MockInterviewSessionUncheckedCreateWithoutProblemInput> | MockInterviewSessionCreateWithoutProblemInput[] | MockInterviewSessionUncheckedCreateWithoutProblemInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutProblemInput | MockInterviewSessionCreateOrConnectWithoutProblemInput[]
+    upsert?: MockInterviewSessionUpsertWithWhereUniqueWithoutProblemInput | MockInterviewSessionUpsertWithWhereUniqueWithoutProblemInput[]
+    createMany?: MockInterviewSessionCreateManyProblemInputEnvelope
+    set?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    disconnect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    delete?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    update?: MockInterviewSessionUpdateWithWhereUniqueWithoutProblemInput | MockInterviewSessionUpdateWithWhereUniqueWithoutProblemInput[]
+    updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutProblemInput | MockInterviewSessionUpdateManyWithWhereWithoutProblemInput[]
+    deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+  }
+
   export type TestCaseUncheckedUpdateManyWithoutProblemNestedInput = {
     create?: XOR<TestCaseCreateWithoutProblemInput, TestCaseUncheckedCreateWithoutProblemInput> | TestCaseCreateWithoutProblemInput[] | TestCaseUncheckedCreateWithoutProblemInput[]
     connectOrCreate?: TestCaseCreateOrConnectWithoutProblemInput | TestCaseCreateOrConnectWithoutProblemInput[]
@@ -48247,6 +57213,20 @@ export namespace Prisma {
     update?: SubmissionUpdateWithWhereUniqueWithoutProblemInput | SubmissionUpdateWithWhereUniqueWithoutProblemInput[]
     updateMany?: SubmissionUpdateManyWithWhereWithoutProblemInput | SubmissionUpdateManyWithWhereWithoutProblemInput[]
     deleteMany?: SubmissionScalarWhereInput | SubmissionScalarWhereInput[]
+  }
+
+  export type MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutProblemInput, MockInterviewSessionUncheckedCreateWithoutProblemInput> | MockInterviewSessionCreateWithoutProblemInput[] | MockInterviewSessionUncheckedCreateWithoutProblemInput[]
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutProblemInput | MockInterviewSessionCreateOrConnectWithoutProblemInput[]
+    upsert?: MockInterviewSessionUpsertWithWhereUniqueWithoutProblemInput | MockInterviewSessionUpsertWithWhereUniqueWithoutProblemInput[]
+    createMany?: MockInterviewSessionCreateManyProblemInputEnvelope
+    set?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    disconnect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    delete?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+    update?: MockInterviewSessionUpdateWithWhereUniqueWithoutProblemInput | MockInterviewSessionUpdateWithWhereUniqueWithoutProblemInput[]
+    updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutProblemInput | MockInterviewSessionUpdateManyWithWhereWithoutProblemInput[]
+    deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
   }
 
   export type ProblemCreateNestedOneWithoutTestCasesInput = {
@@ -49856,6 +58836,368 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotificationsInput, UserUpdateWithoutNotificationsInput>, UserUncheckedUpdateWithoutNotificationsInput>
   }
 
+  export type UserCreateNestedOneWithoutInterviewerSessionsInput = {
+    create?: XOR<UserCreateWithoutInterviewerSessionsInput, UserUncheckedCreateWithoutInterviewerSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInterviewerSessionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCandidateSessionsInput = {
+    create?: XOR<UserCreateWithoutCandidateSessionsInput, UserUncheckedCreateWithoutCandidateSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCandidateSessionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ProblemCreateNestedOneWithoutInterviewSessionsInput = {
+    create?: XOR<ProblemCreateWithoutInterviewSessionsInput, ProblemUncheckedCreateWithoutInterviewSessionsInput>
+    connectOrCreate?: ProblemCreateOrConnectWithoutInterviewSessionsInput
+    connect?: ProblemWhereUniqueInput
+  }
+
+  export type OrganizationCreateNestedOneWithoutInterviewSessionsInput = {
+    create?: XOR<OrganizationCreateWithoutInterviewSessionsInput, OrganizationUncheckedCreateWithoutInterviewSessionsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutInterviewSessionsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type InterviewFeedbackCreateNestedOneWithoutSessionInput = {
+    create?: XOR<InterviewFeedbackCreateWithoutSessionInput, InterviewFeedbackUncheckedCreateWithoutSessionInput>
+    connectOrCreate?: InterviewFeedbackCreateOrConnectWithoutSessionInput
+    connect?: InterviewFeedbackWhereUniqueInput
+  }
+
+  export type InterviewCodeSnapshotCreateNestedManyWithoutSessionInput = {
+    create?: XOR<InterviewCodeSnapshotCreateWithoutSessionInput, InterviewCodeSnapshotUncheckedCreateWithoutSessionInput> | InterviewCodeSnapshotCreateWithoutSessionInput[] | InterviewCodeSnapshotUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewCodeSnapshotCreateOrConnectWithoutSessionInput | InterviewCodeSnapshotCreateOrConnectWithoutSessionInput[]
+    createMany?: InterviewCodeSnapshotCreateManySessionInputEnvelope
+    connect?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+  }
+
+  export type InterviewParticipantCreateNestedManyWithoutSessionInput = {
+    create?: XOR<InterviewParticipantCreateWithoutSessionInput, InterviewParticipantUncheckedCreateWithoutSessionInput> | InterviewParticipantCreateWithoutSessionInput[] | InterviewParticipantUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewParticipantCreateOrConnectWithoutSessionInput | InterviewParticipantCreateOrConnectWithoutSessionInput[]
+    createMany?: InterviewParticipantCreateManySessionInputEnvelope
+    connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+  }
+
+  export type InterviewHintRequestCreateNestedManyWithoutSessionInput = {
+    create?: XOR<InterviewHintRequestCreateWithoutSessionInput, InterviewHintRequestUncheckedCreateWithoutSessionInput> | InterviewHintRequestCreateWithoutSessionInput[] | InterviewHintRequestUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewHintRequestCreateOrConnectWithoutSessionInput | InterviewHintRequestCreateOrConnectWithoutSessionInput[]
+    createMany?: InterviewHintRequestCreateManySessionInputEnvelope
+    connect?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+  }
+
+  export type InterviewExecutionResultCreateNestedManyWithoutSessionInput = {
+    create?: XOR<InterviewExecutionResultCreateWithoutSessionInput, InterviewExecutionResultUncheckedCreateWithoutSessionInput> | InterviewExecutionResultCreateWithoutSessionInput[] | InterviewExecutionResultUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewExecutionResultCreateOrConnectWithoutSessionInput | InterviewExecutionResultCreateOrConnectWithoutSessionInput[]
+    createMany?: InterviewExecutionResultCreateManySessionInputEnvelope
+    connect?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+  }
+
+  export type InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput = {
+    create?: XOR<InterviewFeedbackCreateWithoutSessionInput, InterviewFeedbackUncheckedCreateWithoutSessionInput>
+    connectOrCreate?: InterviewFeedbackCreateOrConnectWithoutSessionInput
+    connect?: InterviewFeedbackWhereUniqueInput
+  }
+
+  export type InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<InterviewCodeSnapshotCreateWithoutSessionInput, InterviewCodeSnapshotUncheckedCreateWithoutSessionInput> | InterviewCodeSnapshotCreateWithoutSessionInput[] | InterviewCodeSnapshotUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewCodeSnapshotCreateOrConnectWithoutSessionInput | InterviewCodeSnapshotCreateOrConnectWithoutSessionInput[]
+    createMany?: InterviewCodeSnapshotCreateManySessionInputEnvelope
+    connect?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+  }
+
+  export type InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<InterviewParticipantCreateWithoutSessionInput, InterviewParticipantUncheckedCreateWithoutSessionInput> | InterviewParticipantCreateWithoutSessionInput[] | InterviewParticipantUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewParticipantCreateOrConnectWithoutSessionInput | InterviewParticipantCreateOrConnectWithoutSessionInput[]
+    createMany?: InterviewParticipantCreateManySessionInputEnvelope
+    connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+  }
+
+  export type InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<InterviewHintRequestCreateWithoutSessionInput, InterviewHintRequestUncheckedCreateWithoutSessionInput> | InterviewHintRequestCreateWithoutSessionInput[] | InterviewHintRequestUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewHintRequestCreateOrConnectWithoutSessionInput | InterviewHintRequestCreateOrConnectWithoutSessionInput[]
+    createMany?: InterviewHintRequestCreateManySessionInputEnvelope
+    connect?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+  }
+
+  export type InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<InterviewExecutionResultCreateWithoutSessionInput, InterviewExecutionResultUncheckedCreateWithoutSessionInput> | InterviewExecutionResultCreateWithoutSessionInput[] | InterviewExecutionResultUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewExecutionResultCreateOrConnectWithoutSessionInput | InterviewExecutionResultCreateOrConnectWithoutSessionInput[]
+    createMany?: InterviewExecutionResultCreateManySessionInputEnvelope
+    connect?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+  }
+
+  export type EnumInterviewStatusFieldUpdateOperationsInput = {
+    set?: $Enums.InterviewStatus
+  }
+
+  export type EnumInterviewPhaseFieldUpdateOperationsInput = {
+    set?: $Enums.InterviewPhase
+  }
+
+  export type UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput = {
+    create?: XOR<UserCreateWithoutInterviewerSessionsInput, UserUncheckedCreateWithoutInterviewerSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInterviewerSessionsInput
+    upsert?: UserUpsertWithoutInterviewerSessionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInterviewerSessionsInput, UserUpdateWithoutInterviewerSessionsInput>, UserUncheckedUpdateWithoutInterviewerSessionsInput>
+  }
+
+  export type UserUpdateOneWithoutCandidateSessionsNestedInput = {
+    create?: XOR<UserCreateWithoutCandidateSessionsInput, UserUncheckedCreateWithoutCandidateSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCandidateSessionsInput
+    upsert?: UserUpsertWithoutCandidateSessionsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCandidateSessionsInput, UserUpdateWithoutCandidateSessionsInput>, UserUncheckedUpdateWithoutCandidateSessionsInput>
+  }
+
+  export type ProblemUpdateOneWithoutInterviewSessionsNestedInput = {
+    create?: XOR<ProblemCreateWithoutInterviewSessionsInput, ProblemUncheckedCreateWithoutInterviewSessionsInput>
+    connectOrCreate?: ProblemCreateOrConnectWithoutInterviewSessionsInput
+    upsert?: ProblemUpsertWithoutInterviewSessionsInput
+    disconnect?: ProblemWhereInput | boolean
+    delete?: ProblemWhereInput | boolean
+    connect?: ProblemWhereUniqueInput
+    update?: XOR<XOR<ProblemUpdateToOneWithWhereWithoutInterviewSessionsInput, ProblemUpdateWithoutInterviewSessionsInput>, ProblemUncheckedUpdateWithoutInterviewSessionsInput>
+  }
+
+  export type OrganizationUpdateOneWithoutInterviewSessionsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutInterviewSessionsInput, OrganizationUncheckedCreateWithoutInterviewSessionsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutInterviewSessionsInput
+    upsert?: OrganizationUpsertWithoutInterviewSessionsInput
+    disconnect?: OrganizationWhereInput | boolean
+    delete?: OrganizationWhereInput | boolean
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutInterviewSessionsInput, OrganizationUpdateWithoutInterviewSessionsInput>, OrganizationUncheckedUpdateWithoutInterviewSessionsInput>
+  }
+
+  export type InterviewFeedbackUpdateOneWithoutSessionNestedInput = {
+    create?: XOR<InterviewFeedbackCreateWithoutSessionInput, InterviewFeedbackUncheckedCreateWithoutSessionInput>
+    connectOrCreate?: InterviewFeedbackCreateOrConnectWithoutSessionInput
+    upsert?: InterviewFeedbackUpsertWithoutSessionInput
+    disconnect?: InterviewFeedbackWhereInput | boolean
+    delete?: InterviewFeedbackWhereInput | boolean
+    connect?: InterviewFeedbackWhereUniqueInput
+    update?: XOR<XOR<InterviewFeedbackUpdateToOneWithWhereWithoutSessionInput, InterviewFeedbackUpdateWithoutSessionInput>, InterviewFeedbackUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<InterviewCodeSnapshotCreateWithoutSessionInput, InterviewCodeSnapshotUncheckedCreateWithoutSessionInput> | InterviewCodeSnapshotCreateWithoutSessionInput[] | InterviewCodeSnapshotUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewCodeSnapshotCreateOrConnectWithoutSessionInput | InterviewCodeSnapshotCreateOrConnectWithoutSessionInput[]
+    upsert?: InterviewCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput | InterviewCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: InterviewCodeSnapshotCreateManySessionInputEnvelope
+    set?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+    disconnect?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+    delete?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+    connect?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+    update?: InterviewCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput | InterviewCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: InterviewCodeSnapshotUpdateManyWithWhereWithoutSessionInput | InterviewCodeSnapshotUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: InterviewCodeSnapshotScalarWhereInput | InterviewCodeSnapshotScalarWhereInput[]
+  }
+
+  export type InterviewParticipantUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<InterviewParticipantCreateWithoutSessionInput, InterviewParticipantUncheckedCreateWithoutSessionInput> | InterviewParticipantCreateWithoutSessionInput[] | InterviewParticipantUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewParticipantCreateOrConnectWithoutSessionInput | InterviewParticipantCreateOrConnectWithoutSessionInput[]
+    upsert?: InterviewParticipantUpsertWithWhereUniqueWithoutSessionInput | InterviewParticipantUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: InterviewParticipantCreateManySessionInputEnvelope
+    set?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    disconnect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    delete?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    update?: InterviewParticipantUpdateWithWhereUniqueWithoutSessionInput | InterviewParticipantUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: InterviewParticipantUpdateManyWithWhereWithoutSessionInput | InterviewParticipantUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: InterviewParticipantScalarWhereInput | InterviewParticipantScalarWhereInput[]
+  }
+
+  export type InterviewHintRequestUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<InterviewHintRequestCreateWithoutSessionInput, InterviewHintRequestUncheckedCreateWithoutSessionInput> | InterviewHintRequestCreateWithoutSessionInput[] | InterviewHintRequestUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewHintRequestCreateOrConnectWithoutSessionInput | InterviewHintRequestCreateOrConnectWithoutSessionInput[]
+    upsert?: InterviewHintRequestUpsertWithWhereUniqueWithoutSessionInput | InterviewHintRequestUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: InterviewHintRequestCreateManySessionInputEnvelope
+    set?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+    disconnect?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+    delete?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+    connect?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+    update?: InterviewHintRequestUpdateWithWhereUniqueWithoutSessionInput | InterviewHintRequestUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: InterviewHintRequestUpdateManyWithWhereWithoutSessionInput | InterviewHintRequestUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: InterviewHintRequestScalarWhereInput | InterviewHintRequestScalarWhereInput[]
+  }
+
+  export type InterviewExecutionResultUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<InterviewExecutionResultCreateWithoutSessionInput, InterviewExecutionResultUncheckedCreateWithoutSessionInput> | InterviewExecutionResultCreateWithoutSessionInput[] | InterviewExecutionResultUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewExecutionResultCreateOrConnectWithoutSessionInput | InterviewExecutionResultCreateOrConnectWithoutSessionInput[]
+    upsert?: InterviewExecutionResultUpsertWithWhereUniqueWithoutSessionInput | InterviewExecutionResultUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: InterviewExecutionResultCreateManySessionInputEnvelope
+    set?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+    disconnect?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+    delete?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+    connect?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+    update?: InterviewExecutionResultUpdateWithWhereUniqueWithoutSessionInput | InterviewExecutionResultUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: InterviewExecutionResultUpdateManyWithWhereWithoutSessionInput | InterviewExecutionResultUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: InterviewExecutionResultScalarWhereInput | InterviewExecutionResultScalarWhereInput[]
+  }
+
+  export type InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput = {
+    create?: XOR<InterviewFeedbackCreateWithoutSessionInput, InterviewFeedbackUncheckedCreateWithoutSessionInput>
+    connectOrCreate?: InterviewFeedbackCreateOrConnectWithoutSessionInput
+    upsert?: InterviewFeedbackUpsertWithoutSessionInput
+    disconnect?: InterviewFeedbackWhereInput | boolean
+    delete?: InterviewFeedbackWhereInput | boolean
+    connect?: InterviewFeedbackWhereUniqueInput
+    update?: XOR<XOR<InterviewFeedbackUpdateToOneWithWhereWithoutSessionInput, InterviewFeedbackUpdateWithoutSessionInput>, InterviewFeedbackUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<InterviewCodeSnapshotCreateWithoutSessionInput, InterviewCodeSnapshotUncheckedCreateWithoutSessionInput> | InterviewCodeSnapshotCreateWithoutSessionInput[] | InterviewCodeSnapshotUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewCodeSnapshotCreateOrConnectWithoutSessionInput | InterviewCodeSnapshotCreateOrConnectWithoutSessionInput[]
+    upsert?: InterviewCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput | InterviewCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: InterviewCodeSnapshotCreateManySessionInputEnvelope
+    set?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+    disconnect?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+    delete?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+    connect?: InterviewCodeSnapshotWhereUniqueInput | InterviewCodeSnapshotWhereUniqueInput[]
+    update?: InterviewCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput | InterviewCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: InterviewCodeSnapshotUpdateManyWithWhereWithoutSessionInput | InterviewCodeSnapshotUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: InterviewCodeSnapshotScalarWhereInput | InterviewCodeSnapshotScalarWhereInput[]
+  }
+
+  export type InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<InterviewParticipantCreateWithoutSessionInput, InterviewParticipantUncheckedCreateWithoutSessionInput> | InterviewParticipantCreateWithoutSessionInput[] | InterviewParticipantUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewParticipantCreateOrConnectWithoutSessionInput | InterviewParticipantCreateOrConnectWithoutSessionInput[]
+    upsert?: InterviewParticipantUpsertWithWhereUniqueWithoutSessionInput | InterviewParticipantUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: InterviewParticipantCreateManySessionInputEnvelope
+    set?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    disconnect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    delete?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+    update?: InterviewParticipantUpdateWithWhereUniqueWithoutSessionInput | InterviewParticipantUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: InterviewParticipantUpdateManyWithWhereWithoutSessionInput | InterviewParticipantUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: InterviewParticipantScalarWhereInput | InterviewParticipantScalarWhereInput[]
+  }
+
+  export type InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<InterviewHintRequestCreateWithoutSessionInput, InterviewHintRequestUncheckedCreateWithoutSessionInput> | InterviewHintRequestCreateWithoutSessionInput[] | InterviewHintRequestUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewHintRequestCreateOrConnectWithoutSessionInput | InterviewHintRequestCreateOrConnectWithoutSessionInput[]
+    upsert?: InterviewHintRequestUpsertWithWhereUniqueWithoutSessionInput | InterviewHintRequestUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: InterviewHintRequestCreateManySessionInputEnvelope
+    set?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+    disconnect?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+    delete?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+    connect?: InterviewHintRequestWhereUniqueInput | InterviewHintRequestWhereUniqueInput[]
+    update?: InterviewHintRequestUpdateWithWhereUniqueWithoutSessionInput | InterviewHintRequestUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: InterviewHintRequestUpdateManyWithWhereWithoutSessionInput | InterviewHintRequestUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: InterviewHintRequestScalarWhereInput | InterviewHintRequestScalarWhereInput[]
+  }
+
+  export type InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<InterviewExecutionResultCreateWithoutSessionInput, InterviewExecutionResultUncheckedCreateWithoutSessionInput> | InterviewExecutionResultCreateWithoutSessionInput[] | InterviewExecutionResultUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: InterviewExecutionResultCreateOrConnectWithoutSessionInput | InterviewExecutionResultCreateOrConnectWithoutSessionInput[]
+    upsert?: InterviewExecutionResultUpsertWithWhereUniqueWithoutSessionInput | InterviewExecutionResultUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: InterviewExecutionResultCreateManySessionInputEnvelope
+    set?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+    disconnect?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+    delete?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+    connect?: InterviewExecutionResultWhereUniqueInput | InterviewExecutionResultWhereUniqueInput[]
+    update?: InterviewExecutionResultUpdateWithWhereUniqueWithoutSessionInput | InterviewExecutionResultUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: InterviewExecutionResultUpdateManyWithWhereWithoutSessionInput | InterviewExecutionResultUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: InterviewExecutionResultScalarWhereInput | InterviewExecutionResultScalarWhereInput[]
+  }
+
+  export type MockInterviewSessionCreateNestedOneWithoutParticipantsInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutParticipantsInput, MockInterviewSessionUncheckedCreateWithoutParticipantsInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutParticipantsInput
+    connect?: MockInterviewSessionWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutInterviewParticipantsInput = {
+    create?: XOR<UserCreateWithoutInterviewParticipantsInput, UserUncheckedCreateWithoutInterviewParticipantsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInterviewParticipantsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumInterviewParticipantRoleFieldUpdateOperationsInput = {
+    set?: $Enums.InterviewParticipantRole
+  }
+
+  export type MockInterviewSessionUpdateOneRequiredWithoutParticipantsNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutParticipantsInput, MockInterviewSessionUncheckedCreateWithoutParticipantsInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutParticipantsInput
+    upsert?: MockInterviewSessionUpsertWithoutParticipantsInput
+    connect?: MockInterviewSessionWhereUniqueInput
+    update?: XOR<XOR<MockInterviewSessionUpdateToOneWithWhereWithoutParticipantsInput, MockInterviewSessionUpdateWithoutParticipantsInput>, MockInterviewSessionUncheckedUpdateWithoutParticipantsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutInterviewParticipantsNestedInput = {
+    create?: XOR<UserCreateWithoutInterviewParticipantsInput, UserUncheckedCreateWithoutInterviewParticipantsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInterviewParticipantsInput
+    upsert?: UserUpsertWithoutInterviewParticipantsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInterviewParticipantsInput, UserUpdateWithoutInterviewParticipantsInput>, UserUncheckedUpdateWithoutInterviewParticipantsInput>
+  }
+
+  export type MockInterviewSessionCreateNestedOneWithoutFeedbackInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutFeedbackInput, MockInterviewSessionUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutFeedbackInput
+    connect?: MockInterviewSessionWhereUniqueInput
+  }
+
+  export type EnumRecommendationFieldUpdateOperationsInput = {
+    set?: $Enums.Recommendation
+  }
+
+  export type MockInterviewSessionUpdateOneRequiredWithoutFeedbackNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutFeedbackInput, MockInterviewSessionUncheckedCreateWithoutFeedbackInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutFeedbackInput
+    upsert?: MockInterviewSessionUpsertWithoutFeedbackInput
+    connect?: MockInterviewSessionWhereUniqueInput
+    update?: XOR<XOR<MockInterviewSessionUpdateToOneWithWhereWithoutFeedbackInput, MockInterviewSessionUpdateWithoutFeedbackInput>, MockInterviewSessionUncheckedUpdateWithoutFeedbackInput>
+  }
+
+  export type MockInterviewSessionCreateNestedOneWithoutCodeSnapshotsInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutCodeSnapshotsInput, MockInterviewSessionUncheckedCreateWithoutCodeSnapshotsInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutCodeSnapshotsInput
+    connect?: MockInterviewSessionWhereUniqueInput
+  }
+
+  export type MockInterviewSessionUpdateOneRequiredWithoutCodeSnapshotsNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutCodeSnapshotsInput, MockInterviewSessionUncheckedCreateWithoutCodeSnapshotsInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutCodeSnapshotsInput
+    upsert?: MockInterviewSessionUpsertWithoutCodeSnapshotsInput
+    connect?: MockInterviewSessionWhereUniqueInput
+    update?: XOR<XOR<MockInterviewSessionUpdateToOneWithWhereWithoutCodeSnapshotsInput, MockInterviewSessionUpdateWithoutCodeSnapshotsInput>, MockInterviewSessionUncheckedUpdateWithoutCodeSnapshotsInput>
+  }
+
+  export type MockInterviewSessionCreateNestedOneWithoutHintRequestsInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutHintRequestsInput, MockInterviewSessionUncheckedCreateWithoutHintRequestsInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutHintRequestsInput
+    connect?: MockInterviewSessionWhereUniqueInput
+  }
+
+  export type MockInterviewSessionUpdateOneRequiredWithoutHintRequestsNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutHintRequestsInput, MockInterviewSessionUncheckedCreateWithoutHintRequestsInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutHintRequestsInput
+    upsert?: MockInterviewSessionUpsertWithoutHintRequestsInput
+    connect?: MockInterviewSessionWhereUniqueInput
+    update?: XOR<XOR<MockInterviewSessionUpdateToOneWithWhereWithoutHintRequestsInput, MockInterviewSessionUpdateWithoutHintRequestsInput>, MockInterviewSessionUncheckedUpdateWithoutHintRequestsInput>
+  }
+
+  export type MockInterviewSessionCreateNestedOneWithoutExecutionResultsInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutExecutionResultsInput, MockInterviewSessionUncheckedCreateWithoutExecutionResultsInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutExecutionResultsInput
+    connect?: MockInterviewSessionWhereUniqueInput
+  }
+
+  export type MockInterviewSessionUpdateOneRequiredWithoutExecutionResultsNestedInput = {
+    create?: XOR<MockInterviewSessionCreateWithoutExecutionResultsInput, MockInterviewSessionUncheckedCreateWithoutExecutionResultsInput>
+    connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutExecutionResultsInput
+    upsert?: MockInterviewSessionUpsertWithoutExecutionResultsInput
+    connect?: MockInterviewSessionWhereUniqueInput
+    update?: XOR<XOR<MockInterviewSessionUpdateToOneWithWhereWithoutExecutionResultsInput, MockInterviewSessionUpdateWithoutExecutionResultsInput>, MockInterviewSessionUncheckedUpdateWithoutExecutionResultsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -50363,6 +59705,74 @@ export namespace Prisma {
     _max?: NestedEnumEvaluationStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumInterviewStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewStatus | EnumInterviewStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewStatus[] | ListEnumInterviewStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewStatus[] | ListEnumInterviewStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewStatusFilter<$PrismaModel> | $Enums.InterviewStatus
+  }
+
+  export type NestedEnumInterviewPhaseFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewPhase | EnumInterviewPhaseFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewPhase[] | ListEnumInterviewPhaseFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewPhase[] | ListEnumInterviewPhaseFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewPhaseFilter<$PrismaModel> | $Enums.InterviewPhase
+  }
+
+  export type NestedEnumInterviewStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewStatus | EnumInterviewStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewStatus[] | ListEnumInterviewStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewStatus[] | ListEnumInterviewStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewStatusWithAggregatesFilter<$PrismaModel> | $Enums.InterviewStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInterviewStatusFilter<$PrismaModel>
+    _max?: NestedEnumInterviewStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumInterviewPhaseWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewPhase | EnumInterviewPhaseFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewPhase[] | ListEnumInterviewPhaseFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewPhase[] | ListEnumInterviewPhaseFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewPhaseWithAggregatesFilter<$PrismaModel> | $Enums.InterviewPhase
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInterviewPhaseFilter<$PrismaModel>
+    _max?: NestedEnumInterviewPhaseFilter<$PrismaModel>
+  }
+
+  export type NestedEnumInterviewParticipantRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewParticipantRole | EnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewParticipantRole[] | ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewParticipantRole[] | ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewParticipantRoleFilter<$PrismaModel> | $Enums.InterviewParticipantRole
+  }
+
+  export type NestedEnumInterviewParticipantRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.InterviewParticipantRole | EnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.InterviewParticipantRole[] | ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.InterviewParticipantRole[] | ListEnumInterviewParticipantRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumInterviewParticipantRoleWithAggregatesFilter<$PrismaModel> | $Enums.InterviewParticipantRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumInterviewParticipantRoleFilter<$PrismaModel>
+    _max?: NestedEnumInterviewParticipantRoleFilter<$PrismaModel>
+  }
+
+  export type NestedEnumRecommendationFilter<$PrismaModel = never> = {
+    equals?: $Enums.Recommendation | EnumRecommendationFieldRefInput<$PrismaModel>
+    in?: $Enums.Recommendation[] | ListEnumRecommendationFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Recommendation[] | ListEnumRecommendationFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecommendationFilter<$PrismaModel> | $Enums.Recommendation
+  }
+
+  export type NestedEnumRecommendationWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Recommendation | EnumRecommendationFieldRefInput<$PrismaModel>
+    in?: $Enums.Recommendation[] | ListEnumRecommendationFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Recommendation[] | ListEnumRecommendationFieldRefInput<$PrismaModel>
+    not?: NestedEnumRecommendationWithAggregatesFilter<$PrismaModel> | $Enums.Recommendation
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumRecommendationFilter<$PrismaModel>
+    _max?: NestedEnumRecommendationFilter<$PrismaModel>
+  }
+
   export type UserCreateWithoutOrganizationInput = {
     id?: string
     email: string
@@ -50398,6 +59808,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationInput = {
@@ -50435,6 +59848,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationInput = {
@@ -50567,6 +59983,7 @@ export namespace Prisma {
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemUncheckedCreateWithoutOrganizationInput = {
@@ -50589,6 +60006,7 @@ export namespace Prisma {
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemCreateOrConnectWithoutOrganizationInput = {
@@ -50694,6 +60112,80 @@ export namespace Prisma {
 
   export type QuestionBankCreateManyOrganizationInputEnvelope = {
     data: QuestionBankCreateManyOrganizationInput | QuestionBankCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MockInterviewSessionCreateWithoutOrganizationInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutOrganizationInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutOrganizationInput, MockInterviewSessionUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type MockInterviewSessionCreateManyOrganizationInputEnvelope = {
+    data: MockInterviewSessionCreateManyOrganizationInput | MockInterviewSessionCreateManyOrganizationInput[]
     skipDuplicates?: boolean
   }
 
@@ -50921,6 +60413,53 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"QuestionBank"> | Date | string
   }
 
+  export type MockInterviewSessionUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    update: XOR<MockInterviewSessionUpdateWithoutOrganizationInput, MockInterviewSessionUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<MockInterviewSessionCreateWithoutOrganizationInput, MockInterviewSessionUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type MockInterviewSessionUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    data: XOR<MockInterviewSessionUpdateWithoutOrganizationInput, MockInterviewSessionUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type MockInterviewSessionUpdateManyWithWhereWithoutOrganizationInput = {
+    where: MockInterviewSessionScalarWhereInput
+    data: XOR<MockInterviewSessionUpdateManyMutationInput, MockInterviewSessionUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type MockInterviewSessionScalarWhereInput = {
+    AND?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+    OR?: MockInterviewSessionScalarWhereInput[]
+    NOT?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+    id?: StringFilter<"MockInterviewSession"> | string
+    title?: StringFilter<"MockInterviewSession"> | string
+    description?: StringNullableFilter<"MockInterviewSession"> | string | null
+    scheduledAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+    durationMinutes?: IntFilter<"MockInterviewSession"> | number
+    accessCode?: StringFilter<"MockInterviewSession"> | string
+    accessCodePlain?: StringNullableFilter<"MockInterviewSession"> | string | null
+    status?: EnumInterviewStatusFilter<"MockInterviewSession"> | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFilter<"MockInterviewSession"> | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFilter<"MockInterviewSession"> | number
+    planMins?: IntFilter<"MockInterviewSession"> | number
+    codeMins?: IntFilter<"MockInterviewSession"> | number
+    optimizeMins?: IntFilter<"MockInterviewSession"> | number
+    allowHints?: BoolFilter<"MockInterviewSession"> | boolean
+    allowObservers?: BoolFilter<"MockInterviewSession"> | boolean
+    interviewerId?: StringFilter<"MockInterviewSession"> | string
+    candidateId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    candidateEmail?: StringNullableFilter<"MockInterviewSession"> | string | null
+    problemId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    organizationId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    startedAt?: DateTimeNullableFilter<"MockInterviewSession"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"MockInterviewSession"> | Date | string | null
+    yjsDocumentId?: StringNullableFilter<"MockInterviewSession"> | string | null
+    createdAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+    updatedAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
+  }
+
   export type UserCreateWithoutInvitedUsersInput = {
     id?: string
     email: string
@@ -50956,6 +60495,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInvitedUsersInput = {
@@ -50993,6 +60535,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInvitedUsersInput = {
@@ -51023,6 +60568,7 @@ export namespace Prisma {
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutUsersInput = {
@@ -51048,6 +60594,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutUsersInput = {
@@ -51175,6 +60722,7 @@ export namespace Prisma {
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemUncheckedCreateWithoutCreatedByInput = {
@@ -51197,6 +60745,7 @@ export namespace Prisma {
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemCreateOrConnectWithoutCreatedByInput = {
@@ -51344,6 +60893,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInvitedByInput = {
@@ -51381,6 +60933,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInvitedByInput = {
@@ -51869,6 +61424,180 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MockInterviewSessionCreateWithoutInterviewerInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutInterviewerInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutInterviewerInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutInterviewerInput, MockInterviewSessionUncheckedCreateWithoutInterviewerInput>
+  }
+
+  export type MockInterviewSessionCreateManyInterviewerInputEnvelope = {
+    data: MockInterviewSessionCreateManyInterviewerInput | MockInterviewSessionCreateManyInterviewerInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type MockInterviewSessionCreateWithoutCandidateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutCandidateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutCandidateInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutCandidateInput, MockInterviewSessionUncheckedCreateWithoutCandidateInput>
+  }
+
+  export type MockInterviewSessionCreateManyCandidateInputEnvelope = {
+    data: MockInterviewSessionCreateManyCandidateInput | MockInterviewSessionCreateManyCandidateInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InterviewParticipantCreateWithoutUserInput = {
+    id?: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+    session: MockInterviewSessionCreateNestedOneWithoutParticipantsInput
+  }
+
+  export type InterviewParticipantUncheckedCreateWithoutUserInput = {
+    id?: string
+    sessionId: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+  }
+
+  export type InterviewParticipantCreateOrConnectWithoutUserInput = {
+    where: InterviewParticipantWhereUniqueInput
+    create: XOR<InterviewParticipantCreateWithoutUserInput, InterviewParticipantUncheckedCreateWithoutUserInput>
+  }
+
+  export type InterviewParticipantCreateManyUserInputEnvelope = {
+    data: InterviewParticipantCreateManyUserInput | InterviewParticipantCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutInvitedUsersInput = {
     update: XOR<UserUpdateWithoutInvitedUsersInput, UserUncheckedUpdateWithoutInvitedUsersInput>
     create: XOR<UserCreateWithoutInvitedUsersInput, UserUncheckedCreateWithoutInvitedUsersInput>
@@ -51915,6 +61644,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvitedUsersInput = {
@@ -51952,6 +61684,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationUpsertWithoutUsersInput = {
@@ -51988,6 +61723,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutUsersInput = {
@@ -52013,6 +61749,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type ContestUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -52527,6 +62264,66 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Notification"> | Date | string
   }
 
+  export type MockInterviewSessionUpsertWithWhereUniqueWithoutInterviewerInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    update: XOR<MockInterviewSessionUpdateWithoutInterviewerInput, MockInterviewSessionUncheckedUpdateWithoutInterviewerInput>
+    create: XOR<MockInterviewSessionCreateWithoutInterviewerInput, MockInterviewSessionUncheckedCreateWithoutInterviewerInput>
+  }
+
+  export type MockInterviewSessionUpdateWithWhereUniqueWithoutInterviewerInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    data: XOR<MockInterviewSessionUpdateWithoutInterviewerInput, MockInterviewSessionUncheckedUpdateWithoutInterviewerInput>
+  }
+
+  export type MockInterviewSessionUpdateManyWithWhereWithoutInterviewerInput = {
+    where: MockInterviewSessionScalarWhereInput
+    data: XOR<MockInterviewSessionUpdateManyMutationInput, MockInterviewSessionUncheckedUpdateManyWithoutInterviewerInput>
+  }
+
+  export type MockInterviewSessionUpsertWithWhereUniqueWithoutCandidateInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    update: XOR<MockInterviewSessionUpdateWithoutCandidateInput, MockInterviewSessionUncheckedUpdateWithoutCandidateInput>
+    create: XOR<MockInterviewSessionCreateWithoutCandidateInput, MockInterviewSessionUncheckedCreateWithoutCandidateInput>
+  }
+
+  export type MockInterviewSessionUpdateWithWhereUniqueWithoutCandidateInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    data: XOR<MockInterviewSessionUpdateWithoutCandidateInput, MockInterviewSessionUncheckedUpdateWithoutCandidateInput>
+  }
+
+  export type MockInterviewSessionUpdateManyWithWhereWithoutCandidateInput = {
+    where: MockInterviewSessionScalarWhereInput
+    data: XOR<MockInterviewSessionUpdateManyMutationInput, MockInterviewSessionUncheckedUpdateManyWithoutCandidateInput>
+  }
+
+  export type InterviewParticipantUpsertWithWhereUniqueWithoutUserInput = {
+    where: InterviewParticipantWhereUniqueInput
+    update: XOR<InterviewParticipantUpdateWithoutUserInput, InterviewParticipantUncheckedUpdateWithoutUserInput>
+    create: XOR<InterviewParticipantCreateWithoutUserInput, InterviewParticipantUncheckedCreateWithoutUserInput>
+  }
+
+  export type InterviewParticipantUpdateWithWhereUniqueWithoutUserInput = {
+    where: InterviewParticipantWhereUniqueInput
+    data: XOR<InterviewParticipantUpdateWithoutUserInput, InterviewParticipantUncheckedUpdateWithoutUserInput>
+  }
+
+  export type InterviewParticipantUpdateManyWithWhereWithoutUserInput = {
+    where: InterviewParticipantScalarWhereInput
+    data: XOR<InterviewParticipantUpdateManyMutationInput, InterviewParticipantUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type InterviewParticipantScalarWhereInput = {
+    AND?: InterviewParticipantScalarWhereInput | InterviewParticipantScalarWhereInput[]
+    OR?: InterviewParticipantScalarWhereInput[]
+    NOT?: InterviewParticipantScalarWhereInput | InterviewParticipantScalarWhereInput[]
+    id?: StringFilter<"InterviewParticipant"> | string
+    sessionId?: StringFilter<"InterviewParticipant"> | string
+    userId?: StringFilter<"InterviewParticipant"> | string
+    role?: EnumInterviewParticipantRoleFilter<"InterviewParticipant"> | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFilter<"InterviewParticipant"> | Date | string
+    leftAt?: DateTimeNullableFilter<"InterviewParticipant"> | Date | string | null
+  }
+
   export type OrganizationCreateWithoutProblemsInput = {
     id?: string
     name: string
@@ -52550,6 +62347,7 @@ export namespace Prisma {
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutProblemsInput = {
@@ -52575,6 +62373,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutProblemsInput = {
@@ -52617,6 +62416,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedProblemsInput = {
@@ -52654,6 +62456,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedProblemsInput = {
@@ -52759,6 +62564,80 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MockInterviewSessionCreateWithoutProblemInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutProblemInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutProblemInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutProblemInput, MockInterviewSessionUncheckedCreateWithoutProblemInput>
+  }
+
+  export type MockInterviewSessionCreateManyProblemInputEnvelope = {
+    data: MockInterviewSessionCreateManyProblemInput | MockInterviewSessionCreateManyProblemInput[]
+    skipDuplicates?: boolean
+  }
+
   export type OrganizationUpsertWithoutProblemsInput = {
     update: XOR<OrganizationUpdateWithoutProblemsInput, OrganizationUncheckedUpdateWithoutProblemsInput>
     create: XOR<OrganizationCreateWithoutProblemsInput, OrganizationUncheckedCreateWithoutProblemsInput>
@@ -52793,6 +62672,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutProblemsInput = {
@@ -52818,6 +62698,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutCreatedProblemsInput = {
@@ -52866,6 +62747,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedProblemsInput = {
@@ -52903,6 +62787,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type TestCaseUpsertWithWhereUniqueWithoutProblemInput = {
@@ -52978,6 +62865,22 @@ export namespace Prisma {
     data: XOR<SubmissionUpdateManyMutationInput, SubmissionUncheckedUpdateManyWithoutProblemInput>
   }
 
+  export type MockInterviewSessionUpsertWithWhereUniqueWithoutProblemInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    update: XOR<MockInterviewSessionUpdateWithoutProblemInput, MockInterviewSessionUncheckedUpdateWithoutProblemInput>
+    create: XOR<MockInterviewSessionCreateWithoutProblemInput, MockInterviewSessionUncheckedCreateWithoutProblemInput>
+  }
+
+  export type MockInterviewSessionUpdateWithWhereUniqueWithoutProblemInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    data: XOR<MockInterviewSessionUpdateWithoutProblemInput, MockInterviewSessionUncheckedUpdateWithoutProblemInput>
+  }
+
+  export type MockInterviewSessionUpdateManyWithWhereWithoutProblemInput = {
+    where: MockInterviewSessionScalarWhereInput
+    data: XOR<MockInterviewSessionUpdateManyMutationInput, MockInterviewSessionUncheckedUpdateManyWithoutProblemInput>
+  }
+
   export type ProblemCreateWithoutTestCasesInput = {
     id?: string
     title: string
@@ -52998,6 +62901,7 @@ export namespace Prisma {
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemUncheckedCreateWithoutTestCasesInput = {
@@ -53020,6 +62924,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemCreateOrConnectWithoutTestCasesInput = {
@@ -53058,6 +62963,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemUncheckedUpdateWithoutTestCasesInput = {
@@ -53080,6 +62986,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
   }
 
   export type OrganizationCreateWithoutContestsInput = {
@@ -53105,6 +63012,7 @@ export namespace Prisma {
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutContestsInput = {
@@ -53130,6 +63038,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutContestsInput = {
@@ -53172,6 +63081,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedContestsInput = {
@@ -53209,6 +63121,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedContestsInput = {
@@ -53562,6 +63477,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutContestsInput = {
@@ -53587,6 +63503,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutCreatedContestsInput = {
@@ -53635,6 +63552,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedContestsInput = {
@@ -53672,6 +63592,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestProblemUpsertWithWhereUniqueWithoutContestInput = {
@@ -53994,6 +63917,7 @@ export namespace Prisma {
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemUncheckedCreateWithoutContestProblemsInput = {
@@ -54016,6 +63940,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemCreateOrConnectWithoutContestProblemsInput = {
@@ -54155,6 +64080,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemUncheckedUpdateWithoutContestProblemsInput = {
@@ -54177,6 +64103,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
   }
 
   export type ContestCreateWithoutRegistrationsInput = {
@@ -54309,6 +64236,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRegistrationsInput = {
@@ -54346,6 +64276,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRegistrationsInput = {
@@ -54500,6 +64433,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRegistrationsInput = {
@@ -54537,6 +64473,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutSubmissionsInput = {
@@ -54654,6 +64593,7 @@ export namespace Prisma {
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemUncheckedCreateWithoutSubmissionsInput = {
@@ -54676,6 +64616,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
   }
 
   export type ProblemCreateOrConnectWithoutSubmissionsInput = {
@@ -54718,6 +64659,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubmissionsInput = {
@@ -54755,6 +64699,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubmissionsInput = {
@@ -54797,6 +64744,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutScoredSubmissionsInput = {
@@ -54834,6 +64784,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutScoredSubmissionsInput = {
@@ -54973,6 +64926,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemUncheckedUpdateWithoutSubmissionsInput = {
@@ -54995,6 +64949,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
   }
 
   export type UserUpsertWithoutSubmissionsInput = {
@@ -55043,6 +64998,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubmissionsInput = {
@@ -55080,6 +65038,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutScoredSubmissionsInput = {
@@ -55128,6 +65089,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutScoredSubmissionsInput = {
@@ -55165,6 +65129,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutProctoringLogsInput = {
@@ -55297,6 +65264,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProctoringLogsInput = {
@@ -55334,6 +65304,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProctoringLogsInput = {
@@ -55488,6 +65461,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProctoringLogsInput = {
@@ -55525,6 +65501,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutPlagiarismReportsInput = {
@@ -55746,6 +65725,7 @@ export namespace Prisma {
     problems?: ProblemCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutInvitationsInput = {
@@ -55771,6 +65751,7 @@ export namespace Prisma {
     problems?: ProblemUncheckedCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutInvitationsInput = {
@@ -55813,6 +65794,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentInvitationsInput = {
@@ -55850,6 +65834,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentInvitationsInput = {
@@ -55891,6 +65878,7 @@ export namespace Prisma {
     problems?: ProblemUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutInvitationsInput = {
@@ -55916,6 +65904,7 @@ export namespace Prisma {
     problems?: ProblemUncheckedUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutSentInvitationsInput = {
@@ -55964,6 +65953,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentInvitationsInput = {
@@ -56001,6 +65993,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutAssignmentsInput = {
@@ -56133,6 +66128,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutContestAssignmentsInput = {
@@ -56170,6 +66168,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutContestAssignmentsInput = {
@@ -56212,6 +66213,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedContestsInput = {
@@ -56249,6 +66253,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedContestsInput = {
@@ -56403,6 +66410,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutContestAssignmentsInput = {
@@ -56440,6 +66450,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutAssignedContestsInput = {
@@ -56488,6 +66501,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedContestsInput = {
@@ -56525,6 +66541,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -56562,6 +66581,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -56599,6 +66621,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -56629,6 +66654,7 @@ export namespace Prisma {
     problems?: ProblemCreateNestedManyWithoutOrganizationInput
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutAuditLogsInput = {
@@ -56654,6 +66680,7 @@ export namespace Prisma {
     problems?: ProblemUncheckedCreateNestedManyWithoutOrganizationInput
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutAuditLogsInput = {
@@ -56707,6 +66734,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -56744,6 +66774,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationUpsertWithoutAuditLogsInput = {
@@ -56780,6 +66813,7 @@ export namespace Prisma {
     problems?: ProblemUpdateManyWithoutOrganizationNestedInput
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutAuditLogsInput = {
@@ -56805,6 +66839,7 @@ export namespace Prisma {
     problems?: ProblemUncheckedUpdateManyWithoutOrganizationNestedInput
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -56842,6 +66877,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -56879,6 +66917,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -56932,6 +66973,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -56969,6 +67013,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutReviewedRequestsInput = {
@@ -57006,6 +67053,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewedRequestsInput = {
@@ -57043,6 +67093,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewedRequestsInput = {
@@ -57096,6 +67149,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewedRequestsInput = {
@@ -57133,6 +67189,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutSectionsInput = {
@@ -57585,6 +67644,7 @@ export namespace Prisma {
     problems?: ProblemCreateNestedManyWithoutOrganizationInput
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutQuestionBanksInput = {
@@ -57610,6 +67670,7 @@ export namespace Prisma {
     problems?: ProblemUncheckedCreateNestedManyWithoutOrganizationInput
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutQuestionBanksInput = {
@@ -57717,6 +67778,7 @@ export namespace Prisma {
     problems?: ProblemUpdateManyWithoutOrganizationNestedInput
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutQuestionBanksInput = {
@@ -57742,6 +67804,7 @@ export namespace Prisma {
     problems?: ProblemUncheckedUpdateManyWithoutOrganizationNestedInput
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type QuizQuestionUpsertWithWhereUniqueWithoutBankInput = {
@@ -58627,6 +68690,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuestionReviewsInput = {
@@ -58664,6 +68730,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuestionReviewsInput = {
@@ -58784,6 +68853,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuestionReviewsInput = {
@@ -58821,6 +68893,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestSectionCreateWithoutAssemblyRulesInput = {
@@ -59078,6 +69153,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuizAttemptQuestionsInput = {
@@ -59115,6 +69193,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuizAttemptQuestionsInput = {
@@ -59378,6 +69459,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuizAttemptQuestionsInput = {
@@ -59415,6 +69499,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestUpsertWithoutQuizAttemptQuestionsInput = {
@@ -59665,6 +69752,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuizResponsesInput = {
@@ -59702,6 +69792,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuizResponsesInput = {
@@ -59790,6 +69883,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuizResponsesInput = {
@@ -59827,6 +69923,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type QuizQuestionCreateWithoutAnalyticsInput = {
@@ -59992,6 +70091,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBreakGlassLogsInput = {
@@ -60029,6 +70131,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBreakGlassLogsInput = {
@@ -60082,6 +70187,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBreakGlassLogsInput = {
@@ -60119,6 +70227,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutGuestInvitesInput = {
@@ -60447,6 +70558,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutModeratorAssignmentsInput = {
@@ -60484,6 +70598,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutModeratorAssignmentsInput = {
@@ -60638,6 +70755,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutModeratorAssignmentsInput = {
@@ -60675,6 +70795,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -60712,6 +70835,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
     breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -60749,6 +70875,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
     breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -60802,6 +70931,9 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -60839,6 +70971,1760 @@ export namespace Prisma {
     questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutInterviewerSessionsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
+    organization?: OrganizationCreateNestedOneWithoutUsersInput
+    createdContests?: ContestCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationCreateNestedManyWithoutUserInput
+    submissions?: SubmissionCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogCreateNestedManyWithoutUserInput
+    invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutInterviewerSessionsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    invitedById?: string | null
+    organizationId?: string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdContests?: ContestUncheckedCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemUncheckedCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationUncheckedCreateNestedManyWithoutUserInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogUncheckedCreateNestedManyWithoutUserInput
+    invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionUncheckedCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestUncheckedCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseUncheckedCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutInterviewerSessionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutInterviewerSessionsInput, UserUncheckedCreateWithoutInterviewerSessionsInput>
+  }
+
+  export type UserCreateWithoutCandidateSessionsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
+    organization?: OrganizationCreateNestedOneWithoutUsersInput
+    createdContests?: ContestCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationCreateNestedManyWithoutUserInput
+    submissions?: SubmissionCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogCreateNestedManyWithoutUserInput
+    invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCandidateSessionsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    invitedById?: string | null
+    organizationId?: string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdContests?: ContestUncheckedCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemUncheckedCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationUncheckedCreateNestedManyWithoutUserInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogUncheckedCreateNestedManyWithoutUserInput
+    invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionUncheckedCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestUncheckedCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseUncheckedCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCandidateSessionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCandidateSessionsInput, UserUncheckedCreateWithoutCandidateSessionsInput>
+  }
+
+  export type ProblemCreateWithoutInterviewSessionsInput = {
+    id?: string
+    title: string
+    slug: string
+    description: string
+    difficulty?: string
+    category?: string
+    problemType?: string
+    evaluationStrategy?: $Enums.EvaluationStrategy
+    referenceSolution?: string | null
+    starterCode: JsonNullValueInput | InputJsonValue
+    driverCode?: NullableJsonNullValueInput | InputJsonValue
+    images?: NullableJsonNullValueInput | InputJsonValue
+    isPublic?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutProblemsInput
+    createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
+    testCases?: TestCaseCreateNestedManyWithoutProblemInput
+    contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
+    submissions?: SubmissionCreateNestedManyWithoutProblemInput
+  }
+
+  export type ProblemUncheckedCreateWithoutInterviewSessionsInput = {
+    id?: string
+    title: string
+    slug: string
+    description: string
+    difficulty?: string
+    category?: string
+    problemType?: string
+    evaluationStrategy?: $Enums.EvaluationStrategy
+    referenceSolution?: string | null
+    starterCode: JsonNullValueInput | InputJsonValue
+    driverCode?: NullableJsonNullValueInput | InputJsonValue
+    images?: NullableJsonNullValueInput | InputJsonValue
+    isPublic?: boolean
+    organizationId?: string | null
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
+    contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
+  }
+
+  export type ProblemCreateOrConnectWithoutInterviewSessionsInput = {
+    where: ProblemWhereUniqueInput
+    create: XOR<ProblemCreateWithoutInterviewSessionsInput, ProblemUncheckedCreateWithoutInterviewSessionsInput>
+  }
+
+  export type OrganizationCreateWithoutInterviewSessionsInput = {
+    id?: string
+    name: string
+    slug: string
+    logoUrl?: string | null
+    domain?: string | null
+    status?: $Enums.OrgStatus
+    subscriptionTier?: $Enums.SubscriptionTier
+    featureFlags?: NullableJsonNullValueInput | InputJsonValue
+    maxContests?: number
+    maxUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    samlEnabled?: boolean
+    samlDomain?: string | null
+    samlIdpEntityId?: string | null
+    samlIdpSsoUrl?: string | null
+    samlIdpCert?: string | null
+    users?: UserCreateNestedManyWithoutOrganizationInput
+    contests?: ContestCreateNestedManyWithoutOrganizationInput
+    problems?: ProblemCreateNestedManyWithoutOrganizationInput
+    invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+    questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutInterviewSessionsInput = {
+    id?: string
+    name: string
+    slug: string
+    logoUrl?: string | null
+    domain?: string | null
+    status?: $Enums.OrgStatus
+    subscriptionTier?: $Enums.SubscriptionTier
+    featureFlags?: NullableJsonNullValueInput | InputJsonValue
+    maxContests?: number
+    maxUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    samlEnabled?: boolean
+    samlDomain?: string | null
+    samlIdpEntityId?: string | null
+    samlIdpSsoUrl?: string | null
+    samlIdpCert?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutOrganizationInput
+    contests?: ContestUncheckedCreateNestedManyWithoutOrganizationInput
+    problems?: ProblemUncheckedCreateNestedManyWithoutOrganizationInput
+    invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutInterviewSessionsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutInterviewSessionsInput, OrganizationUncheckedCreateWithoutInterviewSessionsInput>
+  }
+
+  export type InterviewFeedbackCreateWithoutSessionInput = {
+    id?: string
+    problemUnderstandingScore?: number
+    algorithmDesignScore?: number
+    codeQualityScore?: number
+    communicationScore?: number
+    edgeCaseHandlingScore?: number
+    recommendation?: $Enums.Recommendation
+    privateNotes?: string | null
+    candidateFeedback?: string | null
+    evaluatedAt?: Date | string
+  }
+
+  export type InterviewFeedbackUncheckedCreateWithoutSessionInput = {
+    id?: string
+    problemUnderstandingScore?: number
+    algorithmDesignScore?: number
+    codeQualityScore?: number
+    communicationScore?: number
+    edgeCaseHandlingScore?: number
+    recommendation?: $Enums.Recommendation
+    privateNotes?: string | null
+    candidateFeedback?: string | null
+    evaluatedAt?: Date | string
+  }
+
+  export type InterviewFeedbackCreateOrConnectWithoutSessionInput = {
+    where: InterviewFeedbackWhereUniqueInput
+    create: XOR<InterviewFeedbackCreateWithoutSessionInput, InterviewFeedbackUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewCodeSnapshotCreateWithoutSessionInput = {
+    id?: string
+    code: string
+    language: string
+    phase?: $Enums.InterviewPhase
+    snapshotAt?: Date | string
+  }
+
+  export type InterviewCodeSnapshotUncheckedCreateWithoutSessionInput = {
+    id?: string
+    code: string
+    language: string
+    phase?: $Enums.InterviewPhase
+    snapshotAt?: Date | string
+  }
+
+  export type InterviewCodeSnapshotCreateOrConnectWithoutSessionInput = {
+    where: InterviewCodeSnapshotWhereUniqueInput
+    create: XOR<InterviewCodeSnapshotCreateWithoutSessionInput, InterviewCodeSnapshotUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewCodeSnapshotCreateManySessionInputEnvelope = {
+    data: InterviewCodeSnapshotCreateManySessionInput | InterviewCodeSnapshotCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InterviewParticipantCreateWithoutSessionInput = {
+    id?: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+    user: UserCreateNestedOneWithoutInterviewParticipantsInput
+  }
+
+  export type InterviewParticipantUncheckedCreateWithoutSessionInput = {
+    id?: string
+    userId: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+  }
+
+  export type InterviewParticipantCreateOrConnectWithoutSessionInput = {
+    where: InterviewParticipantWhereUniqueInput
+    create: XOR<InterviewParticipantCreateWithoutSessionInput, InterviewParticipantUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewParticipantCreateManySessionInputEnvelope = {
+    data: InterviewParticipantCreateManySessionInput | InterviewParticipantCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InterviewHintRequestCreateWithoutSessionInput = {
+    id?: string
+    requestedAt?: Date | string
+    hintLevel?: number
+    approved?: boolean
+    hintContent?: string | null
+  }
+
+  export type InterviewHintRequestUncheckedCreateWithoutSessionInput = {
+    id?: string
+    requestedAt?: Date | string
+    hintLevel?: number
+    approved?: boolean
+    hintContent?: string | null
+  }
+
+  export type InterviewHintRequestCreateOrConnectWithoutSessionInput = {
+    where: InterviewHintRequestWhereUniqueInput
+    create: XOR<InterviewHintRequestCreateWithoutSessionInput, InterviewHintRequestUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewHintRequestCreateManySessionInputEnvelope = {
+    data: InterviewHintRequestCreateManySessionInput | InterviewHintRequestCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type InterviewExecutionResultCreateWithoutSessionInput = {
+    id?: string
+    code: string
+    language: string
+    output: string
+    status: $Enums.SubmissionStatus
+    executedAt?: Date | string
+  }
+
+  export type InterviewExecutionResultUncheckedCreateWithoutSessionInput = {
+    id?: string
+    code: string
+    language: string
+    output: string
+    status: $Enums.SubmissionStatus
+    executedAt?: Date | string
+  }
+
+  export type InterviewExecutionResultCreateOrConnectWithoutSessionInput = {
+    where: InterviewExecutionResultWhereUniqueInput
+    create: XOR<InterviewExecutionResultCreateWithoutSessionInput, InterviewExecutionResultUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewExecutionResultCreateManySessionInputEnvelope = {
+    data: InterviewExecutionResultCreateManySessionInput | InterviewExecutionResultCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutInterviewerSessionsInput = {
+    update: XOR<UserUpdateWithoutInterviewerSessionsInput, UserUncheckedUpdateWithoutInterviewerSessionsInput>
+    create: XOR<UserCreateWithoutInterviewerSessionsInput, UserUncheckedCreateWithoutInterviewerSessionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutInterviewerSessionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutInterviewerSessionsInput, UserUncheckedUpdateWithoutInterviewerSessionsInput>
+  }
+
+  export type UserUpdateWithoutInterviewerSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
+    organization?: OrganizationUpdateOneWithoutUsersNestedInput
+    createdContests?: ContestUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutInterviewerSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdContests?: ContestUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUncheckedUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUncheckedUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUncheckedUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUncheckedUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUncheckedUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUpsertWithoutCandidateSessionsInput = {
+    update: XOR<UserUpdateWithoutCandidateSessionsInput, UserUncheckedUpdateWithoutCandidateSessionsInput>
+    create: XOR<UserCreateWithoutCandidateSessionsInput, UserUncheckedCreateWithoutCandidateSessionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCandidateSessionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCandidateSessionsInput, UserUncheckedUpdateWithoutCandidateSessionsInput>
+  }
+
+  export type UserUpdateWithoutCandidateSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
+    organization?: OrganizationUpdateOneWithoutUsersNestedInput
+    createdContests?: ContestUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCandidateSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdContests?: ContestUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUncheckedUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUncheckedUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUncheckedUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUncheckedUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUncheckedUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ProblemUpsertWithoutInterviewSessionsInput = {
+    update: XOR<ProblemUpdateWithoutInterviewSessionsInput, ProblemUncheckedUpdateWithoutInterviewSessionsInput>
+    create: XOR<ProblemCreateWithoutInterviewSessionsInput, ProblemUncheckedCreateWithoutInterviewSessionsInput>
+    where?: ProblemWhereInput
+  }
+
+  export type ProblemUpdateToOneWithWhereWithoutInterviewSessionsInput = {
+    where?: ProblemWhereInput
+    data: XOR<ProblemUpdateWithoutInterviewSessionsInput, ProblemUncheckedUpdateWithoutInterviewSessionsInput>
+  }
+
+  export type ProblemUpdateWithoutInterviewSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    problemType?: StringFieldUpdateOperationsInput | string
+    evaluationStrategy?: EnumEvaluationStrategyFieldUpdateOperationsInput | $Enums.EvaluationStrategy
+    referenceSolution?: NullableStringFieldUpdateOperationsInput | string | null
+    starterCode?: JsonNullValueInput | InputJsonValue
+    driverCode?: NullableJsonNullValueInput | InputJsonValue
+    images?: NullableJsonNullValueInput | InputJsonValue
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutProblemsNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
+    testCases?: TestCaseUpdateManyWithoutProblemNestedInput
+    contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
+    submissions?: SubmissionUpdateManyWithoutProblemNestedInput
+  }
+
+  export type ProblemUncheckedUpdateWithoutInterviewSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    problemType?: StringFieldUpdateOperationsInput | string
+    evaluationStrategy?: EnumEvaluationStrategyFieldUpdateOperationsInput | $Enums.EvaluationStrategy
+    referenceSolution?: NullableStringFieldUpdateOperationsInput | string | null
+    starterCode?: JsonNullValueInput | InputJsonValue
+    driverCode?: NullableJsonNullValueInput | InputJsonValue
+    images?: NullableJsonNullValueInput | InputJsonValue
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
+    contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+  }
+
+  export type OrganizationUpsertWithoutInterviewSessionsInput = {
+    update: XOR<OrganizationUpdateWithoutInterviewSessionsInput, OrganizationUncheckedUpdateWithoutInterviewSessionsInput>
+    create: XOR<OrganizationCreateWithoutInterviewSessionsInput, OrganizationUncheckedCreateWithoutInterviewSessionsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutInterviewSessionsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutInterviewSessionsInput, OrganizationUncheckedUpdateWithoutInterviewSessionsInput>
+  }
+
+  export type OrganizationUpdateWithoutInterviewSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumOrgStatusFieldUpdateOperationsInput | $Enums.OrgStatus
+    subscriptionTier?: EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+    featureFlags?: NullableJsonNullValueInput | InputJsonValue
+    maxContests?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    samlEnabled?: BoolFieldUpdateOperationsInput | boolean
+    samlDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpEntityId?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpSsoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpCert?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutOrganizationNestedInput
+    contests?: ContestUpdateManyWithoutOrganizationNestedInput
+    problems?: ProblemUpdateManyWithoutOrganizationNestedInput
+    invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+    questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutInterviewSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumOrgStatusFieldUpdateOperationsInput | $Enums.OrgStatus
+    subscriptionTier?: EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+    featureFlags?: NullableJsonNullValueInput | InputJsonValue
+    maxContests?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    samlEnabled?: BoolFieldUpdateOperationsInput | boolean
+    samlDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpEntityId?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpSsoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpCert?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutOrganizationNestedInput
+    contests?: ContestUncheckedUpdateManyWithoutOrganizationNestedInput
+    problems?: ProblemUncheckedUpdateManyWithoutOrganizationNestedInput
+    invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type InterviewFeedbackUpsertWithoutSessionInput = {
+    update: XOR<InterviewFeedbackUpdateWithoutSessionInput, InterviewFeedbackUncheckedUpdateWithoutSessionInput>
+    create: XOR<InterviewFeedbackCreateWithoutSessionInput, InterviewFeedbackUncheckedCreateWithoutSessionInput>
+    where?: InterviewFeedbackWhereInput
+  }
+
+  export type InterviewFeedbackUpdateToOneWithWhereWithoutSessionInput = {
+    where?: InterviewFeedbackWhereInput
+    data: XOR<InterviewFeedbackUpdateWithoutSessionInput, InterviewFeedbackUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type InterviewFeedbackUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemUnderstandingScore?: IntFieldUpdateOperationsInput | number
+    algorithmDesignScore?: IntFieldUpdateOperationsInput | number
+    codeQualityScore?: IntFieldUpdateOperationsInput | number
+    communicationScore?: IntFieldUpdateOperationsInput | number
+    edgeCaseHandlingScore?: IntFieldUpdateOperationsInput | number
+    recommendation?: EnumRecommendationFieldUpdateOperationsInput | $Enums.Recommendation
+    privateNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateFeedback?: NullableStringFieldUpdateOperationsInput | string | null
+    evaluatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewFeedbackUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemUnderstandingScore?: IntFieldUpdateOperationsInput | number
+    algorithmDesignScore?: IntFieldUpdateOperationsInput | number
+    codeQualityScore?: IntFieldUpdateOperationsInput | number
+    communicationScore?: IntFieldUpdateOperationsInput | number
+    edgeCaseHandlingScore?: IntFieldUpdateOperationsInput | number
+    recommendation?: EnumRecommendationFieldUpdateOperationsInput | $Enums.Recommendation
+    privateNotes?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateFeedback?: NullableStringFieldUpdateOperationsInput | string | null
+    evaluatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput = {
+    where: InterviewCodeSnapshotWhereUniqueInput
+    update: XOR<InterviewCodeSnapshotUpdateWithoutSessionInput, InterviewCodeSnapshotUncheckedUpdateWithoutSessionInput>
+    create: XOR<InterviewCodeSnapshotCreateWithoutSessionInput, InterviewCodeSnapshotUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput = {
+    where: InterviewCodeSnapshotWhereUniqueInput
+    data: XOR<InterviewCodeSnapshotUpdateWithoutSessionInput, InterviewCodeSnapshotUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type InterviewCodeSnapshotUpdateManyWithWhereWithoutSessionInput = {
+    where: InterviewCodeSnapshotScalarWhereInput
+    data: XOR<InterviewCodeSnapshotUpdateManyMutationInput, InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type InterviewCodeSnapshotScalarWhereInput = {
+    AND?: InterviewCodeSnapshotScalarWhereInput | InterviewCodeSnapshotScalarWhereInput[]
+    OR?: InterviewCodeSnapshotScalarWhereInput[]
+    NOT?: InterviewCodeSnapshotScalarWhereInput | InterviewCodeSnapshotScalarWhereInput[]
+    id?: StringFilter<"InterviewCodeSnapshot"> | string
+    sessionId?: StringFilter<"InterviewCodeSnapshot"> | string
+    code?: StringFilter<"InterviewCodeSnapshot"> | string
+    language?: StringFilter<"InterviewCodeSnapshot"> | string
+    phase?: EnumInterviewPhaseFilter<"InterviewCodeSnapshot"> | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFilter<"InterviewCodeSnapshot"> | Date | string
+  }
+
+  export type InterviewParticipantUpsertWithWhereUniqueWithoutSessionInput = {
+    where: InterviewParticipantWhereUniqueInput
+    update: XOR<InterviewParticipantUpdateWithoutSessionInput, InterviewParticipantUncheckedUpdateWithoutSessionInput>
+    create: XOR<InterviewParticipantCreateWithoutSessionInput, InterviewParticipantUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewParticipantUpdateWithWhereUniqueWithoutSessionInput = {
+    where: InterviewParticipantWhereUniqueInput
+    data: XOR<InterviewParticipantUpdateWithoutSessionInput, InterviewParticipantUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type InterviewParticipantUpdateManyWithWhereWithoutSessionInput = {
+    where: InterviewParticipantScalarWhereInput
+    data: XOR<InterviewParticipantUpdateManyMutationInput, InterviewParticipantUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type InterviewHintRequestUpsertWithWhereUniqueWithoutSessionInput = {
+    where: InterviewHintRequestWhereUniqueInput
+    update: XOR<InterviewHintRequestUpdateWithoutSessionInput, InterviewHintRequestUncheckedUpdateWithoutSessionInput>
+    create: XOR<InterviewHintRequestCreateWithoutSessionInput, InterviewHintRequestUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewHintRequestUpdateWithWhereUniqueWithoutSessionInput = {
+    where: InterviewHintRequestWhereUniqueInput
+    data: XOR<InterviewHintRequestUpdateWithoutSessionInput, InterviewHintRequestUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type InterviewHintRequestUpdateManyWithWhereWithoutSessionInput = {
+    where: InterviewHintRequestScalarWhereInput
+    data: XOR<InterviewHintRequestUpdateManyMutationInput, InterviewHintRequestUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type InterviewHintRequestScalarWhereInput = {
+    AND?: InterviewHintRequestScalarWhereInput | InterviewHintRequestScalarWhereInput[]
+    OR?: InterviewHintRequestScalarWhereInput[]
+    NOT?: InterviewHintRequestScalarWhereInput | InterviewHintRequestScalarWhereInput[]
+    id?: StringFilter<"InterviewHintRequest"> | string
+    sessionId?: StringFilter<"InterviewHintRequest"> | string
+    requestedAt?: DateTimeFilter<"InterviewHintRequest"> | Date | string
+    hintLevel?: IntFilter<"InterviewHintRequest"> | number
+    approved?: BoolFilter<"InterviewHintRequest"> | boolean
+    hintContent?: StringNullableFilter<"InterviewHintRequest"> | string | null
+  }
+
+  export type InterviewExecutionResultUpsertWithWhereUniqueWithoutSessionInput = {
+    where: InterviewExecutionResultWhereUniqueInput
+    update: XOR<InterviewExecutionResultUpdateWithoutSessionInput, InterviewExecutionResultUncheckedUpdateWithoutSessionInput>
+    create: XOR<InterviewExecutionResultCreateWithoutSessionInput, InterviewExecutionResultUncheckedCreateWithoutSessionInput>
+  }
+
+  export type InterviewExecutionResultUpdateWithWhereUniqueWithoutSessionInput = {
+    where: InterviewExecutionResultWhereUniqueInput
+    data: XOR<InterviewExecutionResultUpdateWithoutSessionInput, InterviewExecutionResultUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type InterviewExecutionResultUpdateManyWithWhereWithoutSessionInput = {
+    where: InterviewExecutionResultScalarWhereInput
+    data: XOR<InterviewExecutionResultUpdateManyMutationInput, InterviewExecutionResultUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type InterviewExecutionResultScalarWhereInput = {
+    AND?: InterviewExecutionResultScalarWhereInput | InterviewExecutionResultScalarWhereInput[]
+    OR?: InterviewExecutionResultScalarWhereInput[]
+    NOT?: InterviewExecutionResultScalarWhereInput | InterviewExecutionResultScalarWhereInput[]
+    id?: StringFilter<"InterviewExecutionResult"> | string
+    sessionId?: StringFilter<"InterviewExecutionResult"> | string
+    code?: StringFilter<"InterviewExecutionResult"> | string
+    language?: StringFilter<"InterviewExecutionResult"> | string
+    output?: StringFilter<"InterviewExecutionResult"> | string
+    status?: EnumSubmissionStatusFilter<"InterviewExecutionResult"> | $Enums.SubmissionStatus
+    executedAt?: DateTimeFilter<"InterviewExecutionResult"> | Date | string
+  }
+
+  export type MockInterviewSessionCreateWithoutParticipantsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutParticipantsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutParticipantsInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutParticipantsInput, MockInterviewSessionUncheckedCreateWithoutParticipantsInput>
+  }
+
+  export type UserCreateWithoutInterviewParticipantsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
+    organization?: OrganizationCreateNestedOneWithoutUsersInput
+    createdContests?: ContestCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationCreateNestedManyWithoutUserInput
+    submissions?: SubmissionCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogCreateNestedManyWithoutUserInput
+    invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+  }
+
+  export type UserUncheckedCreateWithoutInterviewParticipantsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    invitedById?: string | null
+    organizationId?: string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdContests?: ContestUncheckedCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemUncheckedCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationUncheckedCreateNestedManyWithoutUserInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogUncheckedCreateNestedManyWithoutUserInput
+    invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionUncheckedCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestUncheckedCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseUncheckedCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+  }
+
+  export type UserCreateOrConnectWithoutInterviewParticipantsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutInterviewParticipantsInput, UserUncheckedCreateWithoutInterviewParticipantsInput>
+  }
+
+  export type MockInterviewSessionUpsertWithoutParticipantsInput = {
+    update: XOR<MockInterviewSessionUpdateWithoutParticipantsInput, MockInterviewSessionUncheckedUpdateWithoutParticipantsInput>
+    create: XOR<MockInterviewSessionCreateWithoutParticipantsInput, MockInterviewSessionUncheckedCreateWithoutParticipantsInput>
+    where?: MockInterviewSessionWhereInput
+  }
+
+  export type MockInterviewSessionUpdateToOneWithWhereWithoutParticipantsInput = {
+    where?: MockInterviewSessionWhereInput
+    data: XOR<MockInterviewSessionUpdateWithoutParticipantsInput, MockInterviewSessionUncheckedUpdateWithoutParticipantsInput>
+  }
+
+  export type MockInterviewSessionUpdateWithoutParticipantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutParticipantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type UserUpsertWithoutInterviewParticipantsInput = {
+    update: XOR<UserUpdateWithoutInterviewParticipantsInput, UserUncheckedUpdateWithoutInterviewParticipantsInput>
+    create: XOR<UserCreateWithoutInterviewParticipantsInput, UserUncheckedCreateWithoutInterviewParticipantsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutInterviewParticipantsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutInterviewParticipantsInput, UserUncheckedUpdateWithoutInterviewParticipantsInput>
+  }
+
+  export type UserUpdateWithoutInterviewParticipantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
+    organization?: OrganizationUpdateOneWithoutUsersNestedInput
+    createdContests?: ContestUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutInterviewParticipantsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdContests?: ContestUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUncheckedUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUncheckedUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUncheckedUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUncheckedUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUncheckedUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+  }
+
+  export type MockInterviewSessionCreateWithoutFeedbackInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutFeedbackInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutFeedbackInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutFeedbackInput, MockInterviewSessionUncheckedCreateWithoutFeedbackInput>
+  }
+
+  export type MockInterviewSessionUpsertWithoutFeedbackInput = {
+    update: XOR<MockInterviewSessionUpdateWithoutFeedbackInput, MockInterviewSessionUncheckedUpdateWithoutFeedbackInput>
+    create: XOR<MockInterviewSessionCreateWithoutFeedbackInput, MockInterviewSessionUncheckedCreateWithoutFeedbackInput>
+    where?: MockInterviewSessionWhereInput
+  }
+
+  export type MockInterviewSessionUpdateToOneWithWhereWithoutFeedbackInput = {
+    where?: MockInterviewSessionWhereInput
+    data: XOR<MockInterviewSessionUpdateWithoutFeedbackInput, MockInterviewSessionUncheckedUpdateWithoutFeedbackInput>
+  }
+
+  export type MockInterviewSessionUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutFeedbackInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionCreateWithoutCodeSnapshotsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutCodeSnapshotsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutCodeSnapshotsInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutCodeSnapshotsInput, MockInterviewSessionUncheckedCreateWithoutCodeSnapshotsInput>
+  }
+
+  export type MockInterviewSessionUpsertWithoutCodeSnapshotsInput = {
+    update: XOR<MockInterviewSessionUpdateWithoutCodeSnapshotsInput, MockInterviewSessionUncheckedUpdateWithoutCodeSnapshotsInput>
+    create: XOR<MockInterviewSessionCreateWithoutCodeSnapshotsInput, MockInterviewSessionUncheckedCreateWithoutCodeSnapshotsInput>
+    where?: MockInterviewSessionWhereInput
+  }
+
+  export type MockInterviewSessionUpdateToOneWithWhereWithoutCodeSnapshotsInput = {
+    where?: MockInterviewSessionWhereInput
+    data: XOR<MockInterviewSessionUpdateWithoutCodeSnapshotsInput, MockInterviewSessionUncheckedUpdateWithoutCodeSnapshotsInput>
+  }
+
+  export type MockInterviewSessionUpdateWithoutCodeSnapshotsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutCodeSnapshotsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionCreateWithoutHintRequestsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutHintRequestsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    executionResults?: InterviewExecutionResultUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutHintRequestsInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutHintRequestsInput, MockInterviewSessionUncheckedCreateWithoutHintRequestsInput>
+  }
+
+  export type MockInterviewSessionUpsertWithoutHintRequestsInput = {
+    update: XOR<MockInterviewSessionUpdateWithoutHintRequestsInput, MockInterviewSessionUncheckedUpdateWithoutHintRequestsInput>
+    create: XOR<MockInterviewSessionCreateWithoutHintRequestsInput, MockInterviewSessionUncheckedCreateWithoutHintRequestsInput>
+    where?: MockInterviewSessionWhereInput
+  }
+
+  export type MockInterviewSessionUpdateToOneWithWhereWithoutHintRequestsInput = {
+    where?: MockInterviewSessionWhereInput
+    data: XOR<MockInterviewSessionUpdateWithoutHintRequestsInput, MockInterviewSessionUncheckedUpdateWithoutHintRequestsInput>
+  }
+
+  export type MockInterviewSessionUpdateWithoutHintRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutHintRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionCreateWithoutExecutionResultsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateEmail?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    interviewer: UserCreateNestedOneWithoutInterviewerSessionsInput
+    candidate?: UserCreateNestedOneWithoutCandidateSessionsInput
+    problem?: ProblemCreateNestedOneWithoutInterviewSessionsInput
+    organization?: OrganizationCreateNestedOneWithoutInterviewSessionsInput
+    feedback?: InterviewFeedbackCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionUncheckedCreateWithoutExecutionResultsInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    feedback?: InterviewFeedbackUncheckedCreateNestedOneWithoutSessionInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+    participants?: InterviewParticipantUncheckedCreateNestedManyWithoutSessionInput
+    hintRequests?: InterviewHintRequestUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type MockInterviewSessionCreateOrConnectWithoutExecutionResultsInput = {
+    where: MockInterviewSessionWhereUniqueInput
+    create: XOR<MockInterviewSessionCreateWithoutExecutionResultsInput, MockInterviewSessionUncheckedCreateWithoutExecutionResultsInput>
+  }
+
+  export type MockInterviewSessionUpsertWithoutExecutionResultsInput = {
+    update: XOR<MockInterviewSessionUpdateWithoutExecutionResultsInput, MockInterviewSessionUncheckedUpdateWithoutExecutionResultsInput>
+    create: XOR<MockInterviewSessionCreateWithoutExecutionResultsInput, MockInterviewSessionUncheckedCreateWithoutExecutionResultsInput>
+    where?: MockInterviewSessionWhereInput
+  }
+
+  export type MockInterviewSessionUpdateToOneWithWhereWithoutExecutionResultsInput = {
+    where?: MockInterviewSessionWhereInput
+    data: XOR<MockInterviewSessionUpdateWithoutExecutionResultsInput, MockInterviewSessionUncheckedUpdateWithoutExecutionResultsInput>
+  }
+
+  export type MockInterviewSessionUpdateWithoutExecutionResultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutExecutionResultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
   }
 
   export type UserCreateManyOrganizationInput = {
@@ -60945,6 +72831,33 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type MockInterviewSessionCreateManyOrganizationInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UserUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -60980,6 +72893,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationInput = {
@@ -61017,6 +72933,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutOrganizationInput = {
@@ -61182,6 +73101,7 @@ export namespace Prisma {
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemUncheckedUpdateWithoutOrganizationInput = {
@@ -61204,6 +73124,7 @@ export namespace Prisma {
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemUncheckedUpdateManyWithoutOrganizationInput = {
@@ -61319,6 +73240,97 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     scope?: EnumBankScopeFieldUpdateOperationsInput | $Enums.BankScope
     createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MockInterviewSessionUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -61602,6 +73614,68 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type MockInterviewSessionCreateManyInterviewerInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    candidateId?: string | null
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MockInterviewSessionCreateManyCandidateInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateEmail?: string | null
+    problemId?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InterviewParticipantCreateManyUserInput = {
+    id?: string
+    sessionId: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+  }
+
   export type ContestUpdateWithoutCreatedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
@@ -61747,6 +73821,7 @@ export namespace Prisma {
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemUncheckedUpdateWithoutCreatedByInput = {
@@ -61769,6 +73844,7 @@ export namespace Prisma {
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
   }
 
   export type ProblemUncheckedUpdateManyWithoutCreatedByInput = {
@@ -61930,6 +74006,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvitedByInput = {
@@ -61967,6 +74046,9 @@ export namespace Prisma {
     breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
     moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutInvitedByInput = {
@@ -62505,6 +74587,212 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MockInterviewSessionUpdateWithoutInterviewerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutInterviewerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateManyWithoutInterviewerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MockInterviewSessionUpdateWithoutCandidateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    problem?: ProblemUpdateOneWithoutInterviewSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutCandidateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateManyWithoutCandidateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewParticipantUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    session?: MockInterviewSessionUpdateOneRequiredWithoutParticipantsNestedInput
+  }
+
+  export type InterviewParticipantUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type InterviewParticipantUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type TestCaseCreateManyProblemInput = {
     id?: string
     input: string
@@ -62537,6 +74825,33 @@ export namespace Prisma {
     evaluatedAt?: Date | string | null
     evaluationComments?: string | null
     submittedAt?: Date | string
+  }
+
+  export type MockInterviewSessionCreateManyProblemInput = {
+    id?: string
+    title: string
+    description?: string | null
+    scheduledAt: Date | string
+    durationMinutes?: number
+    accessCode: string
+    accessCodePlain?: string | null
+    status?: $Enums.InterviewStatus
+    currentPhase?: $Enums.InterviewPhase
+    phaseUnderstandMins?: number
+    planMins?: number
+    codeMins?: number
+    optimizeMins?: number
+    allowHints?: boolean
+    allowObservers?: boolean
+    interviewerId: string
+    candidateId?: string | null
+    candidateEmail?: string | null
+    organizationId?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    yjsDocumentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type TestCaseUpdateWithoutProblemInput = {
@@ -62639,6 +74954,97 @@ export namespace Prisma {
     evaluatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     evaluationComments?: NullableStringFieldUpdateOperationsInput | string | null
     submittedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MockInterviewSessionUpdateWithoutProblemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    interviewer?: UserUpdateOneRequiredWithoutInterviewerSessionsNestedInput
+    candidate?: UserUpdateOneWithoutCandidateSessionsNestedInput
+    organization?: OrganizationUpdateOneWithoutInterviewSessionsNestedInput
+    feedback?: InterviewFeedbackUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateWithoutProblemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    feedback?: InterviewFeedbackUncheckedUpdateOneWithoutSessionNestedInput
+    codeSnapshots?: InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+    participants?: InterviewParticipantUncheckedUpdateManyWithoutSessionNestedInput
+    hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
+    executionResults?: InterviewExecutionResultUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type MockInterviewSessionUncheckedUpdateManyWithoutProblemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    scheduledAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    durationMinutes?: IntFieldUpdateOperationsInput | number
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+    currentPhase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    phaseUnderstandMins?: IntFieldUpdateOperationsInput | number
+    planMins?: IntFieldUpdateOperationsInput | number
+    codeMins?: IntFieldUpdateOperationsInput | number
+    optimizeMins?: IntFieldUpdateOperationsInput | number
+    allowHints?: BoolFieldUpdateOperationsInput | boolean
+    allowObservers?: BoolFieldUpdateOperationsInput | boolean
+    interviewerId?: StringFieldUpdateOperationsInput | string
+    candidateId?: NullableStringFieldUpdateOperationsInput | string | null
+    candidateEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    yjsDocumentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContestProblemCreateManyContestInput = {
@@ -63683,6 +76089,138 @@ export namespace Prisma {
     moderatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type InterviewCodeSnapshotCreateManySessionInput = {
+    id?: string
+    code: string
+    language: string
+    phase?: $Enums.InterviewPhase
+    snapshotAt?: Date | string
+  }
+
+  export type InterviewParticipantCreateManySessionInput = {
+    id?: string
+    userId: string
+    role?: $Enums.InterviewParticipantRole
+    joinedAt?: Date | string
+    leftAt?: Date | string | null
+  }
+
+  export type InterviewHintRequestCreateManySessionInput = {
+    id?: string
+    requestedAt?: Date | string
+    hintLevel?: number
+    approved?: boolean
+    hintContent?: string | null
+  }
+
+  export type InterviewExecutionResultCreateManySessionInput = {
+    id?: string
+    code: string
+    language: string
+    output: string
+    status: $Enums.SubmissionStatus
+    executedAt?: Date | string
+  }
+
+  export type InterviewCodeSnapshotUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    phase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewCodeSnapshotUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    phase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewCodeSnapshotUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    phase?: EnumInterviewPhaseFieldUpdateOperationsInput | $Enums.InterviewPhase
+    snapshotAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewParticipantUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutInterviewParticipantsNestedInput
+  }
+
+  export type InterviewParticipantUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type InterviewParticipantUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    role?: EnumInterviewParticipantRoleFieldUpdateOperationsInput | $Enums.InterviewParticipantRole
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type InterviewHintRequestUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hintLevel?: IntFieldUpdateOperationsInput | number
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    hintContent?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type InterviewHintRequestUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hintLevel?: IntFieldUpdateOperationsInput | number
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    hintContent?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type InterviewHintRequestUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hintLevel?: IntFieldUpdateOperationsInput | number
+    approved?: BoolFieldUpdateOperationsInput | boolean
+    hintContent?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type InterviewExecutionResultUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    output?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewExecutionResultUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    output?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InterviewExecutionResultUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    language?: StringFieldUpdateOperationsInput | string
+    output?: StringFieldUpdateOperationsInput | string
+    status?: EnumSubmissionStatusFieldUpdateOperationsInput | $Enums.SubmissionStatus
+    executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
 
 
   /**
@@ -63724,6 +76262,10 @@ export namespace Prisma {
      * @deprecated Use QuizAttemptQuestionCountOutputTypeDefaultArgs instead
      */
     export type QuizAttemptQuestionCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = QuizAttemptQuestionCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use MockInterviewSessionCountOutputTypeDefaultArgs instead
+     */
+    export type MockInterviewSessionCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MockInterviewSessionCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use OrganizationDefaultArgs instead
      */
@@ -63848,6 +76390,30 @@ export namespace Prisma {
      * @deprecated Use NotificationDefaultArgs instead
      */
     export type NotificationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificationDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use MockInterviewSessionDefaultArgs instead
+     */
+    export type MockInterviewSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MockInterviewSessionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use InterviewParticipantDefaultArgs instead
+     */
+    export type InterviewParticipantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = InterviewParticipantDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use InterviewFeedbackDefaultArgs instead
+     */
+    export type InterviewFeedbackArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = InterviewFeedbackDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use InterviewCodeSnapshotDefaultArgs instead
+     */
+    export type InterviewCodeSnapshotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = InterviewCodeSnapshotDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use InterviewHintRequestDefaultArgs instead
+     */
+    export type InterviewHintRequestArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = InterviewHintRequestDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use InterviewExecutionResultDefaultArgs instead
+     */
+    export type InterviewExecutionResultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = InterviewExecutionResultDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

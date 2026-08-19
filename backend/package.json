@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package",
   "name": "kryptaviaos-backend",
   "version": "1.0.0",
   "description": "Kryptavia OS Engine API Server - Safe Exam Browser, Live Leaderboards & Code Execution",

@@ -63,7 +63,11 @@ const io = new SocketServer(httpServer, {
   },
   transports: ['websocket', 'polling'],
 });
+import interviewRoutes from './routes/interview.routes';
+import { setupInterviewSocket } from './sockets/interviewSocket';
+
 setupQuizTimerSocket(io);
+setupInterviewSocket(io);
 
 // Export io for use in routes (proctor block via REST)
 export { io };
@@ -306,6 +310,9 @@ app.use('/api/compliance', complianceRoutes);
 
 // In-App Notifications & SSE Real-time Stream
 app.use('/api/notifications', notificationRoutes);
+
+// Live 1-on-1 Mock Interview & Collaborative IDE System
+app.use('/api/interviews', interviewRoutes);
 
 // Start Server
 httpServer.listen(PORT, () => {

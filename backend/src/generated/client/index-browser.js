@@ -564,6 +564,85 @@ exports.Prisma.NotificationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.MockInterviewSessionScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  scheduledAt: 'scheduledAt',
+  durationMinutes: 'durationMinutes',
+  accessCode: 'accessCode',
+  accessCodePlain: 'accessCodePlain',
+  status: 'status',
+  currentPhase: 'currentPhase',
+  phaseUnderstandMins: 'phaseUnderstandMins',
+  planMins: 'planMins',
+  codeMins: 'codeMins',
+  optimizeMins: 'optimizeMins',
+  allowHints: 'allowHints',
+  allowObservers: 'allowObservers',
+  interviewerId: 'interviewerId',
+  candidateId: 'candidateId',
+  candidateEmail: 'candidateEmail',
+  problemId: 'problemId',
+  organizationId: 'organizationId',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  yjsDocumentId: 'yjsDocumentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InterviewParticipantScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  role: 'role',
+  joinedAt: 'joinedAt',
+  leftAt: 'leftAt'
+};
+
+exports.Prisma.InterviewFeedbackScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  problemUnderstandingScore: 'problemUnderstandingScore',
+  algorithmDesignScore: 'algorithmDesignScore',
+  codeQualityScore: 'codeQualityScore',
+  communicationScore: 'communicationScore',
+  edgeCaseHandlingScore: 'edgeCaseHandlingScore',
+  recommendation: 'recommendation',
+  privateNotes: 'privateNotes',
+  candidateFeedback: 'candidateFeedback',
+  evaluatedAt: 'evaluatedAt'
+};
+
+exports.Prisma.InterviewCodeSnapshotScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  code: 'code',
+  language: 'language',
+  phase: 'phase',
+  snapshotAt: 'snapshotAt'
+};
+
+exports.Prisma.InterviewHintRequestScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  requestedAt: 'requestedAt',
+  hintLevel: 'hintLevel',
+  approved: 'approved',
+  hintContent: 'hintContent'
+};
+
+exports.Prisma.InterviewExecutionResultScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  code: 'code',
+  language: 'language',
+  output: 'output',
+  status: 'status',
+  executedAt: 'executedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -698,6 +777,34 @@ exports.EvaluationStatus = exports.$Enums.EvaluationStatus = {
   RESULT_APPROVED: 'RESULT_APPROVED'
 };
 
+exports.InterviewStatus = exports.$Enums.InterviewStatus = {
+  SCHEDULED: 'SCHEDULED',
+  LIVE: 'LIVE',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.InterviewPhase = exports.$Enums.InterviewPhase = {
+  UNDERSTAND: 'UNDERSTAND',
+  PLAN: 'PLAN',
+  CODE: 'CODE',
+  OPTIMIZE: 'OPTIMIZE',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.InterviewParticipantRole = exports.$Enums.InterviewParticipantRole = {
+  INTERVIEWER: 'INTERVIEWER',
+  CANDIDATE: 'CANDIDATE',
+  OBSERVER: 'OBSERVER'
+};
+
+exports.Recommendation = exports.$Enums.Recommendation = {
+  STRONG_HIRE: 'STRONG_HIRE',
+  HIRE: 'HIRE',
+  LEAN_HIRE: 'LEAN_HIRE',
+  NO_HIRE: 'NO_HIRE'
+};
+
 exports.Prisma.ModelName = {
   Organization: 'Organization',
   User: 'User',
@@ -729,7 +836,13 @@ exports.Prisma.ModelName = {
   GuestInvite: 'GuestInvite',
   GdprErasureRequest: 'GdprErasureRequest',
   ContestModerationAssignment: 'ContestModerationAssignment',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  MockInterviewSession: 'MockInterviewSession',
+  InterviewParticipant: 'InterviewParticipant',
+  InterviewFeedback: 'InterviewFeedback',
+  InterviewCodeSnapshot: 'InterviewCodeSnapshot',
+  InterviewHintRequest: 'InterviewHintRequest',
+  InterviewExecutionResult: 'InterviewExecutionResult'
 };
 
 /**
