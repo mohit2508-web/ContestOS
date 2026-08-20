@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { InterviewJoinModal } from '../components/interview/InterviewJoinModal';
+import { InterviewLoader } from '../components/interview/InterviewLoader';
 import api from '../services/api';
 
 interface ChatMessage {
@@ -574,11 +575,7 @@ export const LiveInterviewRoomPage: React.FC = () => {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex justify-center items-center text-zinc-400 text-sm">
-        Loading interview workspace...
-      </div>
-    );
+    return <InterviewLoader mode="full" message="Connecting WebRTC streams & Monaco editor..." />;
   }
 
   return (

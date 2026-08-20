@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { InterviewScheduleModal } from '../components/interview/InterviewScheduleModal';
+import { InterviewLoader } from '../components/interview/InterviewLoader';
 import api from '../services/api';
 
 interface InterviewSession {
@@ -174,9 +174,7 @@ export const InterviewDashboardPage: React.FC = () => {
 
       {/* Sessions Grid */}
       {loading ? (
-        <div className="flex justify-center items-center py-20 text-zinc-500 text-sm">
-          Loading interview sessions...
-        </div>
+        <InterviewLoader mode="skeleton" message="Loading interview sessions..." />
       ) : sessions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-zinc-900/50 border border-zinc-800/80 rounded-2xl text-center space-y-4">
           <div className="p-4 rounded-full bg-zinc-800/50 text-zinc-500">
