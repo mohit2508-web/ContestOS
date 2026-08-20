@@ -17,6 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { InterviewLoader } from '../components/interview/InterviewLoader';
+import { InterviewScheduleModal } from '../components/interview/InterviewScheduleModal';
 import api from '../services/api';
 
 interface InterviewSession {
