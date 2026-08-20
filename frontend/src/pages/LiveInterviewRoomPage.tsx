@@ -26,6 +26,9 @@ import {
   Radio,
   User,
   RotateCw,
+  Eye,
+  EyeOff,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { InterviewJoinModal } from '../components/interview/InterviewJoinModal';

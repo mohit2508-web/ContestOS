@@ -124,6 +124,16 @@ export function setupInterviewSocket(io: SocketIOServer) {
       socket.to(`session:${sessionId}`).emit('interview:language-updated', { language });
     });
 
+    socket.on('interview:blind-mode-toggle', ({
+      sessionId,
+      isBlind,
+    }: {
+      sessionId: string;
+      isBlind: boolean;
+    }) => {
+      interviewNamespace.to(`session:${sessionId}`).emit('interview:blind-mode-updated', { isBlind });
+    });
+
     // ─────────────────────────────────────────────────────────────
     // 4. CODE SNAPSHOT (Auto-saved every 30s)
     // ─────────────────────────────────────────────────────────────
