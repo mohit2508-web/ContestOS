@@ -211,7 +211,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
     navigator.userAgent.toLowerCase().includes('safeexambrowser') ||
     new URLSearchParams(window.location.search).get('seb') === '1';
 
-  if (isSeb || location.pathname.startsWith('/playground/web-dev') || location.pathname.startsWith('/guest') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/' || location.pathname === '/landing') {
+  if (isSeb || location.pathname.startsWith('/playground/web-dev') || location.pathname.startsWith('/guest') || location.pathname.startsWith('/interview/join') || location.pathname.startsWith('/interview/room') || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/' || location.pathname === '/landing') {
     return <>{children}</>;
   }
 
