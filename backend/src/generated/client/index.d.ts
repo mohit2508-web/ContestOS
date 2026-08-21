@@ -29,6 +29,11 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  */
 export type Problem = $Result.DefaultSelection<Prisma.$ProblemPayload>
 /**
+ * Model ProblemAiCreditLog
+ * 
+ */
+export type ProblemAiCreditLog = $Result.DefaultSelection<Prisma.$ProblemAiCreditLogPayload>
+/**
  * Model TestCase
  * 
  */
@@ -198,6 +203,31 @@ export type InterviewHintRequest = $Result.DefaultSelection<Prisma.$InterviewHin
  * 
  */
 export type InterviewExecutionResult = $Result.DefaultSelection<Prisma.$InterviewExecutionResultPayload>
+/**
+ * Model AssistantSession
+ * 
+ */
+export type AssistantSession = $Result.DefaultSelection<Prisma.$AssistantSessionPayload>
+/**
+ * Model CapturedAnswer
+ * 
+ */
+export type CapturedAnswer = $Result.DefaultSelection<Prisma.$CapturedAnswerPayload>
+/**
+ * Model AssistantTranscript
+ * 
+ */
+export type AssistantTranscript = $Result.DefaultSelection<Prisma.$AssistantTranscriptPayload>
+/**
+ * Model AssistantStageEvent
+ * 
+ */
+export type AssistantStageEvent = $Result.DefaultSelection<Prisma.$AssistantStageEventPayload>
+/**
+ * Model AssistantCodeSnapshot
+ * 
+ */
+export type AssistantCodeSnapshot = $Result.DefaultSelection<Prisma.$AssistantCodeSnapshotPayload>
 
 /**
  * Enums
@@ -389,6 +419,18 @@ export const Recommendation: {
 
 export type Recommendation = (typeof Recommendation)[keyof typeof Recommendation]
 
+
+export const AssistantStage: {
+  PROBLEM: 'PROBLEM',
+  DATA_STRUCTURE: 'DATA_STRUCTURE',
+  APPROACH: 'APPROACH',
+  AWAITING_CODE_REQUEST: 'AWAITING_CODE_REQUEST',
+  CODE_GEN: 'CODE_GEN',
+  REFINEMENT: 'REFINEMENT'
+};
+
+export type AssistantStage = (typeof AssistantStage)[keyof typeof AssistantStage]
+
 }
 
 export type OrgStatus = $Enums.OrgStatus
@@ -462,6 +504,10 @@ export const InterviewParticipantRole: typeof $Enums.InterviewParticipantRole
 export type Recommendation = $Enums.Recommendation
 
 export const Recommendation: typeof $Enums.Recommendation
+
+export type AssistantStage = $Enums.AssistantStage
+
+export const AssistantStage: typeof $Enums.AssistantStage
 
 /**
  * ##  Prisma Client ʲˢ
@@ -615,6 +661,16 @@ export class PrismaClient<
     * ```
     */
   get problem(): Prisma.ProblemDelegate<ExtArgs>;
+
+  /**
+   * `prisma.problemAiCreditLog`: Exposes CRUD operations for the **ProblemAiCreditLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProblemAiCreditLogs
+    * const problemAiCreditLogs = await prisma.problemAiCreditLog.findMany()
+    * ```
+    */
+  get problemAiCreditLog(): Prisma.ProblemAiCreditLogDelegate<ExtArgs>;
 
   /**
    * `prisma.testCase`: Exposes CRUD operations for the **TestCase** model.
@@ -955,6 +1011,56 @@ export class PrismaClient<
     * ```
     */
   get interviewExecutionResult(): Prisma.InterviewExecutionResultDelegate<ExtArgs>;
+
+  /**
+   * `prisma.assistantSession`: Exposes CRUD operations for the **AssistantSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssistantSessions
+    * const assistantSessions = await prisma.assistantSession.findMany()
+    * ```
+    */
+  get assistantSession(): Prisma.AssistantSessionDelegate<ExtArgs>;
+
+  /**
+   * `prisma.capturedAnswer`: Exposes CRUD operations for the **CapturedAnswer** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CapturedAnswers
+    * const capturedAnswers = await prisma.capturedAnswer.findMany()
+    * ```
+    */
+  get capturedAnswer(): Prisma.CapturedAnswerDelegate<ExtArgs>;
+
+  /**
+   * `prisma.assistantTranscript`: Exposes CRUD operations for the **AssistantTranscript** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssistantTranscripts
+    * const assistantTranscripts = await prisma.assistantTranscript.findMany()
+    * ```
+    */
+  get assistantTranscript(): Prisma.AssistantTranscriptDelegate<ExtArgs>;
+
+  /**
+   * `prisma.assistantStageEvent`: Exposes CRUD operations for the **AssistantStageEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssistantStageEvents
+    * const assistantStageEvents = await prisma.assistantStageEvent.findMany()
+    * ```
+    */
+  get assistantStageEvent(): Prisma.AssistantStageEventDelegate<ExtArgs>;
+
+  /**
+   * `prisma.assistantCodeSnapshot`: Exposes CRUD operations for the **AssistantCodeSnapshot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AssistantCodeSnapshots
+    * const assistantCodeSnapshots = await prisma.assistantCodeSnapshot.findMany()
+    * ```
+    */
+  get assistantCodeSnapshot(): Prisma.AssistantCodeSnapshotDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1399,6 +1505,7 @@ export namespace Prisma {
     Organization: 'Organization',
     User: 'User',
     Problem: 'Problem',
+    ProblemAiCreditLog: 'ProblemAiCreditLog',
     TestCase: 'TestCase',
     Contest: 'Contest',
     ContestProblem: 'ContestProblem',
@@ -1432,7 +1539,12 @@ export namespace Prisma {
     InterviewFeedback: 'InterviewFeedback',
     InterviewCodeSnapshot: 'InterviewCodeSnapshot',
     InterviewHintRequest: 'InterviewHintRequest',
-    InterviewExecutionResult: 'InterviewExecutionResult'
+    InterviewExecutionResult: 'InterviewExecutionResult',
+    AssistantSession: 'AssistantSession',
+    CapturedAnswer: 'CapturedAnswer',
+    AssistantTranscript: 'AssistantTranscript',
+    AssistantStageEvent: 'AssistantStageEvent',
+    AssistantCodeSnapshot: 'AssistantCodeSnapshot'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1448,7 +1560,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organization" | "user" | "problem" | "testCase" | "contest" | "contestProblem" | "contestRegistration" | "submission" | "proctoringLog" | "plagiarismReport" | "teamInvitation" | "contestAssignment" | "auditLog" | "refreshToken" | "organizationRequest" | "contestSection" | "questionBank" | "quizPassage" | "quizQuestion" | "questionVersion" | "questionReviewLog" | "contestAssemblyRule" | "quizOption" | "quizAttemptQuestion" | "quizResponse" | "quizItemAnalytics" | "breakGlassAuditLog" | "guestInvite" | "gdprErasureRequest" | "contestModerationAssignment" | "notification" | "mockInterviewSession" | "interviewParticipant" | "interviewFeedback" | "interviewCodeSnapshot" | "interviewHintRequest" | "interviewExecutionResult"
+      modelProps: "organization" | "user" | "problem" | "problemAiCreditLog" | "testCase" | "contest" | "contestProblem" | "contestRegistration" | "submission" | "proctoringLog" | "plagiarismReport" | "teamInvitation" | "contestAssignment" | "auditLog" | "refreshToken" | "organizationRequest" | "contestSection" | "questionBank" | "quizPassage" | "quizQuestion" | "questionVersion" | "questionReviewLog" | "contestAssemblyRule" | "quizOption" | "quizAttemptQuestion" | "quizResponse" | "quizItemAnalytics" | "breakGlassAuditLog" | "guestInvite" | "gdprErasureRequest" | "contestModerationAssignment" | "notification" | "mockInterviewSession" | "interviewParticipant" | "interviewFeedback" | "interviewCodeSnapshot" | "interviewHintRequest" | "interviewExecutionResult" | "assistantSession" | "capturedAnswer" | "assistantTranscript" | "assistantStageEvent" | "assistantCodeSnapshot"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1659,6 +1771,76 @@ export namespace Prisma {
           count: {
             args: Prisma.ProblemCountArgs<ExtArgs>
             result: $Utils.Optional<ProblemCountAggregateOutputType> | number
+          }
+        }
+      }
+      ProblemAiCreditLog: {
+        payload: Prisma.$ProblemAiCreditLogPayload<ExtArgs>
+        fields: Prisma.ProblemAiCreditLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProblemAiCreditLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProblemAiCreditLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload>
+          }
+          findFirst: {
+            args: Prisma.ProblemAiCreditLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProblemAiCreditLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload>
+          }
+          findMany: {
+            args: Prisma.ProblemAiCreditLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload>[]
+          }
+          create: {
+            args: Prisma.ProblemAiCreditLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload>
+          }
+          createMany: {
+            args: Prisma.ProblemAiCreditLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ProblemAiCreditLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload>[]
+          }
+          delete: {
+            args: Prisma.ProblemAiCreditLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload>
+          }
+          update: {
+            args: Prisma.ProblemAiCreditLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProblemAiCreditLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProblemAiCreditLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ProblemAiCreditLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProblemAiCreditLogPayload>
+          }
+          aggregate: {
+            args: Prisma.ProblemAiCreditLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProblemAiCreditLog>
+          }
+          groupBy: {
+            args: Prisma.ProblemAiCreditLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProblemAiCreditLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProblemAiCreditLogCountArgs<ExtArgs>
+            result: $Utils.Optional<ProblemAiCreditLogCountAggregateOutputType> | number
           }
         }
       }
@@ -4042,6 +4224,356 @@ export namespace Prisma {
           }
         }
       }
+      AssistantSession: {
+        payload: Prisma.$AssistantSessionPayload<ExtArgs>
+        fields: Prisma.AssistantSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssistantSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssistantSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.AssistantSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssistantSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload>
+          }
+          findMany: {
+            args: Prisma.AssistantSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload>[]
+          }
+          create: {
+            args: Prisma.AssistantSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload>
+          }
+          createMany: {
+            args: Prisma.AssistantSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssistantSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.AssistantSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload>
+          }
+          update: {
+            args: Prisma.AssistantSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.AssistantSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssistantSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AssistantSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.AssistantSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssistantSession>
+          }
+          groupBy: {
+            args: Prisma.AssistantSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssistantSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssistantSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<AssistantSessionCountAggregateOutputType> | number
+          }
+        }
+      }
+      CapturedAnswer: {
+        payload: Prisma.$CapturedAnswerPayload<ExtArgs>
+        fields: Prisma.CapturedAnswerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CapturedAnswerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CapturedAnswerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload>
+          }
+          findFirst: {
+            args: Prisma.CapturedAnswerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CapturedAnswerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload>
+          }
+          findMany: {
+            args: Prisma.CapturedAnswerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload>[]
+          }
+          create: {
+            args: Prisma.CapturedAnswerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload>
+          }
+          createMany: {
+            args: Prisma.CapturedAnswerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CapturedAnswerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload>[]
+          }
+          delete: {
+            args: Prisma.CapturedAnswerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload>
+          }
+          update: {
+            args: Prisma.CapturedAnswerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload>
+          }
+          deleteMany: {
+            args: Prisma.CapturedAnswerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CapturedAnswerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CapturedAnswerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CapturedAnswerPayload>
+          }
+          aggregate: {
+            args: Prisma.CapturedAnswerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCapturedAnswer>
+          }
+          groupBy: {
+            args: Prisma.CapturedAnswerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CapturedAnswerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CapturedAnswerCountArgs<ExtArgs>
+            result: $Utils.Optional<CapturedAnswerCountAggregateOutputType> | number
+          }
+        }
+      }
+      AssistantTranscript: {
+        payload: Prisma.$AssistantTranscriptPayload<ExtArgs>
+        fields: Prisma.AssistantTranscriptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssistantTranscriptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssistantTranscriptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload>
+          }
+          findFirst: {
+            args: Prisma.AssistantTranscriptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssistantTranscriptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload>
+          }
+          findMany: {
+            args: Prisma.AssistantTranscriptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload>[]
+          }
+          create: {
+            args: Prisma.AssistantTranscriptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload>
+          }
+          createMany: {
+            args: Prisma.AssistantTranscriptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssistantTranscriptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload>[]
+          }
+          delete: {
+            args: Prisma.AssistantTranscriptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload>
+          }
+          update: {
+            args: Prisma.AssistantTranscriptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload>
+          }
+          deleteMany: {
+            args: Prisma.AssistantTranscriptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssistantTranscriptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AssistantTranscriptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantTranscriptPayload>
+          }
+          aggregate: {
+            args: Prisma.AssistantTranscriptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssistantTranscript>
+          }
+          groupBy: {
+            args: Prisma.AssistantTranscriptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssistantTranscriptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssistantTranscriptCountArgs<ExtArgs>
+            result: $Utils.Optional<AssistantTranscriptCountAggregateOutputType> | number
+          }
+        }
+      }
+      AssistantStageEvent: {
+        payload: Prisma.$AssistantStageEventPayload<ExtArgs>
+        fields: Prisma.AssistantStageEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssistantStageEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssistantStageEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload>
+          }
+          findFirst: {
+            args: Prisma.AssistantStageEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssistantStageEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload>
+          }
+          findMany: {
+            args: Prisma.AssistantStageEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload>[]
+          }
+          create: {
+            args: Prisma.AssistantStageEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload>
+          }
+          createMany: {
+            args: Prisma.AssistantStageEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssistantStageEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload>[]
+          }
+          delete: {
+            args: Prisma.AssistantStageEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload>
+          }
+          update: {
+            args: Prisma.AssistantStageEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.AssistantStageEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssistantStageEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AssistantStageEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantStageEventPayload>
+          }
+          aggregate: {
+            args: Prisma.AssistantStageEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssistantStageEvent>
+          }
+          groupBy: {
+            args: Prisma.AssistantStageEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssistantStageEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssistantStageEventCountArgs<ExtArgs>
+            result: $Utils.Optional<AssistantStageEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      AssistantCodeSnapshot: {
+        payload: Prisma.$AssistantCodeSnapshotPayload<ExtArgs>
+        fields: Prisma.AssistantCodeSnapshotFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AssistantCodeSnapshotFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AssistantCodeSnapshotFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload>
+          }
+          findFirst: {
+            args: Prisma.AssistantCodeSnapshotFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AssistantCodeSnapshotFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload>
+          }
+          findMany: {
+            args: Prisma.AssistantCodeSnapshotFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload>[]
+          }
+          create: {
+            args: Prisma.AssistantCodeSnapshotCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload>
+          }
+          createMany: {
+            args: Prisma.AssistantCodeSnapshotCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AssistantCodeSnapshotCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload>[]
+          }
+          delete: {
+            args: Prisma.AssistantCodeSnapshotDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload>
+          }
+          update: {
+            args: Prisma.AssistantCodeSnapshotUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload>
+          }
+          deleteMany: {
+            args: Prisma.AssistantCodeSnapshotDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AssistantCodeSnapshotUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.AssistantCodeSnapshotUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AssistantCodeSnapshotPayload>
+          }
+          aggregate: {
+            args: Prisma.AssistantCodeSnapshotAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAssistantCodeSnapshot>
+          }
+          groupBy: {
+            args: Prisma.AssistantCodeSnapshotGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AssistantCodeSnapshotGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AssistantCodeSnapshotCountArgs<ExtArgs>
+            result: $Utils.Optional<AssistantCodeSnapshotCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4310,6 +4842,8 @@ export namespace Prisma {
     interviewerSessions: number
     candidateSessions: number
     interviewParticipants: number
+    assistantSessions: number
+    problemAiCreditLogs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4335,6 +4869,8 @@ export namespace Prisma {
     interviewerSessions?: boolean | UserCountOutputTypeCountInterviewerSessionsArgs
     candidateSessions?: boolean | UserCountOutputTypeCountCandidateSessionsArgs
     interviewParticipants?: boolean | UserCountOutputTypeCountInterviewParticipantsArgs
+    assistantSessions?: boolean | UserCountOutputTypeCountAssistantSessionsArgs
+    problemAiCreditLogs?: boolean | UserCountOutputTypeCountProblemAiCreditLogsArgs
   }
 
   // Custom InputTypes
@@ -4502,12 +5038,27 @@ export namespace Prisma {
     where?: InterviewParticipantWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAssistantSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssistantSessionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountProblemAiCreditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProblemAiCreditLogWhereInput
+  }
+
 
   /**
    * Count Type ProblemCountOutputType
    */
 
   export type ProblemCountOutputType = {
+    aiCreditLogs: number
     testCases: number
     contestProblems: number
     submissions: number
@@ -4515,6 +5066,7 @@ export namespace Prisma {
   }
 
   export type ProblemCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    aiCreditLogs?: boolean | ProblemCountOutputTypeCountAiCreditLogsArgs
     testCases?: boolean | ProblemCountOutputTypeCountTestCasesArgs
     contestProblems?: boolean | ProblemCountOutputTypeCountContestProblemsArgs
     submissions?: boolean | ProblemCountOutputTypeCountSubmissionsArgs
@@ -4530,6 +5082,13 @@ export namespace Prisma {
      * Select specific fields to fetch from the ProblemCountOutputType
      */
     select?: ProblemCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ProblemCountOutputType without action
+   */
+  export type ProblemCountOutputTypeCountAiCreditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProblemAiCreditLogWhereInput
   }
 
   /**
@@ -4928,6 +5487,55 @@ export namespace Prisma {
    */
   export type MockInterviewSessionCountOutputTypeCountExecutionResultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InterviewExecutionResultWhereInput
+  }
+
+
+  /**
+   * Count Type AssistantSessionCountOutputType
+   */
+
+  export type AssistantSessionCountOutputType = {
+    transcripts: number
+    stageEvents: number
+    codeSnapshots: number
+  }
+
+  export type AssistantSessionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    transcripts?: boolean | AssistantSessionCountOutputTypeCountTranscriptsArgs
+    stageEvents?: boolean | AssistantSessionCountOutputTypeCountStageEventsArgs
+    codeSnapshots?: boolean | AssistantSessionCountOutputTypeCountCodeSnapshotsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AssistantSessionCountOutputType without action
+   */
+  export type AssistantSessionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSessionCountOutputType
+     */
+    select?: AssistantSessionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AssistantSessionCountOutputType without action
+   */
+  export type AssistantSessionCountOutputTypeCountTranscriptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssistantTranscriptWhereInput
+  }
+
+  /**
+   * AssistantSessionCountOutputType without action
+   */
+  export type AssistantSessionCountOutputTypeCountStageEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssistantStageEventWhereInput
+  }
+
+  /**
+   * AssistantSessionCountOutputType without action
+   */
+  export type AssistantSessionCountOutputTypeCountCodeSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssistantCodeSnapshotWhereInput
   }
 
 
@@ -6481,6 +7089,8 @@ export namespace Prisma {
     interviewerSessions?: boolean | User$interviewerSessionsArgs<ExtArgs>
     candidateSessions?: boolean | User$candidateSessionsArgs<ExtArgs>
     interviewParticipants?: boolean | User$interviewParticipantsArgs<ExtArgs>
+    assistantSessions?: boolean | User$assistantSessionsArgs<ExtArgs>
+    problemAiCreditLogs?: boolean | User$problemAiCreditLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -6549,6 +7159,8 @@ export namespace Prisma {
     interviewerSessions?: boolean | User$interviewerSessionsArgs<ExtArgs>
     candidateSessions?: boolean | User$candidateSessionsArgs<ExtArgs>
     interviewParticipants?: boolean | User$interviewParticipantsArgs<ExtArgs>
+    assistantSessions?: boolean | User$assistantSessionsArgs<ExtArgs>
+    problemAiCreditLogs?: boolean | User$problemAiCreditLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6583,6 +7195,8 @@ export namespace Prisma {
       interviewerSessions: Prisma.$MockInterviewSessionPayload<ExtArgs>[]
       candidateSessions: Prisma.$MockInterviewSessionPayload<ExtArgs>[]
       interviewParticipants: Prisma.$InterviewParticipantPayload<ExtArgs>[]
+      assistantSessions: Prisma.$AssistantSessionPayload<ExtArgs>[]
+      problemAiCreditLogs: Prisma.$ProblemAiCreditLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6989,6 +7603,8 @@ export namespace Prisma {
     interviewerSessions<T extends User$interviewerSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$interviewerSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findMany"> | Null>
     candidateSessions<T extends User$candidateSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$candidateSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findMany"> | Null>
     interviewParticipants<T extends User$interviewParticipantsArgs<ExtArgs> = {}>(args?: Subset<T, User$interviewParticipantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findMany"> | Null>
+    assistantSessions<T extends User$assistantSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$assistantSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    problemAiCreditLogs<T extends User$problemAiCreditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$problemAiCreditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7822,6 +8438,46 @@ export namespace Prisma {
   }
 
   /**
+   * User.assistantSessions
+   */
+  export type User$assistantSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    where?: AssistantSessionWhereInput
+    orderBy?: AssistantSessionOrderByWithRelationInput | AssistantSessionOrderByWithRelationInput[]
+    cursor?: AssistantSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssistantSessionScalarFieldEnum | AssistantSessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.problemAiCreditLogs
+   */
+  export type User$problemAiCreditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    where?: ProblemAiCreditLogWhereInput
+    orderBy?: ProblemAiCreditLogOrderByWithRelationInput | ProblemAiCreditLogOrderByWithRelationInput[]
+    cursor?: ProblemAiCreditLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProblemAiCreditLogScalarFieldEnum | ProblemAiCreditLogScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7842,8 +8498,20 @@ export namespace Prisma {
 
   export type AggregateProblem = {
     _count: ProblemCountAggregateOutputType | null
+    _avg: ProblemAvgAggregateOutputType | null
+    _sum: ProblemSumAggregateOutputType | null
     _min: ProblemMinAggregateOutputType | null
     _max: ProblemMaxAggregateOutputType | null
+  }
+
+  export type ProblemAvgAggregateOutputType = {
+    aiCreditsRemaining: number | null
+    aiCreditsMax: number | null
+  }
+
+  export type ProblemSumAggregateOutputType = {
+    aiCreditsRemaining: number | null
+    aiCreditsMax: number | null
   }
 
   export type ProblemMinAggregateOutputType = {
@@ -7861,6 +8529,8 @@ export namespace Prisma {
     createdById: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    aiCreditsRemaining: number | null
+    aiCreditsMax: number | null
   }
 
   export type ProblemMaxAggregateOutputType = {
@@ -7878,6 +8548,8 @@ export namespace Prisma {
     createdById: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    aiCreditsRemaining: number | null
+    aiCreditsMax: number | null
   }
 
   export type ProblemCountAggregateOutputType = {
@@ -7898,9 +8570,21 @@ export namespace Prisma {
     createdById: number
     createdAt: number
     updatedAt: number
+    aiCreditsRemaining: number
+    aiCreditsMax: number
     _all: number
   }
 
+
+  export type ProblemAvgAggregateInputType = {
+    aiCreditsRemaining?: true
+    aiCreditsMax?: true
+  }
+
+  export type ProblemSumAggregateInputType = {
+    aiCreditsRemaining?: true
+    aiCreditsMax?: true
+  }
 
   export type ProblemMinAggregateInputType = {
     id?: true
@@ -7917,6 +8601,8 @@ export namespace Prisma {
     createdById?: true
     createdAt?: true
     updatedAt?: true
+    aiCreditsRemaining?: true
+    aiCreditsMax?: true
   }
 
   export type ProblemMaxAggregateInputType = {
@@ -7934,6 +8620,8 @@ export namespace Prisma {
     createdById?: true
     createdAt?: true
     updatedAt?: true
+    aiCreditsRemaining?: true
+    aiCreditsMax?: true
   }
 
   export type ProblemCountAggregateInputType = {
@@ -7954,6 +8642,8 @@ export namespace Prisma {
     createdById?: true
     createdAt?: true
     updatedAt?: true
+    aiCreditsRemaining?: true
+    aiCreditsMax?: true
     _all?: true
   }
 
@@ -7995,6 +8685,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ProblemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProblemSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ProblemMinAggregateInputType
@@ -8025,6 +8727,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ProblemCountAggregateInputType | true
+    _avg?: ProblemAvgAggregateInputType
+    _sum?: ProblemSumAggregateInputType
     _min?: ProblemMinAggregateInputType
     _max?: ProblemMaxAggregateInputType
   }
@@ -8047,7 +8751,11 @@ export namespace Prisma {
     createdById: string | null
     createdAt: Date
     updatedAt: Date
+    aiCreditsRemaining: number
+    aiCreditsMax: number
     _count: ProblemCountAggregateOutputType | null
+    _avg: ProblemAvgAggregateOutputType | null
+    _sum: ProblemSumAggregateOutputType | null
     _min: ProblemMinAggregateOutputType | null
     _max: ProblemMaxAggregateOutputType | null
   }
@@ -8084,8 +8792,11 @@ export namespace Prisma {
     createdById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiCreditsRemaining?: boolean
+    aiCreditsMax?: boolean
     organization?: boolean | Problem$organizationArgs<ExtArgs>
     createdBy?: boolean | Problem$createdByArgs<ExtArgs>
+    aiCreditLogs?: boolean | Problem$aiCreditLogsArgs<ExtArgs>
     testCases?: boolean | Problem$testCasesArgs<ExtArgs>
     contestProblems?: boolean | Problem$contestProblemsArgs<ExtArgs>
     submissions?: boolean | Problem$submissionsArgs<ExtArgs>
@@ -8111,6 +8822,8 @@ export namespace Prisma {
     createdById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiCreditsRemaining?: boolean
+    aiCreditsMax?: boolean
     organization?: boolean | Problem$organizationArgs<ExtArgs>
     createdBy?: boolean | Problem$createdByArgs<ExtArgs>
   }, ExtArgs["result"]["problem"]>
@@ -8133,11 +8846,14 @@ export namespace Prisma {
     createdById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    aiCreditsRemaining?: boolean
+    aiCreditsMax?: boolean
   }
 
   export type ProblemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     organization?: boolean | Problem$organizationArgs<ExtArgs>
     createdBy?: boolean | Problem$createdByArgs<ExtArgs>
+    aiCreditLogs?: boolean | Problem$aiCreditLogsArgs<ExtArgs>
     testCases?: boolean | Problem$testCasesArgs<ExtArgs>
     contestProblems?: boolean | Problem$contestProblemsArgs<ExtArgs>
     submissions?: boolean | Problem$submissionsArgs<ExtArgs>
@@ -8154,6 +8870,7 @@ export namespace Prisma {
     objects: {
       organization: Prisma.$OrganizationPayload<ExtArgs> | null
       createdBy: Prisma.$UserPayload<ExtArgs> | null
+      aiCreditLogs: Prisma.$ProblemAiCreditLogPayload<ExtArgs>[]
       testCases: Prisma.$TestCasePayload<ExtArgs>[]
       contestProblems: Prisma.$ContestProblemPayload<ExtArgs>[]
       submissions: Prisma.$SubmissionPayload<ExtArgs>[]
@@ -8177,6 +8894,8 @@ export namespace Prisma {
       createdById: string | null
       createdAt: Date
       updatedAt: Date
+      aiCreditsRemaining: number
+      aiCreditsMax: number
     }, ExtArgs["result"]["problem"]>
     composites: {}
   }
@@ -8543,6 +9262,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     organization<T extends Problem$organizationArgs<ExtArgs> = {}>(args?: Subset<T, Problem$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     createdBy<T extends Problem$createdByArgs<ExtArgs> = {}>(args?: Subset<T, Problem$createdByArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    aiCreditLogs<T extends Problem$aiCreditLogsArgs<ExtArgs> = {}>(args?: Subset<T, Problem$aiCreditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "findMany"> | Null>
     testCases<T extends Problem$testCasesArgs<ExtArgs> = {}>(args?: Subset<T, Problem$testCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestCasePayload<ExtArgs>, T, "findMany"> | Null>
     contestProblems<T extends Problem$contestProblemsArgs<ExtArgs> = {}>(args?: Subset<T, Problem$contestProblemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContestProblemPayload<ExtArgs>, T, "findMany"> | Null>
     submissions<T extends Problem$submissionsArgs<ExtArgs> = {}>(args?: Subset<T, Problem$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubmissionPayload<ExtArgs>, T, "findMany"> | Null>
@@ -8593,6 +9313,8 @@ export namespace Prisma {
     readonly createdById: FieldRef<"Problem", 'String'>
     readonly createdAt: FieldRef<"Problem", 'DateTime'>
     readonly updatedAt: FieldRef<"Problem", 'DateTime'>
+    readonly aiCreditsRemaining: FieldRef<"Problem", 'Int'>
+    readonly aiCreditsMax: FieldRef<"Problem", 'Int'>
   }
     
 
@@ -8941,6 +9663,26 @@ export namespace Prisma {
   }
 
   /**
+   * Problem.aiCreditLogs
+   */
+  export type Problem$aiCreditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    where?: ProblemAiCreditLogWhereInput
+    orderBy?: ProblemAiCreditLogOrderByWithRelationInput | ProblemAiCreditLogOrderByWithRelationInput[]
+    cursor?: ProblemAiCreditLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ProblemAiCreditLogScalarFieldEnum | ProblemAiCreditLogScalarFieldEnum[]
+  }
+
+  /**
    * Problem.testCases
    */
   export type Problem$testCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9032,6 +9774,1007 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: ProblemInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ProblemAiCreditLog
+   */
+
+  export type AggregateProblemAiCreditLog = {
+    _count: ProblemAiCreditLogCountAggregateOutputType | null
+    _avg: ProblemAiCreditLogAvgAggregateOutputType | null
+    _sum: ProblemAiCreditLogSumAggregateOutputType | null
+    _min: ProblemAiCreditLogMinAggregateOutputType | null
+    _max: ProblemAiCreditLogMaxAggregateOutputType | null
+  }
+
+  export type ProblemAiCreditLogAvgAggregateOutputType = {
+    creditsDeducted: number | null
+    creditsRemaining: number | null
+  }
+
+  export type ProblemAiCreditLogSumAggregateOutputType = {
+    creditsDeducted: number | null
+    creditsRemaining: number | null
+  }
+
+  export type ProblemAiCreditLogMinAggregateOutputType = {
+    id: string | null
+    problemId: string | null
+    userId: string | null
+    action: string | null
+    creditsDeducted: number | null
+    creditsRemaining: number | null
+    createdAt: Date | null
+  }
+
+  export type ProblemAiCreditLogMaxAggregateOutputType = {
+    id: string | null
+    problemId: string | null
+    userId: string | null
+    action: string | null
+    creditsDeducted: number | null
+    creditsRemaining: number | null
+    createdAt: Date | null
+  }
+
+  export type ProblemAiCreditLogCountAggregateOutputType = {
+    id: number
+    problemId: number
+    userId: number
+    action: number
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ProblemAiCreditLogAvgAggregateInputType = {
+    creditsDeducted?: true
+    creditsRemaining?: true
+  }
+
+  export type ProblemAiCreditLogSumAggregateInputType = {
+    creditsDeducted?: true
+    creditsRemaining?: true
+  }
+
+  export type ProblemAiCreditLogMinAggregateInputType = {
+    id?: true
+    problemId?: true
+    userId?: true
+    action?: true
+    creditsDeducted?: true
+    creditsRemaining?: true
+    createdAt?: true
+  }
+
+  export type ProblemAiCreditLogMaxAggregateInputType = {
+    id?: true
+    problemId?: true
+    userId?: true
+    action?: true
+    creditsDeducted?: true
+    creditsRemaining?: true
+    createdAt?: true
+  }
+
+  export type ProblemAiCreditLogCountAggregateInputType = {
+    id?: true
+    problemId?: true
+    userId?: true
+    action?: true
+    creditsDeducted?: true
+    creditsRemaining?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ProblemAiCreditLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProblemAiCreditLog to aggregate.
+     */
+    where?: ProblemAiCreditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProblemAiCreditLogs to fetch.
+     */
+    orderBy?: ProblemAiCreditLogOrderByWithRelationInput | ProblemAiCreditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProblemAiCreditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProblemAiCreditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProblemAiCreditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProblemAiCreditLogs
+    **/
+    _count?: true | ProblemAiCreditLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProblemAiCreditLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProblemAiCreditLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProblemAiCreditLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProblemAiCreditLogMaxAggregateInputType
+  }
+
+  export type GetProblemAiCreditLogAggregateType<T extends ProblemAiCreditLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateProblemAiCreditLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProblemAiCreditLog[P]>
+      : GetScalarType<T[P], AggregateProblemAiCreditLog[P]>
+  }
+
+
+
+
+  export type ProblemAiCreditLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProblemAiCreditLogWhereInput
+    orderBy?: ProblemAiCreditLogOrderByWithAggregationInput | ProblemAiCreditLogOrderByWithAggregationInput[]
+    by: ProblemAiCreditLogScalarFieldEnum[] | ProblemAiCreditLogScalarFieldEnum
+    having?: ProblemAiCreditLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProblemAiCreditLogCountAggregateInputType | true
+    _avg?: ProblemAiCreditLogAvgAggregateInputType
+    _sum?: ProblemAiCreditLogSumAggregateInputType
+    _min?: ProblemAiCreditLogMinAggregateInputType
+    _max?: ProblemAiCreditLogMaxAggregateInputType
+  }
+
+  export type ProblemAiCreditLogGroupByOutputType = {
+    id: string
+    problemId: string
+    userId: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt: Date
+    _count: ProblemAiCreditLogCountAggregateOutputType | null
+    _avg: ProblemAiCreditLogAvgAggregateOutputType | null
+    _sum: ProblemAiCreditLogSumAggregateOutputType | null
+    _min: ProblemAiCreditLogMinAggregateOutputType | null
+    _max: ProblemAiCreditLogMaxAggregateOutputType | null
+  }
+
+  type GetProblemAiCreditLogGroupByPayload<T extends ProblemAiCreditLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProblemAiCreditLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProblemAiCreditLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProblemAiCreditLogGroupByOutputType[P]>
+            : GetScalarType<T[P], ProblemAiCreditLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProblemAiCreditLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    problemId?: boolean
+    userId?: boolean
+    action?: boolean
+    creditsDeducted?: boolean
+    creditsRemaining?: boolean
+    createdAt?: boolean
+    problem?: boolean | ProblemDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["problemAiCreditLog"]>
+
+  export type ProblemAiCreditLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    problemId?: boolean
+    userId?: boolean
+    action?: boolean
+    creditsDeducted?: boolean
+    creditsRemaining?: boolean
+    createdAt?: boolean
+    problem?: boolean | ProblemDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["problemAiCreditLog"]>
+
+  export type ProblemAiCreditLogSelectScalar = {
+    id?: boolean
+    problemId?: boolean
+    userId?: boolean
+    action?: boolean
+    creditsDeducted?: boolean
+    creditsRemaining?: boolean
+    createdAt?: boolean
+  }
+
+  export type ProblemAiCreditLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    problem?: boolean | ProblemDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ProblemAiCreditLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    problem?: boolean | ProblemDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $ProblemAiCreditLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProblemAiCreditLog"
+    objects: {
+      problem: Prisma.$ProblemPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      problemId: string
+      userId: string
+      action: string
+      creditsDeducted: number
+      creditsRemaining: number
+      createdAt: Date
+    }, ExtArgs["result"]["problemAiCreditLog"]>
+    composites: {}
+  }
+
+  type ProblemAiCreditLogGetPayload<S extends boolean | null | undefined | ProblemAiCreditLogDefaultArgs> = $Result.GetResult<Prisma.$ProblemAiCreditLogPayload, S>
+
+  type ProblemAiCreditLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ProblemAiCreditLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ProblemAiCreditLogCountAggregateInputType | true
+    }
+
+  export interface ProblemAiCreditLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProblemAiCreditLog'], meta: { name: 'ProblemAiCreditLog' } }
+    /**
+     * Find zero or one ProblemAiCreditLog that matches the filter.
+     * @param {ProblemAiCreditLogFindUniqueArgs} args - Arguments to find a ProblemAiCreditLog
+     * @example
+     * // Get one ProblemAiCreditLog
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProblemAiCreditLogFindUniqueArgs>(args: SelectSubset<T, ProblemAiCreditLogFindUniqueArgs<ExtArgs>>): Prisma__ProblemAiCreditLogClient<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one ProblemAiCreditLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {ProblemAiCreditLogFindUniqueOrThrowArgs} args - Arguments to find a ProblemAiCreditLog
+     * @example
+     * // Get one ProblemAiCreditLog
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProblemAiCreditLogFindUniqueOrThrowArgs>(args: SelectSubset<T, ProblemAiCreditLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProblemAiCreditLogClient<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first ProblemAiCreditLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProblemAiCreditLogFindFirstArgs} args - Arguments to find a ProblemAiCreditLog
+     * @example
+     * // Get one ProblemAiCreditLog
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProblemAiCreditLogFindFirstArgs>(args?: SelectSubset<T, ProblemAiCreditLogFindFirstArgs<ExtArgs>>): Prisma__ProblemAiCreditLogClient<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first ProblemAiCreditLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProblemAiCreditLogFindFirstOrThrowArgs} args - Arguments to find a ProblemAiCreditLog
+     * @example
+     * // Get one ProblemAiCreditLog
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProblemAiCreditLogFindFirstOrThrowArgs>(args?: SelectSubset<T, ProblemAiCreditLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProblemAiCreditLogClient<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more ProblemAiCreditLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProblemAiCreditLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProblemAiCreditLogs
+     * const problemAiCreditLogs = await prisma.problemAiCreditLog.findMany()
+     * 
+     * // Get first 10 ProblemAiCreditLogs
+     * const problemAiCreditLogs = await prisma.problemAiCreditLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const problemAiCreditLogWithIdOnly = await prisma.problemAiCreditLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProblemAiCreditLogFindManyArgs>(args?: SelectSubset<T, ProblemAiCreditLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a ProblemAiCreditLog.
+     * @param {ProblemAiCreditLogCreateArgs} args - Arguments to create a ProblemAiCreditLog.
+     * @example
+     * // Create one ProblemAiCreditLog
+     * const ProblemAiCreditLog = await prisma.problemAiCreditLog.create({
+     *   data: {
+     *     // ... data to create a ProblemAiCreditLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProblemAiCreditLogCreateArgs>(args: SelectSubset<T, ProblemAiCreditLogCreateArgs<ExtArgs>>): Prisma__ProblemAiCreditLogClient<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many ProblemAiCreditLogs.
+     * @param {ProblemAiCreditLogCreateManyArgs} args - Arguments to create many ProblemAiCreditLogs.
+     * @example
+     * // Create many ProblemAiCreditLogs
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProblemAiCreditLogCreateManyArgs>(args?: SelectSubset<T, ProblemAiCreditLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ProblemAiCreditLogs and returns the data saved in the database.
+     * @param {ProblemAiCreditLogCreateManyAndReturnArgs} args - Arguments to create many ProblemAiCreditLogs.
+     * @example
+     * // Create many ProblemAiCreditLogs
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ProblemAiCreditLogs and only return the `id`
+     * const problemAiCreditLogWithIdOnly = await prisma.problemAiCreditLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ProblemAiCreditLogCreateManyAndReturnArgs>(args?: SelectSubset<T, ProblemAiCreditLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a ProblemAiCreditLog.
+     * @param {ProblemAiCreditLogDeleteArgs} args - Arguments to delete one ProblemAiCreditLog.
+     * @example
+     * // Delete one ProblemAiCreditLog
+     * const ProblemAiCreditLog = await prisma.problemAiCreditLog.delete({
+     *   where: {
+     *     // ... filter to delete one ProblemAiCreditLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProblemAiCreditLogDeleteArgs>(args: SelectSubset<T, ProblemAiCreditLogDeleteArgs<ExtArgs>>): Prisma__ProblemAiCreditLogClient<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one ProblemAiCreditLog.
+     * @param {ProblemAiCreditLogUpdateArgs} args - Arguments to update one ProblemAiCreditLog.
+     * @example
+     * // Update one ProblemAiCreditLog
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProblemAiCreditLogUpdateArgs>(args: SelectSubset<T, ProblemAiCreditLogUpdateArgs<ExtArgs>>): Prisma__ProblemAiCreditLogClient<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more ProblemAiCreditLogs.
+     * @param {ProblemAiCreditLogDeleteManyArgs} args - Arguments to filter ProblemAiCreditLogs to delete.
+     * @example
+     * // Delete a few ProblemAiCreditLogs
+     * const { count } = await prisma.problemAiCreditLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProblemAiCreditLogDeleteManyArgs>(args?: SelectSubset<T, ProblemAiCreditLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProblemAiCreditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProblemAiCreditLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProblemAiCreditLogs
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProblemAiCreditLogUpdateManyArgs>(args: SelectSubset<T, ProblemAiCreditLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ProblemAiCreditLog.
+     * @param {ProblemAiCreditLogUpsertArgs} args - Arguments to update or create a ProblemAiCreditLog.
+     * @example
+     * // Update or create a ProblemAiCreditLog
+     * const problemAiCreditLog = await prisma.problemAiCreditLog.upsert({
+     *   create: {
+     *     // ... data to create a ProblemAiCreditLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProblemAiCreditLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProblemAiCreditLogUpsertArgs>(args: SelectSubset<T, ProblemAiCreditLogUpsertArgs<ExtArgs>>): Prisma__ProblemAiCreditLogClient<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of ProblemAiCreditLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProblemAiCreditLogCountArgs} args - Arguments to filter ProblemAiCreditLogs to count.
+     * @example
+     * // Count the number of ProblemAiCreditLogs
+     * const count = await prisma.problemAiCreditLog.count({
+     *   where: {
+     *     // ... the filter for the ProblemAiCreditLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProblemAiCreditLogCountArgs>(
+      args?: Subset<T, ProblemAiCreditLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProblemAiCreditLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProblemAiCreditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProblemAiCreditLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProblemAiCreditLogAggregateArgs>(args: Subset<T, ProblemAiCreditLogAggregateArgs>): Prisma.PrismaPromise<GetProblemAiCreditLogAggregateType<T>>
+
+    /**
+     * Group by ProblemAiCreditLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProblemAiCreditLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProblemAiCreditLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProblemAiCreditLogGroupByArgs['orderBy'] }
+        : { orderBy?: ProblemAiCreditLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProblemAiCreditLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProblemAiCreditLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProblemAiCreditLog model
+   */
+  readonly fields: ProblemAiCreditLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProblemAiCreditLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProblemAiCreditLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    problem<T extends ProblemDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProblemDefaultArgs<ExtArgs>>): Prisma__ProblemClient<$Result.GetResult<Prisma.$ProblemPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProblemAiCreditLog model
+   */ 
+  interface ProblemAiCreditLogFieldRefs {
+    readonly id: FieldRef<"ProblemAiCreditLog", 'String'>
+    readonly problemId: FieldRef<"ProblemAiCreditLog", 'String'>
+    readonly userId: FieldRef<"ProblemAiCreditLog", 'String'>
+    readonly action: FieldRef<"ProblemAiCreditLog", 'String'>
+    readonly creditsDeducted: FieldRef<"ProblemAiCreditLog", 'Int'>
+    readonly creditsRemaining: FieldRef<"ProblemAiCreditLog", 'Int'>
+    readonly createdAt: FieldRef<"ProblemAiCreditLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProblemAiCreditLog findUnique
+   */
+  export type ProblemAiCreditLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ProblemAiCreditLog to fetch.
+     */
+    where: ProblemAiCreditLogWhereUniqueInput
+  }
+
+  /**
+   * ProblemAiCreditLog findUniqueOrThrow
+   */
+  export type ProblemAiCreditLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ProblemAiCreditLog to fetch.
+     */
+    where: ProblemAiCreditLogWhereUniqueInput
+  }
+
+  /**
+   * ProblemAiCreditLog findFirst
+   */
+  export type ProblemAiCreditLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ProblemAiCreditLog to fetch.
+     */
+    where?: ProblemAiCreditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProblemAiCreditLogs to fetch.
+     */
+    orderBy?: ProblemAiCreditLogOrderByWithRelationInput | ProblemAiCreditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProblemAiCreditLogs.
+     */
+    cursor?: ProblemAiCreditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProblemAiCreditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProblemAiCreditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProblemAiCreditLogs.
+     */
+    distinct?: ProblemAiCreditLogScalarFieldEnum | ProblemAiCreditLogScalarFieldEnum[]
+  }
+
+  /**
+   * ProblemAiCreditLog findFirstOrThrow
+   */
+  export type ProblemAiCreditLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ProblemAiCreditLog to fetch.
+     */
+    where?: ProblemAiCreditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProblemAiCreditLogs to fetch.
+     */
+    orderBy?: ProblemAiCreditLogOrderByWithRelationInput | ProblemAiCreditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProblemAiCreditLogs.
+     */
+    cursor?: ProblemAiCreditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProblemAiCreditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProblemAiCreditLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProblemAiCreditLogs.
+     */
+    distinct?: ProblemAiCreditLogScalarFieldEnum | ProblemAiCreditLogScalarFieldEnum[]
+  }
+
+  /**
+   * ProblemAiCreditLog findMany
+   */
+  export type ProblemAiCreditLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * Filter, which ProblemAiCreditLogs to fetch.
+     */
+    where?: ProblemAiCreditLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProblemAiCreditLogs to fetch.
+     */
+    orderBy?: ProblemAiCreditLogOrderByWithRelationInput | ProblemAiCreditLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProblemAiCreditLogs.
+     */
+    cursor?: ProblemAiCreditLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProblemAiCreditLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProblemAiCreditLogs.
+     */
+    skip?: number
+    distinct?: ProblemAiCreditLogScalarFieldEnum | ProblemAiCreditLogScalarFieldEnum[]
+  }
+
+  /**
+   * ProblemAiCreditLog create
+   */
+  export type ProblemAiCreditLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProblemAiCreditLog.
+     */
+    data: XOR<ProblemAiCreditLogCreateInput, ProblemAiCreditLogUncheckedCreateInput>
+  }
+
+  /**
+   * ProblemAiCreditLog createMany
+   */
+  export type ProblemAiCreditLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProblemAiCreditLogs.
+     */
+    data: ProblemAiCreditLogCreateManyInput | ProblemAiCreditLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ProblemAiCreditLog createManyAndReturn
+   */
+  export type ProblemAiCreditLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many ProblemAiCreditLogs.
+     */
+    data: ProblemAiCreditLogCreateManyInput | ProblemAiCreditLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ProblemAiCreditLog update
+   */
+  export type ProblemAiCreditLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProblemAiCreditLog.
+     */
+    data: XOR<ProblemAiCreditLogUpdateInput, ProblemAiCreditLogUncheckedUpdateInput>
+    /**
+     * Choose, which ProblemAiCreditLog to update.
+     */
+    where: ProblemAiCreditLogWhereUniqueInput
+  }
+
+  /**
+   * ProblemAiCreditLog updateMany
+   */
+  export type ProblemAiCreditLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProblemAiCreditLogs.
+     */
+    data: XOR<ProblemAiCreditLogUpdateManyMutationInput, ProblemAiCreditLogUncheckedUpdateManyInput>
+    /**
+     * Filter which ProblemAiCreditLogs to update
+     */
+    where?: ProblemAiCreditLogWhereInput
+  }
+
+  /**
+   * ProblemAiCreditLog upsert
+   */
+  export type ProblemAiCreditLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProblemAiCreditLog to update in case it exists.
+     */
+    where: ProblemAiCreditLogWhereUniqueInput
+    /**
+     * In case the ProblemAiCreditLog found by the `where` argument doesn't exist, create a new ProblemAiCreditLog with this data.
+     */
+    create: XOR<ProblemAiCreditLogCreateInput, ProblemAiCreditLogUncheckedCreateInput>
+    /**
+     * In case the ProblemAiCreditLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProblemAiCreditLogUpdateInput, ProblemAiCreditLogUncheckedUpdateInput>
+  }
+
+  /**
+   * ProblemAiCreditLog delete
+   */
+  export type ProblemAiCreditLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
+    /**
+     * Filter which ProblemAiCreditLog to delete.
+     */
+    where: ProblemAiCreditLogWhereUniqueInput
+  }
+
+  /**
+   * ProblemAiCreditLog deleteMany
+   */
+  export type ProblemAiCreditLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProblemAiCreditLogs to delete
+     */
+    where?: ProblemAiCreditLogWhereInput
+  }
+
+  /**
+   * ProblemAiCreditLog without action
+   */
+  export type ProblemAiCreditLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProblemAiCreditLog
+     */
+    select?: ProblemAiCreditLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ProblemAiCreditLogInclude<ExtArgs> | null
   }
 
 
@@ -44583,6 +46326,5002 @@ export namespace Prisma {
 
 
   /**
+   * Model AssistantSession
+   */
+
+  export type AggregateAssistantSession = {
+    _count: AssistantSessionCountAggregateOutputType | null
+    _avg: AssistantSessionAvgAggregateOutputType | null
+    _sum: AssistantSessionSumAggregateOutputType | null
+    _min: AssistantSessionMinAggregateOutputType | null
+    _max: AssistantSessionMaxAggregateOutputType | null
+  }
+
+  export type AssistantSessionAvgAggregateOutputType = {
+    tokenBudget: number | null
+    tokensUsed: number | null
+  }
+
+  export type AssistantSessionSumAggregateOutputType = {
+    tokenBudget: number | null
+    tokensUsed: number | null
+  }
+
+  export type AssistantSessionMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    problemId: string | null
+    stage: $Enums.AssistantStage | null
+    tokenBudget: number | null
+    tokensUsed: number | null
+    codeGenerated: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AssistantSessionMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    problemId: string | null
+    stage: $Enums.AssistantStage | null
+    tokenBudget: number | null
+    tokensUsed: number | null
+    codeGenerated: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AssistantSessionCountAggregateOutputType = {
+    id: number
+    userId: number
+    problemId: number
+    stage: number
+    tokenBudget: number
+    tokensUsed: number
+    codeGenerated: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AssistantSessionAvgAggregateInputType = {
+    tokenBudget?: true
+    tokensUsed?: true
+  }
+
+  export type AssistantSessionSumAggregateInputType = {
+    tokenBudget?: true
+    tokensUsed?: true
+  }
+
+  export type AssistantSessionMinAggregateInputType = {
+    id?: true
+    userId?: true
+    problemId?: true
+    stage?: true
+    tokenBudget?: true
+    tokensUsed?: true
+    codeGenerated?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AssistantSessionMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    problemId?: true
+    stage?: true
+    tokenBudget?: true
+    tokensUsed?: true
+    codeGenerated?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AssistantSessionCountAggregateInputType = {
+    id?: true
+    userId?: true
+    problemId?: true
+    stage?: true
+    tokenBudget?: true
+    tokensUsed?: true
+    codeGenerated?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AssistantSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssistantSession to aggregate.
+     */
+    where?: AssistantSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantSessions to fetch.
+     */
+    orderBy?: AssistantSessionOrderByWithRelationInput | AssistantSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssistantSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssistantSessions
+    **/
+    _count?: true | AssistantSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AssistantSessionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AssistantSessionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssistantSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssistantSessionMaxAggregateInputType
+  }
+
+  export type GetAssistantSessionAggregateType<T extends AssistantSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssistantSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssistantSession[P]>
+      : GetScalarType<T[P], AggregateAssistantSession[P]>
+  }
+
+
+
+
+  export type AssistantSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssistantSessionWhereInput
+    orderBy?: AssistantSessionOrderByWithAggregationInput | AssistantSessionOrderByWithAggregationInput[]
+    by: AssistantSessionScalarFieldEnum[] | AssistantSessionScalarFieldEnum
+    having?: AssistantSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssistantSessionCountAggregateInputType | true
+    _avg?: AssistantSessionAvgAggregateInputType
+    _sum?: AssistantSessionSumAggregateInputType
+    _min?: AssistantSessionMinAggregateInputType
+    _max?: AssistantSessionMaxAggregateInputType
+  }
+
+  export type AssistantSessionGroupByOutputType = {
+    id: string
+    userId: string
+    problemId: string | null
+    stage: $Enums.AssistantStage
+    tokenBudget: number
+    tokensUsed: number
+    codeGenerated: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: AssistantSessionCountAggregateOutputType | null
+    _avg: AssistantSessionAvgAggregateOutputType | null
+    _sum: AssistantSessionSumAggregateOutputType | null
+    _min: AssistantSessionMinAggregateOutputType | null
+    _max: AssistantSessionMaxAggregateOutputType | null
+  }
+
+  type GetAssistantSessionGroupByPayload<T extends AssistantSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssistantSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssistantSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssistantSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], AssistantSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssistantSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    problemId?: boolean
+    stage?: boolean
+    tokenBudget?: boolean
+    tokensUsed?: boolean
+    codeGenerated?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    capturedAnswers?: boolean | AssistantSession$capturedAnswersArgs<ExtArgs>
+    transcripts?: boolean | AssistantSession$transcriptsArgs<ExtArgs>
+    stageEvents?: boolean | AssistantSession$stageEventsArgs<ExtArgs>
+    codeSnapshots?: boolean | AssistantSession$codeSnapshotsArgs<ExtArgs>
+    _count?: boolean | AssistantSessionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assistantSession"]>
+
+  export type AssistantSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    problemId?: boolean
+    stage?: boolean
+    tokenBudget?: boolean
+    tokensUsed?: boolean
+    codeGenerated?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assistantSession"]>
+
+  export type AssistantSessionSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    problemId?: boolean
+    stage?: boolean
+    tokenBudget?: boolean
+    tokensUsed?: boolean
+    codeGenerated?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AssistantSessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    capturedAnswers?: boolean | AssistantSession$capturedAnswersArgs<ExtArgs>
+    transcripts?: boolean | AssistantSession$transcriptsArgs<ExtArgs>
+    stageEvents?: boolean | AssistantSession$stageEventsArgs<ExtArgs>
+    codeSnapshots?: boolean | AssistantSession$codeSnapshotsArgs<ExtArgs>
+    _count?: boolean | AssistantSessionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AssistantSessionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AssistantSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssistantSession"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+      capturedAnswers: Prisma.$CapturedAnswerPayload<ExtArgs> | null
+      transcripts: Prisma.$AssistantTranscriptPayload<ExtArgs>[]
+      stageEvents: Prisma.$AssistantStageEventPayload<ExtArgs>[]
+      codeSnapshots: Prisma.$AssistantCodeSnapshotPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      problemId: string | null
+      stage: $Enums.AssistantStage
+      tokenBudget: number
+      tokensUsed: number
+      codeGenerated: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["assistantSession"]>
+    composites: {}
+  }
+
+  type AssistantSessionGetPayload<S extends boolean | null | undefined | AssistantSessionDefaultArgs> = $Result.GetResult<Prisma.$AssistantSessionPayload, S>
+
+  type AssistantSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AssistantSessionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AssistantSessionCountAggregateInputType | true
+    }
+
+  export interface AssistantSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssistantSession'], meta: { name: 'AssistantSession' } }
+    /**
+     * Find zero or one AssistantSession that matches the filter.
+     * @param {AssistantSessionFindUniqueArgs} args - Arguments to find a AssistantSession
+     * @example
+     * // Get one AssistantSession
+     * const assistantSession = await prisma.assistantSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssistantSessionFindUniqueArgs>(args: SelectSubset<T, AssistantSessionFindUniqueArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AssistantSession that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AssistantSessionFindUniqueOrThrowArgs} args - Arguments to find a AssistantSession
+     * @example
+     * // Get one AssistantSession
+     * const assistantSession = await prisma.assistantSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssistantSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, AssistantSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AssistantSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantSessionFindFirstArgs} args - Arguments to find a AssistantSession
+     * @example
+     * // Get one AssistantSession
+     * const assistantSession = await prisma.assistantSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssistantSessionFindFirstArgs>(args?: SelectSubset<T, AssistantSessionFindFirstArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AssistantSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantSessionFindFirstOrThrowArgs} args - Arguments to find a AssistantSession
+     * @example
+     * // Get one AssistantSession
+     * const assistantSession = await prisma.assistantSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssistantSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, AssistantSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AssistantSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssistantSessions
+     * const assistantSessions = await prisma.assistantSession.findMany()
+     * 
+     * // Get first 10 AssistantSessions
+     * const assistantSessions = await prisma.assistantSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assistantSessionWithIdOnly = await prisma.assistantSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssistantSessionFindManyArgs>(args?: SelectSubset<T, AssistantSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AssistantSession.
+     * @param {AssistantSessionCreateArgs} args - Arguments to create a AssistantSession.
+     * @example
+     * // Create one AssistantSession
+     * const AssistantSession = await prisma.assistantSession.create({
+     *   data: {
+     *     // ... data to create a AssistantSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssistantSessionCreateArgs>(args: SelectSubset<T, AssistantSessionCreateArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AssistantSessions.
+     * @param {AssistantSessionCreateManyArgs} args - Arguments to create many AssistantSessions.
+     * @example
+     * // Create many AssistantSessions
+     * const assistantSession = await prisma.assistantSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssistantSessionCreateManyArgs>(args?: SelectSubset<T, AssistantSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssistantSessions and returns the data saved in the database.
+     * @param {AssistantSessionCreateManyAndReturnArgs} args - Arguments to create many AssistantSessions.
+     * @example
+     * // Create many AssistantSessions
+     * const assistantSession = await prisma.assistantSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssistantSessions and only return the `id`
+     * const assistantSessionWithIdOnly = await prisma.assistantSession.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssistantSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, AssistantSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AssistantSession.
+     * @param {AssistantSessionDeleteArgs} args - Arguments to delete one AssistantSession.
+     * @example
+     * // Delete one AssistantSession
+     * const AssistantSession = await prisma.assistantSession.delete({
+     *   where: {
+     *     // ... filter to delete one AssistantSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssistantSessionDeleteArgs>(args: SelectSubset<T, AssistantSessionDeleteArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AssistantSession.
+     * @param {AssistantSessionUpdateArgs} args - Arguments to update one AssistantSession.
+     * @example
+     * // Update one AssistantSession
+     * const assistantSession = await prisma.assistantSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssistantSessionUpdateArgs>(args: SelectSubset<T, AssistantSessionUpdateArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AssistantSessions.
+     * @param {AssistantSessionDeleteManyArgs} args - Arguments to filter AssistantSessions to delete.
+     * @example
+     * // Delete a few AssistantSessions
+     * const { count } = await prisma.assistantSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssistantSessionDeleteManyArgs>(args?: SelectSubset<T, AssistantSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssistantSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssistantSessions
+     * const assistantSession = await prisma.assistantSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssistantSessionUpdateManyArgs>(args: SelectSubset<T, AssistantSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AssistantSession.
+     * @param {AssistantSessionUpsertArgs} args - Arguments to update or create a AssistantSession.
+     * @example
+     * // Update or create a AssistantSession
+     * const assistantSession = await prisma.assistantSession.upsert({
+     *   create: {
+     *     // ... data to create a AssistantSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssistantSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssistantSessionUpsertArgs>(args: SelectSubset<T, AssistantSessionUpsertArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AssistantSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantSessionCountArgs} args - Arguments to filter AssistantSessions to count.
+     * @example
+     * // Count the number of AssistantSessions
+     * const count = await prisma.assistantSession.count({
+     *   where: {
+     *     // ... the filter for the AssistantSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssistantSessionCountArgs>(
+      args?: Subset<T, AssistantSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssistantSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssistantSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssistantSessionAggregateArgs>(args: Subset<T, AssistantSessionAggregateArgs>): Prisma.PrismaPromise<GetAssistantSessionAggregateType<T>>
+
+    /**
+     * Group by AssistantSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssistantSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssistantSessionGroupByArgs['orderBy'] }
+        : { orderBy?: AssistantSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssistantSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssistantSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssistantSession model
+   */
+  readonly fields: AssistantSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssistantSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssistantSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    capturedAnswers<T extends AssistantSession$capturedAnswersArgs<ExtArgs> = {}>(args?: Subset<T, AssistantSession$capturedAnswersArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    transcripts<T extends AssistantSession$transcriptsArgs<ExtArgs> = {}>(args?: Subset<T, AssistantSession$transcriptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "findMany"> | Null>
+    stageEvents<T extends AssistantSession$stageEventsArgs<ExtArgs> = {}>(args?: Subset<T, AssistantSession$stageEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "findMany"> | Null>
+    codeSnapshots<T extends AssistantSession$codeSnapshotsArgs<ExtArgs> = {}>(args?: Subset<T, AssistantSession$codeSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssistantSession model
+   */ 
+  interface AssistantSessionFieldRefs {
+    readonly id: FieldRef<"AssistantSession", 'String'>
+    readonly userId: FieldRef<"AssistantSession", 'String'>
+    readonly problemId: FieldRef<"AssistantSession", 'String'>
+    readonly stage: FieldRef<"AssistantSession", 'AssistantStage'>
+    readonly tokenBudget: FieldRef<"AssistantSession", 'Int'>
+    readonly tokensUsed: FieldRef<"AssistantSession", 'Int'>
+    readonly codeGenerated: FieldRef<"AssistantSession", 'Boolean'>
+    readonly createdAt: FieldRef<"AssistantSession", 'DateTime'>
+    readonly updatedAt: FieldRef<"AssistantSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssistantSession findUnique
+   */
+  export type AssistantSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantSession to fetch.
+     */
+    where: AssistantSessionWhereUniqueInput
+  }
+
+  /**
+   * AssistantSession findUniqueOrThrow
+   */
+  export type AssistantSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantSession to fetch.
+     */
+    where: AssistantSessionWhereUniqueInput
+  }
+
+  /**
+   * AssistantSession findFirst
+   */
+  export type AssistantSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantSession to fetch.
+     */
+    where?: AssistantSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantSessions to fetch.
+     */
+    orderBy?: AssistantSessionOrderByWithRelationInput | AssistantSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssistantSessions.
+     */
+    cursor?: AssistantSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssistantSessions.
+     */
+    distinct?: AssistantSessionScalarFieldEnum | AssistantSessionScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantSession findFirstOrThrow
+   */
+  export type AssistantSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantSession to fetch.
+     */
+    where?: AssistantSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantSessions to fetch.
+     */
+    orderBy?: AssistantSessionOrderByWithRelationInput | AssistantSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssistantSessions.
+     */
+    cursor?: AssistantSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssistantSessions.
+     */
+    distinct?: AssistantSessionScalarFieldEnum | AssistantSessionScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantSession findMany
+   */
+  export type AssistantSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantSessions to fetch.
+     */
+    where?: AssistantSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantSessions to fetch.
+     */
+    orderBy?: AssistantSessionOrderByWithRelationInput | AssistantSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssistantSessions.
+     */
+    cursor?: AssistantSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantSessions.
+     */
+    skip?: number
+    distinct?: AssistantSessionScalarFieldEnum | AssistantSessionScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantSession create
+   */
+  export type AssistantSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssistantSession.
+     */
+    data: XOR<AssistantSessionCreateInput, AssistantSessionUncheckedCreateInput>
+  }
+
+  /**
+   * AssistantSession createMany
+   */
+  export type AssistantSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssistantSessions.
+     */
+    data: AssistantSessionCreateManyInput | AssistantSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssistantSession createManyAndReturn
+   */
+  export type AssistantSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many AssistantSessions.
+     */
+    data: AssistantSessionCreateManyInput | AssistantSessionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssistantSession update
+   */
+  export type AssistantSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssistantSession.
+     */
+    data: XOR<AssistantSessionUpdateInput, AssistantSessionUncheckedUpdateInput>
+    /**
+     * Choose, which AssistantSession to update.
+     */
+    where: AssistantSessionWhereUniqueInput
+  }
+
+  /**
+   * AssistantSession updateMany
+   */
+  export type AssistantSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssistantSessions.
+     */
+    data: XOR<AssistantSessionUpdateManyMutationInput, AssistantSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which AssistantSessions to update
+     */
+    where?: AssistantSessionWhereInput
+  }
+
+  /**
+   * AssistantSession upsert
+   */
+  export type AssistantSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssistantSession to update in case it exists.
+     */
+    where: AssistantSessionWhereUniqueInput
+    /**
+     * In case the AssistantSession found by the `where` argument doesn't exist, create a new AssistantSession with this data.
+     */
+    create: XOR<AssistantSessionCreateInput, AssistantSessionUncheckedCreateInput>
+    /**
+     * In case the AssistantSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssistantSessionUpdateInput, AssistantSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * AssistantSession delete
+   */
+  export type AssistantSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+    /**
+     * Filter which AssistantSession to delete.
+     */
+    where: AssistantSessionWhereUniqueInput
+  }
+
+  /**
+   * AssistantSession deleteMany
+   */
+  export type AssistantSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssistantSessions to delete
+     */
+    where?: AssistantSessionWhereInput
+  }
+
+  /**
+   * AssistantSession.capturedAnswers
+   */
+  export type AssistantSession$capturedAnswersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    where?: CapturedAnswerWhereInput
+  }
+
+  /**
+   * AssistantSession.transcripts
+   */
+  export type AssistantSession$transcriptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    where?: AssistantTranscriptWhereInput
+    orderBy?: AssistantTranscriptOrderByWithRelationInput | AssistantTranscriptOrderByWithRelationInput[]
+    cursor?: AssistantTranscriptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssistantTranscriptScalarFieldEnum | AssistantTranscriptScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantSession.stageEvents
+   */
+  export type AssistantSession$stageEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    where?: AssistantStageEventWhereInput
+    orderBy?: AssistantStageEventOrderByWithRelationInput | AssistantStageEventOrderByWithRelationInput[]
+    cursor?: AssistantStageEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssistantStageEventScalarFieldEnum | AssistantStageEventScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantSession.codeSnapshots
+   */
+  export type AssistantSession$codeSnapshotsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    where?: AssistantCodeSnapshotWhereInput
+    orderBy?: AssistantCodeSnapshotOrderByWithRelationInput | AssistantCodeSnapshotOrderByWithRelationInput[]
+    cursor?: AssistantCodeSnapshotWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AssistantCodeSnapshotScalarFieldEnum | AssistantCodeSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantSession without action
+   */
+  export type AssistantSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantSession
+     */
+    select?: AssistantSessionSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantSessionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CapturedAnswer
+   */
+
+  export type AggregateCapturedAnswer = {
+    _count: CapturedAnswerCountAggregateOutputType | null
+    _min: CapturedAnswerMinAggregateOutputType | null
+    _max: CapturedAnswerMaxAggregateOutputType | null
+  }
+
+  export type CapturedAnswerMinAggregateOutputType = {
+    sessionId: string | null
+    problemSummary: string | null
+    dsChoice: string | null
+    approach: string | null
+  }
+
+  export type CapturedAnswerMaxAggregateOutputType = {
+    sessionId: string | null
+    problemSummary: string | null
+    dsChoice: string | null
+    approach: string | null
+  }
+
+  export type CapturedAnswerCountAggregateOutputType = {
+    sessionId: number
+    problemSummary: number
+    dsChoice: number
+    approach: number
+    _all: number
+  }
+
+
+  export type CapturedAnswerMinAggregateInputType = {
+    sessionId?: true
+    problemSummary?: true
+    dsChoice?: true
+    approach?: true
+  }
+
+  export type CapturedAnswerMaxAggregateInputType = {
+    sessionId?: true
+    problemSummary?: true
+    dsChoice?: true
+    approach?: true
+  }
+
+  export type CapturedAnswerCountAggregateInputType = {
+    sessionId?: true
+    problemSummary?: true
+    dsChoice?: true
+    approach?: true
+    _all?: true
+  }
+
+  export type CapturedAnswerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CapturedAnswer to aggregate.
+     */
+    where?: CapturedAnswerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CapturedAnswers to fetch.
+     */
+    orderBy?: CapturedAnswerOrderByWithRelationInput | CapturedAnswerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CapturedAnswerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CapturedAnswers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CapturedAnswers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CapturedAnswers
+    **/
+    _count?: true | CapturedAnswerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CapturedAnswerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CapturedAnswerMaxAggregateInputType
+  }
+
+  export type GetCapturedAnswerAggregateType<T extends CapturedAnswerAggregateArgs> = {
+        [P in keyof T & keyof AggregateCapturedAnswer]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCapturedAnswer[P]>
+      : GetScalarType<T[P], AggregateCapturedAnswer[P]>
+  }
+
+
+
+
+  export type CapturedAnswerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CapturedAnswerWhereInput
+    orderBy?: CapturedAnswerOrderByWithAggregationInput | CapturedAnswerOrderByWithAggregationInput[]
+    by: CapturedAnswerScalarFieldEnum[] | CapturedAnswerScalarFieldEnum
+    having?: CapturedAnswerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CapturedAnswerCountAggregateInputType | true
+    _min?: CapturedAnswerMinAggregateInputType
+    _max?: CapturedAnswerMaxAggregateInputType
+  }
+
+  export type CapturedAnswerGroupByOutputType = {
+    sessionId: string
+    problemSummary: string | null
+    dsChoice: string | null
+    approach: string | null
+    _count: CapturedAnswerCountAggregateOutputType | null
+    _min: CapturedAnswerMinAggregateOutputType | null
+    _max: CapturedAnswerMaxAggregateOutputType | null
+  }
+
+  type GetCapturedAnswerGroupByPayload<T extends CapturedAnswerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CapturedAnswerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CapturedAnswerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CapturedAnswerGroupByOutputType[P]>
+            : GetScalarType<T[P], CapturedAnswerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CapturedAnswerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sessionId?: boolean
+    problemSummary?: boolean
+    dsChoice?: boolean
+    approach?: boolean
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["capturedAnswer"]>
+
+  export type CapturedAnswerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sessionId?: boolean
+    problemSummary?: boolean
+    dsChoice?: boolean
+    approach?: boolean
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["capturedAnswer"]>
+
+  export type CapturedAnswerSelectScalar = {
+    sessionId?: boolean
+    problemSummary?: boolean
+    dsChoice?: boolean
+    approach?: boolean
+  }
+
+  export type CapturedAnswerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }
+  export type CapturedAnswerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $CapturedAnswerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CapturedAnswer"
+    objects: {
+      session: Prisma.$AssistantSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      sessionId: string
+      problemSummary: string | null
+      dsChoice: string | null
+      approach: string | null
+    }, ExtArgs["result"]["capturedAnswer"]>
+    composites: {}
+  }
+
+  type CapturedAnswerGetPayload<S extends boolean | null | undefined | CapturedAnswerDefaultArgs> = $Result.GetResult<Prisma.$CapturedAnswerPayload, S>
+
+  type CapturedAnswerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<CapturedAnswerFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: CapturedAnswerCountAggregateInputType | true
+    }
+
+  export interface CapturedAnswerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CapturedAnswer'], meta: { name: 'CapturedAnswer' } }
+    /**
+     * Find zero or one CapturedAnswer that matches the filter.
+     * @param {CapturedAnswerFindUniqueArgs} args - Arguments to find a CapturedAnswer
+     * @example
+     * // Get one CapturedAnswer
+     * const capturedAnswer = await prisma.capturedAnswer.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CapturedAnswerFindUniqueArgs>(args: SelectSubset<T, CapturedAnswerFindUniqueArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one CapturedAnswer that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {CapturedAnswerFindUniqueOrThrowArgs} args - Arguments to find a CapturedAnswer
+     * @example
+     * // Get one CapturedAnswer
+     * const capturedAnswer = await prisma.capturedAnswer.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CapturedAnswerFindUniqueOrThrowArgs>(args: SelectSubset<T, CapturedAnswerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first CapturedAnswer that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedAnswerFindFirstArgs} args - Arguments to find a CapturedAnswer
+     * @example
+     * // Get one CapturedAnswer
+     * const capturedAnswer = await prisma.capturedAnswer.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CapturedAnswerFindFirstArgs>(args?: SelectSubset<T, CapturedAnswerFindFirstArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first CapturedAnswer that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedAnswerFindFirstOrThrowArgs} args - Arguments to find a CapturedAnswer
+     * @example
+     * // Get one CapturedAnswer
+     * const capturedAnswer = await prisma.capturedAnswer.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CapturedAnswerFindFirstOrThrowArgs>(args?: SelectSubset<T, CapturedAnswerFindFirstOrThrowArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more CapturedAnswers that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedAnswerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CapturedAnswers
+     * const capturedAnswers = await prisma.capturedAnswer.findMany()
+     * 
+     * // Get first 10 CapturedAnswers
+     * const capturedAnswers = await prisma.capturedAnswer.findMany({ take: 10 })
+     * 
+     * // Only select the `sessionId`
+     * const capturedAnswerWithSessionIdOnly = await prisma.capturedAnswer.findMany({ select: { sessionId: true } })
+     * 
+     */
+    findMany<T extends CapturedAnswerFindManyArgs>(args?: SelectSubset<T, CapturedAnswerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a CapturedAnswer.
+     * @param {CapturedAnswerCreateArgs} args - Arguments to create a CapturedAnswer.
+     * @example
+     * // Create one CapturedAnswer
+     * const CapturedAnswer = await prisma.capturedAnswer.create({
+     *   data: {
+     *     // ... data to create a CapturedAnswer
+     *   }
+     * })
+     * 
+     */
+    create<T extends CapturedAnswerCreateArgs>(args: SelectSubset<T, CapturedAnswerCreateArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many CapturedAnswers.
+     * @param {CapturedAnswerCreateManyArgs} args - Arguments to create many CapturedAnswers.
+     * @example
+     * // Create many CapturedAnswers
+     * const capturedAnswer = await prisma.capturedAnswer.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CapturedAnswerCreateManyArgs>(args?: SelectSubset<T, CapturedAnswerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CapturedAnswers and returns the data saved in the database.
+     * @param {CapturedAnswerCreateManyAndReturnArgs} args - Arguments to create many CapturedAnswers.
+     * @example
+     * // Create many CapturedAnswers
+     * const capturedAnswer = await prisma.capturedAnswer.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CapturedAnswers and only return the `sessionId`
+     * const capturedAnswerWithSessionIdOnly = await prisma.capturedAnswer.createManyAndReturn({ 
+     *   select: { sessionId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CapturedAnswerCreateManyAndReturnArgs>(args?: SelectSubset<T, CapturedAnswerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a CapturedAnswer.
+     * @param {CapturedAnswerDeleteArgs} args - Arguments to delete one CapturedAnswer.
+     * @example
+     * // Delete one CapturedAnswer
+     * const CapturedAnswer = await prisma.capturedAnswer.delete({
+     *   where: {
+     *     // ... filter to delete one CapturedAnswer
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CapturedAnswerDeleteArgs>(args: SelectSubset<T, CapturedAnswerDeleteArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one CapturedAnswer.
+     * @param {CapturedAnswerUpdateArgs} args - Arguments to update one CapturedAnswer.
+     * @example
+     * // Update one CapturedAnswer
+     * const capturedAnswer = await prisma.capturedAnswer.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CapturedAnswerUpdateArgs>(args: SelectSubset<T, CapturedAnswerUpdateArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more CapturedAnswers.
+     * @param {CapturedAnswerDeleteManyArgs} args - Arguments to filter CapturedAnswers to delete.
+     * @example
+     * // Delete a few CapturedAnswers
+     * const { count } = await prisma.capturedAnswer.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CapturedAnswerDeleteManyArgs>(args?: SelectSubset<T, CapturedAnswerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CapturedAnswers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedAnswerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CapturedAnswers
+     * const capturedAnswer = await prisma.capturedAnswer.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CapturedAnswerUpdateManyArgs>(args: SelectSubset<T, CapturedAnswerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CapturedAnswer.
+     * @param {CapturedAnswerUpsertArgs} args - Arguments to update or create a CapturedAnswer.
+     * @example
+     * // Update or create a CapturedAnswer
+     * const capturedAnswer = await prisma.capturedAnswer.upsert({
+     *   create: {
+     *     // ... data to create a CapturedAnswer
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CapturedAnswer we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CapturedAnswerUpsertArgs>(args: SelectSubset<T, CapturedAnswerUpsertArgs<ExtArgs>>): Prisma__CapturedAnswerClient<$Result.GetResult<Prisma.$CapturedAnswerPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of CapturedAnswers.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedAnswerCountArgs} args - Arguments to filter CapturedAnswers to count.
+     * @example
+     * // Count the number of CapturedAnswers
+     * const count = await prisma.capturedAnswer.count({
+     *   where: {
+     *     // ... the filter for the CapturedAnswers we want to count
+     *   }
+     * })
+    **/
+    count<T extends CapturedAnswerCountArgs>(
+      args?: Subset<T, CapturedAnswerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CapturedAnswerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CapturedAnswer.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedAnswerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CapturedAnswerAggregateArgs>(args: Subset<T, CapturedAnswerAggregateArgs>): Prisma.PrismaPromise<GetCapturedAnswerAggregateType<T>>
+
+    /**
+     * Group by CapturedAnswer.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CapturedAnswerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CapturedAnswerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CapturedAnswerGroupByArgs['orderBy'] }
+        : { orderBy?: CapturedAnswerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CapturedAnswerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCapturedAnswerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CapturedAnswer model
+   */
+  readonly fields: CapturedAnswerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CapturedAnswer.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CapturedAnswerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends AssistantSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AssistantSessionDefaultArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CapturedAnswer model
+   */ 
+  interface CapturedAnswerFieldRefs {
+    readonly sessionId: FieldRef<"CapturedAnswer", 'String'>
+    readonly problemSummary: FieldRef<"CapturedAnswer", 'String'>
+    readonly dsChoice: FieldRef<"CapturedAnswer", 'String'>
+    readonly approach: FieldRef<"CapturedAnswer", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CapturedAnswer findUnique
+   */
+  export type CapturedAnswerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * Filter, which CapturedAnswer to fetch.
+     */
+    where: CapturedAnswerWhereUniqueInput
+  }
+
+  /**
+   * CapturedAnswer findUniqueOrThrow
+   */
+  export type CapturedAnswerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * Filter, which CapturedAnswer to fetch.
+     */
+    where: CapturedAnswerWhereUniqueInput
+  }
+
+  /**
+   * CapturedAnswer findFirst
+   */
+  export type CapturedAnswerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * Filter, which CapturedAnswer to fetch.
+     */
+    where?: CapturedAnswerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CapturedAnswers to fetch.
+     */
+    orderBy?: CapturedAnswerOrderByWithRelationInput | CapturedAnswerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CapturedAnswers.
+     */
+    cursor?: CapturedAnswerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CapturedAnswers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CapturedAnswers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CapturedAnswers.
+     */
+    distinct?: CapturedAnswerScalarFieldEnum | CapturedAnswerScalarFieldEnum[]
+  }
+
+  /**
+   * CapturedAnswer findFirstOrThrow
+   */
+  export type CapturedAnswerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * Filter, which CapturedAnswer to fetch.
+     */
+    where?: CapturedAnswerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CapturedAnswers to fetch.
+     */
+    orderBy?: CapturedAnswerOrderByWithRelationInput | CapturedAnswerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CapturedAnswers.
+     */
+    cursor?: CapturedAnswerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CapturedAnswers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CapturedAnswers.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CapturedAnswers.
+     */
+    distinct?: CapturedAnswerScalarFieldEnum | CapturedAnswerScalarFieldEnum[]
+  }
+
+  /**
+   * CapturedAnswer findMany
+   */
+  export type CapturedAnswerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * Filter, which CapturedAnswers to fetch.
+     */
+    where?: CapturedAnswerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CapturedAnswers to fetch.
+     */
+    orderBy?: CapturedAnswerOrderByWithRelationInput | CapturedAnswerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CapturedAnswers.
+     */
+    cursor?: CapturedAnswerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CapturedAnswers from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CapturedAnswers.
+     */
+    skip?: number
+    distinct?: CapturedAnswerScalarFieldEnum | CapturedAnswerScalarFieldEnum[]
+  }
+
+  /**
+   * CapturedAnswer create
+   */
+  export type CapturedAnswerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CapturedAnswer.
+     */
+    data: XOR<CapturedAnswerCreateInput, CapturedAnswerUncheckedCreateInput>
+  }
+
+  /**
+   * CapturedAnswer createMany
+   */
+  export type CapturedAnswerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CapturedAnswers.
+     */
+    data: CapturedAnswerCreateManyInput | CapturedAnswerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CapturedAnswer createManyAndReturn
+   */
+  export type CapturedAnswerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many CapturedAnswers.
+     */
+    data: CapturedAnswerCreateManyInput | CapturedAnswerCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CapturedAnswer update
+   */
+  export type CapturedAnswerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CapturedAnswer.
+     */
+    data: XOR<CapturedAnswerUpdateInput, CapturedAnswerUncheckedUpdateInput>
+    /**
+     * Choose, which CapturedAnswer to update.
+     */
+    where: CapturedAnswerWhereUniqueInput
+  }
+
+  /**
+   * CapturedAnswer updateMany
+   */
+  export type CapturedAnswerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CapturedAnswers.
+     */
+    data: XOR<CapturedAnswerUpdateManyMutationInput, CapturedAnswerUncheckedUpdateManyInput>
+    /**
+     * Filter which CapturedAnswers to update
+     */
+    where?: CapturedAnswerWhereInput
+  }
+
+  /**
+   * CapturedAnswer upsert
+   */
+  export type CapturedAnswerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CapturedAnswer to update in case it exists.
+     */
+    where: CapturedAnswerWhereUniqueInput
+    /**
+     * In case the CapturedAnswer found by the `where` argument doesn't exist, create a new CapturedAnswer with this data.
+     */
+    create: XOR<CapturedAnswerCreateInput, CapturedAnswerUncheckedCreateInput>
+    /**
+     * In case the CapturedAnswer was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CapturedAnswerUpdateInput, CapturedAnswerUncheckedUpdateInput>
+  }
+
+  /**
+   * CapturedAnswer delete
+   */
+  export type CapturedAnswerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+    /**
+     * Filter which CapturedAnswer to delete.
+     */
+    where: CapturedAnswerWhereUniqueInput
+  }
+
+  /**
+   * CapturedAnswer deleteMany
+   */
+  export type CapturedAnswerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CapturedAnswers to delete
+     */
+    where?: CapturedAnswerWhereInput
+  }
+
+  /**
+   * CapturedAnswer without action
+   */
+  export type CapturedAnswerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CapturedAnswer
+     */
+    select?: CapturedAnswerSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CapturedAnswerInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AssistantTranscript
+   */
+
+  export type AggregateAssistantTranscript = {
+    _count: AssistantTranscriptCountAggregateOutputType | null
+    _avg: AssistantTranscriptAvgAggregateOutputType | null
+    _sum: AssistantTranscriptSumAggregateOutputType | null
+    _min: AssistantTranscriptMinAggregateOutputType | null
+    _max: AssistantTranscriptMaxAggregateOutputType | null
+  }
+
+  export type AssistantTranscriptAvgAggregateOutputType = {
+    turnIndex: number | null
+    tokensConsumed: number | null
+  }
+
+  export type AssistantTranscriptSumAggregateOutputType = {
+    turnIndex: number | null
+    tokensConsumed: number | null
+  }
+
+  export type AssistantTranscriptMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    turnIndex: number | null
+    role: string | null
+    stageAtTime: $Enums.AssistantStage | null
+    message: string | null
+    tokensConsumed: number | null
+    llmCallType: string | null
+    createdAt: Date | null
+  }
+
+  export type AssistantTranscriptMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    turnIndex: number | null
+    role: string | null
+    stageAtTime: $Enums.AssistantStage | null
+    message: string | null
+    tokensConsumed: number | null
+    llmCallType: string | null
+    createdAt: Date | null
+  }
+
+  export type AssistantTranscriptCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    turnIndex: number
+    role: number
+    stageAtTime: number
+    message: number
+    gateResult: number
+    tokensConsumed: number
+    llmCallType: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AssistantTranscriptAvgAggregateInputType = {
+    turnIndex?: true
+    tokensConsumed?: true
+  }
+
+  export type AssistantTranscriptSumAggregateInputType = {
+    turnIndex?: true
+    tokensConsumed?: true
+  }
+
+  export type AssistantTranscriptMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    turnIndex?: true
+    role?: true
+    stageAtTime?: true
+    message?: true
+    tokensConsumed?: true
+    llmCallType?: true
+    createdAt?: true
+  }
+
+  export type AssistantTranscriptMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    turnIndex?: true
+    role?: true
+    stageAtTime?: true
+    message?: true
+    tokensConsumed?: true
+    llmCallType?: true
+    createdAt?: true
+  }
+
+  export type AssistantTranscriptCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    turnIndex?: true
+    role?: true
+    stageAtTime?: true
+    message?: true
+    gateResult?: true
+    tokensConsumed?: true
+    llmCallType?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AssistantTranscriptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssistantTranscript to aggregate.
+     */
+    where?: AssistantTranscriptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantTranscripts to fetch.
+     */
+    orderBy?: AssistantTranscriptOrderByWithRelationInput | AssistantTranscriptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssistantTranscriptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantTranscripts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantTranscripts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssistantTranscripts
+    **/
+    _count?: true | AssistantTranscriptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AssistantTranscriptAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AssistantTranscriptSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssistantTranscriptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssistantTranscriptMaxAggregateInputType
+  }
+
+  export type GetAssistantTranscriptAggregateType<T extends AssistantTranscriptAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssistantTranscript]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssistantTranscript[P]>
+      : GetScalarType<T[P], AggregateAssistantTranscript[P]>
+  }
+
+
+
+
+  export type AssistantTranscriptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssistantTranscriptWhereInput
+    orderBy?: AssistantTranscriptOrderByWithAggregationInput | AssistantTranscriptOrderByWithAggregationInput[]
+    by: AssistantTranscriptScalarFieldEnum[] | AssistantTranscriptScalarFieldEnum
+    having?: AssistantTranscriptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssistantTranscriptCountAggregateInputType | true
+    _avg?: AssistantTranscriptAvgAggregateInputType
+    _sum?: AssistantTranscriptSumAggregateInputType
+    _min?: AssistantTranscriptMinAggregateInputType
+    _max?: AssistantTranscriptMaxAggregateInputType
+  }
+
+  export type AssistantTranscriptGroupByOutputType = {
+    id: string
+    sessionId: string
+    turnIndex: number
+    role: string
+    stageAtTime: $Enums.AssistantStage
+    message: string
+    gateResult: JsonValue | null
+    tokensConsumed: number
+    llmCallType: string | null
+    createdAt: Date
+    _count: AssistantTranscriptCountAggregateOutputType | null
+    _avg: AssistantTranscriptAvgAggregateOutputType | null
+    _sum: AssistantTranscriptSumAggregateOutputType | null
+    _min: AssistantTranscriptMinAggregateOutputType | null
+    _max: AssistantTranscriptMaxAggregateOutputType | null
+  }
+
+  type GetAssistantTranscriptGroupByPayload<T extends AssistantTranscriptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssistantTranscriptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssistantTranscriptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssistantTranscriptGroupByOutputType[P]>
+            : GetScalarType<T[P], AssistantTranscriptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssistantTranscriptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    turnIndex?: boolean
+    role?: boolean
+    stageAtTime?: boolean
+    message?: boolean
+    gateResult?: boolean
+    tokensConsumed?: boolean
+    llmCallType?: boolean
+    createdAt?: boolean
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assistantTranscript"]>
+
+  export type AssistantTranscriptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    turnIndex?: boolean
+    role?: boolean
+    stageAtTime?: boolean
+    message?: boolean
+    gateResult?: boolean
+    tokensConsumed?: boolean
+    llmCallType?: boolean
+    createdAt?: boolean
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assistantTranscript"]>
+
+  export type AssistantTranscriptSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    turnIndex?: boolean
+    role?: boolean
+    stageAtTime?: boolean
+    message?: boolean
+    gateResult?: boolean
+    tokensConsumed?: boolean
+    llmCallType?: boolean
+    createdAt?: boolean
+  }
+
+  export type AssistantTranscriptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }
+  export type AssistantTranscriptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $AssistantTranscriptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssistantTranscript"
+    objects: {
+      session: Prisma.$AssistantSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      turnIndex: number
+      role: string
+      stageAtTime: $Enums.AssistantStage
+      message: string
+      gateResult: Prisma.JsonValue | null
+      tokensConsumed: number
+      llmCallType: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["assistantTranscript"]>
+    composites: {}
+  }
+
+  type AssistantTranscriptGetPayload<S extends boolean | null | undefined | AssistantTranscriptDefaultArgs> = $Result.GetResult<Prisma.$AssistantTranscriptPayload, S>
+
+  type AssistantTranscriptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AssistantTranscriptFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AssistantTranscriptCountAggregateInputType | true
+    }
+
+  export interface AssistantTranscriptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssistantTranscript'], meta: { name: 'AssistantTranscript' } }
+    /**
+     * Find zero or one AssistantTranscript that matches the filter.
+     * @param {AssistantTranscriptFindUniqueArgs} args - Arguments to find a AssistantTranscript
+     * @example
+     * // Get one AssistantTranscript
+     * const assistantTranscript = await prisma.assistantTranscript.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssistantTranscriptFindUniqueArgs>(args: SelectSubset<T, AssistantTranscriptFindUniqueArgs<ExtArgs>>): Prisma__AssistantTranscriptClient<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AssistantTranscript that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AssistantTranscriptFindUniqueOrThrowArgs} args - Arguments to find a AssistantTranscript
+     * @example
+     * // Get one AssistantTranscript
+     * const assistantTranscript = await prisma.assistantTranscript.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssistantTranscriptFindUniqueOrThrowArgs>(args: SelectSubset<T, AssistantTranscriptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssistantTranscriptClient<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AssistantTranscript that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantTranscriptFindFirstArgs} args - Arguments to find a AssistantTranscript
+     * @example
+     * // Get one AssistantTranscript
+     * const assistantTranscript = await prisma.assistantTranscript.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssistantTranscriptFindFirstArgs>(args?: SelectSubset<T, AssistantTranscriptFindFirstArgs<ExtArgs>>): Prisma__AssistantTranscriptClient<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AssistantTranscript that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantTranscriptFindFirstOrThrowArgs} args - Arguments to find a AssistantTranscript
+     * @example
+     * // Get one AssistantTranscript
+     * const assistantTranscript = await prisma.assistantTranscript.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssistantTranscriptFindFirstOrThrowArgs>(args?: SelectSubset<T, AssistantTranscriptFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssistantTranscriptClient<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AssistantTranscripts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantTranscriptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssistantTranscripts
+     * const assistantTranscripts = await prisma.assistantTranscript.findMany()
+     * 
+     * // Get first 10 AssistantTranscripts
+     * const assistantTranscripts = await prisma.assistantTranscript.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assistantTranscriptWithIdOnly = await prisma.assistantTranscript.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssistantTranscriptFindManyArgs>(args?: SelectSubset<T, AssistantTranscriptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AssistantTranscript.
+     * @param {AssistantTranscriptCreateArgs} args - Arguments to create a AssistantTranscript.
+     * @example
+     * // Create one AssistantTranscript
+     * const AssistantTranscript = await prisma.assistantTranscript.create({
+     *   data: {
+     *     // ... data to create a AssistantTranscript
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssistantTranscriptCreateArgs>(args: SelectSubset<T, AssistantTranscriptCreateArgs<ExtArgs>>): Prisma__AssistantTranscriptClient<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AssistantTranscripts.
+     * @param {AssistantTranscriptCreateManyArgs} args - Arguments to create many AssistantTranscripts.
+     * @example
+     * // Create many AssistantTranscripts
+     * const assistantTranscript = await prisma.assistantTranscript.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssistantTranscriptCreateManyArgs>(args?: SelectSubset<T, AssistantTranscriptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssistantTranscripts and returns the data saved in the database.
+     * @param {AssistantTranscriptCreateManyAndReturnArgs} args - Arguments to create many AssistantTranscripts.
+     * @example
+     * // Create many AssistantTranscripts
+     * const assistantTranscript = await prisma.assistantTranscript.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssistantTranscripts and only return the `id`
+     * const assistantTranscriptWithIdOnly = await prisma.assistantTranscript.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssistantTranscriptCreateManyAndReturnArgs>(args?: SelectSubset<T, AssistantTranscriptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AssistantTranscript.
+     * @param {AssistantTranscriptDeleteArgs} args - Arguments to delete one AssistantTranscript.
+     * @example
+     * // Delete one AssistantTranscript
+     * const AssistantTranscript = await prisma.assistantTranscript.delete({
+     *   where: {
+     *     // ... filter to delete one AssistantTranscript
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssistantTranscriptDeleteArgs>(args: SelectSubset<T, AssistantTranscriptDeleteArgs<ExtArgs>>): Prisma__AssistantTranscriptClient<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AssistantTranscript.
+     * @param {AssistantTranscriptUpdateArgs} args - Arguments to update one AssistantTranscript.
+     * @example
+     * // Update one AssistantTranscript
+     * const assistantTranscript = await prisma.assistantTranscript.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssistantTranscriptUpdateArgs>(args: SelectSubset<T, AssistantTranscriptUpdateArgs<ExtArgs>>): Prisma__AssistantTranscriptClient<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AssistantTranscripts.
+     * @param {AssistantTranscriptDeleteManyArgs} args - Arguments to filter AssistantTranscripts to delete.
+     * @example
+     * // Delete a few AssistantTranscripts
+     * const { count } = await prisma.assistantTranscript.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssistantTranscriptDeleteManyArgs>(args?: SelectSubset<T, AssistantTranscriptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssistantTranscripts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantTranscriptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssistantTranscripts
+     * const assistantTranscript = await prisma.assistantTranscript.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssistantTranscriptUpdateManyArgs>(args: SelectSubset<T, AssistantTranscriptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AssistantTranscript.
+     * @param {AssistantTranscriptUpsertArgs} args - Arguments to update or create a AssistantTranscript.
+     * @example
+     * // Update or create a AssistantTranscript
+     * const assistantTranscript = await prisma.assistantTranscript.upsert({
+     *   create: {
+     *     // ... data to create a AssistantTranscript
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssistantTranscript we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssistantTranscriptUpsertArgs>(args: SelectSubset<T, AssistantTranscriptUpsertArgs<ExtArgs>>): Prisma__AssistantTranscriptClient<$Result.GetResult<Prisma.$AssistantTranscriptPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AssistantTranscripts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantTranscriptCountArgs} args - Arguments to filter AssistantTranscripts to count.
+     * @example
+     * // Count the number of AssistantTranscripts
+     * const count = await prisma.assistantTranscript.count({
+     *   where: {
+     *     // ... the filter for the AssistantTranscripts we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssistantTranscriptCountArgs>(
+      args?: Subset<T, AssistantTranscriptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssistantTranscriptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssistantTranscript.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantTranscriptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssistantTranscriptAggregateArgs>(args: Subset<T, AssistantTranscriptAggregateArgs>): Prisma.PrismaPromise<GetAssistantTranscriptAggregateType<T>>
+
+    /**
+     * Group by AssistantTranscript.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantTranscriptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssistantTranscriptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssistantTranscriptGroupByArgs['orderBy'] }
+        : { orderBy?: AssistantTranscriptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssistantTranscriptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssistantTranscriptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssistantTranscript model
+   */
+  readonly fields: AssistantTranscriptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssistantTranscript.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssistantTranscriptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends AssistantSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AssistantSessionDefaultArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssistantTranscript model
+   */ 
+  interface AssistantTranscriptFieldRefs {
+    readonly id: FieldRef<"AssistantTranscript", 'String'>
+    readonly sessionId: FieldRef<"AssistantTranscript", 'String'>
+    readonly turnIndex: FieldRef<"AssistantTranscript", 'Int'>
+    readonly role: FieldRef<"AssistantTranscript", 'String'>
+    readonly stageAtTime: FieldRef<"AssistantTranscript", 'AssistantStage'>
+    readonly message: FieldRef<"AssistantTranscript", 'String'>
+    readonly gateResult: FieldRef<"AssistantTranscript", 'Json'>
+    readonly tokensConsumed: FieldRef<"AssistantTranscript", 'Int'>
+    readonly llmCallType: FieldRef<"AssistantTranscript", 'String'>
+    readonly createdAt: FieldRef<"AssistantTranscript", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssistantTranscript findUnique
+   */
+  export type AssistantTranscriptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantTranscript to fetch.
+     */
+    where: AssistantTranscriptWhereUniqueInput
+  }
+
+  /**
+   * AssistantTranscript findUniqueOrThrow
+   */
+  export type AssistantTranscriptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantTranscript to fetch.
+     */
+    where: AssistantTranscriptWhereUniqueInput
+  }
+
+  /**
+   * AssistantTranscript findFirst
+   */
+  export type AssistantTranscriptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantTranscript to fetch.
+     */
+    where?: AssistantTranscriptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantTranscripts to fetch.
+     */
+    orderBy?: AssistantTranscriptOrderByWithRelationInput | AssistantTranscriptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssistantTranscripts.
+     */
+    cursor?: AssistantTranscriptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantTranscripts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantTranscripts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssistantTranscripts.
+     */
+    distinct?: AssistantTranscriptScalarFieldEnum | AssistantTranscriptScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantTranscript findFirstOrThrow
+   */
+  export type AssistantTranscriptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantTranscript to fetch.
+     */
+    where?: AssistantTranscriptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantTranscripts to fetch.
+     */
+    orderBy?: AssistantTranscriptOrderByWithRelationInput | AssistantTranscriptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssistantTranscripts.
+     */
+    cursor?: AssistantTranscriptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantTranscripts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantTranscripts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssistantTranscripts.
+     */
+    distinct?: AssistantTranscriptScalarFieldEnum | AssistantTranscriptScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantTranscript findMany
+   */
+  export type AssistantTranscriptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantTranscripts to fetch.
+     */
+    where?: AssistantTranscriptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantTranscripts to fetch.
+     */
+    orderBy?: AssistantTranscriptOrderByWithRelationInput | AssistantTranscriptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssistantTranscripts.
+     */
+    cursor?: AssistantTranscriptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantTranscripts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantTranscripts.
+     */
+    skip?: number
+    distinct?: AssistantTranscriptScalarFieldEnum | AssistantTranscriptScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantTranscript create
+   */
+  export type AssistantTranscriptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssistantTranscript.
+     */
+    data: XOR<AssistantTranscriptCreateInput, AssistantTranscriptUncheckedCreateInput>
+  }
+
+  /**
+   * AssistantTranscript createMany
+   */
+  export type AssistantTranscriptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssistantTranscripts.
+     */
+    data: AssistantTranscriptCreateManyInput | AssistantTranscriptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssistantTranscript createManyAndReturn
+   */
+  export type AssistantTranscriptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many AssistantTranscripts.
+     */
+    data: AssistantTranscriptCreateManyInput | AssistantTranscriptCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssistantTranscript update
+   */
+  export type AssistantTranscriptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssistantTranscript.
+     */
+    data: XOR<AssistantTranscriptUpdateInput, AssistantTranscriptUncheckedUpdateInput>
+    /**
+     * Choose, which AssistantTranscript to update.
+     */
+    where: AssistantTranscriptWhereUniqueInput
+  }
+
+  /**
+   * AssistantTranscript updateMany
+   */
+  export type AssistantTranscriptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssistantTranscripts.
+     */
+    data: XOR<AssistantTranscriptUpdateManyMutationInput, AssistantTranscriptUncheckedUpdateManyInput>
+    /**
+     * Filter which AssistantTranscripts to update
+     */
+    where?: AssistantTranscriptWhereInput
+  }
+
+  /**
+   * AssistantTranscript upsert
+   */
+  export type AssistantTranscriptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssistantTranscript to update in case it exists.
+     */
+    where: AssistantTranscriptWhereUniqueInput
+    /**
+     * In case the AssistantTranscript found by the `where` argument doesn't exist, create a new AssistantTranscript with this data.
+     */
+    create: XOR<AssistantTranscriptCreateInput, AssistantTranscriptUncheckedCreateInput>
+    /**
+     * In case the AssistantTranscript was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssistantTranscriptUpdateInput, AssistantTranscriptUncheckedUpdateInput>
+  }
+
+  /**
+   * AssistantTranscript delete
+   */
+  export type AssistantTranscriptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter which AssistantTranscript to delete.
+     */
+    where: AssistantTranscriptWhereUniqueInput
+  }
+
+  /**
+   * AssistantTranscript deleteMany
+   */
+  export type AssistantTranscriptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssistantTranscripts to delete
+     */
+    where?: AssistantTranscriptWhereInput
+  }
+
+  /**
+   * AssistantTranscript without action
+   */
+  export type AssistantTranscriptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantTranscript
+     */
+    select?: AssistantTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantTranscriptInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AssistantStageEvent
+   */
+
+  export type AggregateAssistantStageEvent = {
+    _count: AssistantStageEventCountAggregateOutputType | null
+    _min: AssistantStageEventMinAggregateOutputType | null
+    _max: AssistantStageEventMaxAggregateOutputType | null
+  }
+
+  export type AssistantStageEventMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    fromStage: $Enums.AssistantStage | null
+    toStage: $Enums.AssistantStage | null
+    eventType: string | null
+    reason: string | null
+    createdAt: Date | null
+  }
+
+  export type AssistantStageEventMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    fromStage: $Enums.AssistantStage | null
+    toStage: $Enums.AssistantStage | null
+    eventType: string | null
+    reason: string | null
+    createdAt: Date | null
+  }
+
+  export type AssistantStageEventCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    fromStage: number
+    toStage: number
+    eventType: number
+    reason: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AssistantStageEventMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    fromStage?: true
+    toStage?: true
+    eventType?: true
+    reason?: true
+    createdAt?: true
+  }
+
+  export type AssistantStageEventMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    fromStage?: true
+    toStage?: true
+    eventType?: true
+    reason?: true
+    createdAt?: true
+  }
+
+  export type AssistantStageEventCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    fromStage?: true
+    toStage?: true
+    eventType?: true
+    reason?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AssistantStageEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssistantStageEvent to aggregate.
+     */
+    where?: AssistantStageEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantStageEvents to fetch.
+     */
+    orderBy?: AssistantStageEventOrderByWithRelationInput | AssistantStageEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssistantStageEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantStageEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantStageEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssistantStageEvents
+    **/
+    _count?: true | AssistantStageEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssistantStageEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssistantStageEventMaxAggregateInputType
+  }
+
+  export type GetAssistantStageEventAggregateType<T extends AssistantStageEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssistantStageEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssistantStageEvent[P]>
+      : GetScalarType<T[P], AggregateAssistantStageEvent[P]>
+  }
+
+
+
+
+  export type AssistantStageEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssistantStageEventWhereInput
+    orderBy?: AssistantStageEventOrderByWithAggregationInput | AssistantStageEventOrderByWithAggregationInput[]
+    by: AssistantStageEventScalarFieldEnum[] | AssistantStageEventScalarFieldEnum
+    having?: AssistantStageEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssistantStageEventCountAggregateInputType | true
+    _min?: AssistantStageEventMinAggregateInputType
+    _max?: AssistantStageEventMaxAggregateInputType
+  }
+
+  export type AssistantStageEventGroupByOutputType = {
+    id: string
+    sessionId: string
+    fromStage: $Enums.AssistantStage | null
+    toStage: $Enums.AssistantStage | null
+    eventType: string
+    reason: string | null
+    createdAt: Date
+    _count: AssistantStageEventCountAggregateOutputType | null
+    _min: AssistantStageEventMinAggregateOutputType | null
+    _max: AssistantStageEventMaxAggregateOutputType | null
+  }
+
+  type GetAssistantStageEventGroupByPayload<T extends AssistantStageEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssistantStageEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssistantStageEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssistantStageEventGroupByOutputType[P]>
+            : GetScalarType<T[P], AssistantStageEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssistantStageEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    fromStage?: boolean
+    toStage?: boolean
+    eventType?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assistantStageEvent"]>
+
+  export type AssistantStageEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    fromStage?: boolean
+    toStage?: boolean
+    eventType?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assistantStageEvent"]>
+
+  export type AssistantStageEventSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    fromStage?: boolean
+    toStage?: boolean
+    eventType?: boolean
+    reason?: boolean
+    createdAt?: boolean
+  }
+
+  export type AssistantStageEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }
+  export type AssistantStageEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $AssistantStageEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssistantStageEvent"
+    objects: {
+      session: Prisma.$AssistantSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      fromStage: $Enums.AssistantStage | null
+      toStage: $Enums.AssistantStage | null
+      eventType: string
+      reason: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["assistantStageEvent"]>
+    composites: {}
+  }
+
+  type AssistantStageEventGetPayload<S extends boolean | null | undefined | AssistantStageEventDefaultArgs> = $Result.GetResult<Prisma.$AssistantStageEventPayload, S>
+
+  type AssistantStageEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AssistantStageEventFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AssistantStageEventCountAggregateInputType | true
+    }
+
+  export interface AssistantStageEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssistantStageEvent'], meta: { name: 'AssistantStageEvent' } }
+    /**
+     * Find zero or one AssistantStageEvent that matches the filter.
+     * @param {AssistantStageEventFindUniqueArgs} args - Arguments to find a AssistantStageEvent
+     * @example
+     * // Get one AssistantStageEvent
+     * const assistantStageEvent = await prisma.assistantStageEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssistantStageEventFindUniqueArgs>(args: SelectSubset<T, AssistantStageEventFindUniqueArgs<ExtArgs>>): Prisma__AssistantStageEventClient<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AssistantStageEvent that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AssistantStageEventFindUniqueOrThrowArgs} args - Arguments to find a AssistantStageEvent
+     * @example
+     * // Get one AssistantStageEvent
+     * const assistantStageEvent = await prisma.assistantStageEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssistantStageEventFindUniqueOrThrowArgs>(args: SelectSubset<T, AssistantStageEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssistantStageEventClient<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AssistantStageEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantStageEventFindFirstArgs} args - Arguments to find a AssistantStageEvent
+     * @example
+     * // Get one AssistantStageEvent
+     * const assistantStageEvent = await prisma.assistantStageEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssistantStageEventFindFirstArgs>(args?: SelectSubset<T, AssistantStageEventFindFirstArgs<ExtArgs>>): Prisma__AssistantStageEventClient<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AssistantStageEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantStageEventFindFirstOrThrowArgs} args - Arguments to find a AssistantStageEvent
+     * @example
+     * // Get one AssistantStageEvent
+     * const assistantStageEvent = await prisma.assistantStageEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssistantStageEventFindFirstOrThrowArgs>(args?: SelectSubset<T, AssistantStageEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssistantStageEventClient<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AssistantStageEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantStageEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssistantStageEvents
+     * const assistantStageEvents = await prisma.assistantStageEvent.findMany()
+     * 
+     * // Get first 10 AssistantStageEvents
+     * const assistantStageEvents = await prisma.assistantStageEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assistantStageEventWithIdOnly = await prisma.assistantStageEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssistantStageEventFindManyArgs>(args?: SelectSubset<T, AssistantStageEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AssistantStageEvent.
+     * @param {AssistantStageEventCreateArgs} args - Arguments to create a AssistantStageEvent.
+     * @example
+     * // Create one AssistantStageEvent
+     * const AssistantStageEvent = await prisma.assistantStageEvent.create({
+     *   data: {
+     *     // ... data to create a AssistantStageEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssistantStageEventCreateArgs>(args: SelectSubset<T, AssistantStageEventCreateArgs<ExtArgs>>): Prisma__AssistantStageEventClient<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AssistantStageEvents.
+     * @param {AssistantStageEventCreateManyArgs} args - Arguments to create many AssistantStageEvents.
+     * @example
+     * // Create many AssistantStageEvents
+     * const assistantStageEvent = await prisma.assistantStageEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssistantStageEventCreateManyArgs>(args?: SelectSubset<T, AssistantStageEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssistantStageEvents and returns the data saved in the database.
+     * @param {AssistantStageEventCreateManyAndReturnArgs} args - Arguments to create many AssistantStageEvents.
+     * @example
+     * // Create many AssistantStageEvents
+     * const assistantStageEvent = await prisma.assistantStageEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssistantStageEvents and only return the `id`
+     * const assistantStageEventWithIdOnly = await prisma.assistantStageEvent.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssistantStageEventCreateManyAndReturnArgs>(args?: SelectSubset<T, AssistantStageEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AssistantStageEvent.
+     * @param {AssistantStageEventDeleteArgs} args - Arguments to delete one AssistantStageEvent.
+     * @example
+     * // Delete one AssistantStageEvent
+     * const AssistantStageEvent = await prisma.assistantStageEvent.delete({
+     *   where: {
+     *     // ... filter to delete one AssistantStageEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssistantStageEventDeleteArgs>(args: SelectSubset<T, AssistantStageEventDeleteArgs<ExtArgs>>): Prisma__AssistantStageEventClient<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AssistantStageEvent.
+     * @param {AssistantStageEventUpdateArgs} args - Arguments to update one AssistantStageEvent.
+     * @example
+     * // Update one AssistantStageEvent
+     * const assistantStageEvent = await prisma.assistantStageEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssistantStageEventUpdateArgs>(args: SelectSubset<T, AssistantStageEventUpdateArgs<ExtArgs>>): Prisma__AssistantStageEventClient<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AssistantStageEvents.
+     * @param {AssistantStageEventDeleteManyArgs} args - Arguments to filter AssistantStageEvents to delete.
+     * @example
+     * // Delete a few AssistantStageEvents
+     * const { count } = await prisma.assistantStageEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssistantStageEventDeleteManyArgs>(args?: SelectSubset<T, AssistantStageEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssistantStageEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantStageEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssistantStageEvents
+     * const assistantStageEvent = await prisma.assistantStageEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssistantStageEventUpdateManyArgs>(args: SelectSubset<T, AssistantStageEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AssistantStageEvent.
+     * @param {AssistantStageEventUpsertArgs} args - Arguments to update or create a AssistantStageEvent.
+     * @example
+     * // Update or create a AssistantStageEvent
+     * const assistantStageEvent = await prisma.assistantStageEvent.upsert({
+     *   create: {
+     *     // ... data to create a AssistantStageEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssistantStageEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssistantStageEventUpsertArgs>(args: SelectSubset<T, AssistantStageEventUpsertArgs<ExtArgs>>): Prisma__AssistantStageEventClient<$Result.GetResult<Prisma.$AssistantStageEventPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AssistantStageEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantStageEventCountArgs} args - Arguments to filter AssistantStageEvents to count.
+     * @example
+     * // Count the number of AssistantStageEvents
+     * const count = await prisma.assistantStageEvent.count({
+     *   where: {
+     *     // ... the filter for the AssistantStageEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssistantStageEventCountArgs>(
+      args?: Subset<T, AssistantStageEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssistantStageEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssistantStageEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantStageEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssistantStageEventAggregateArgs>(args: Subset<T, AssistantStageEventAggregateArgs>): Prisma.PrismaPromise<GetAssistantStageEventAggregateType<T>>
+
+    /**
+     * Group by AssistantStageEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantStageEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssistantStageEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssistantStageEventGroupByArgs['orderBy'] }
+        : { orderBy?: AssistantStageEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssistantStageEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssistantStageEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssistantStageEvent model
+   */
+  readonly fields: AssistantStageEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssistantStageEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssistantStageEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends AssistantSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AssistantSessionDefaultArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssistantStageEvent model
+   */ 
+  interface AssistantStageEventFieldRefs {
+    readonly id: FieldRef<"AssistantStageEvent", 'String'>
+    readonly sessionId: FieldRef<"AssistantStageEvent", 'String'>
+    readonly fromStage: FieldRef<"AssistantStageEvent", 'AssistantStage'>
+    readonly toStage: FieldRef<"AssistantStageEvent", 'AssistantStage'>
+    readonly eventType: FieldRef<"AssistantStageEvent", 'String'>
+    readonly reason: FieldRef<"AssistantStageEvent", 'String'>
+    readonly createdAt: FieldRef<"AssistantStageEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssistantStageEvent findUnique
+   */
+  export type AssistantStageEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantStageEvent to fetch.
+     */
+    where: AssistantStageEventWhereUniqueInput
+  }
+
+  /**
+   * AssistantStageEvent findUniqueOrThrow
+   */
+  export type AssistantStageEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantStageEvent to fetch.
+     */
+    where: AssistantStageEventWhereUniqueInput
+  }
+
+  /**
+   * AssistantStageEvent findFirst
+   */
+  export type AssistantStageEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantStageEvent to fetch.
+     */
+    where?: AssistantStageEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantStageEvents to fetch.
+     */
+    orderBy?: AssistantStageEventOrderByWithRelationInput | AssistantStageEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssistantStageEvents.
+     */
+    cursor?: AssistantStageEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantStageEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantStageEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssistantStageEvents.
+     */
+    distinct?: AssistantStageEventScalarFieldEnum | AssistantStageEventScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantStageEvent findFirstOrThrow
+   */
+  export type AssistantStageEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantStageEvent to fetch.
+     */
+    where?: AssistantStageEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantStageEvents to fetch.
+     */
+    orderBy?: AssistantStageEventOrderByWithRelationInput | AssistantStageEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssistantStageEvents.
+     */
+    cursor?: AssistantStageEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantStageEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantStageEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssistantStageEvents.
+     */
+    distinct?: AssistantStageEventScalarFieldEnum | AssistantStageEventScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantStageEvent findMany
+   */
+  export type AssistantStageEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantStageEvents to fetch.
+     */
+    where?: AssistantStageEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantStageEvents to fetch.
+     */
+    orderBy?: AssistantStageEventOrderByWithRelationInput | AssistantStageEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssistantStageEvents.
+     */
+    cursor?: AssistantStageEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantStageEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantStageEvents.
+     */
+    skip?: number
+    distinct?: AssistantStageEventScalarFieldEnum | AssistantStageEventScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantStageEvent create
+   */
+  export type AssistantStageEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssistantStageEvent.
+     */
+    data: XOR<AssistantStageEventCreateInput, AssistantStageEventUncheckedCreateInput>
+  }
+
+  /**
+   * AssistantStageEvent createMany
+   */
+  export type AssistantStageEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssistantStageEvents.
+     */
+    data: AssistantStageEventCreateManyInput | AssistantStageEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssistantStageEvent createManyAndReturn
+   */
+  export type AssistantStageEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many AssistantStageEvents.
+     */
+    data: AssistantStageEventCreateManyInput | AssistantStageEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssistantStageEvent update
+   */
+  export type AssistantStageEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssistantStageEvent.
+     */
+    data: XOR<AssistantStageEventUpdateInput, AssistantStageEventUncheckedUpdateInput>
+    /**
+     * Choose, which AssistantStageEvent to update.
+     */
+    where: AssistantStageEventWhereUniqueInput
+  }
+
+  /**
+   * AssistantStageEvent updateMany
+   */
+  export type AssistantStageEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssistantStageEvents.
+     */
+    data: XOR<AssistantStageEventUpdateManyMutationInput, AssistantStageEventUncheckedUpdateManyInput>
+    /**
+     * Filter which AssistantStageEvents to update
+     */
+    where?: AssistantStageEventWhereInput
+  }
+
+  /**
+   * AssistantStageEvent upsert
+   */
+  export type AssistantStageEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssistantStageEvent to update in case it exists.
+     */
+    where: AssistantStageEventWhereUniqueInput
+    /**
+     * In case the AssistantStageEvent found by the `where` argument doesn't exist, create a new AssistantStageEvent with this data.
+     */
+    create: XOR<AssistantStageEventCreateInput, AssistantStageEventUncheckedCreateInput>
+    /**
+     * In case the AssistantStageEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssistantStageEventUpdateInput, AssistantStageEventUncheckedUpdateInput>
+  }
+
+  /**
+   * AssistantStageEvent delete
+   */
+  export type AssistantStageEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+    /**
+     * Filter which AssistantStageEvent to delete.
+     */
+    where: AssistantStageEventWhereUniqueInput
+  }
+
+  /**
+   * AssistantStageEvent deleteMany
+   */
+  export type AssistantStageEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssistantStageEvents to delete
+     */
+    where?: AssistantStageEventWhereInput
+  }
+
+  /**
+   * AssistantStageEvent without action
+   */
+  export type AssistantStageEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantStageEvent
+     */
+    select?: AssistantStageEventSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantStageEventInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AssistantCodeSnapshot
+   */
+
+  export type AggregateAssistantCodeSnapshot = {
+    _count: AssistantCodeSnapshotCountAggregateOutputType | null
+    _avg: AssistantCodeSnapshotAvgAggregateOutputType | null
+    _sum: AssistantCodeSnapshotSumAggregateOutputType | null
+    _min: AssistantCodeSnapshotMinAggregateOutputType | null
+    _max: AssistantCodeSnapshotMaxAggregateOutputType | null
+  }
+
+  export type AssistantCodeSnapshotAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type AssistantCodeSnapshotSumAggregateOutputType = {
+    version: number | null
+  }
+
+  export type AssistantCodeSnapshotMinAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    code: string | null
+    version: number | null
+    insertedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type AssistantCodeSnapshotMaxAggregateOutputType = {
+    id: string | null
+    sessionId: string | null
+    code: string | null
+    version: number | null
+    insertedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type AssistantCodeSnapshotCountAggregateOutputType = {
+    id: number
+    sessionId: number
+    code: number
+    version: number
+    insertedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AssistantCodeSnapshotAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type AssistantCodeSnapshotSumAggregateInputType = {
+    version?: true
+  }
+
+  export type AssistantCodeSnapshotMinAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    version?: true
+    insertedAt?: true
+    createdAt?: true
+  }
+
+  export type AssistantCodeSnapshotMaxAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    version?: true
+    insertedAt?: true
+    createdAt?: true
+  }
+
+  export type AssistantCodeSnapshotCountAggregateInputType = {
+    id?: true
+    sessionId?: true
+    code?: true
+    version?: true
+    insertedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AssistantCodeSnapshotAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssistantCodeSnapshot to aggregate.
+     */
+    where?: AssistantCodeSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantCodeSnapshots to fetch.
+     */
+    orderBy?: AssistantCodeSnapshotOrderByWithRelationInput | AssistantCodeSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AssistantCodeSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantCodeSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantCodeSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AssistantCodeSnapshots
+    **/
+    _count?: true | AssistantCodeSnapshotCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AssistantCodeSnapshotAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AssistantCodeSnapshotSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AssistantCodeSnapshotMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AssistantCodeSnapshotMaxAggregateInputType
+  }
+
+  export type GetAssistantCodeSnapshotAggregateType<T extends AssistantCodeSnapshotAggregateArgs> = {
+        [P in keyof T & keyof AggregateAssistantCodeSnapshot]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAssistantCodeSnapshot[P]>
+      : GetScalarType<T[P], AggregateAssistantCodeSnapshot[P]>
+  }
+
+
+
+
+  export type AssistantCodeSnapshotGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AssistantCodeSnapshotWhereInput
+    orderBy?: AssistantCodeSnapshotOrderByWithAggregationInput | AssistantCodeSnapshotOrderByWithAggregationInput[]
+    by: AssistantCodeSnapshotScalarFieldEnum[] | AssistantCodeSnapshotScalarFieldEnum
+    having?: AssistantCodeSnapshotScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AssistantCodeSnapshotCountAggregateInputType | true
+    _avg?: AssistantCodeSnapshotAvgAggregateInputType
+    _sum?: AssistantCodeSnapshotSumAggregateInputType
+    _min?: AssistantCodeSnapshotMinAggregateInputType
+    _max?: AssistantCodeSnapshotMaxAggregateInputType
+  }
+
+  export type AssistantCodeSnapshotGroupByOutputType = {
+    id: string
+    sessionId: string
+    code: string
+    version: number
+    insertedAt: Date | null
+    createdAt: Date
+    _count: AssistantCodeSnapshotCountAggregateOutputType | null
+    _avg: AssistantCodeSnapshotAvgAggregateOutputType | null
+    _sum: AssistantCodeSnapshotSumAggregateOutputType | null
+    _min: AssistantCodeSnapshotMinAggregateOutputType | null
+    _max: AssistantCodeSnapshotMaxAggregateOutputType | null
+  }
+
+  type GetAssistantCodeSnapshotGroupByPayload<T extends AssistantCodeSnapshotGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AssistantCodeSnapshotGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AssistantCodeSnapshotGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AssistantCodeSnapshotGroupByOutputType[P]>
+            : GetScalarType<T[P], AssistantCodeSnapshotGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AssistantCodeSnapshotSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    version?: boolean
+    insertedAt?: boolean
+    createdAt?: boolean
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assistantCodeSnapshot"]>
+
+  export type AssistantCodeSnapshotSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    version?: boolean
+    insertedAt?: boolean
+    createdAt?: boolean
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["assistantCodeSnapshot"]>
+
+  export type AssistantCodeSnapshotSelectScalar = {
+    id?: boolean
+    sessionId?: boolean
+    code?: boolean
+    version?: boolean
+    insertedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type AssistantCodeSnapshotInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }
+  export type AssistantCodeSnapshotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    session?: boolean | AssistantSessionDefaultArgs<ExtArgs>
+  }
+
+  export type $AssistantCodeSnapshotPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AssistantCodeSnapshot"
+    objects: {
+      session: Prisma.$AssistantSessionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sessionId: string
+      code: string
+      version: number
+      insertedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["assistantCodeSnapshot"]>
+    composites: {}
+  }
+
+  type AssistantCodeSnapshotGetPayload<S extends boolean | null | undefined | AssistantCodeSnapshotDefaultArgs> = $Result.GetResult<Prisma.$AssistantCodeSnapshotPayload, S>
+
+  type AssistantCodeSnapshotCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AssistantCodeSnapshotFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AssistantCodeSnapshotCountAggregateInputType | true
+    }
+
+  export interface AssistantCodeSnapshotDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AssistantCodeSnapshot'], meta: { name: 'AssistantCodeSnapshot' } }
+    /**
+     * Find zero or one AssistantCodeSnapshot that matches the filter.
+     * @param {AssistantCodeSnapshotFindUniqueArgs} args - Arguments to find a AssistantCodeSnapshot
+     * @example
+     * // Get one AssistantCodeSnapshot
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AssistantCodeSnapshotFindUniqueArgs>(args: SelectSubset<T, AssistantCodeSnapshotFindUniqueArgs<ExtArgs>>): Prisma__AssistantCodeSnapshotClient<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one AssistantCodeSnapshot that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {AssistantCodeSnapshotFindUniqueOrThrowArgs} args - Arguments to find a AssistantCodeSnapshot
+     * @example
+     * // Get one AssistantCodeSnapshot
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AssistantCodeSnapshotFindUniqueOrThrowArgs>(args: SelectSubset<T, AssistantCodeSnapshotFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AssistantCodeSnapshotClient<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first AssistantCodeSnapshot that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantCodeSnapshotFindFirstArgs} args - Arguments to find a AssistantCodeSnapshot
+     * @example
+     * // Get one AssistantCodeSnapshot
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AssistantCodeSnapshotFindFirstArgs>(args?: SelectSubset<T, AssistantCodeSnapshotFindFirstArgs<ExtArgs>>): Prisma__AssistantCodeSnapshotClient<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first AssistantCodeSnapshot that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantCodeSnapshotFindFirstOrThrowArgs} args - Arguments to find a AssistantCodeSnapshot
+     * @example
+     * // Get one AssistantCodeSnapshot
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AssistantCodeSnapshotFindFirstOrThrowArgs>(args?: SelectSubset<T, AssistantCodeSnapshotFindFirstOrThrowArgs<ExtArgs>>): Prisma__AssistantCodeSnapshotClient<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more AssistantCodeSnapshots that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantCodeSnapshotFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AssistantCodeSnapshots
+     * const assistantCodeSnapshots = await prisma.assistantCodeSnapshot.findMany()
+     * 
+     * // Get first 10 AssistantCodeSnapshots
+     * const assistantCodeSnapshots = await prisma.assistantCodeSnapshot.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const assistantCodeSnapshotWithIdOnly = await prisma.assistantCodeSnapshot.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AssistantCodeSnapshotFindManyArgs>(args?: SelectSubset<T, AssistantCodeSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a AssistantCodeSnapshot.
+     * @param {AssistantCodeSnapshotCreateArgs} args - Arguments to create a AssistantCodeSnapshot.
+     * @example
+     * // Create one AssistantCodeSnapshot
+     * const AssistantCodeSnapshot = await prisma.assistantCodeSnapshot.create({
+     *   data: {
+     *     // ... data to create a AssistantCodeSnapshot
+     *   }
+     * })
+     * 
+     */
+    create<T extends AssistantCodeSnapshotCreateArgs>(args: SelectSubset<T, AssistantCodeSnapshotCreateArgs<ExtArgs>>): Prisma__AssistantCodeSnapshotClient<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many AssistantCodeSnapshots.
+     * @param {AssistantCodeSnapshotCreateManyArgs} args - Arguments to create many AssistantCodeSnapshots.
+     * @example
+     * // Create many AssistantCodeSnapshots
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AssistantCodeSnapshotCreateManyArgs>(args?: SelectSubset<T, AssistantCodeSnapshotCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AssistantCodeSnapshots and returns the data saved in the database.
+     * @param {AssistantCodeSnapshotCreateManyAndReturnArgs} args - Arguments to create many AssistantCodeSnapshots.
+     * @example
+     * // Create many AssistantCodeSnapshots
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AssistantCodeSnapshots and only return the `id`
+     * const assistantCodeSnapshotWithIdOnly = await prisma.assistantCodeSnapshot.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AssistantCodeSnapshotCreateManyAndReturnArgs>(args?: SelectSubset<T, AssistantCodeSnapshotCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a AssistantCodeSnapshot.
+     * @param {AssistantCodeSnapshotDeleteArgs} args - Arguments to delete one AssistantCodeSnapshot.
+     * @example
+     * // Delete one AssistantCodeSnapshot
+     * const AssistantCodeSnapshot = await prisma.assistantCodeSnapshot.delete({
+     *   where: {
+     *     // ... filter to delete one AssistantCodeSnapshot
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AssistantCodeSnapshotDeleteArgs>(args: SelectSubset<T, AssistantCodeSnapshotDeleteArgs<ExtArgs>>): Prisma__AssistantCodeSnapshotClient<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one AssistantCodeSnapshot.
+     * @param {AssistantCodeSnapshotUpdateArgs} args - Arguments to update one AssistantCodeSnapshot.
+     * @example
+     * // Update one AssistantCodeSnapshot
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AssistantCodeSnapshotUpdateArgs>(args: SelectSubset<T, AssistantCodeSnapshotUpdateArgs<ExtArgs>>): Prisma__AssistantCodeSnapshotClient<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more AssistantCodeSnapshots.
+     * @param {AssistantCodeSnapshotDeleteManyArgs} args - Arguments to filter AssistantCodeSnapshots to delete.
+     * @example
+     * // Delete a few AssistantCodeSnapshots
+     * const { count } = await prisma.assistantCodeSnapshot.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AssistantCodeSnapshotDeleteManyArgs>(args?: SelectSubset<T, AssistantCodeSnapshotDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AssistantCodeSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantCodeSnapshotUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AssistantCodeSnapshots
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AssistantCodeSnapshotUpdateManyArgs>(args: SelectSubset<T, AssistantCodeSnapshotUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AssistantCodeSnapshot.
+     * @param {AssistantCodeSnapshotUpsertArgs} args - Arguments to update or create a AssistantCodeSnapshot.
+     * @example
+     * // Update or create a AssistantCodeSnapshot
+     * const assistantCodeSnapshot = await prisma.assistantCodeSnapshot.upsert({
+     *   create: {
+     *     // ... data to create a AssistantCodeSnapshot
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AssistantCodeSnapshot we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AssistantCodeSnapshotUpsertArgs>(args: SelectSubset<T, AssistantCodeSnapshotUpsertArgs<ExtArgs>>): Prisma__AssistantCodeSnapshotClient<$Result.GetResult<Prisma.$AssistantCodeSnapshotPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of AssistantCodeSnapshots.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantCodeSnapshotCountArgs} args - Arguments to filter AssistantCodeSnapshots to count.
+     * @example
+     * // Count the number of AssistantCodeSnapshots
+     * const count = await prisma.assistantCodeSnapshot.count({
+     *   where: {
+     *     // ... the filter for the AssistantCodeSnapshots we want to count
+     *   }
+     * })
+    **/
+    count<T extends AssistantCodeSnapshotCountArgs>(
+      args?: Subset<T, AssistantCodeSnapshotCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AssistantCodeSnapshotCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AssistantCodeSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantCodeSnapshotAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AssistantCodeSnapshotAggregateArgs>(args: Subset<T, AssistantCodeSnapshotAggregateArgs>): Prisma.PrismaPromise<GetAssistantCodeSnapshotAggregateType<T>>
+
+    /**
+     * Group by AssistantCodeSnapshot.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AssistantCodeSnapshotGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AssistantCodeSnapshotGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AssistantCodeSnapshotGroupByArgs['orderBy'] }
+        : { orderBy?: AssistantCodeSnapshotGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AssistantCodeSnapshotGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAssistantCodeSnapshotGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AssistantCodeSnapshot model
+   */
+  readonly fields: AssistantCodeSnapshotFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AssistantCodeSnapshot.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AssistantCodeSnapshotClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    session<T extends AssistantSessionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AssistantSessionDefaultArgs<ExtArgs>>): Prisma__AssistantSessionClient<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AssistantCodeSnapshot model
+   */ 
+  interface AssistantCodeSnapshotFieldRefs {
+    readonly id: FieldRef<"AssistantCodeSnapshot", 'String'>
+    readonly sessionId: FieldRef<"AssistantCodeSnapshot", 'String'>
+    readonly code: FieldRef<"AssistantCodeSnapshot", 'String'>
+    readonly version: FieldRef<"AssistantCodeSnapshot", 'Int'>
+    readonly insertedAt: FieldRef<"AssistantCodeSnapshot", 'DateTime'>
+    readonly createdAt: FieldRef<"AssistantCodeSnapshot", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AssistantCodeSnapshot findUnique
+   */
+  export type AssistantCodeSnapshotFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantCodeSnapshot to fetch.
+     */
+    where: AssistantCodeSnapshotWhereUniqueInput
+  }
+
+  /**
+   * AssistantCodeSnapshot findUniqueOrThrow
+   */
+  export type AssistantCodeSnapshotFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantCodeSnapshot to fetch.
+     */
+    where: AssistantCodeSnapshotWhereUniqueInput
+  }
+
+  /**
+   * AssistantCodeSnapshot findFirst
+   */
+  export type AssistantCodeSnapshotFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantCodeSnapshot to fetch.
+     */
+    where?: AssistantCodeSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantCodeSnapshots to fetch.
+     */
+    orderBy?: AssistantCodeSnapshotOrderByWithRelationInput | AssistantCodeSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssistantCodeSnapshots.
+     */
+    cursor?: AssistantCodeSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantCodeSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantCodeSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssistantCodeSnapshots.
+     */
+    distinct?: AssistantCodeSnapshotScalarFieldEnum | AssistantCodeSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantCodeSnapshot findFirstOrThrow
+   */
+  export type AssistantCodeSnapshotFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantCodeSnapshot to fetch.
+     */
+    where?: AssistantCodeSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantCodeSnapshots to fetch.
+     */
+    orderBy?: AssistantCodeSnapshotOrderByWithRelationInput | AssistantCodeSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AssistantCodeSnapshots.
+     */
+    cursor?: AssistantCodeSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantCodeSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantCodeSnapshots.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AssistantCodeSnapshots.
+     */
+    distinct?: AssistantCodeSnapshotScalarFieldEnum | AssistantCodeSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantCodeSnapshot findMany
+   */
+  export type AssistantCodeSnapshotFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter, which AssistantCodeSnapshots to fetch.
+     */
+    where?: AssistantCodeSnapshotWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AssistantCodeSnapshots to fetch.
+     */
+    orderBy?: AssistantCodeSnapshotOrderByWithRelationInput | AssistantCodeSnapshotOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AssistantCodeSnapshots.
+     */
+    cursor?: AssistantCodeSnapshotWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AssistantCodeSnapshots from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AssistantCodeSnapshots.
+     */
+    skip?: number
+    distinct?: AssistantCodeSnapshotScalarFieldEnum | AssistantCodeSnapshotScalarFieldEnum[]
+  }
+
+  /**
+   * AssistantCodeSnapshot create
+   */
+  export type AssistantCodeSnapshotCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AssistantCodeSnapshot.
+     */
+    data: XOR<AssistantCodeSnapshotCreateInput, AssistantCodeSnapshotUncheckedCreateInput>
+  }
+
+  /**
+   * AssistantCodeSnapshot createMany
+   */
+  export type AssistantCodeSnapshotCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AssistantCodeSnapshots.
+     */
+    data: AssistantCodeSnapshotCreateManyInput | AssistantCodeSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AssistantCodeSnapshot createManyAndReturn
+   */
+  export type AssistantCodeSnapshotCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many AssistantCodeSnapshots.
+     */
+    data: AssistantCodeSnapshotCreateManyInput | AssistantCodeSnapshotCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AssistantCodeSnapshot update
+   */
+  export type AssistantCodeSnapshotUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AssistantCodeSnapshot.
+     */
+    data: XOR<AssistantCodeSnapshotUpdateInput, AssistantCodeSnapshotUncheckedUpdateInput>
+    /**
+     * Choose, which AssistantCodeSnapshot to update.
+     */
+    where: AssistantCodeSnapshotWhereUniqueInput
+  }
+
+  /**
+   * AssistantCodeSnapshot updateMany
+   */
+  export type AssistantCodeSnapshotUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AssistantCodeSnapshots.
+     */
+    data: XOR<AssistantCodeSnapshotUpdateManyMutationInput, AssistantCodeSnapshotUncheckedUpdateManyInput>
+    /**
+     * Filter which AssistantCodeSnapshots to update
+     */
+    where?: AssistantCodeSnapshotWhereInput
+  }
+
+  /**
+   * AssistantCodeSnapshot upsert
+   */
+  export type AssistantCodeSnapshotUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AssistantCodeSnapshot to update in case it exists.
+     */
+    where: AssistantCodeSnapshotWhereUniqueInput
+    /**
+     * In case the AssistantCodeSnapshot found by the `where` argument doesn't exist, create a new AssistantCodeSnapshot with this data.
+     */
+    create: XOR<AssistantCodeSnapshotCreateInput, AssistantCodeSnapshotUncheckedCreateInput>
+    /**
+     * In case the AssistantCodeSnapshot was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AssistantCodeSnapshotUpdateInput, AssistantCodeSnapshotUncheckedUpdateInput>
+  }
+
+  /**
+   * AssistantCodeSnapshot delete
+   */
+  export type AssistantCodeSnapshotDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+    /**
+     * Filter which AssistantCodeSnapshot to delete.
+     */
+    where: AssistantCodeSnapshotWhereUniqueInput
+  }
+
+  /**
+   * AssistantCodeSnapshot deleteMany
+   */
+  export type AssistantCodeSnapshotDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AssistantCodeSnapshots to delete
+     */
+    where?: AssistantCodeSnapshotWhereInput
+  }
+
+  /**
+   * AssistantCodeSnapshot without action
+   */
+  export type AssistantCodeSnapshotDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AssistantCodeSnapshot
+     */
+    select?: AssistantCodeSnapshotSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AssistantCodeSnapshotInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -44655,10 +51394,25 @@ export namespace Prisma {
     organizationId: 'organizationId',
     createdById: 'createdById',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    aiCreditsRemaining: 'aiCreditsRemaining',
+    aiCreditsMax: 'aiCreditsMax'
   };
 
   export type ProblemScalarFieldEnum = (typeof ProblemScalarFieldEnum)[keyof typeof ProblemScalarFieldEnum]
+
+
+  export const ProblemAiCreditLogScalarFieldEnum: {
+    id: 'id',
+    problemId: 'problemId',
+    userId: 'userId',
+    action: 'action',
+    creditsDeducted: 'creditsDeducted',
+    creditsRemaining: 'creditsRemaining',
+    createdAt: 'createdAt'
+  };
+
+  export type ProblemAiCreditLogScalarFieldEnum = (typeof ProblemAiCreditLogScalarFieldEnum)[keyof typeof ProblemAiCreditLogScalarFieldEnum]
 
 
   export const TestCaseScalarFieldEnum: {
@@ -45228,6 +51982,72 @@ export namespace Prisma {
   export type InterviewExecutionResultScalarFieldEnum = (typeof InterviewExecutionResultScalarFieldEnum)[keyof typeof InterviewExecutionResultScalarFieldEnum]
 
 
+  export const AssistantSessionScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    problemId: 'problemId',
+    stage: 'stage',
+    tokenBudget: 'tokenBudget',
+    tokensUsed: 'tokensUsed',
+    codeGenerated: 'codeGenerated',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AssistantSessionScalarFieldEnum = (typeof AssistantSessionScalarFieldEnum)[keyof typeof AssistantSessionScalarFieldEnum]
+
+
+  export const CapturedAnswerScalarFieldEnum: {
+    sessionId: 'sessionId',
+    problemSummary: 'problemSummary',
+    dsChoice: 'dsChoice',
+    approach: 'approach'
+  };
+
+  export type CapturedAnswerScalarFieldEnum = (typeof CapturedAnswerScalarFieldEnum)[keyof typeof CapturedAnswerScalarFieldEnum]
+
+
+  export const AssistantTranscriptScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    turnIndex: 'turnIndex',
+    role: 'role',
+    stageAtTime: 'stageAtTime',
+    message: 'message',
+    gateResult: 'gateResult',
+    tokensConsumed: 'tokensConsumed',
+    llmCallType: 'llmCallType',
+    createdAt: 'createdAt'
+  };
+
+  export type AssistantTranscriptScalarFieldEnum = (typeof AssistantTranscriptScalarFieldEnum)[keyof typeof AssistantTranscriptScalarFieldEnum]
+
+
+  export const AssistantStageEventScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    fromStage: 'fromStage',
+    toStage: 'toStage',
+    eventType: 'eventType',
+    reason: 'reason',
+    createdAt: 'createdAt'
+  };
+
+  export type AssistantStageEventScalarFieldEnum = (typeof AssistantStageEventScalarFieldEnum)[keyof typeof AssistantStageEventScalarFieldEnum]
+
+
+  export const AssistantCodeSnapshotScalarFieldEnum: {
+    id: 'id',
+    sessionId: 'sessionId',
+    code: 'code',
+    version: 'version',
+    insertedAt: 'insertedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type AssistantCodeSnapshotScalarFieldEnum = (typeof AssistantCodeSnapshotScalarFieldEnum)[keyof typeof AssistantCodeSnapshotScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -45601,6 +52421,20 @@ export namespace Prisma {
    */
   export type ListEnumRecommendationFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Recommendation[]'>
     
+
+
+  /**
+   * Reference to a field of type 'AssistantStage'
+   */
+  export type EnumAssistantStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssistantStage'>
+    
+
+
+  /**
+   * Reference to a field of type 'AssistantStage[]'
+   */
+  export type ListEnumAssistantStageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AssistantStage[]'>
+    
   /**
    * Deep Input Types
    */
@@ -45785,6 +52619,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionListRelationFilter
     candidateSessions?: MockInterviewSessionListRelationFilter
     interviewParticipants?: InterviewParticipantListRelationFilter
+    assistantSessions?: AssistantSessionListRelationFilter
+    problemAiCreditLogs?: ProblemAiCreditLogListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -45828,6 +52664,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionOrderByRelationAggregateInput
     candidateSessions?: MockInterviewSessionOrderByRelationAggregateInput
     interviewParticipants?: InterviewParticipantOrderByRelationAggregateInput
+    assistantSessions?: AssistantSessionOrderByRelationAggregateInput
+    problemAiCreditLogs?: ProblemAiCreditLogOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -45874,6 +52712,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionListRelationFilter
     candidateSessions?: MockInterviewSessionListRelationFilter
     interviewParticipants?: InterviewParticipantListRelationFilter
+    assistantSessions?: AssistantSessionListRelationFilter
+    problemAiCreditLogs?: ProblemAiCreditLogListRelationFilter
   }, "id" | "email" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -45941,8 +52781,11 @@ export namespace Prisma {
     createdById?: StringNullableFilter<"Problem"> | string | null
     createdAt?: DateTimeFilter<"Problem"> | Date | string
     updatedAt?: DateTimeFilter<"Problem"> | Date | string
+    aiCreditsRemaining?: IntFilter<"Problem"> | number
+    aiCreditsMax?: IntFilter<"Problem"> | number
     organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
     createdBy?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    aiCreditLogs?: ProblemAiCreditLogListRelationFilter
     testCases?: TestCaseListRelationFilter
     contestProblems?: ContestProblemListRelationFilter
     submissions?: SubmissionListRelationFilter
@@ -45967,8 +52810,11 @@ export namespace Prisma {
     createdById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiCreditsRemaining?: SortOrder
+    aiCreditsMax?: SortOrder
     organization?: OrganizationOrderByWithRelationInput
     createdBy?: UserOrderByWithRelationInput
+    aiCreditLogs?: ProblemAiCreditLogOrderByRelationAggregateInput
     testCases?: TestCaseOrderByRelationAggregateInput
     contestProblems?: ContestProblemOrderByRelationAggregateInput
     submissions?: SubmissionOrderByRelationAggregateInput
@@ -45996,8 +52842,11 @@ export namespace Prisma {
     createdById?: StringNullableFilter<"Problem"> | string | null
     createdAt?: DateTimeFilter<"Problem"> | Date | string
     updatedAt?: DateTimeFilter<"Problem"> | Date | string
+    aiCreditsRemaining?: IntFilter<"Problem"> | number
+    aiCreditsMax?: IntFilter<"Problem"> | number
     organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
     createdBy?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    aiCreditLogs?: ProblemAiCreditLogListRelationFilter
     testCases?: TestCaseListRelationFilter
     contestProblems?: ContestProblemListRelationFilter
     submissions?: SubmissionListRelationFilter
@@ -46022,9 +52871,13 @@ export namespace Prisma {
     createdById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiCreditsRemaining?: SortOrder
+    aiCreditsMax?: SortOrder
     _count?: ProblemCountOrderByAggregateInput
+    _avg?: ProblemAvgOrderByAggregateInput
     _max?: ProblemMaxOrderByAggregateInput
     _min?: ProblemMinOrderByAggregateInput
+    _sum?: ProblemSumOrderByAggregateInput
   }
 
   export type ProblemScalarWhereWithAggregatesInput = {
@@ -46048,6 +52901,78 @@ export namespace Prisma {
     createdById?: StringNullableWithAggregatesFilter<"Problem"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Problem"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Problem"> | Date | string
+    aiCreditsRemaining?: IntWithAggregatesFilter<"Problem"> | number
+    aiCreditsMax?: IntWithAggregatesFilter<"Problem"> | number
+  }
+
+  export type ProblemAiCreditLogWhereInput = {
+    AND?: ProblemAiCreditLogWhereInput | ProblemAiCreditLogWhereInput[]
+    OR?: ProblemAiCreditLogWhereInput[]
+    NOT?: ProblemAiCreditLogWhereInput | ProblemAiCreditLogWhereInput[]
+    id?: StringFilter<"ProblemAiCreditLog"> | string
+    problemId?: StringFilter<"ProblemAiCreditLog"> | string
+    userId?: StringFilter<"ProblemAiCreditLog"> | string
+    action?: StringFilter<"ProblemAiCreditLog"> | string
+    creditsDeducted?: IntFilter<"ProblemAiCreditLog"> | number
+    creditsRemaining?: IntFilter<"ProblemAiCreditLog"> | number
+    createdAt?: DateTimeFilter<"ProblemAiCreditLog"> | Date | string
+    problem?: XOR<ProblemRelationFilter, ProblemWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }
+
+  export type ProblemAiCreditLogOrderByWithRelationInput = {
+    id?: SortOrder
+    problemId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    creditsDeducted?: SortOrder
+    creditsRemaining?: SortOrder
+    createdAt?: SortOrder
+    problem?: ProblemOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type ProblemAiCreditLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ProblemAiCreditLogWhereInput | ProblemAiCreditLogWhereInput[]
+    OR?: ProblemAiCreditLogWhereInput[]
+    NOT?: ProblemAiCreditLogWhereInput | ProblemAiCreditLogWhereInput[]
+    problemId?: StringFilter<"ProblemAiCreditLog"> | string
+    userId?: StringFilter<"ProblemAiCreditLog"> | string
+    action?: StringFilter<"ProblemAiCreditLog"> | string
+    creditsDeducted?: IntFilter<"ProblemAiCreditLog"> | number
+    creditsRemaining?: IntFilter<"ProblemAiCreditLog"> | number
+    createdAt?: DateTimeFilter<"ProblemAiCreditLog"> | Date | string
+    problem?: XOR<ProblemRelationFilter, ProblemWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type ProblemAiCreditLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    problemId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    creditsDeducted?: SortOrder
+    creditsRemaining?: SortOrder
+    createdAt?: SortOrder
+    _count?: ProblemAiCreditLogCountOrderByAggregateInput
+    _avg?: ProblemAiCreditLogAvgOrderByAggregateInput
+    _max?: ProblemAiCreditLogMaxOrderByAggregateInput
+    _min?: ProblemAiCreditLogMinOrderByAggregateInput
+    _sum?: ProblemAiCreditLogSumOrderByAggregateInput
+  }
+
+  export type ProblemAiCreditLogScalarWhereWithAggregatesInput = {
+    AND?: ProblemAiCreditLogScalarWhereWithAggregatesInput | ProblemAiCreditLogScalarWhereWithAggregatesInput[]
+    OR?: ProblemAiCreditLogScalarWhereWithAggregatesInput[]
+    NOT?: ProblemAiCreditLogScalarWhereWithAggregatesInput | ProblemAiCreditLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProblemAiCreditLog"> | string
+    problemId?: StringWithAggregatesFilter<"ProblemAiCreditLog"> | string
+    userId?: StringWithAggregatesFilter<"ProblemAiCreditLog"> | string
+    action?: StringWithAggregatesFilter<"ProblemAiCreditLog"> | string
+    creditsDeducted?: IntWithAggregatesFilter<"ProblemAiCreditLog"> | number
+    creditsRemaining?: IntWithAggregatesFilter<"ProblemAiCreditLog"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"ProblemAiCreditLog"> | Date | string
   }
 
   export type TestCaseWhereInput = {
@@ -49064,6 +55989,354 @@ export namespace Prisma {
     executedAt?: DateTimeWithAggregatesFilter<"InterviewExecutionResult"> | Date | string
   }
 
+  export type AssistantSessionWhereInput = {
+    AND?: AssistantSessionWhereInput | AssistantSessionWhereInput[]
+    OR?: AssistantSessionWhereInput[]
+    NOT?: AssistantSessionWhereInput | AssistantSessionWhereInput[]
+    id?: StringFilter<"AssistantSession"> | string
+    userId?: StringFilter<"AssistantSession"> | string
+    problemId?: StringNullableFilter<"AssistantSession"> | string | null
+    stage?: EnumAssistantStageFilter<"AssistantSession"> | $Enums.AssistantStage
+    tokenBudget?: IntFilter<"AssistantSession"> | number
+    tokensUsed?: IntFilter<"AssistantSession"> | number
+    codeGenerated?: BoolFilter<"AssistantSession"> | boolean
+    createdAt?: DateTimeFilter<"AssistantSession"> | Date | string
+    updatedAt?: DateTimeFilter<"AssistantSession"> | Date | string
+    user?: XOR<UserRelationFilter, UserWhereInput>
+    capturedAnswers?: XOR<CapturedAnswerNullableRelationFilter, CapturedAnswerWhereInput> | null
+    transcripts?: AssistantTranscriptListRelationFilter
+    stageEvents?: AssistantStageEventListRelationFilter
+    codeSnapshots?: AssistantCodeSnapshotListRelationFilter
+  }
+
+  export type AssistantSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    problemId?: SortOrderInput | SortOrder
+    stage?: SortOrder
+    tokenBudget?: SortOrder
+    tokensUsed?: SortOrder
+    codeGenerated?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+    capturedAnswers?: CapturedAnswerOrderByWithRelationInput
+    transcripts?: AssistantTranscriptOrderByRelationAggregateInput
+    stageEvents?: AssistantStageEventOrderByRelationAggregateInput
+    codeSnapshots?: AssistantCodeSnapshotOrderByRelationAggregateInput
+  }
+
+  export type AssistantSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AssistantSessionWhereInput | AssistantSessionWhereInput[]
+    OR?: AssistantSessionWhereInput[]
+    NOT?: AssistantSessionWhereInput | AssistantSessionWhereInput[]
+    userId?: StringFilter<"AssistantSession"> | string
+    problemId?: StringNullableFilter<"AssistantSession"> | string | null
+    stage?: EnumAssistantStageFilter<"AssistantSession"> | $Enums.AssistantStage
+    tokenBudget?: IntFilter<"AssistantSession"> | number
+    tokensUsed?: IntFilter<"AssistantSession"> | number
+    codeGenerated?: BoolFilter<"AssistantSession"> | boolean
+    createdAt?: DateTimeFilter<"AssistantSession"> | Date | string
+    updatedAt?: DateTimeFilter<"AssistantSession"> | Date | string
+    user?: XOR<UserRelationFilter, UserWhereInput>
+    capturedAnswers?: XOR<CapturedAnswerNullableRelationFilter, CapturedAnswerWhereInput> | null
+    transcripts?: AssistantTranscriptListRelationFilter
+    stageEvents?: AssistantStageEventListRelationFilter
+    codeSnapshots?: AssistantCodeSnapshotListRelationFilter
+  }, "id">
+
+  export type AssistantSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    problemId?: SortOrderInput | SortOrder
+    stage?: SortOrder
+    tokenBudget?: SortOrder
+    tokensUsed?: SortOrder
+    codeGenerated?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AssistantSessionCountOrderByAggregateInput
+    _avg?: AssistantSessionAvgOrderByAggregateInput
+    _max?: AssistantSessionMaxOrderByAggregateInput
+    _min?: AssistantSessionMinOrderByAggregateInput
+    _sum?: AssistantSessionSumOrderByAggregateInput
+  }
+
+  export type AssistantSessionScalarWhereWithAggregatesInput = {
+    AND?: AssistantSessionScalarWhereWithAggregatesInput | AssistantSessionScalarWhereWithAggregatesInput[]
+    OR?: AssistantSessionScalarWhereWithAggregatesInput[]
+    NOT?: AssistantSessionScalarWhereWithAggregatesInput | AssistantSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AssistantSession"> | string
+    userId?: StringWithAggregatesFilter<"AssistantSession"> | string
+    problemId?: StringNullableWithAggregatesFilter<"AssistantSession"> | string | null
+    stage?: EnumAssistantStageWithAggregatesFilter<"AssistantSession"> | $Enums.AssistantStage
+    tokenBudget?: IntWithAggregatesFilter<"AssistantSession"> | number
+    tokensUsed?: IntWithAggregatesFilter<"AssistantSession"> | number
+    codeGenerated?: BoolWithAggregatesFilter<"AssistantSession"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"AssistantSession"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"AssistantSession"> | Date | string
+  }
+
+  export type CapturedAnswerWhereInput = {
+    AND?: CapturedAnswerWhereInput | CapturedAnswerWhereInput[]
+    OR?: CapturedAnswerWhereInput[]
+    NOT?: CapturedAnswerWhereInput | CapturedAnswerWhereInput[]
+    sessionId?: StringFilter<"CapturedAnswer"> | string
+    problemSummary?: StringNullableFilter<"CapturedAnswer"> | string | null
+    dsChoice?: StringNullableFilter<"CapturedAnswer"> | string | null
+    approach?: StringNullableFilter<"CapturedAnswer"> | string | null
+    session?: XOR<AssistantSessionRelationFilter, AssistantSessionWhereInput>
+  }
+
+  export type CapturedAnswerOrderByWithRelationInput = {
+    sessionId?: SortOrder
+    problemSummary?: SortOrderInput | SortOrder
+    dsChoice?: SortOrderInput | SortOrder
+    approach?: SortOrderInput | SortOrder
+    session?: AssistantSessionOrderByWithRelationInput
+  }
+
+  export type CapturedAnswerWhereUniqueInput = Prisma.AtLeast<{
+    sessionId?: string
+    AND?: CapturedAnswerWhereInput | CapturedAnswerWhereInput[]
+    OR?: CapturedAnswerWhereInput[]
+    NOT?: CapturedAnswerWhereInput | CapturedAnswerWhereInput[]
+    problemSummary?: StringNullableFilter<"CapturedAnswer"> | string | null
+    dsChoice?: StringNullableFilter<"CapturedAnswer"> | string | null
+    approach?: StringNullableFilter<"CapturedAnswer"> | string | null
+    session?: XOR<AssistantSessionRelationFilter, AssistantSessionWhereInput>
+  }, "sessionId">
+
+  export type CapturedAnswerOrderByWithAggregationInput = {
+    sessionId?: SortOrder
+    problemSummary?: SortOrderInput | SortOrder
+    dsChoice?: SortOrderInput | SortOrder
+    approach?: SortOrderInput | SortOrder
+    _count?: CapturedAnswerCountOrderByAggregateInput
+    _max?: CapturedAnswerMaxOrderByAggregateInput
+    _min?: CapturedAnswerMinOrderByAggregateInput
+  }
+
+  export type CapturedAnswerScalarWhereWithAggregatesInput = {
+    AND?: CapturedAnswerScalarWhereWithAggregatesInput | CapturedAnswerScalarWhereWithAggregatesInput[]
+    OR?: CapturedAnswerScalarWhereWithAggregatesInput[]
+    NOT?: CapturedAnswerScalarWhereWithAggregatesInput | CapturedAnswerScalarWhereWithAggregatesInput[]
+    sessionId?: StringWithAggregatesFilter<"CapturedAnswer"> | string
+    problemSummary?: StringNullableWithAggregatesFilter<"CapturedAnswer"> | string | null
+    dsChoice?: StringNullableWithAggregatesFilter<"CapturedAnswer"> | string | null
+    approach?: StringNullableWithAggregatesFilter<"CapturedAnswer"> | string | null
+  }
+
+  export type AssistantTranscriptWhereInput = {
+    AND?: AssistantTranscriptWhereInput | AssistantTranscriptWhereInput[]
+    OR?: AssistantTranscriptWhereInput[]
+    NOT?: AssistantTranscriptWhereInput | AssistantTranscriptWhereInput[]
+    id?: StringFilter<"AssistantTranscript"> | string
+    sessionId?: StringFilter<"AssistantTranscript"> | string
+    turnIndex?: IntFilter<"AssistantTranscript"> | number
+    role?: StringFilter<"AssistantTranscript"> | string
+    stageAtTime?: EnumAssistantStageFilter<"AssistantTranscript"> | $Enums.AssistantStage
+    message?: StringFilter<"AssistantTranscript"> | string
+    gateResult?: JsonNullableFilter<"AssistantTranscript">
+    tokensConsumed?: IntFilter<"AssistantTranscript"> | number
+    llmCallType?: StringNullableFilter<"AssistantTranscript"> | string | null
+    createdAt?: DateTimeFilter<"AssistantTranscript"> | Date | string
+    session?: XOR<AssistantSessionRelationFilter, AssistantSessionWhereInput>
+  }
+
+  export type AssistantTranscriptOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    turnIndex?: SortOrder
+    role?: SortOrder
+    stageAtTime?: SortOrder
+    message?: SortOrder
+    gateResult?: SortOrderInput | SortOrder
+    tokensConsumed?: SortOrder
+    llmCallType?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    session?: AssistantSessionOrderByWithRelationInput
+  }
+
+  export type AssistantTranscriptWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AssistantTranscriptWhereInput | AssistantTranscriptWhereInput[]
+    OR?: AssistantTranscriptWhereInput[]
+    NOT?: AssistantTranscriptWhereInput | AssistantTranscriptWhereInput[]
+    sessionId?: StringFilter<"AssistantTranscript"> | string
+    turnIndex?: IntFilter<"AssistantTranscript"> | number
+    role?: StringFilter<"AssistantTranscript"> | string
+    stageAtTime?: EnumAssistantStageFilter<"AssistantTranscript"> | $Enums.AssistantStage
+    message?: StringFilter<"AssistantTranscript"> | string
+    gateResult?: JsonNullableFilter<"AssistantTranscript">
+    tokensConsumed?: IntFilter<"AssistantTranscript"> | number
+    llmCallType?: StringNullableFilter<"AssistantTranscript"> | string | null
+    createdAt?: DateTimeFilter<"AssistantTranscript"> | Date | string
+    session?: XOR<AssistantSessionRelationFilter, AssistantSessionWhereInput>
+  }, "id">
+
+  export type AssistantTranscriptOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    turnIndex?: SortOrder
+    role?: SortOrder
+    stageAtTime?: SortOrder
+    message?: SortOrder
+    gateResult?: SortOrderInput | SortOrder
+    tokensConsumed?: SortOrder
+    llmCallType?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AssistantTranscriptCountOrderByAggregateInput
+    _avg?: AssistantTranscriptAvgOrderByAggregateInput
+    _max?: AssistantTranscriptMaxOrderByAggregateInput
+    _min?: AssistantTranscriptMinOrderByAggregateInput
+    _sum?: AssistantTranscriptSumOrderByAggregateInput
+  }
+
+  export type AssistantTranscriptScalarWhereWithAggregatesInput = {
+    AND?: AssistantTranscriptScalarWhereWithAggregatesInput | AssistantTranscriptScalarWhereWithAggregatesInput[]
+    OR?: AssistantTranscriptScalarWhereWithAggregatesInput[]
+    NOT?: AssistantTranscriptScalarWhereWithAggregatesInput | AssistantTranscriptScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AssistantTranscript"> | string
+    sessionId?: StringWithAggregatesFilter<"AssistantTranscript"> | string
+    turnIndex?: IntWithAggregatesFilter<"AssistantTranscript"> | number
+    role?: StringWithAggregatesFilter<"AssistantTranscript"> | string
+    stageAtTime?: EnumAssistantStageWithAggregatesFilter<"AssistantTranscript"> | $Enums.AssistantStage
+    message?: StringWithAggregatesFilter<"AssistantTranscript"> | string
+    gateResult?: JsonNullableWithAggregatesFilter<"AssistantTranscript">
+    tokensConsumed?: IntWithAggregatesFilter<"AssistantTranscript"> | number
+    llmCallType?: StringNullableWithAggregatesFilter<"AssistantTranscript"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AssistantTranscript"> | Date | string
+  }
+
+  export type AssistantStageEventWhereInput = {
+    AND?: AssistantStageEventWhereInput | AssistantStageEventWhereInput[]
+    OR?: AssistantStageEventWhereInput[]
+    NOT?: AssistantStageEventWhereInput | AssistantStageEventWhereInput[]
+    id?: StringFilter<"AssistantStageEvent"> | string
+    sessionId?: StringFilter<"AssistantStageEvent"> | string
+    fromStage?: EnumAssistantStageNullableFilter<"AssistantStageEvent"> | $Enums.AssistantStage | null
+    toStage?: EnumAssistantStageNullableFilter<"AssistantStageEvent"> | $Enums.AssistantStage | null
+    eventType?: StringFilter<"AssistantStageEvent"> | string
+    reason?: StringNullableFilter<"AssistantStageEvent"> | string | null
+    createdAt?: DateTimeFilter<"AssistantStageEvent"> | Date | string
+    session?: XOR<AssistantSessionRelationFilter, AssistantSessionWhereInput>
+  }
+
+  export type AssistantStageEventOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    fromStage?: SortOrderInput | SortOrder
+    toStage?: SortOrderInput | SortOrder
+    eventType?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    session?: AssistantSessionOrderByWithRelationInput
+  }
+
+  export type AssistantStageEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AssistantStageEventWhereInput | AssistantStageEventWhereInput[]
+    OR?: AssistantStageEventWhereInput[]
+    NOT?: AssistantStageEventWhereInput | AssistantStageEventWhereInput[]
+    sessionId?: StringFilter<"AssistantStageEvent"> | string
+    fromStage?: EnumAssistantStageNullableFilter<"AssistantStageEvent"> | $Enums.AssistantStage | null
+    toStage?: EnumAssistantStageNullableFilter<"AssistantStageEvent"> | $Enums.AssistantStage | null
+    eventType?: StringFilter<"AssistantStageEvent"> | string
+    reason?: StringNullableFilter<"AssistantStageEvent"> | string | null
+    createdAt?: DateTimeFilter<"AssistantStageEvent"> | Date | string
+    session?: XOR<AssistantSessionRelationFilter, AssistantSessionWhereInput>
+  }, "id">
+
+  export type AssistantStageEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    fromStage?: SortOrderInput | SortOrder
+    toStage?: SortOrderInput | SortOrder
+    eventType?: SortOrder
+    reason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AssistantStageEventCountOrderByAggregateInput
+    _max?: AssistantStageEventMaxOrderByAggregateInput
+    _min?: AssistantStageEventMinOrderByAggregateInput
+  }
+
+  export type AssistantStageEventScalarWhereWithAggregatesInput = {
+    AND?: AssistantStageEventScalarWhereWithAggregatesInput | AssistantStageEventScalarWhereWithAggregatesInput[]
+    OR?: AssistantStageEventScalarWhereWithAggregatesInput[]
+    NOT?: AssistantStageEventScalarWhereWithAggregatesInput | AssistantStageEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AssistantStageEvent"> | string
+    sessionId?: StringWithAggregatesFilter<"AssistantStageEvent"> | string
+    fromStage?: EnumAssistantStageNullableWithAggregatesFilter<"AssistantStageEvent"> | $Enums.AssistantStage | null
+    toStage?: EnumAssistantStageNullableWithAggregatesFilter<"AssistantStageEvent"> | $Enums.AssistantStage | null
+    eventType?: StringWithAggregatesFilter<"AssistantStageEvent"> | string
+    reason?: StringNullableWithAggregatesFilter<"AssistantStageEvent"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AssistantStageEvent"> | Date | string
+  }
+
+  export type AssistantCodeSnapshotWhereInput = {
+    AND?: AssistantCodeSnapshotWhereInput | AssistantCodeSnapshotWhereInput[]
+    OR?: AssistantCodeSnapshotWhereInput[]
+    NOT?: AssistantCodeSnapshotWhereInput | AssistantCodeSnapshotWhereInput[]
+    id?: StringFilter<"AssistantCodeSnapshot"> | string
+    sessionId?: StringFilter<"AssistantCodeSnapshot"> | string
+    code?: StringFilter<"AssistantCodeSnapshot"> | string
+    version?: IntFilter<"AssistantCodeSnapshot"> | number
+    insertedAt?: DateTimeNullableFilter<"AssistantCodeSnapshot"> | Date | string | null
+    createdAt?: DateTimeFilter<"AssistantCodeSnapshot"> | Date | string
+    session?: XOR<AssistantSessionRelationFilter, AssistantSessionWhereInput>
+  }
+
+  export type AssistantCodeSnapshotOrderByWithRelationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    version?: SortOrder
+    insertedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    session?: AssistantSessionOrderByWithRelationInput
+  }
+
+  export type AssistantCodeSnapshotWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AssistantCodeSnapshotWhereInput | AssistantCodeSnapshotWhereInput[]
+    OR?: AssistantCodeSnapshotWhereInput[]
+    NOT?: AssistantCodeSnapshotWhereInput | AssistantCodeSnapshotWhereInput[]
+    sessionId?: StringFilter<"AssistantCodeSnapshot"> | string
+    code?: StringFilter<"AssistantCodeSnapshot"> | string
+    version?: IntFilter<"AssistantCodeSnapshot"> | number
+    insertedAt?: DateTimeNullableFilter<"AssistantCodeSnapshot"> | Date | string | null
+    createdAt?: DateTimeFilter<"AssistantCodeSnapshot"> | Date | string
+    session?: XOR<AssistantSessionRelationFilter, AssistantSessionWhereInput>
+  }, "id">
+
+  export type AssistantCodeSnapshotOrderByWithAggregationInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    version?: SortOrder
+    insertedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AssistantCodeSnapshotCountOrderByAggregateInput
+    _avg?: AssistantCodeSnapshotAvgOrderByAggregateInput
+    _max?: AssistantCodeSnapshotMaxOrderByAggregateInput
+    _min?: AssistantCodeSnapshotMinOrderByAggregateInput
+    _sum?: AssistantCodeSnapshotSumOrderByAggregateInput
+  }
+
+  export type AssistantCodeSnapshotScalarWhereWithAggregatesInput = {
+    AND?: AssistantCodeSnapshotScalarWhereWithAggregatesInput | AssistantCodeSnapshotScalarWhereWithAggregatesInput[]
+    OR?: AssistantCodeSnapshotScalarWhereWithAggregatesInput[]
+    NOT?: AssistantCodeSnapshotScalarWhereWithAggregatesInput | AssistantCodeSnapshotScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AssistantCodeSnapshot"> | string
+    sessionId?: StringWithAggregatesFilter<"AssistantCodeSnapshot"> | string
+    code?: StringWithAggregatesFilter<"AssistantCodeSnapshot"> | string
+    version?: IntWithAggregatesFilter<"AssistantCodeSnapshot"> | number
+    insertedAt?: DateTimeNullableWithAggregatesFilter<"AssistantCodeSnapshot"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AssistantCodeSnapshot"> | Date | string
+  }
+
   export type OrganizationCreateInput = {
     id?: string
     name: string
@@ -49271,6 +56544,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -49312,6 +56587,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -49353,6 +56630,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -49394,6 +56673,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -49467,8 +56748,11 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
     organization?: OrganizationCreateNestedOneWithoutProblemsInput
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
+    aiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutProblemInput
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
@@ -49493,6 +56777,9 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutProblemInput
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
@@ -49515,8 +56802,11 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
     organization?: OrganizationUpdateOneWithoutProblemsNestedInput
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
+    aiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
@@ -49541,6 +56831,9 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
@@ -49565,6 +56858,8 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
   }
 
   export type ProblemUpdateManyMutationInput = {
@@ -49583,6 +56878,8 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
   }
 
   export type ProblemUncheckedUpdateManyInput = {
@@ -49603,6 +56900,76 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type ProblemAiCreditLogCreateInput = {
+    id?: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+    problem: ProblemCreateNestedOneWithoutAiCreditLogsInput
+    user: UserCreateNestedOneWithoutProblemAiCreditLogsInput
+  }
+
+  export type ProblemAiCreditLogUncheckedCreateInput = {
+    id?: string
+    problemId: string
+    userId: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+  }
+
+  export type ProblemAiCreditLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    problem?: ProblemUpdateOneRequiredWithoutAiCreditLogsNestedInput
+    user?: UserUpdateOneRequiredWithoutProblemAiCreditLogsNestedInput
+  }
+
+  export type ProblemAiCreditLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProblemAiCreditLogCreateManyInput = {
+    id?: string
+    problemId: string
+    userId: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+  }
+
+  export type ProblemAiCreditLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProblemAiCreditLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TestCaseCreateInput = {
@@ -52909,6 +60276,374 @@ export namespace Prisma {
     executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AssistantSessionCreateInput = {
+    id?: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAssistantSessionsInput
+    capturedAnswers?: CapturedAnswerCreateNestedOneWithoutSessionInput
+    transcripts?: AssistantTranscriptCreateNestedManyWithoutSessionInput
+    stageEvents?: AssistantStageEventCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionUncheckedCreateInput = {
+    id?: string
+    userId: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    capturedAnswers?: CapturedAnswerUncheckedCreateNestedOneWithoutSessionInput
+    transcripts?: AssistantTranscriptUncheckedCreateNestedManyWithoutSessionInput
+    stageEvents?: AssistantStageEventUncheckedCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAssistantSessionsNestedInput
+    capturedAnswers?: CapturedAnswerUpdateOneWithoutSessionNestedInput
+    transcripts?: AssistantTranscriptUpdateManyWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturedAnswers?: CapturedAnswerUncheckedUpdateOneWithoutSessionNestedInput
+    transcripts?: AssistantTranscriptUncheckedUpdateManyWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUncheckedUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionCreateManyInput = {
+    id?: string
+    userId: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AssistantSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CapturedAnswerCreateInput = {
+    problemSummary?: string | null
+    dsChoice?: string | null
+    approach?: string | null
+    session: AssistantSessionCreateNestedOneWithoutCapturedAnswersInput
+  }
+
+  export type CapturedAnswerUncheckedCreateInput = {
+    sessionId: string
+    problemSummary?: string | null
+    dsChoice?: string | null
+    approach?: string | null
+  }
+
+  export type CapturedAnswerUpdateInput = {
+    problemSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    dsChoice?: NullableStringFieldUpdateOperationsInput | string | null
+    approach?: NullableStringFieldUpdateOperationsInput | string | null
+    session?: AssistantSessionUpdateOneRequiredWithoutCapturedAnswersNestedInput
+  }
+
+  export type CapturedAnswerUncheckedUpdateInput = {
+    sessionId?: StringFieldUpdateOperationsInput | string
+    problemSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    dsChoice?: NullableStringFieldUpdateOperationsInput | string | null
+    approach?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CapturedAnswerCreateManyInput = {
+    sessionId: string
+    problemSummary?: string | null
+    dsChoice?: string | null
+    approach?: string | null
+  }
+
+  export type CapturedAnswerUpdateManyMutationInput = {
+    problemSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    dsChoice?: NullableStringFieldUpdateOperationsInput | string | null
+    approach?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CapturedAnswerUncheckedUpdateManyInput = {
+    sessionId?: StringFieldUpdateOperationsInput | string
+    problemSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    dsChoice?: NullableStringFieldUpdateOperationsInput | string | null
+    approach?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AssistantTranscriptCreateInput = {
+    id?: string
+    turnIndex: number
+    role: string
+    stageAtTime: $Enums.AssistantStage
+    message: string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: number
+    llmCallType?: string | null
+    createdAt?: Date | string
+    session: AssistantSessionCreateNestedOneWithoutTranscriptsInput
+  }
+
+  export type AssistantTranscriptUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    turnIndex: number
+    role: string
+    stageAtTime: $Enums.AssistantStage
+    message: string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: number
+    llmCallType?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantTranscriptUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    turnIndex?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    stageAtTime?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    message?: StringFieldUpdateOperationsInput | string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: IntFieldUpdateOperationsInput | number
+    llmCallType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: AssistantSessionUpdateOneRequiredWithoutTranscriptsNestedInput
+  }
+
+  export type AssistantTranscriptUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    turnIndex?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    stageAtTime?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    message?: StringFieldUpdateOperationsInput | string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: IntFieldUpdateOperationsInput | number
+    llmCallType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantTranscriptCreateManyInput = {
+    id?: string
+    sessionId: string
+    turnIndex: number
+    role: string
+    stageAtTime: $Enums.AssistantStage
+    message: string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: number
+    llmCallType?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantTranscriptUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    turnIndex?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    stageAtTime?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    message?: StringFieldUpdateOperationsInput | string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: IntFieldUpdateOperationsInput | number
+    llmCallType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantTranscriptUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    turnIndex?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    stageAtTime?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    message?: StringFieldUpdateOperationsInput | string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: IntFieldUpdateOperationsInput | number
+    llmCallType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantStageEventCreateInput = {
+    id?: string
+    fromStage?: $Enums.AssistantStage | null
+    toStage?: $Enums.AssistantStage | null
+    eventType: string
+    reason?: string | null
+    createdAt?: Date | string
+    session: AssistantSessionCreateNestedOneWithoutStageEventsInput
+  }
+
+  export type AssistantStageEventUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    fromStage?: $Enums.AssistantStage | null
+    toStage?: $Enums.AssistantStage | null
+    eventType: string
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantStageEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    toStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: AssistantSessionUpdateOneRequiredWithoutStageEventsNestedInput
+  }
+
+  export type AssistantStageEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    fromStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    toStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantStageEventCreateManyInput = {
+    id?: string
+    sessionId: string
+    fromStage?: $Enums.AssistantStage | null
+    toStage?: $Enums.AssistantStage | null
+    eventType: string
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantStageEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    toStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantStageEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    fromStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    toStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantCodeSnapshotCreateInput = {
+    id?: string
+    code: string
+    version?: number
+    insertedAt?: Date | string | null
+    createdAt?: Date | string
+    session: AssistantSessionCreateNestedOneWithoutCodeSnapshotsInput
+  }
+
+  export type AssistantCodeSnapshotUncheckedCreateInput = {
+    id?: string
+    sessionId: string
+    code: string
+    version?: number
+    insertedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantCodeSnapshotUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    insertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    session?: AssistantSessionUpdateOneRequiredWithoutCodeSnapshotsNestedInput
+  }
+
+  export type AssistantCodeSnapshotUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    insertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantCodeSnapshotCreateManyInput = {
+    id?: string
+    sessionId: string
+    code: string
+    version?: number
+    insertedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantCodeSnapshotUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    insertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantCodeSnapshotUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sessionId?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    insertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -53369,6 +61104,18 @@ export namespace Prisma {
     none?: InterviewParticipantWhereInput
   }
 
+  export type AssistantSessionListRelationFilter = {
+    every?: AssistantSessionWhereInput
+    some?: AssistantSessionWhereInput
+    none?: AssistantSessionWhereInput
+  }
+
+  export type ProblemAiCreditLogListRelationFilter = {
+    every?: ProblemAiCreditLogWhereInput
+    some?: ProblemAiCreditLogWhereInput
+    none?: ProblemAiCreditLogWhereInput
+  }
+
   export type ContestRegistrationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -53418,6 +61165,14 @@ export namespace Prisma {
   }
 
   export type InterviewParticipantOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AssistantSessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProblemAiCreditLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -53575,6 +61330,13 @@ export namespace Prisma {
     createdById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiCreditsRemaining?: SortOrder
+    aiCreditsMax?: SortOrder
+  }
+
+  export type ProblemAvgOrderByAggregateInput = {
+    aiCreditsRemaining?: SortOrder
+    aiCreditsMax?: SortOrder
   }
 
   export type ProblemMaxOrderByAggregateInput = {
@@ -53592,6 +61354,8 @@ export namespace Prisma {
     createdById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiCreditsRemaining?: SortOrder
+    aiCreditsMax?: SortOrder
   }
 
   export type ProblemMinOrderByAggregateInput = {
@@ -53609,6 +61373,13 @@ export namespace Prisma {
     createdById?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    aiCreditsRemaining?: SortOrder
+    aiCreditsMax?: SortOrder
+  }
+
+  export type ProblemSumOrderByAggregateInput = {
+    aiCreditsRemaining?: SortOrder
+    aiCreditsMax?: SortOrder
   }
 
   export type EnumEvaluationStrategyWithAggregatesFilter<$PrismaModel = never> = {
@@ -53645,6 +61416,51 @@ export namespace Prisma {
   export type ProblemRelationFilter = {
     is?: ProblemWhereInput
     isNot?: ProblemWhereInput
+  }
+
+  export type UserRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type ProblemAiCreditLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    problemId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    creditsDeducted?: SortOrder
+    creditsRemaining?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProblemAiCreditLogAvgOrderByAggregateInput = {
+    creditsDeducted?: SortOrder
+    creditsRemaining?: SortOrder
+  }
+
+  export type ProblemAiCreditLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    problemId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    creditsDeducted?: SortOrder
+    creditsRemaining?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProblemAiCreditLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    problemId?: SortOrder
+    userId?: SortOrder
+    action?: SortOrder
+    creditsDeducted?: SortOrder
+    creditsRemaining?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProblemAiCreditLogSumOrderByAggregateInput = {
+    creditsDeducted?: SortOrder
+    creditsRemaining?: SortOrder
   }
 
   export type TestCaseCountOrderByAggregateInput = {
@@ -53694,11 +61510,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
-  export type UserRelationFilter = {
-    is?: UserWhereInput
-    isNot?: UserWhereInput
   }
 
   export type PlagiarismReportListRelationFilter = {
@@ -55731,6 +63542,259 @@ export namespace Prisma {
     executedAt?: SortOrder
   }
 
+  export type EnumAssistantStageFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssistantStage | EnumAssistantStageFieldRefInput<$PrismaModel>
+    in?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssistantStageFilter<$PrismaModel> | $Enums.AssistantStage
+  }
+
+  export type CapturedAnswerNullableRelationFilter = {
+    is?: CapturedAnswerWhereInput | null
+    isNot?: CapturedAnswerWhereInput | null
+  }
+
+  export type AssistantTranscriptListRelationFilter = {
+    every?: AssistantTranscriptWhereInput
+    some?: AssistantTranscriptWhereInput
+    none?: AssistantTranscriptWhereInput
+  }
+
+  export type AssistantStageEventListRelationFilter = {
+    every?: AssistantStageEventWhereInput
+    some?: AssistantStageEventWhereInput
+    none?: AssistantStageEventWhereInput
+  }
+
+  export type AssistantCodeSnapshotListRelationFilter = {
+    every?: AssistantCodeSnapshotWhereInput
+    some?: AssistantCodeSnapshotWhereInput
+    none?: AssistantCodeSnapshotWhereInput
+  }
+
+  export type AssistantTranscriptOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AssistantStageEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AssistantCodeSnapshotOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AssistantSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    problemId?: SortOrder
+    stage?: SortOrder
+    tokenBudget?: SortOrder
+    tokensUsed?: SortOrder
+    codeGenerated?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AssistantSessionAvgOrderByAggregateInput = {
+    tokenBudget?: SortOrder
+    tokensUsed?: SortOrder
+  }
+
+  export type AssistantSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    problemId?: SortOrder
+    stage?: SortOrder
+    tokenBudget?: SortOrder
+    tokensUsed?: SortOrder
+    codeGenerated?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AssistantSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    problemId?: SortOrder
+    stage?: SortOrder
+    tokenBudget?: SortOrder
+    tokensUsed?: SortOrder
+    codeGenerated?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AssistantSessionSumOrderByAggregateInput = {
+    tokenBudget?: SortOrder
+    tokensUsed?: SortOrder
+  }
+
+  export type EnumAssistantStageWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssistantStage | EnumAssistantStageFieldRefInput<$PrismaModel>
+    in?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssistantStageWithAggregatesFilter<$PrismaModel> | $Enums.AssistantStage
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAssistantStageFilter<$PrismaModel>
+    _max?: NestedEnumAssistantStageFilter<$PrismaModel>
+  }
+
+  export type AssistantSessionRelationFilter = {
+    is?: AssistantSessionWhereInput
+    isNot?: AssistantSessionWhereInput
+  }
+
+  export type CapturedAnswerCountOrderByAggregateInput = {
+    sessionId?: SortOrder
+    problemSummary?: SortOrder
+    dsChoice?: SortOrder
+    approach?: SortOrder
+  }
+
+  export type CapturedAnswerMaxOrderByAggregateInput = {
+    sessionId?: SortOrder
+    problemSummary?: SortOrder
+    dsChoice?: SortOrder
+    approach?: SortOrder
+  }
+
+  export type CapturedAnswerMinOrderByAggregateInput = {
+    sessionId?: SortOrder
+    problemSummary?: SortOrder
+    dsChoice?: SortOrder
+    approach?: SortOrder
+  }
+
+  export type AssistantTranscriptCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    turnIndex?: SortOrder
+    role?: SortOrder
+    stageAtTime?: SortOrder
+    message?: SortOrder
+    gateResult?: SortOrder
+    tokensConsumed?: SortOrder
+    llmCallType?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssistantTranscriptAvgOrderByAggregateInput = {
+    turnIndex?: SortOrder
+    tokensConsumed?: SortOrder
+  }
+
+  export type AssistantTranscriptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    turnIndex?: SortOrder
+    role?: SortOrder
+    stageAtTime?: SortOrder
+    message?: SortOrder
+    tokensConsumed?: SortOrder
+    llmCallType?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssistantTranscriptMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    turnIndex?: SortOrder
+    role?: SortOrder
+    stageAtTime?: SortOrder
+    message?: SortOrder
+    tokensConsumed?: SortOrder
+    llmCallType?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssistantTranscriptSumOrderByAggregateInput = {
+    turnIndex?: SortOrder
+    tokensConsumed?: SortOrder
+  }
+
+  export type EnumAssistantStageNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssistantStage | EnumAssistantStageFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAssistantStageNullableFilter<$PrismaModel> | $Enums.AssistantStage | null
+  }
+
+  export type AssistantStageEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    fromStage?: SortOrder
+    toStage?: SortOrder
+    eventType?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssistantStageEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    fromStage?: SortOrder
+    toStage?: SortOrder
+    eventType?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssistantStageEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    fromStage?: SortOrder
+    toStage?: SortOrder
+    eventType?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumAssistantStageNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssistantStage | EnumAssistantStageFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAssistantStageNullableWithAggregatesFilter<$PrismaModel> | $Enums.AssistantStage | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumAssistantStageNullableFilter<$PrismaModel>
+    _max?: NestedEnumAssistantStageNullableFilter<$PrismaModel>
+  }
+
+  export type AssistantCodeSnapshotCountOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    version?: SortOrder
+    insertedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssistantCodeSnapshotAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type AssistantCodeSnapshotMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    version?: SortOrder
+    insertedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssistantCodeSnapshotMinOrderByAggregateInput = {
+    id?: SortOrder
+    sessionId?: SortOrder
+    code?: SortOrder
+    version?: SortOrder
+    insertedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AssistantCodeSnapshotSumOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -56223,6 +64287,20 @@ export namespace Prisma {
     connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
   }
 
+  export type AssistantSessionCreateNestedManyWithoutUserInput = {
+    create?: XOR<AssistantSessionCreateWithoutUserInput, AssistantSessionUncheckedCreateWithoutUserInput> | AssistantSessionCreateWithoutUserInput[] | AssistantSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutUserInput | AssistantSessionCreateOrConnectWithoutUserInput[]
+    createMany?: AssistantSessionCreateManyUserInputEnvelope
+    connect?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+  }
+
+  export type ProblemAiCreditLogCreateNestedManyWithoutUserInput = {
+    create?: XOR<ProblemAiCreditLogCreateWithoutUserInput, ProblemAiCreditLogUncheckedCreateWithoutUserInput> | ProblemAiCreditLogCreateWithoutUserInput[] | ProblemAiCreditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutUserInput | ProblemAiCreditLogCreateOrConnectWithoutUserInput[]
+    createMany?: ProblemAiCreditLogCreateManyUserInputEnvelope
+    connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+  }
+
   export type ContestUncheckedCreateNestedManyWithoutCreatedByInput = {
     create?: XOR<ContestCreateWithoutCreatedByInput, ContestUncheckedCreateWithoutCreatedByInput> | ContestCreateWithoutCreatedByInput[] | ContestUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: ContestCreateOrConnectWithoutCreatedByInput | ContestCreateOrConnectWithoutCreatedByInput[]
@@ -56375,6 +64453,20 @@ export namespace Prisma {
     connectOrCreate?: InterviewParticipantCreateOrConnectWithoutUserInput | InterviewParticipantCreateOrConnectWithoutUserInput[]
     createMany?: InterviewParticipantCreateManyUserInputEnvelope
     connect?: InterviewParticipantWhereUniqueInput | InterviewParticipantWhereUniqueInput[]
+  }
+
+  export type AssistantSessionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AssistantSessionCreateWithoutUserInput, AssistantSessionUncheckedCreateWithoutUserInput> | AssistantSessionCreateWithoutUserInput[] | AssistantSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutUserInput | AssistantSessionCreateOrConnectWithoutUserInput[]
+    createMany?: AssistantSessionCreateManyUserInputEnvelope
+    connect?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+  }
+
+  export type ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<ProblemAiCreditLogCreateWithoutUserInput, ProblemAiCreditLogUncheckedCreateWithoutUserInput> | ProblemAiCreditLogCreateWithoutUserInput[] | ProblemAiCreditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutUserInput | ProblemAiCreditLogCreateOrConnectWithoutUserInput[]
+    createMany?: ProblemAiCreditLogCreateManyUserInputEnvelope
+    connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
   }
 
   export type EnumRoleFieldUpdateOperationsInput = {
@@ -56717,6 +64809,34 @@ export namespace Prisma {
     deleteMany?: InterviewParticipantScalarWhereInput | InterviewParticipantScalarWhereInput[]
   }
 
+  export type AssistantSessionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AssistantSessionCreateWithoutUserInput, AssistantSessionUncheckedCreateWithoutUserInput> | AssistantSessionCreateWithoutUserInput[] | AssistantSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutUserInput | AssistantSessionCreateOrConnectWithoutUserInput[]
+    upsert?: AssistantSessionUpsertWithWhereUniqueWithoutUserInput | AssistantSessionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AssistantSessionCreateManyUserInputEnvelope
+    set?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+    disconnect?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+    delete?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+    connect?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+    update?: AssistantSessionUpdateWithWhereUniqueWithoutUserInput | AssistantSessionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AssistantSessionUpdateManyWithWhereWithoutUserInput | AssistantSessionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AssistantSessionScalarWhereInput | AssistantSessionScalarWhereInput[]
+  }
+
+  export type ProblemAiCreditLogUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ProblemAiCreditLogCreateWithoutUserInput, ProblemAiCreditLogUncheckedCreateWithoutUserInput> | ProblemAiCreditLogCreateWithoutUserInput[] | ProblemAiCreditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutUserInput | ProblemAiCreditLogCreateOrConnectWithoutUserInput[]
+    upsert?: ProblemAiCreditLogUpsertWithWhereUniqueWithoutUserInput | ProblemAiCreditLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ProblemAiCreditLogCreateManyUserInputEnvelope
+    set?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    disconnect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    delete?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    update?: ProblemAiCreditLogUpdateWithWhereUniqueWithoutUserInput | ProblemAiCreditLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ProblemAiCreditLogUpdateManyWithWhereWithoutUserInput | ProblemAiCreditLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ProblemAiCreditLogScalarWhereInput | ProblemAiCreditLogScalarWhereInput[]
+  }
+
   export type ContestUncheckedUpdateManyWithoutCreatedByNestedInput = {
     create?: XOR<ContestCreateWithoutCreatedByInput, ContestUncheckedCreateWithoutCreatedByInput> | ContestCreateWithoutCreatedByInput[] | ContestUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: ContestCreateOrConnectWithoutCreatedByInput | ContestCreateOrConnectWithoutCreatedByInput[]
@@ -57025,6 +65145,34 @@ export namespace Prisma {
     deleteMany?: InterviewParticipantScalarWhereInput | InterviewParticipantScalarWhereInput[]
   }
 
+  export type AssistantSessionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AssistantSessionCreateWithoutUserInput, AssistantSessionUncheckedCreateWithoutUserInput> | AssistantSessionCreateWithoutUserInput[] | AssistantSessionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutUserInput | AssistantSessionCreateOrConnectWithoutUserInput[]
+    upsert?: AssistantSessionUpsertWithWhereUniqueWithoutUserInput | AssistantSessionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AssistantSessionCreateManyUserInputEnvelope
+    set?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+    disconnect?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+    delete?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+    connect?: AssistantSessionWhereUniqueInput | AssistantSessionWhereUniqueInput[]
+    update?: AssistantSessionUpdateWithWhereUniqueWithoutUserInput | AssistantSessionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AssistantSessionUpdateManyWithWhereWithoutUserInput | AssistantSessionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AssistantSessionScalarWhereInput | AssistantSessionScalarWhereInput[]
+  }
+
+  export type ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<ProblemAiCreditLogCreateWithoutUserInput, ProblemAiCreditLogUncheckedCreateWithoutUserInput> | ProblemAiCreditLogCreateWithoutUserInput[] | ProblemAiCreditLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutUserInput | ProblemAiCreditLogCreateOrConnectWithoutUserInput[]
+    upsert?: ProblemAiCreditLogUpsertWithWhereUniqueWithoutUserInput | ProblemAiCreditLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: ProblemAiCreditLogCreateManyUserInputEnvelope
+    set?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    disconnect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    delete?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    update?: ProblemAiCreditLogUpdateWithWhereUniqueWithoutUserInput | ProblemAiCreditLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: ProblemAiCreditLogUpdateManyWithWhereWithoutUserInput | ProblemAiCreditLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: ProblemAiCreditLogScalarWhereInput | ProblemAiCreditLogScalarWhereInput[]
+  }
+
   export type OrganizationCreateNestedOneWithoutProblemsInput = {
     create?: XOR<OrganizationCreateWithoutProblemsInput, OrganizationUncheckedCreateWithoutProblemsInput>
     connectOrCreate?: OrganizationCreateOrConnectWithoutProblemsInput
@@ -57035,6 +65183,13 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutCreatedProblemsInput, UserUncheckedCreateWithoutCreatedProblemsInput>
     connectOrCreate?: UserCreateOrConnectWithoutCreatedProblemsInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type ProblemAiCreditLogCreateNestedManyWithoutProblemInput = {
+    create?: XOR<ProblemAiCreditLogCreateWithoutProblemInput, ProblemAiCreditLogUncheckedCreateWithoutProblemInput> | ProblemAiCreditLogCreateWithoutProblemInput[] | ProblemAiCreditLogUncheckedCreateWithoutProblemInput[]
+    connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutProblemInput | ProblemAiCreditLogCreateOrConnectWithoutProblemInput[]
+    createMany?: ProblemAiCreditLogCreateManyProblemInputEnvelope
+    connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
   }
 
   export type TestCaseCreateNestedManyWithoutProblemInput = {
@@ -57063,6 +65218,13 @@ export namespace Prisma {
     connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutProblemInput | MockInterviewSessionCreateOrConnectWithoutProblemInput[]
     createMany?: MockInterviewSessionCreateManyProblemInputEnvelope
     connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+  }
+
+  export type ProblemAiCreditLogUncheckedCreateNestedManyWithoutProblemInput = {
+    create?: XOR<ProblemAiCreditLogCreateWithoutProblemInput, ProblemAiCreditLogUncheckedCreateWithoutProblemInput> | ProblemAiCreditLogCreateWithoutProblemInput[] | ProblemAiCreditLogUncheckedCreateWithoutProblemInput[]
+    connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutProblemInput | ProblemAiCreditLogCreateOrConnectWithoutProblemInput[]
+    createMany?: ProblemAiCreditLogCreateManyProblemInputEnvelope
+    connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
   }
 
   export type TestCaseUncheckedCreateNestedManyWithoutProblemInput = {
@@ -57115,6 +65277,20 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCreatedProblemsInput, UserUpdateWithoutCreatedProblemsInput>, UserUncheckedUpdateWithoutCreatedProblemsInput>
+  }
+
+  export type ProblemAiCreditLogUpdateManyWithoutProblemNestedInput = {
+    create?: XOR<ProblemAiCreditLogCreateWithoutProblemInput, ProblemAiCreditLogUncheckedCreateWithoutProblemInput> | ProblemAiCreditLogCreateWithoutProblemInput[] | ProblemAiCreditLogUncheckedCreateWithoutProblemInput[]
+    connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutProblemInput | ProblemAiCreditLogCreateOrConnectWithoutProblemInput[]
+    upsert?: ProblemAiCreditLogUpsertWithWhereUniqueWithoutProblemInput | ProblemAiCreditLogUpsertWithWhereUniqueWithoutProblemInput[]
+    createMany?: ProblemAiCreditLogCreateManyProblemInputEnvelope
+    set?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    disconnect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    delete?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    update?: ProblemAiCreditLogUpdateWithWhereUniqueWithoutProblemInput | ProblemAiCreditLogUpdateWithWhereUniqueWithoutProblemInput[]
+    updateMany?: ProblemAiCreditLogUpdateManyWithWhereWithoutProblemInput | ProblemAiCreditLogUpdateManyWithWhereWithoutProblemInput[]
+    deleteMany?: ProblemAiCreditLogScalarWhereInput | ProblemAiCreditLogScalarWhereInput[]
   }
 
   export type TestCaseUpdateManyWithoutProblemNestedInput = {
@@ -57173,6 +65349,20 @@ export namespace Prisma {
     deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
   }
 
+  export type ProblemAiCreditLogUncheckedUpdateManyWithoutProblemNestedInput = {
+    create?: XOR<ProblemAiCreditLogCreateWithoutProblemInput, ProblemAiCreditLogUncheckedCreateWithoutProblemInput> | ProblemAiCreditLogCreateWithoutProblemInput[] | ProblemAiCreditLogUncheckedCreateWithoutProblemInput[]
+    connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutProblemInput | ProblemAiCreditLogCreateOrConnectWithoutProblemInput[]
+    upsert?: ProblemAiCreditLogUpsertWithWhereUniqueWithoutProblemInput | ProblemAiCreditLogUpsertWithWhereUniqueWithoutProblemInput[]
+    createMany?: ProblemAiCreditLogCreateManyProblemInputEnvelope
+    set?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    disconnect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    delete?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+    update?: ProblemAiCreditLogUpdateWithWhereUniqueWithoutProblemInput | ProblemAiCreditLogUpdateWithWhereUniqueWithoutProblemInput[]
+    updateMany?: ProblemAiCreditLogUpdateManyWithWhereWithoutProblemInput | ProblemAiCreditLogUpdateManyWithWhereWithoutProblemInput[]
+    deleteMany?: ProblemAiCreditLogScalarWhereInput | ProblemAiCreditLogScalarWhereInput[]
+  }
+
   export type TestCaseUncheckedUpdateManyWithoutProblemNestedInput = {
     create?: XOR<TestCaseCreateWithoutProblemInput, TestCaseUncheckedCreateWithoutProblemInput> | TestCaseCreateWithoutProblemInput[] | TestCaseUncheckedCreateWithoutProblemInput[]
     connectOrCreate?: TestCaseCreateOrConnectWithoutProblemInput | TestCaseCreateOrConnectWithoutProblemInput[]
@@ -57227,6 +65417,34 @@ export namespace Prisma {
     update?: MockInterviewSessionUpdateWithWhereUniqueWithoutProblemInput | MockInterviewSessionUpdateWithWhereUniqueWithoutProblemInput[]
     updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutProblemInput | MockInterviewSessionUpdateManyWithWhereWithoutProblemInput[]
     deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+  }
+
+  export type ProblemCreateNestedOneWithoutAiCreditLogsInput = {
+    create?: XOR<ProblemCreateWithoutAiCreditLogsInput, ProblemUncheckedCreateWithoutAiCreditLogsInput>
+    connectOrCreate?: ProblemCreateOrConnectWithoutAiCreditLogsInput
+    connect?: ProblemWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutProblemAiCreditLogsInput = {
+    create?: XOR<UserCreateWithoutProblemAiCreditLogsInput, UserUncheckedCreateWithoutProblemAiCreditLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutProblemAiCreditLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type ProblemUpdateOneRequiredWithoutAiCreditLogsNestedInput = {
+    create?: XOR<ProblemCreateWithoutAiCreditLogsInput, ProblemUncheckedCreateWithoutAiCreditLogsInput>
+    connectOrCreate?: ProblemCreateOrConnectWithoutAiCreditLogsInput
+    upsert?: ProblemUpsertWithoutAiCreditLogsInput
+    connect?: ProblemWhereUniqueInput
+    update?: XOR<XOR<ProblemUpdateToOneWithWhereWithoutAiCreditLogsInput, ProblemUpdateWithoutAiCreditLogsInput>, ProblemUncheckedUpdateWithoutAiCreditLogsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutProblemAiCreditLogsNestedInput = {
+    create?: XOR<UserCreateWithoutProblemAiCreditLogsInput, UserUncheckedCreateWithoutProblemAiCreditLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutProblemAiCreditLogsInput
+    upsert?: UserUpsertWithoutProblemAiCreditLogsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutProblemAiCreditLogsInput, UserUpdateWithoutProblemAiCreditLogsInput>, UserUncheckedUpdateWithoutProblemAiCreditLogsInput>
   }
 
   export type ProblemCreateNestedOneWithoutTestCasesInput = {
@@ -59198,6 +67416,242 @@ export namespace Prisma {
     update?: XOR<XOR<MockInterviewSessionUpdateToOneWithWhereWithoutExecutionResultsInput, MockInterviewSessionUpdateWithoutExecutionResultsInput>, MockInterviewSessionUncheckedUpdateWithoutExecutionResultsInput>
   }
 
+  export type UserCreateNestedOneWithoutAssistantSessionsInput = {
+    create?: XOR<UserCreateWithoutAssistantSessionsInput, UserUncheckedCreateWithoutAssistantSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssistantSessionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CapturedAnswerCreateNestedOneWithoutSessionInput = {
+    create?: XOR<CapturedAnswerCreateWithoutSessionInput, CapturedAnswerUncheckedCreateWithoutSessionInput>
+    connectOrCreate?: CapturedAnswerCreateOrConnectWithoutSessionInput
+    connect?: CapturedAnswerWhereUniqueInput
+  }
+
+  export type AssistantTranscriptCreateNestedManyWithoutSessionInput = {
+    create?: XOR<AssistantTranscriptCreateWithoutSessionInput, AssistantTranscriptUncheckedCreateWithoutSessionInput> | AssistantTranscriptCreateWithoutSessionInput[] | AssistantTranscriptUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantTranscriptCreateOrConnectWithoutSessionInput | AssistantTranscriptCreateOrConnectWithoutSessionInput[]
+    createMany?: AssistantTranscriptCreateManySessionInputEnvelope
+    connect?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+  }
+
+  export type AssistantStageEventCreateNestedManyWithoutSessionInput = {
+    create?: XOR<AssistantStageEventCreateWithoutSessionInput, AssistantStageEventUncheckedCreateWithoutSessionInput> | AssistantStageEventCreateWithoutSessionInput[] | AssistantStageEventUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantStageEventCreateOrConnectWithoutSessionInput | AssistantStageEventCreateOrConnectWithoutSessionInput[]
+    createMany?: AssistantStageEventCreateManySessionInputEnvelope
+    connect?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+  }
+
+  export type AssistantCodeSnapshotCreateNestedManyWithoutSessionInput = {
+    create?: XOR<AssistantCodeSnapshotCreateWithoutSessionInput, AssistantCodeSnapshotUncheckedCreateWithoutSessionInput> | AssistantCodeSnapshotCreateWithoutSessionInput[] | AssistantCodeSnapshotUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantCodeSnapshotCreateOrConnectWithoutSessionInput | AssistantCodeSnapshotCreateOrConnectWithoutSessionInput[]
+    createMany?: AssistantCodeSnapshotCreateManySessionInputEnvelope
+    connect?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+  }
+
+  export type CapturedAnswerUncheckedCreateNestedOneWithoutSessionInput = {
+    create?: XOR<CapturedAnswerCreateWithoutSessionInput, CapturedAnswerUncheckedCreateWithoutSessionInput>
+    connectOrCreate?: CapturedAnswerCreateOrConnectWithoutSessionInput
+    connect?: CapturedAnswerWhereUniqueInput
+  }
+
+  export type AssistantTranscriptUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<AssistantTranscriptCreateWithoutSessionInput, AssistantTranscriptUncheckedCreateWithoutSessionInput> | AssistantTranscriptCreateWithoutSessionInput[] | AssistantTranscriptUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantTranscriptCreateOrConnectWithoutSessionInput | AssistantTranscriptCreateOrConnectWithoutSessionInput[]
+    createMany?: AssistantTranscriptCreateManySessionInputEnvelope
+    connect?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+  }
+
+  export type AssistantStageEventUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<AssistantStageEventCreateWithoutSessionInput, AssistantStageEventUncheckedCreateWithoutSessionInput> | AssistantStageEventCreateWithoutSessionInput[] | AssistantStageEventUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantStageEventCreateOrConnectWithoutSessionInput | AssistantStageEventCreateOrConnectWithoutSessionInput[]
+    createMany?: AssistantStageEventCreateManySessionInputEnvelope
+    connect?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+  }
+
+  export type AssistantCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput = {
+    create?: XOR<AssistantCodeSnapshotCreateWithoutSessionInput, AssistantCodeSnapshotUncheckedCreateWithoutSessionInput> | AssistantCodeSnapshotCreateWithoutSessionInput[] | AssistantCodeSnapshotUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantCodeSnapshotCreateOrConnectWithoutSessionInput | AssistantCodeSnapshotCreateOrConnectWithoutSessionInput[]
+    createMany?: AssistantCodeSnapshotCreateManySessionInputEnvelope
+    connect?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+  }
+
+  export type EnumAssistantStageFieldUpdateOperationsInput = {
+    set?: $Enums.AssistantStage
+  }
+
+  export type UserUpdateOneRequiredWithoutAssistantSessionsNestedInput = {
+    create?: XOR<UserCreateWithoutAssistantSessionsInput, UserUncheckedCreateWithoutAssistantSessionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAssistantSessionsInput
+    upsert?: UserUpsertWithoutAssistantSessionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAssistantSessionsInput, UserUpdateWithoutAssistantSessionsInput>, UserUncheckedUpdateWithoutAssistantSessionsInput>
+  }
+
+  export type CapturedAnswerUpdateOneWithoutSessionNestedInput = {
+    create?: XOR<CapturedAnswerCreateWithoutSessionInput, CapturedAnswerUncheckedCreateWithoutSessionInput>
+    connectOrCreate?: CapturedAnswerCreateOrConnectWithoutSessionInput
+    upsert?: CapturedAnswerUpsertWithoutSessionInput
+    disconnect?: CapturedAnswerWhereInput | boolean
+    delete?: CapturedAnswerWhereInput | boolean
+    connect?: CapturedAnswerWhereUniqueInput
+    update?: XOR<XOR<CapturedAnswerUpdateToOneWithWhereWithoutSessionInput, CapturedAnswerUpdateWithoutSessionInput>, CapturedAnswerUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type AssistantTranscriptUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<AssistantTranscriptCreateWithoutSessionInput, AssistantTranscriptUncheckedCreateWithoutSessionInput> | AssistantTranscriptCreateWithoutSessionInput[] | AssistantTranscriptUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantTranscriptCreateOrConnectWithoutSessionInput | AssistantTranscriptCreateOrConnectWithoutSessionInput[]
+    upsert?: AssistantTranscriptUpsertWithWhereUniqueWithoutSessionInput | AssistantTranscriptUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: AssistantTranscriptCreateManySessionInputEnvelope
+    set?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+    disconnect?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+    delete?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+    connect?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+    update?: AssistantTranscriptUpdateWithWhereUniqueWithoutSessionInput | AssistantTranscriptUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: AssistantTranscriptUpdateManyWithWhereWithoutSessionInput | AssistantTranscriptUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: AssistantTranscriptScalarWhereInput | AssistantTranscriptScalarWhereInput[]
+  }
+
+  export type AssistantStageEventUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<AssistantStageEventCreateWithoutSessionInput, AssistantStageEventUncheckedCreateWithoutSessionInput> | AssistantStageEventCreateWithoutSessionInput[] | AssistantStageEventUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantStageEventCreateOrConnectWithoutSessionInput | AssistantStageEventCreateOrConnectWithoutSessionInput[]
+    upsert?: AssistantStageEventUpsertWithWhereUniqueWithoutSessionInput | AssistantStageEventUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: AssistantStageEventCreateManySessionInputEnvelope
+    set?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+    disconnect?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+    delete?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+    connect?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+    update?: AssistantStageEventUpdateWithWhereUniqueWithoutSessionInput | AssistantStageEventUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: AssistantStageEventUpdateManyWithWhereWithoutSessionInput | AssistantStageEventUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: AssistantStageEventScalarWhereInput | AssistantStageEventScalarWhereInput[]
+  }
+
+  export type AssistantCodeSnapshotUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<AssistantCodeSnapshotCreateWithoutSessionInput, AssistantCodeSnapshotUncheckedCreateWithoutSessionInput> | AssistantCodeSnapshotCreateWithoutSessionInput[] | AssistantCodeSnapshotUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantCodeSnapshotCreateOrConnectWithoutSessionInput | AssistantCodeSnapshotCreateOrConnectWithoutSessionInput[]
+    upsert?: AssistantCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput | AssistantCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: AssistantCodeSnapshotCreateManySessionInputEnvelope
+    set?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+    disconnect?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+    delete?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+    connect?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+    update?: AssistantCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput | AssistantCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: AssistantCodeSnapshotUpdateManyWithWhereWithoutSessionInput | AssistantCodeSnapshotUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: AssistantCodeSnapshotScalarWhereInput | AssistantCodeSnapshotScalarWhereInput[]
+  }
+
+  export type CapturedAnswerUncheckedUpdateOneWithoutSessionNestedInput = {
+    create?: XOR<CapturedAnswerCreateWithoutSessionInput, CapturedAnswerUncheckedCreateWithoutSessionInput>
+    connectOrCreate?: CapturedAnswerCreateOrConnectWithoutSessionInput
+    upsert?: CapturedAnswerUpsertWithoutSessionInput
+    disconnect?: CapturedAnswerWhereInput | boolean
+    delete?: CapturedAnswerWhereInput | boolean
+    connect?: CapturedAnswerWhereUniqueInput
+    update?: XOR<XOR<CapturedAnswerUpdateToOneWithWhereWithoutSessionInput, CapturedAnswerUpdateWithoutSessionInput>, CapturedAnswerUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type AssistantTranscriptUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<AssistantTranscriptCreateWithoutSessionInput, AssistantTranscriptUncheckedCreateWithoutSessionInput> | AssistantTranscriptCreateWithoutSessionInput[] | AssistantTranscriptUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantTranscriptCreateOrConnectWithoutSessionInput | AssistantTranscriptCreateOrConnectWithoutSessionInput[]
+    upsert?: AssistantTranscriptUpsertWithWhereUniqueWithoutSessionInput | AssistantTranscriptUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: AssistantTranscriptCreateManySessionInputEnvelope
+    set?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+    disconnect?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+    delete?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+    connect?: AssistantTranscriptWhereUniqueInput | AssistantTranscriptWhereUniqueInput[]
+    update?: AssistantTranscriptUpdateWithWhereUniqueWithoutSessionInput | AssistantTranscriptUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: AssistantTranscriptUpdateManyWithWhereWithoutSessionInput | AssistantTranscriptUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: AssistantTranscriptScalarWhereInput | AssistantTranscriptScalarWhereInput[]
+  }
+
+  export type AssistantStageEventUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<AssistantStageEventCreateWithoutSessionInput, AssistantStageEventUncheckedCreateWithoutSessionInput> | AssistantStageEventCreateWithoutSessionInput[] | AssistantStageEventUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantStageEventCreateOrConnectWithoutSessionInput | AssistantStageEventCreateOrConnectWithoutSessionInput[]
+    upsert?: AssistantStageEventUpsertWithWhereUniqueWithoutSessionInput | AssistantStageEventUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: AssistantStageEventCreateManySessionInputEnvelope
+    set?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+    disconnect?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+    delete?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+    connect?: AssistantStageEventWhereUniqueInput | AssistantStageEventWhereUniqueInput[]
+    update?: AssistantStageEventUpdateWithWhereUniqueWithoutSessionInput | AssistantStageEventUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: AssistantStageEventUpdateManyWithWhereWithoutSessionInput | AssistantStageEventUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: AssistantStageEventScalarWhereInput | AssistantStageEventScalarWhereInput[]
+  }
+
+  export type AssistantCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput = {
+    create?: XOR<AssistantCodeSnapshotCreateWithoutSessionInput, AssistantCodeSnapshotUncheckedCreateWithoutSessionInput> | AssistantCodeSnapshotCreateWithoutSessionInput[] | AssistantCodeSnapshotUncheckedCreateWithoutSessionInput[]
+    connectOrCreate?: AssistantCodeSnapshotCreateOrConnectWithoutSessionInput | AssistantCodeSnapshotCreateOrConnectWithoutSessionInput[]
+    upsert?: AssistantCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput | AssistantCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput[]
+    createMany?: AssistantCodeSnapshotCreateManySessionInputEnvelope
+    set?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+    disconnect?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+    delete?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+    connect?: AssistantCodeSnapshotWhereUniqueInput | AssistantCodeSnapshotWhereUniqueInput[]
+    update?: AssistantCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput | AssistantCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput[]
+    updateMany?: AssistantCodeSnapshotUpdateManyWithWhereWithoutSessionInput | AssistantCodeSnapshotUpdateManyWithWhereWithoutSessionInput[]
+    deleteMany?: AssistantCodeSnapshotScalarWhereInput | AssistantCodeSnapshotScalarWhereInput[]
+  }
+
+  export type AssistantSessionCreateNestedOneWithoutCapturedAnswersInput = {
+    create?: XOR<AssistantSessionCreateWithoutCapturedAnswersInput, AssistantSessionUncheckedCreateWithoutCapturedAnswersInput>
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutCapturedAnswersInput
+    connect?: AssistantSessionWhereUniqueInput
+  }
+
+  export type AssistantSessionUpdateOneRequiredWithoutCapturedAnswersNestedInput = {
+    create?: XOR<AssistantSessionCreateWithoutCapturedAnswersInput, AssistantSessionUncheckedCreateWithoutCapturedAnswersInput>
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutCapturedAnswersInput
+    upsert?: AssistantSessionUpsertWithoutCapturedAnswersInput
+    connect?: AssistantSessionWhereUniqueInput
+    update?: XOR<XOR<AssistantSessionUpdateToOneWithWhereWithoutCapturedAnswersInput, AssistantSessionUpdateWithoutCapturedAnswersInput>, AssistantSessionUncheckedUpdateWithoutCapturedAnswersInput>
+  }
+
+  export type AssistantSessionCreateNestedOneWithoutTranscriptsInput = {
+    create?: XOR<AssistantSessionCreateWithoutTranscriptsInput, AssistantSessionUncheckedCreateWithoutTranscriptsInput>
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutTranscriptsInput
+    connect?: AssistantSessionWhereUniqueInput
+  }
+
+  export type AssistantSessionUpdateOneRequiredWithoutTranscriptsNestedInput = {
+    create?: XOR<AssistantSessionCreateWithoutTranscriptsInput, AssistantSessionUncheckedCreateWithoutTranscriptsInput>
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutTranscriptsInput
+    upsert?: AssistantSessionUpsertWithoutTranscriptsInput
+    connect?: AssistantSessionWhereUniqueInput
+    update?: XOR<XOR<AssistantSessionUpdateToOneWithWhereWithoutTranscriptsInput, AssistantSessionUpdateWithoutTranscriptsInput>, AssistantSessionUncheckedUpdateWithoutTranscriptsInput>
+  }
+
+  export type AssistantSessionCreateNestedOneWithoutStageEventsInput = {
+    create?: XOR<AssistantSessionCreateWithoutStageEventsInput, AssistantSessionUncheckedCreateWithoutStageEventsInput>
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutStageEventsInput
+    connect?: AssistantSessionWhereUniqueInput
+  }
+
+  export type NullableEnumAssistantStageFieldUpdateOperationsInput = {
+    set?: $Enums.AssistantStage | null
+  }
+
+  export type AssistantSessionUpdateOneRequiredWithoutStageEventsNestedInput = {
+    create?: XOR<AssistantSessionCreateWithoutStageEventsInput, AssistantSessionUncheckedCreateWithoutStageEventsInput>
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutStageEventsInput
+    upsert?: AssistantSessionUpsertWithoutStageEventsInput
+    connect?: AssistantSessionWhereUniqueInput
+    update?: XOR<XOR<AssistantSessionUpdateToOneWithWhereWithoutStageEventsInput, AssistantSessionUpdateWithoutStageEventsInput>, AssistantSessionUncheckedUpdateWithoutStageEventsInput>
+  }
+
+  export type AssistantSessionCreateNestedOneWithoutCodeSnapshotsInput = {
+    create?: XOR<AssistantSessionCreateWithoutCodeSnapshotsInput, AssistantSessionUncheckedCreateWithoutCodeSnapshotsInput>
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutCodeSnapshotsInput
+    connect?: AssistantSessionWhereUniqueInput
+  }
+
+  export type AssistantSessionUpdateOneRequiredWithoutCodeSnapshotsNestedInput = {
+    create?: XOR<AssistantSessionCreateWithoutCodeSnapshotsInput, AssistantSessionUncheckedCreateWithoutCodeSnapshotsInput>
+    connectOrCreate?: AssistantSessionCreateOrConnectWithoutCodeSnapshotsInput
+    upsert?: AssistantSessionUpsertWithoutCodeSnapshotsInput
+    connect?: AssistantSessionWhereUniqueInput
+    update?: XOR<XOR<AssistantSessionUpdateToOneWithWhereWithoutCodeSnapshotsInput, AssistantSessionUpdateWithoutCodeSnapshotsInput>, AssistantSessionUncheckedUpdateWithoutCodeSnapshotsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -59773,6 +68227,40 @@ export namespace Prisma {
     _max?: NestedEnumRecommendationFilter<$PrismaModel>
   }
 
+  export type NestedEnumAssistantStageFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssistantStage | EnumAssistantStageFieldRefInput<$PrismaModel>
+    in?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssistantStageFilter<$PrismaModel> | $Enums.AssistantStage
+  }
+
+  export type NestedEnumAssistantStageWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssistantStage | EnumAssistantStageFieldRefInput<$PrismaModel>
+    in?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel>
+    not?: NestedEnumAssistantStageWithAggregatesFilter<$PrismaModel> | $Enums.AssistantStage
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumAssistantStageFilter<$PrismaModel>
+    _max?: NestedEnumAssistantStageFilter<$PrismaModel>
+  }
+
+  export type NestedEnumAssistantStageNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssistantStage | EnumAssistantStageFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAssistantStageNullableFilter<$PrismaModel> | $Enums.AssistantStage | null
+  }
+
+  export type NestedEnumAssistantStageNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AssistantStage | EnumAssistantStageFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AssistantStage[] | ListEnumAssistantStageFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAssistantStageNullableWithAggregatesFilter<$PrismaModel> | $Enums.AssistantStage | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumAssistantStageNullableFilter<$PrismaModel>
+    _max?: NestedEnumAssistantStageNullableFilter<$PrismaModel>
+  }
+
   export type UserCreateWithoutOrganizationInput = {
     id?: string
     email: string
@@ -59811,6 +68299,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationInput = {
@@ -59851,6 +68341,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationInput = {
@@ -59979,7 +68471,10 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
+    aiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutProblemInput
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
@@ -60003,6 +68498,9 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutProblemInput
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
@@ -60319,6 +68817,8 @@ export namespace Prisma {
     createdById?: StringNullableFilter<"Problem"> | string | null
     createdAt?: DateTimeFilter<"Problem"> | Date | string
     updatedAt?: DateTimeFilter<"Problem"> | Date | string
+    aiCreditsRemaining?: IntFilter<"Problem"> | number
+    aiCreditsMax?: IntFilter<"Problem"> | number
   }
 
   export type TeamInvitationUpsertWithWhereUniqueWithoutOrganizationInput = {
@@ -60498,6 +68998,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInvitedUsersInput = {
@@ -60538,6 +69040,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInvitedUsersInput = {
@@ -60718,7 +69222,10 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
     organization?: OrganizationCreateNestedOneWithoutProblemsInput
+    aiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutProblemInput
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
@@ -60742,6 +69249,9 @@ export namespace Prisma {
     organizationId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutProblemInput
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
@@ -60896,6 +69406,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInvitedByInput = {
@@ -60936,6 +69448,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInvitedByInput = {
@@ -61598,6 +70112,74 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AssistantSessionCreateWithoutUserInput = {
+    id?: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    capturedAnswers?: CapturedAnswerCreateNestedOneWithoutSessionInput
+    transcripts?: AssistantTranscriptCreateNestedManyWithoutSessionInput
+    stageEvents?: AssistantStageEventCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionUncheckedCreateWithoutUserInput = {
+    id?: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    capturedAnswers?: CapturedAnswerUncheckedCreateNestedOneWithoutSessionInput
+    transcripts?: AssistantTranscriptUncheckedCreateNestedManyWithoutSessionInput
+    stageEvents?: AssistantStageEventUncheckedCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionCreateOrConnectWithoutUserInput = {
+    where: AssistantSessionWhereUniqueInput
+    create: XOR<AssistantSessionCreateWithoutUserInput, AssistantSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type AssistantSessionCreateManyUserInputEnvelope = {
+    data: AssistantSessionCreateManyUserInput | AssistantSessionCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ProblemAiCreditLogCreateWithoutUserInput = {
+    id?: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+    problem: ProblemCreateNestedOneWithoutAiCreditLogsInput
+  }
+
+  export type ProblemAiCreditLogUncheckedCreateWithoutUserInput = {
+    id?: string
+    problemId: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+  }
+
+  export type ProblemAiCreditLogCreateOrConnectWithoutUserInput = {
+    where: ProblemAiCreditLogWhereUniqueInput
+    create: XOR<ProblemAiCreditLogCreateWithoutUserInput, ProblemAiCreditLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type ProblemAiCreditLogCreateManyUserInputEnvelope = {
+    data: ProblemAiCreditLogCreateManyUserInput | ProblemAiCreditLogCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutInvitedUsersInput = {
     update: XOR<UserUpdateWithoutInvitedUsersInput, UserUncheckedUpdateWithoutInvitedUsersInput>
     create: XOR<UserCreateWithoutInvitedUsersInput, UserUncheckedCreateWithoutInvitedUsersInput>
@@ -61647,6 +70229,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvitedUsersInput = {
@@ -61687,6 +70271,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationUpsertWithoutUsersInput = {
@@ -62324,6 +70910,66 @@ export namespace Prisma {
     leftAt?: DateTimeNullableFilter<"InterviewParticipant"> | Date | string | null
   }
 
+  export type AssistantSessionUpsertWithWhereUniqueWithoutUserInput = {
+    where: AssistantSessionWhereUniqueInput
+    update: XOR<AssistantSessionUpdateWithoutUserInput, AssistantSessionUncheckedUpdateWithoutUserInput>
+    create: XOR<AssistantSessionCreateWithoutUserInput, AssistantSessionUncheckedCreateWithoutUserInput>
+  }
+
+  export type AssistantSessionUpdateWithWhereUniqueWithoutUserInput = {
+    where: AssistantSessionWhereUniqueInput
+    data: XOR<AssistantSessionUpdateWithoutUserInput, AssistantSessionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AssistantSessionUpdateManyWithWhereWithoutUserInput = {
+    where: AssistantSessionScalarWhereInput
+    data: XOR<AssistantSessionUpdateManyMutationInput, AssistantSessionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type AssistantSessionScalarWhereInput = {
+    AND?: AssistantSessionScalarWhereInput | AssistantSessionScalarWhereInput[]
+    OR?: AssistantSessionScalarWhereInput[]
+    NOT?: AssistantSessionScalarWhereInput | AssistantSessionScalarWhereInput[]
+    id?: StringFilter<"AssistantSession"> | string
+    userId?: StringFilter<"AssistantSession"> | string
+    problemId?: StringNullableFilter<"AssistantSession"> | string | null
+    stage?: EnumAssistantStageFilter<"AssistantSession"> | $Enums.AssistantStage
+    tokenBudget?: IntFilter<"AssistantSession"> | number
+    tokensUsed?: IntFilter<"AssistantSession"> | number
+    codeGenerated?: BoolFilter<"AssistantSession"> | boolean
+    createdAt?: DateTimeFilter<"AssistantSession"> | Date | string
+    updatedAt?: DateTimeFilter<"AssistantSession"> | Date | string
+  }
+
+  export type ProblemAiCreditLogUpsertWithWhereUniqueWithoutUserInput = {
+    where: ProblemAiCreditLogWhereUniqueInput
+    update: XOR<ProblemAiCreditLogUpdateWithoutUserInput, ProblemAiCreditLogUncheckedUpdateWithoutUserInput>
+    create: XOR<ProblemAiCreditLogCreateWithoutUserInput, ProblemAiCreditLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type ProblemAiCreditLogUpdateWithWhereUniqueWithoutUserInput = {
+    where: ProblemAiCreditLogWhereUniqueInput
+    data: XOR<ProblemAiCreditLogUpdateWithoutUserInput, ProblemAiCreditLogUncheckedUpdateWithoutUserInput>
+  }
+
+  export type ProblemAiCreditLogUpdateManyWithWhereWithoutUserInput = {
+    where: ProblemAiCreditLogScalarWhereInput
+    data: XOR<ProblemAiCreditLogUpdateManyMutationInput, ProblemAiCreditLogUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type ProblemAiCreditLogScalarWhereInput = {
+    AND?: ProblemAiCreditLogScalarWhereInput | ProblemAiCreditLogScalarWhereInput[]
+    OR?: ProblemAiCreditLogScalarWhereInput[]
+    NOT?: ProblemAiCreditLogScalarWhereInput | ProblemAiCreditLogScalarWhereInput[]
+    id?: StringFilter<"ProblemAiCreditLog"> | string
+    problemId?: StringFilter<"ProblemAiCreditLog"> | string
+    userId?: StringFilter<"ProblemAiCreditLog"> | string
+    action?: StringFilter<"ProblemAiCreditLog"> | string
+    creditsDeducted?: IntFilter<"ProblemAiCreditLog"> | number
+    creditsRemaining?: IntFilter<"ProblemAiCreditLog"> | number
+    createdAt?: DateTimeFilter<"ProblemAiCreditLog"> | Date | string
+  }
+
   export type OrganizationCreateWithoutProblemsInput = {
     id?: string
     name: string
@@ -62419,6 +71065,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedProblemsInput = {
@@ -62459,11 +71107,41 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedProblemsInput = {
     where: UserWhereUniqueInput
     create: XOR<UserCreateWithoutCreatedProblemsInput, UserUncheckedCreateWithoutCreatedProblemsInput>
+  }
+
+  export type ProblemAiCreditLogCreateWithoutProblemInput = {
+    id?: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutProblemAiCreditLogsInput
+  }
+
+  export type ProblemAiCreditLogUncheckedCreateWithoutProblemInput = {
+    id?: string
+    userId: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+  }
+
+  export type ProblemAiCreditLogCreateOrConnectWithoutProblemInput = {
+    where: ProblemAiCreditLogWhereUniqueInput
+    create: XOR<ProblemAiCreditLogCreateWithoutProblemInput, ProblemAiCreditLogUncheckedCreateWithoutProblemInput>
+  }
+
+  export type ProblemAiCreditLogCreateManyProblemInputEnvelope = {
+    data: ProblemAiCreditLogCreateManyProblemInput | ProblemAiCreditLogCreateManyProblemInput[]
+    skipDuplicates?: boolean
   }
 
   export type TestCaseCreateWithoutProblemInput = {
@@ -62750,6 +71428,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedProblemsInput = {
@@ -62790,6 +71470,24 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ProblemAiCreditLogUpsertWithWhereUniqueWithoutProblemInput = {
+    where: ProblemAiCreditLogWhereUniqueInput
+    update: XOR<ProblemAiCreditLogUpdateWithoutProblemInput, ProblemAiCreditLogUncheckedUpdateWithoutProblemInput>
+    create: XOR<ProblemAiCreditLogCreateWithoutProblemInput, ProblemAiCreditLogUncheckedCreateWithoutProblemInput>
+  }
+
+  export type ProblemAiCreditLogUpdateWithWhereUniqueWithoutProblemInput = {
+    where: ProblemAiCreditLogWhereUniqueInput
+    data: XOR<ProblemAiCreditLogUpdateWithoutProblemInput, ProblemAiCreditLogUncheckedUpdateWithoutProblemInput>
+  }
+
+  export type ProblemAiCreditLogUpdateManyWithWhereWithoutProblemInput = {
+    where: ProblemAiCreditLogScalarWhereInput
+    data: XOR<ProblemAiCreditLogUpdateManyMutationInput, ProblemAiCreditLogUncheckedUpdateManyWithoutProblemInput>
   }
 
   export type TestCaseUpsertWithWhereUniqueWithoutProblemInput = {
@@ -62881,6 +71579,310 @@ export namespace Prisma {
     data: XOR<MockInterviewSessionUpdateManyMutationInput, MockInterviewSessionUncheckedUpdateManyWithoutProblemInput>
   }
 
+  export type ProblemCreateWithoutAiCreditLogsInput = {
+    id?: string
+    title: string
+    slug: string
+    description: string
+    difficulty?: string
+    category?: string
+    problemType?: string
+    evaluationStrategy?: $Enums.EvaluationStrategy
+    referenceSolution?: string | null
+    starterCode: JsonNullValueInput | InputJsonValue
+    driverCode?: NullableJsonNullValueInput | InputJsonValue
+    images?: NullableJsonNullValueInput | InputJsonValue
+    isPublic?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    organization?: OrganizationCreateNestedOneWithoutProblemsInput
+    createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
+    testCases?: TestCaseCreateNestedManyWithoutProblemInput
+    contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
+    submissions?: SubmissionCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
+  }
+
+  export type ProblemUncheckedCreateWithoutAiCreditLogsInput = {
+    id?: string
+    title: string
+    slug: string
+    description: string
+    difficulty?: string
+    category?: string
+    problemType?: string
+    evaluationStrategy?: $Enums.EvaluationStrategy
+    referenceSolution?: string | null
+    starterCode: JsonNullValueInput | InputJsonValue
+    driverCode?: NullableJsonNullValueInput | InputJsonValue
+    images?: NullableJsonNullValueInput | InputJsonValue
+    isPublic?: boolean
+    organizationId?: string | null
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
+    contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
+  }
+
+  export type ProblemCreateOrConnectWithoutAiCreditLogsInput = {
+    where: ProblemWhereUniqueInput
+    create: XOR<ProblemCreateWithoutAiCreditLogsInput, ProblemUncheckedCreateWithoutAiCreditLogsInput>
+  }
+
+  export type UserCreateWithoutProblemAiCreditLogsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
+    organization?: OrganizationCreateNestedOneWithoutUsersInput
+    createdContests?: ContestCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationCreateNestedManyWithoutUserInput
+    submissions?: SubmissionCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogCreateNestedManyWithoutUserInput
+    invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutProblemAiCreditLogsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    invitedById?: string | null
+    organizationId?: string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdContests?: ContestUncheckedCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemUncheckedCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationUncheckedCreateNestedManyWithoutUserInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogUncheckedCreateNestedManyWithoutUserInput
+    invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionUncheckedCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestUncheckedCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseUncheckedCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutProblemAiCreditLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutProblemAiCreditLogsInput, UserUncheckedCreateWithoutProblemAiCreditLogsInput>
+  }
+
+  export type ProblemUpsertWithoutAiCreditLogsInput = {
+    update: XOR<ProblemUpdateWithoutAiCreditLogsInput, ProblemUncheckedUpdateWithoutAiCreditLogsInput>
+    create: XOR<ProblemCreateWithoutAiCreditLogsInput, ProblemUncheckedCreateWithoutAiCreditLogsInput>
+    where?: ProblemWhereInput
+  }
+
+  export type ProblemUpdateToOneWithWhereWithoutAiCreditLogsInput = {
+    where?: ProblemWhereInput
+    data: XOR<ProblemUpdateWithoutAiCreditLogsInput, ProblemUncheckedUpdateWithoutAiCreditLogsInput>
+  }
+
+  export type ProblemUpdateWithoutAiCreditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    problemType?: StringFieldUpdateOperationsInput | string
+    evaluationStrategy?: EnumEvaluationStrategyFieldUpdateOperationsInput | $Enums.EvaluationStrategy
+    referenceSolution?: NullableStringFieldUpdateOperationsInput | string | null
+    starterCode?: JsonNullValueInput | InputJsonValue
+    driverCode?: NullableJsonNullValueInput | InputJsonValue
+    images?: NullableJsonNullValueInput | InputJsonValue
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    organization?: OrganizationUpdateOneWithoutProblemsNestedInput
+    createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
+    testCases?: TestCaseUpdateManyWithoutProblemNestedInput
+    contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
+    submissions?: SubmissionUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
+  }
+
+  export type ProblemUncheckedUpdateWithoutAiCreditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    problemType?: StringFieldUpdateOperationsInput | string
+    evaluationStrategy?: EnumEvaluationStrategyFieldUpdateOperationsInput | $Enums.EvaluationStrategy
+    referenceSolution?: NullableStringFieldUpdateOperationsInput | string | null
+    starterCode?: JsonNullValueInput | InputJsonValue
+    driverCode?: NullableJsonNullValueInput | InputJsonValue
+    images?: NullableJsonNullValueInput | InputJsonValue
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
+    contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
+  }
+
+  export type UserUpsertWithoutProblemAiCreditLogsInput = {
+    update: XOR<UserUpdateWithoutProblemAiCreditLogsInput, UserUncheckedUpdateWithoutProblemAiCreditLogsInput>
+    create: XOR<UserCreateWithoutProblemAiCreditLogsInput, UserUncheckedCreateWithoutProblemAiCreditLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutProblemAiCreditLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutProblemAiCreditLogsInput, UserUncheckedUpdateWithoutProblemAiCreditLogsInput>
+  }
+
+  export type UserUpdateWithoutProblemAiCreditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
+    organization?: OrganizationUpdateOneWithoutUsersNestedInput
+    createdContests?: ContestUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutProblemAiCreditLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdContests?: ContestUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUncheckedUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUncheckedUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUncheckedUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUncheckedUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUncheckedUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
   export type ProblemCreateWithoutTestCasesInput = {
     id?: string
     title: string
@@ -62897,8 +71899,11 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
     organization?: OrganizationCreateNestedOneWithoutProblemsInput
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
+    aiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
@@ -62922,6 +71927,9 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
@@ -62959,8 +71967,11 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
     organization?: OrganizationUpdateOneWithoutProblemsNestedInput
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
+    aiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
@@ -62984,6 +71995,9 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
@@ -63084,6 +72098,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedContestsInput = {
@@ -63124,6 +72140,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedContestsInput = {
@@ -63555,6 +72573,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedContestsInput = {
@@ -63595,6 +72615,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestProblemUpsertWithWhereUniqueWithoutContestInput = {
@@ -63913,8 +72935,11 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
     organization?: OrganizationCreateNestedOneWithoutProblemsInput
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
+    aiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutProblemInput
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
@@ -63938,6 +72963,9 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutProblemInput
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
@@ -64076,8 +73104,11 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
     organization?: OrganizationUpdateOneWithoutProblemsNestedInput
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
+    aiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
@@ -64101,6 +73132,9 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
@@ -64239,6 +73273,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRegistrationsInput = {
@@ -64279,6 +73315,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRegistrationsInput = {
@@ -64436,6 +73474,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRegistrationsInput = {
@@ -64476,6 +73516,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutSubmissionsInput = {
@@ -64589,8 +73631,11 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
     organization?: OrganizationCreateNestedOneWithoutProblemsInput
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
+    aiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutProblemInput
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutProblemInput
@@ -64614,6 +73659,9 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutProblemInput
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutProblemInput
@@ -64662,6 +73710,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubmissionsInput = {
@@ -64702,6 +73752,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubmissionsInput = {
@@ -64747,6 +73799,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutScoredSubmissionsInput = {
@@ -64787,6 +73841,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutScoredSubmissionsInput = {
@@ -64922,8 +73978,11 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
     organization?: OrganizationUpdateOneWithoutProblemsNestedInput
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
+    aiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutProblemNestedInput
@@ -64947,6 +74006,9 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutProblemNestedInput
@@ -65001,6 +74063,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubmissionsInput = {
@@ -65041,6 +74105,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutScoredSubmissionsInput = {
@@ -65092,6 +74158,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutScoredSubmissionsInput = {
@@ -65132,6 +74200,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutProctoringLogsInput = {
@@ -65267,6 +74337,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProctoringLogsInput = {
@@ -65307,6 +74379,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProctoringLogsInput = {
@@ -65464,6 +74538,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProctoringLogsInput = {
@@ -65504,6 +74580,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutPlagiarismReportsInput = {
@@ -65797,6 +74875,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentInvitationsInput = {
@@ -65837,6 +74917,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentInvitationsInput = {
@@ -65956,6 +75038,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentInvitationsInput = {
@@ -65996,6 +75080,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutAssignmentsInput = {
@@ -66131,6 +75217,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutContestAssignmentsInput = {
@@ -66171,6 +75259,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutContestAssignmentsInput = {
@@ -66216,6 +75306,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedContestsInput = {
@@ -66256,6 +75348,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedContestsInput = {
@@ -66413,6 +75507,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutContestAssignmentsInput = {
@@ -66453,6 +75549,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutAssignedContestsInput = {
@@ -66504,6 +75602,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedContestsInput = {
@@ -66544,6 +75644,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -66584,6 +75686,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -66624,6 +75728,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -66737,6 +75843,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -66777,6 +75885,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationUpsertWithoutAuditLogsInput = {
@@ -66880,6 +75990,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -66920,6 +76032,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -66976,6 +76090,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -67016,6 +76132,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutReviewedRequestsInput = {
@@ -67056,6 +76174,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewedRequestsInput = {
@@ -67096,6 +76216,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewedRequestsInput = {
@@ -67152,6 +76274,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewedRequestsInput = {
@@ -67192,6 +76316,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutSectionsInput = {
@@ -68693,6 +77819,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuestionReviewsInput = {
@@ -68733,6 +77861,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuestionReviewsInput = {
@@ -68856,6 +77986,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuestionReviewsInput = {
@@ -68896,6 +78028,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestSectionCreateWithoutAssemblyRulesInput = {
@@ -69156,6 +78290,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuizAttemptQuestionsInput = {
@@ -69196,6 +78332,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuizAttemptQuestionsInput = {
@@ -69462,6 +78600,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuizAttemptQuestionsInput = {
@@ -69502,6 +78642,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestUpsertWithoutQuizAttemptQuestionsInput = {
@@ -69755,6 +78897,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuizResponsesInput = {
@@ -69795,6 +78939,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuizResponsesInput = {
@@ -69886,6 +79032,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuizResponsesInput = {
@@ -69926,6 +79074,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type QuizQuestionCreateWithoutAnalyticsInput = {
@@ -70094,6 +79244,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBreakGlassLogsInput = {
@@ -70134,6 +79286,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBreakGlassLogsInput = {
@@ -70190,6 +79344,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBreakGlassLogsInput = {
@@ -70230,6 +79386,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutGuestInvitesInput = {
@@ -70561,6 +79719,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutModeratorAssignmentsInput = {
@@ -70601,6 +79761,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutModeratorAssignmentsInput = {
@@ -70758,6 +79920,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutModeratorAssignmentsInput = {
@@ -70798,6 +79962,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -70838,6 +80004,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -70878,6 +80046,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -70934,6 +80104,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -70974,6 +80146,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutInterviewerSessionsInput = {
@@ -71014,6 +80188,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInterviewerSessionsInput = {
@@ -71054,6 +80230,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInterviewerSessionsInput = {
@@ -71099,6 +80277,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCandidateSessionsInput = {
@@ -71139,6 +80319,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCandidateSessionsInput = {
@@ -71162,8 +80344,11 @@ export namespace Prisma {
     isPublic?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
     organization?: OrganizationCreateNestedOneWithoutProblemsInput
     createdBy?: UserCreateNestedOneWithoutCreatedProblemsInput
+    aiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutProblemInput
     testCases?: TestCaseCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemCreateNestedManyWithoutProblemInput
     submissions?: SubmissionCreateNestedManyWithoutProblemInput
@@ -71187,6 +80372,9 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutProblemInput
     testCases?: TestCaseUncheckedCreateNestedManyWithoutProblemInput
     contestProblems?: ContestProblemUncheckedCreateNestedManyWithoutProblemInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutProblemInput
@@ -71440,6 +80628,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInterviewerSessionsInput = {
@@ -71480,6 +80670,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutCandidateSessionsInput = {
@@ -71531,6 +80723,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCandidateSessionsInput = {
@@ -71571,6 +80765,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProblemUpsertWithoutInterviewSessionsInput = {
@@ -71600,8 +80796,11 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
     organization?: OrganizationUpdateOneWithoutProblemsNestedInput
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
+    aiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
@@ -71625,6 +80824,9 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
@@ -71938,6 +81140,8 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInterviewParticipantsInput = {
@@ -71978,6 +81182,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInterviewParticipantsInput = {
@@ -72109,6 +81315,8 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInterviewParticipantsInput = {
@@ -72149,6 +81357,8 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MockInterviewSessionCreateWithoutFeedbackInput = {
@@ -72727,6 +81937,711 @@ export namespace Prisma {
     hintRequests?: InterviewHintRequestUncheckedUpdateManyWithoutSessionNestedInput
   }
 
+  export type UserCreateWithoutAssistantSessionsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
+    organization?: OrganizationCreateNestedOneWithoutUsersInput
+    createdContests?: ContestCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationCreateNestedManyWithoutUserInput
+    submissions?: SubmissionCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogCreateNestedManyWithoutUserInput
+    invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAssistantSessionsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    invitedById?: string | null
+    organizationId?: string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdContests?: ContestUncheckedCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemUncheckedCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationUncheckedCreateNestedManyWithoutUserInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogUncheckedCreateNestedManyWithoutUserInput
+    invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionUncheckedCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestUncheckedCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseUncheckedCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAssistantSessionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAssistantSessionsInput, UserUncheckedCreateWithoutAssistantSessionsInput>
+  }
+
+  export type CapturedAnswerCreateWithoutSessionInput = {
+    problemSummary?: string | null
+    dsChoice?: string | null
+    approach?: string | null
+  }
+
+  export type CapturedAnswerUncheckedCreateWithoutSessionInput = {
+    problemSummary?: string | null
+    dsChoice?: string | null
+    approach?: string | null
+  }
+
+  export type CapturedAnswerCreateOrConnectWithoutSessionInput = {
+    where: CapturedAnswerWhereUniqueInput
+    create: XOR<CapturedAnswerCreateWithoutSessionInput, CapturedAnswerUncheckedCreateWithoutSessionInput>
+  }
+
+  export type AssistantTranscriptCreateWithoutSessionInput = {
+    id?: string
+    turnIndex: number
+    role: string
+    stageAtTime: $Enums.AssistantStage
+    message: string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: number
+    llmCallType?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantTranscriptUncheckedCreateWithoutSessionInput = {
+    id?: string
+    turnIndex: number
+    role: string
+    stageAtTime: $Enums.AssistantStage
+    message: string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: number
+    llmCallType?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantTranscriptCreateOrConnectWithoutSessionInput = {
+    where: AssistantTranscriptWhereUniqueInput
+    create: XOR<AssistantTranscriptCreateWithoutSessionInput, AssistantTranscriptUncheckedCreateWithoutSessionInput>
+  }
+
+  export type AssistantTranscriptCreateManySessionInputEnvelope = {
+    data: AssistantTranscriptCreateManySessionInput | AssistantTranscriptCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AssistantStageEventCreateWithoutSessionInput = {
+    id?: string
+    fromStage?: $Enums.AssistantStage | null
+    toStage?: $Enums.AssistantStage | null
+    eventType: string
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantStageEventUncheckedCreateWithoutSessionInput = {
+    id?: string
+    fromStage?: $Enums.AssistantStage | null
+    toStage?: $Enums.AssistantStage | null
+    eventType: string
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantStageEventCreateOrConnectWithoutSessionInput = {
+    where: AssistantStageEventWhereUniqueInput
+    create: XOR<AssistantStageEventCreateWithoutSessionInput, AssistantStageEventUncheckedCreateWithoutSessionInput>
+  }
+
+  export type AssistantStageEventCreateManySessionInputEnvelope = {
+    data: AssistantStageEventCreateManySessionInput | AssistantStageEventCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AssistantCodeSnapshotCreateWithoutSessionInput = {
+    id?: string
+    code: string
+    version?: number
+    insertedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantCodeSnapshotUncheckedCreateWithoutSessionInput = {
+    id?: string
+    code: string
+    version?: number
+    insertedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantCodeSnapshotCreateOrConnectWithoutSessionInput = {
+    where: AssistantCodeSnapshotWhereUniqueInput
+    create: XOR<AssistantCodeSnapshotCreateWithoutSessionInput, AssistantCodeSnapshotUncheckedCreateWithoutSessionInput>
+  }
+
+  export type AssistantCodeSnapshotCreateManySessionInputEnvelope = {
+    data: AssistantCodeSnapshotCreateManySessionInput | AssistantCodeSnapshotCreateManySessionInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type UserUpsertWithoutAssistantSessionsInput = {
+    update: XOR<UserUpdateWithoutAssistantSessionsInput, UserUncheckedUpdateWithoutAssistantSessionsInput>
+    create: XOR<UserCreateWithoutAssistantSessionsInput, UserUncheckedCreateWithoutAssistantSessionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAssistantSessionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAssistantSessionsInput, UserUncheckedUpdateWithoutAssistantSessionsInput>
+  }
+
+  export type UserUpdateWithoutAssistantSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
+    organization?: OrganizationUpdateOneWithoutUsersNestedInput
+    createdContests?: ContestUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAssistantSessionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdContests?: ContestUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUncheckedUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUncheckedUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUncheckedUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUncheckedUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUncheckedUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type CapturedAnswerUpsertWithoutSessionInput = {
+    update: XOR<CapturedAnswerUpdateWithoutSessionInput, CapturedAnswerUncheckedUpdateWithoutSessionInput>
+    create: XOR<CapturedAnswerCreateWithoutSessionInput, CapturedAnswerUncheckedCreateWithoutSessionInput>
+    where?: CapturedAnswerWhereInput
+  }
+
+  export type CapturedAnswerUpdateToOneWithWhereWithoutSessionInput = {
+    where?: CapturedAnswerWhereInput
+    data: XOR<CapturedAnswerUpdateWithoutSessionInput, CapturedAnswerUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type CapturedAnswerUpdateWithoutSessionInput = {
+    problemSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    dsChoice?: NullableStringFieldUpdateOperationsInput | string | null
+    approach?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CapturedAnswerUncheckedUpdateWithoutSessionInput = {
+    problemSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    dsChoice?: NullableStringFieldUpdateOperationsInput | string | null
+    approach?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AssistantTranscriptUpsertWithWhereUniqueWithoutSessionInput = {
+    where: AssistantTranscriptWhereUniqueInput
+    update: XOR<AssistantTranscriptUpdateWithoutSessionInput, AssistantTranscriptUncheckedUpdateWithoutSessionInput>
+    create: XOR<AssistantTranscriptCreateWithoutSessionInput, AssistantTranscriptUncheckedCreateWithoutSessionInput>
+  }
+
+  export type AssistantTranscriptUpdateWithWhereUniqueWithoutSessionInput = {
+    where: AssistantTranscriptWhereUniqueInput
+    data: XOR<AssistantTranscriptUpdateWithoutSessionInput, AssistantTranscriptUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type AssistantTranscriptUpdateManyWithWhereWithoutSessionInput = {
+    where: AssistantTranscriptScalarWhereInput
+    data: XOR<AssistantTranscriptUpdateManyMutationInput, AssistantTranscriptUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type AssistantTranscriptScalarWhereInput = {
+    AND?: AssistantTranscriptScalarWhereInput | AssistantTranscriptScalarWhereInput[]
+    OR?: AssistantTranscriptScalarWhereInput[]
+    NOT?: AssistantTranscriptScalarWhereInput | AssistantTranscriptScalarWhereInput[]
+    id?: StringFilter<"AssistantTranscript"> | string
+    sessionId?: StringFilter<"AssistantTranscript"> | string
+    turnIndex?: IntFilter<"AssistantTranscript"> | number
+    role?: StringFilter<"AssistantTranscript"> | string
+    stageAtTime?: EnumAssistantStageFilter<"AssistantTranscript"> | $Enums.AssistantStage
+    message?: StringFilter<"AssistantTranscript"> | string
+    gateResult?: JsonNullableFilter<"AssistantTranscript">
+    tokensConsumed?: IntFilter<"AssistantTranscript"> | number
+    llmCallType?: StringNullableFilter<"AssistantTranscript"> | string | null
+    createdAt?: DateTimeFilter<"AssistantTranscript"> | Date | string
+  }
+
+  export type AssistantStageEventUpsertWithWhereUniqueWithoutSessionInput = {
+    where: AssistantStageEventWhereUniqueInput
+    update: XOR<AssistantStageEventUpdateWithoutSessionInput, AssistantStageEventUncheckedUpdateWithoutSessionInput>
+    create: XOR<AssistantStageEventCreateWithoutSessionInput, AssistantStageEventUncheckedCreateWithoutSessionInput>
+  }
+
+  export type AssistantStageEventUpdateWithWhereUniqueWithoutSessionInput = {
+    where: AssistantStageEventWhereUniqueInput
+    data: XOR<AssistantStageEventUpdateWithoutSessionInput, AssistantStageEventUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type AssistantStageEventUpdateManyWithWhereWithoutSessionInput = {
+    where: AssistantStageEventScalarWhereInput
+    data: XOR<AssistantStageEventUpdateManyMutationInput, AssistantStageEventUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type AssistantStageEventScalarWhereInput = {
+    AND?: AssistantStageEventScalarWhereInput | AssistantStageEventScalarWhereInput[]
+    OR?: AssistantStageEventScalarWhereInput[]
+    NOT?: AssistantStageEventScalarWhereInput | AssistantStageEventScalarWhereInput[]
+    id?: StringFilter<"AssistantStageEvent"> | string
+    sessionId?: StringFilter<"AssistantStageEvent"> | string
+    fromStage?: EnumAssistantStageNullableFilter<"AssistantStageEvent"> | $Enums.AssistantStage | null
+    toStage?: EnumAssistantStageNullableFilter<"AssistantStageEvent"> | $Enums.AssistantStage | null
+    eventType?: StringFilter<"AssistantStageEvent"> | string
+    reason?: StringNullableFilter<"AssistantStageEvent"> | string | null
+    createdAt?: DateTimeFilter<"AssistantStageEvent"> | Date | string
+  }
+
+  export type AssistantCodeSnapshotUpsertWithWhereUniqueWithoutSessionInput = {
+    where: AssistantCodeSnapshotWhereUniqueInput
+    update: XOR<AssistantCodeSnapshotUpdateWithoutSessionInput, AssistantCodeSnapshotUncheckedUpdateWithoutSessionInput>
+    create: XOR<AssistantCodeSnapshotCreateWithoutSessionInput, AssistantCodeSnapshotUncheckedCreateWithoutSessionInput>
+  }
+
+  export type AssistantCodeSnapshotUpdateWithWhereUniqueWithoutSessionInput = {
+    where: AssistantCodeSnapshotWhereUniqueInput
+    data: XOR<AssistantCodeSnapshotUpdateWithoutSessionInput, AssistantCodeSnapshotUncheckedUpdateWithoutSessionInput>
+  }
+
+  export type AssistantCodeSnapshotUpdateManyWithWhereWithoutSessionInput = {
+    where: AssistantCodeSnapshotScalarWhereInput
+    data: XOR<AssistantCodeSnapshotUpdateManyMutationInput, AssistantCodeSnapshotUncheckedUpdateManyWithoutSessionInput>
+  }
+
+  export type AssistantCodeSnapshotScalarWhereInput = {
+    AND?: AssistantCodeSnapshotScalarWhereInput | AssistantCodeSnapshotScalarWhereInput[]
+    OR?: AssistantCodeSnapshotScalarWhereInput[]
+    NOT?: AssistantCodeSnapshotScalarWhereInput | AssistantCodeSnapshotScalarWhereInput[]
+    id?: StringFilter<"AssistantCodeSnapshot"> | string
+    sessionId?: StringFilter<"AssistantCodeSnapshot"> | string
+    code?: StringFilter<"AssistantCodeSnapshot"> | string
+    version?: IntFilter<"AssistantCodeSnapshot"> | number
+    insertedAt?: DateTimeNullableFilter<"AssistantCodeSnapshot"> | Date | string | null
+    createdAt?: DateTimeFilter<"AssistantCodeSnapshot"> | Date | string
+  }
+
+  export type AssistantSessionCreateWithoutCapturedAnswersInput = {
+    id?: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAssistantSessionsInput
+    transcripts?: AssistantTranscriptCreateNestedManyWithoutSessionInput
+    stageEvents?: AssistantStageEventCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionUncheckedCreateWithoutCapturedAnswersInput = {
+    id?: string
+    userId: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transcripts?: AssistantTranscriptUncheckedCreateNestedManyWithoutSessionInput
+    stageEvents?: AssistantStageEventUncheckedCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionCreateOrConnectWithoutCapturedAnswersInput = {
+    where: AssistantSessionWhereUniqueInput
+    create: XOR<AssistantSessionCreateWithoutCapturedAnswersInput, AssistantSessionUncheckedCreateWithoutCapturedAnswersInput>
+  }
+
+  export type AssistantSessionUpsertWithoutCapturedAnswersInput = {
+    update: XOR<AssistantSessionUpdateWithoutCapturedAnswersInput, AssistantSessionUncheckedUpdateWithoutCapturedAnswersInput>
+    create: XOR<AssistantSessionCreateWithoutCapturedAnswersInput, AssistantSessionUncheckedCreateWithoutCapturedAnswersInput>
+    where?: AssistantSessionWhereInput
+  }
+
+  export type AssistantSessionUpdateToOneWithWhereWithoutCapturedAnswersInput = {
+    where?: AssistantSessionWhereInput
+    data: XOR<AssistantSessionUpdateWithoutCapturedAnswersInput, AssistantSessionUncheckedUpdateWithoutCapturedAnswersInput>
+  }
+
+  export type AssistantSessionUpdateWithoutCapturedAnswersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAssistantSessionsNestedInput
+    transcripts?: AssistantTranscriptUpdateManyWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionUncheckedUpdateWithoutCapturedAnswersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transcripts?: AssistantTranscriptUncheckedUpdateManyWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUncheckedUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionCreateWithoutTranscriptsInput = {
+    id?: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAssistantSessionsInput
+    capturedAnswers?: CapturedAnswerCreateNestedOneWithoutSessionInput
+    stageEvents?: AssistantStageEventCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionUncheckedCreateWithoutTranscriptsInput = {
+    id?: string
+    userId: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    capturedAnswers?: CapturedAnswerUncheckedCreateNestedOneWithoutSessionInput
+    stageEvents?: AssistantStageEventUncheckedCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionCreateOrConnectWithoutTranscriptsInput = {
+    where: AssistantSessionWhereUniqueInput
+    create: XOR<AssistantSessionCreateWithoutTranscriptsInput, AssistantSessionUncheckedCreateWithoutTranscriptsInput>
+  }
+
+  export type AssistantSessionUpsertWithoutTranscriptsInput = {
+    update: XOR<AssistantSessionUpdateWithoutTranscriptsInput, AssistantSessionUncheckedUpdateWithoutTranscriptsInput>
+    create: XOR<AssistantSessionCreateWithoutTranscriptsInput, AssistantSessionUncheckedCreateWithoutTranscriptsInput>
+    where?: AssistantSessionWhereInput
+  }
+
+  export type AssistantSessionUpdateToOneWithWhereWithoutTranscriptsInput = {
+    where?: AssistantSessionWhereInput
+    data: XOR<AssistantSessionUpdateWithoutTranscriptsInput, AssistantSessionUncheckedUpdateWithoutTranscriptsInput>
+  }
+
+  export type AssistantSessionUpdateWithoutTranscriptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAssistantSessionsNestedInput
+    capturedAnswers?: CapturedAnswerUpdateOneWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionUncheckedUpdateWithoutTranscriptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturedAnswers?: CapturedAnswerUncheckedUpdateOneWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUncheckedUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionCreateWithoutStageEventsInput = {
+    id?: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAssistantSessionsInput
+    capturedAnswers?: CapturedAnswerCreateNestedOneWithoutSessionInput
+    transcripts?: AssistantTranscriptCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionUncheckedCreateWithoutStageEventsInput = {
+    id?: string
+    userId: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    capturedAnswers?: CapturedAnswerUncheckedCreateNestedOneWithoutSessionInput
+    transcripts?: AssistantTranscriptUncheckedCreateNestedManyWithoutSessionInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionCreateOrConnectWithoutStageEventsInput = {
+    where: AssistantSessionWhereUniqueInput
+    create: XOR<AssistantSessionCreateWithoutStageEventsInput, AssistantSessionUncheckedCreateWithoutStageEventsInput>
+  }
+
+  export type AssistantSessionUpsertWithoutStageEventsInput = {
+    update: XOR<AssistantSessionUpdateWithoutStageEventsInput, AssistantSessionUncheckedUpdateWithoutStageEventsInput>
+    create: XOR<AssistantSessionCreateWithoutStageEventsInput, AssistantSessionUncheckedCreateWithoutStageEventsInput>
+    where?: AssistantSessionWhereInput
+  }
+
+  export type AssistantSessionUpdateToOneWithWhereWithoutStageEventsInput = {
+    where?: AssistantSessionWhereInput
+    data: XOR<AssistantSessionUpdateWithoutStageEventsInput, AssistantSessionUncheckedUpdateWithoutStageEventsInput>
+  }
+
+  export type AssistantSessionUpdateWithoutStageEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAssistantSessionsNestedInput
+    capturedAnswers?: CapturedAnswerUpdateOneWithoutSessionNestedInput
+    transcripts?: AssistantTranscriptUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionUncheckedUpdateWithoutStageEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturedAnswers?: CapturedAnswerUncheckedUpdateOneWithoutSessionNestedInput
+    transcripts?: AssistantTranscriptUncheckedUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionCreateWithoutCodeSnapshotsInput = {
+    id?: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutAssistantSessionsInput
+    capturedAnswers?: CapturedAnswerCreateNestedOneWithoutSessionInput
+    transcripts?: AssistantTranscriptCreateNestedManyWithoutSessionInput
+    stageEvents?: AssistantStageEventCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionUncheckedCreateWithoutCodeSnapshotsInput = {
+    id?: string
+    userId: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    capturedAnswers?: CapturedAnswerUncheckedCreateNestedOneWithoutSessionInput
+    transcripts?: AssistantTranscriptUncheckedCreateNestedManyWithoutSessionInput
+    stageEvents?: AssistantStageEventUncheckedCreateNestedManyWithoutSessionInput
+  }
+
+  export type AssistantSessionCreateOrConnectWithoutCodeSnapshotsInput = {
+    where: AssistantSessionWhereUniqueInput
+    create: XOR<AssistantSessionCreateWithoutCodeSnapshotsInput, AssistantSessionUncheckedCreateWithoutCodeSnapshotsInput>
+  }
+
+  export type AssistantSessionUpsertWithoutCodeSnapshotsInput = {
+    update: XOR<AssistantSessionUpdateWithoutCodeSnapshotsInput, AssistantSessionUncheckedUpdateWithoutCodeSnapshotsInput>
+    create: XOR<AssistantSessionCreateWithoutCodeSnapshotsInput, AssistantSessionUncheckedCreateWithoutCodeSnapshotsInput>
+    where?: AssistantSessionWhereInput
+  }
+
+  export type AssistantSessionUpdateToOneWithWhereWithoutCodeSnapshotsInput = {
+    where?: AssistantSessionWhereInput
+    data: XOR<AssistantSessionUpdateWithoutCodeSnapshotsInput, AssistantSessionUncheckedUpdateWithoutCodeSnapshotsInput>
+  }
+
+  export type AssistantSessionUpdateWithoutCodeSnapshotsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutAssistantSessionsNestedInput
+    capturedAnswers?: CapturedAnswerUpdateOneWithoutSessionNestedInput
+    transcripts?: AssistantTranscriptUpdateManyWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionUncheckedUpdateWithoutCodeSnapshotsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturedAnswers?: CapturedAnswerUncheckedUpdateOneWithoutSessionNestedInput
+    transcripts?: AssistantTranscriptUncheckedUpdateManyWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
   export type UserCreateManyOrganizationInput = {
     id?: string
     email: string
@@ -72797,6 +82712,8 @@ export namespace Prisma {
     createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
   }
 
   export type TeamInvitationCreateManyOrganizationInput = {
@@ -72896,6 +82813,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationInput = {
@@ -72936,6 +82855,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutOrganizationInput = {
@@ -73097,7 +83018,10 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
     createdBy?: UserUpdateOneWithoutCreatedProblemsNestedInput
+    aiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
@@ -73121,6 +83045,9 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
@@ -73144,6 +83071,8 @@ export namespace Prisma {
     createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
   }
 
   export type TeamInvitationUpdateWithoutOrganizationInput = {
@@ -73387,6 +83316,8 @@ export namespace Prisma {
     organizationId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    aiCreditsRemaining?: number
+    aiCreditsMax?: number
   }
 
   export type ContestRegistrationCreateManyUserInput = {
@@ -73676,6 +83607,26 @@ export namespace Prisma {
     leftAt?: Date | string | null
   }
 
+  export type AssistantSessionCreateManyUserInput = {
+    id?: string
+    problemId?: string | null
+    stage?: $Enums.AssistantStage
+    tokenBudget?: number
+    tokensUsed?: number
+    codeGenerated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProblemAiCreditLogCreateManyUserInput = {
+    id?: string
+    problemId: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+  }
+
   export type ContestUpdateWithoutCreatedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
@@ -73817,7 +83768,10 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
     organization?: OrganizationUpdateOneWithoutProblemsNestedInput
+    aiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUpdateManyWithoutProblemNestedInput
@@ -73841,6 +83795,9 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
+    aiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutProblemNestedInput
     testCases?: TestCaseUncheckedUpdateManyWithoutProblemNestedInput
     contestProblems?: ContestProblemUncheckedUpdateManyWithoutProblemNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutProblemNestedInput
@@ -73864,6 +83821,8 @@ export namespace Prisma {
     organizationId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aiCreditsRemaining?: IntFieldUpdateOperationsInput | number
+    aiCreditsMax?: IntFieldUpdateOperationsInput | number
   }
 
   export type ContestRegistrationUpdateWithoutUserInput = {
@@ -74009,6 +83968,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvitedByInput = {
@@ -74049,6 +84010,8 @@ export namespace Prisma {
     interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutInvitedByInput = {
@@ -74793,6 +84756,83 @@ export namespace Prisma {
     leftAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type AssistantSessionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturedAnswers?: CapturedAnswerUpdateOneWithoutSessionNestedInput
+    transcripts?: AssistantTranscriptUpdateManyWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturedAnswers?: CapturedAnswerUncheckedUpdateOneWithoutSessionNestedInput
+    transcripts?: AssistantTranscriptUncheckedUpdateManyWithoutSessionNestedInput
+    stageEvents?: AssistantStageEventUncheckedUpdateManyWithoutSessionNestedInput
+    codeSnapshots?: AssistantCodeSnapshotUncheckedUpdateManyWithoutSessionNestedInput
+  }
+
+  export type AssistantSessionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: NullableStringFieldUpdateOperationsInput | string | null
+    stage?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    tokenBudget?: IntFieldUpdateOperationsInput | number
+    tokensUsed?: IntFieldUpdateOperationsInput | number
+    codeGenerated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProblemAiCreditLogUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    problem?: ProblemUpdateOneRequiredWithoutAiCreditLogsNestedInput
+  }
+
+  export type ProblemAiCreditLogUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProblemAiCreditLogUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    problemId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProblemAiCreditLogCreateManyProblemInput = {
+    id?: string
+    userId: string
+    action: string
+    creditsDeducted: number
+    creditsRemaining: number
+    createdAt?: Date | string
+  }
+
   export type TestCaseCreateManyProblemInput = {
     id?: string
     input: string
@@ -74852,6 +84892,33 @@ export namespace Prisma {
     yjsDocumentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type ProblemAiCreditLogUpdateWithoutProblemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutProblemAiCreditLogsNestedInput
+  }
+
+  export type ProblemAiCreditLogUncheckedUpdateWithoutProblemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProblemAiCreditLogUncheckedUpdateManyWithoutProblemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    creditsDeducted?: IntFieldUpdateOperationsInput | number
+    creditsRemaining?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TestCaseUpdateWithoutProblemInput = {
@@ -76221,6 +86288,122 @@ export namespace Prisma {
     executedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AssistantTranscriptCreateManySessionInput = {
+    id?: string
+    turnIndex: number
+    role: string
+    stageAtTime: $Enums.AssistantStage
+    message: string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: number
+    llmCallType?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantStageEventCreateManySessionInput = {
+    id?: string
+    fromStage?: $Enums.AssistantStage | null
+    toStage?: $Enums.AssistantStage | null
+    eventType: string
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantCodeSnapshotCreateManySessionInput = {
+    id?: string
+    code: string
+    version?: number
+    insertedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AssistantTranscriptUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    turnIndex?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    stageAtTime?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    message?: StringFieldUpdateOperationsInput | string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: IntFieldUpdateOperationsInput | number
+    llmCallType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantTranscriptUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    turnIndex?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    stageAtTime?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    message?: StringFieldUpdateOperationsInput | string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: IntFieldUpdateOperationsInput | number
+    llmCallType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantTranscriptUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    turnIndex?: IntFieldUpdateOperationsInput | number
+    role?: StringFieldUpdateOperationsInput | string
+    stageAtTime?: EnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage
+    message?: StringFieldUpdateOperationsInput | string
+    gateResult?: NullableJsonNullValueInput | InputJsonValue
+    tokensConsumed?: IntFieldUpdateOperationsInput | number
+    llmCallType?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantStageEventUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    toStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantStageEventUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    toStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantStageEventUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fromStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    toStage?: NullableEnumAssistantStageFieldUpdateOperationsInput | $Enums.AssistantStage | null
+    eventType?: StringFieldUpdateOperationsInput | string
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantCodeSnapshotUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    insertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantCodeSnapshotUncheckedUpdateWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    insertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AssistantCodeSnapshotUncheckedUpdateManyWithoutSessionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    code?: StringFieldUpdateOperationsInput | string
+    version?: IntFieldUpdateOperationsInput | number
+    insertedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
 
 
   /**
@@ -76267,6 +86450,10 @@ export namespace Prisma {
      */
     export type MockInterviewSessionCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MockInterviewSessionCountOutputTypeDefaultArgs<ExtArgs>
     /**
+     * @deprecated Use AssistantSessionCountOutputTypeDefaultArgs instead
+     */
+    export type AssistantSessionCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AssistantSessionCountOutputTypeDefaultArgs<ExtArgs>
+    /**
      * @deprecated Use OrganizationDefaultArgs instead
      */
     export type OrganizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OrganizationDefaultArgs<ExtArgs>
@@ -76278,6 +86465,10 @@ export namespace Prisma {
      * @deprecated Use ProblemDefaultArgs instead
      */
     export type ProblemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProblemDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ProblemAiCreditLogDefaultArgs instead
+     */
+    export type ProblemAiCreditLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProblemAiCreditLogDefaultArgs<ExtArgs>
     /**
      * @deprecated Use TestCaseDefaultArgs instead
      */
@@ -76414,6 +86605,26 @@ export namespace Prisma {
      * @deprecated Use InterviewExecutionResultDefaultArgs instead
      */
     export type InterviewExecutionResultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = InterviewExecutionResultDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AssistantSessionDefaultArgs instead
+     */
+    export type AssistantSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AssistantSessionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use CapturedAnswerDefaultArgs instead
+     */
+    export type CapturedAnswerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CapturedAnswerDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AssistantTranscriptDefaultArgs instead
+     */
+    export type AssistantTranscriptArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AssistantTranscriptDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AssistantStageEventDefaultArgs instead
+     */
+    export type AssistantStageEventArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AssistantStageEventDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use AssistantCodeSnapshotDefaultArgs instead
+     */
+    export type AssistantCodeSnapshotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AssistantCodeSnapshotDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

@@ -27,6 +27,7 @@ export class CodeWrapperGenerator {
       case 'javascript':
         return this.generateJavascriptWrapper(userCode, testCase, problem);
       case 'cpp':
+      case 'c':
         return this.generateCppWrapper(userCode, testCase, problem);
       default:
         throw new Error(`Unsupported language: ${language}`);
@@ -79,21 +80,43 @@ export class CodeWrapperGenerator {
   }
 
   private parseTreeInput(value: string, language: string): string {
-    const trimmed = value.trim();
+    let trimmed = value.trim();
+    trimmed = trimmed.replace(/^[a-zA-Z0-9_]+\s*:\s*/, '');
+    const cleanStr = trimmed.replace(/[\[\]]/g, '');
+    const tokens = cleanStr.split(/[\s,]+/).filter(t => t.length > 0);
+
     if (language === 'python') {
-      return trimmed.replace(/null/g, 'None');
+      const pyTokens = tokens.map(t => {
+        if (t === 'N' || t === 'null' || t === 'None' || t === 'NULL') return 'None';
+        return t;
+      });
+      return `[${pyTokens.join(', ')}]`;
     }
+
     if (language === 'javascript') {
-      return trimmed;
+      const jsTokens = tokens.map(t => {
+        if (t === 'N' || t === 'null' || t === 'None' || t === 'NULL') return 'null';
+        return t;
+      });
+      return `[${jsTokens.join(', ')}]`;
     }
-    const content = trimmed.replace(/[\[\]]/g, '');
-    if (language === 'cpp') {
-      const parts = content.split(',').map(x => `"${x.trim()}"`);
-      return `vector<string>{${parts.join(', ')}}`;
+
+    if (language === 'cpp' || language === 'c') {
+      const cppTokens = tokens.map(t => {
+        if (t === 'N' || t === 'None') return '"null"';
+        return `"${t}"`;
+      });
+      return `vector<string>{${cppTokens.join(', ')}}`;
     }
+
     if (language === 'java') {
-      return `new Integer[]{${content}}`;
+      const javaTokens = tokens.map(t => {
+        if (t === 'N' || t === 'null' || t === 'None' || t === 'NULL') return 'null';
+        return t;
+      });
+      return `new Integer[]{${javaTokens.join(', ')}}`;
     }
+
     return trimmed;
   }
 
@@ -257,20 +280,23 @@ public:
 }\n\n`;
       } else if (language === 'cpp') {
         injections += `struct ListNode {
+    int data;
     int val;
     ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
+    ListNode() : data(0), val(0), next(nullptr) {}
+    ListNode(int x) : data(x), val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : data(x), val(x), next(next) {}
 };\n\n`;
       } else if (language === 'python') {
         injections += `class ListNode:
     def __init__(self, val=0, next=None):
+        self.data = val
         self.val = val
         self.next = next\n\n`;
       } else if (language === 'javascript') {
         injections += `class ListNode {
     constructor(val = 0, next = null) {
+        this.data = val;
         this.val = val;
         this.next = next;
     }
@@ -281,22 +307,24 @@ public:
     if (shouldInjectTreeNode) {
       if (language === 'java') {
         injections += `class TreeNode {
+    public int data;
     public int val;
     public TreeNode left;
     public TreeNode right;
-    public TreeNode() { val = 0; left = null; right = null; }
-    public TreeNode(int x) { val = x; left = null; right = null; }
-    public TreeNode(int x, TreeNode left, TreeNode right) { val = x; this.left = left; this.right = right; }
+    public TreeNode() { data = 0; val = 0; left = null; right = null; }
+    public TreeNode(int x) { data = x; val = x; left = null; right = null; }
+    public TreeNode(int x, TreeNode left, TreeNode right) { data = x; val = x; this.left = left; this.right = right; }
 }\n\n`;
       } else if (language === 'cpp') {
         injections += `struct TreeNode {
+    int data;
     int val;
     TreeNode *left;
     TreeNode *right;
-    TreeNode() : val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
-}; \n\n`;
+    TreeNode() : data(0), val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : data(x), val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : data(x), val(x), left(left), right(right) {}
+};\n\n`;
       } else if (language === 'python') {
         injections += `class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -321,36 +349,52 @@ public:
     const inputs = this.parseInput(testCase.input, problem.inputTypes, 'java');
     const inputArgs = problem.inputNames.join(', ');
     
-    let imports = '';
+    let imports = 'import java.util.*;\nimport java.io.*;\n';
     let processedUserCode = userCode;
     
     // Extract import statements to put them at the top
     const importRegex = /^import\s+[^;]+;\s*$/gm;
     const matches = processedUserCode.match(importRegex);
     if (matches) {
-        imports = matches.join('\n') + '\n\n';
+        imports += matches.join('\n') + '\n\n';
         processedUserCode = processedUserCode.replace(importRegex, '');
     }
 
+    const hasMainMethod = /public\s+static\s+void\s+main\s*\(/.test(processedUserCode);
+
+    if (hasMainMethod) {
+        // Candidate wrote a full standalone program with main() method!
+        processedUserCode = processedUserCode.replace(/\bclass\s+Main\b/, 'public class Main');
+        return `${imports}${this.injectCustomClasses(processedUserCode, 'java', problem)}`;
+    }
+
+    // Always rename user class Main to class Solution if no main method exists
+    processedUserCode = processedUserCode.replace(/\bpublic\s+class\s+Main\b/g, 'class Solution');
+    processedUserCode = processedUserCode.replace(/\bclass\s+Main\b/g, 'class Solution');
     processedUserCode = processedUserCode.replace(/public\s+class\s+Solution/g, 'class Solution');
     processedUserCode = processedUserCode.replace(/public\s+class\s+ListNode/g, 'class ListNode');
     processedUserCode = processedUserCode.replace(/public\s+class\s+TreeNode/g, 'class TreeNode');
     processedUserCode = processedUserCode.replace(/public\s+class\s+Node/g, 'class Node');
     processedUserCode = processedUserCode.replace(/public\s+class\s+Interval/g, 'class Interval');
     
-    return `${imports}public class Main {
+    const mainClassCode = `public class Main {
     public static void main(String[] args) {
         Solution sol = new Solution();
-        
         ${this.generateJavaVariableDeclarations(problem, inputs)}
-        
         ${this.generateJavaMethodCall(problem, inputArgs)}
-        
         System.out.println(output);
     }
-}
+}\n\n`;
 
-${this.injectCustomClasses(processedUserCode, 'java', problem)}`;
+    const hasSolutionClass = /\bclass\s+Solution\b/.test(processedUserCode);
+
+    if (hasSolutionClass) {
+        return `${imports}${mainClassCode}${this.injectCustomClasses(processedUserCode, 'java', problem)}`;
+    }
+
+    return `${imports}${mainClassCode}class Solution {
+    ${this.injectCustomClasses(processedUserCode, 'java', problem)}
+}`;
   }
 
   private generateJavaVariableDeclarations(problem: ProblemConfig, inputs: string[]): string {
@@ -426,24 +470,23 @@ ${this.injectCustomClasses(processedUserCode, 'java', problem)}`;
         declarations.push(`Integer[] vals_${name} = ${value};
         TreeNode ${name} = null;
         if (vals_${name}.length > 0 && vals_${name}[0] != null) {
-            TreeNode[] nodes = new TreeNode[vals_${name}.length];
-            for (int idx = 0; idx < vals_${name}.length; idx++) {
-                if (vals_${name}[idx] != null) {
-                    nodes[idx] = new TreeNode(vals_${name}[idx]);
+            ${name} = new TreeNode(vals_${name}[0]);
+            java.util.Queue<TreeNode> queue_${name} = new java.util.LinkedList<>();
+            queue_${name}.add(${name});
+            int idx_${name} = 1;
+            while (!queue_${name}.isEmpty() && idx_${name} < vals_${name}.length) {
+                TreeNode curr = queue_${name}.poll();
+                if (idx_${name} < vals_${name}.length && vals_${name}[idx_${name}] != null) {
+                    curr.left = new TreeNode(vals_${name}[idx_${name}]);
+                    queue_${name}.add(curr.left);
                 }
-            }
-            int childIdx = 1;
-            for (int idx = 0; idx < nodes.length; idx++) {
-                if (nodes[idx] != null) {
-                    if (childIdx < nodes.length) {
-                        nodes[idx].left = nodes[childIdx++];
-                    }
-                    if (childIdx < nodes.length) {
-                        nodes[idx].right = nodes[childIdx++];
-                    }
+                idx_${name}++;
+                if (idx_${name} < vals_${name}.length && vals_${name}[idx_${name}] != null) {
+                    curr.right = new TreeNode(vals_${name}[idx_${name}]);
+                    queue_${name}.add(curr.right);
                 }
+                idx_${name}++;
             }
-            ${name} = nodes[0];
         }`);
       } else if (type.includes('int[][]')) {
         declarations.push(`int[][] ${name} = ${value};`);
@@ -536,7 +579,23 @@ ${this.injectCustomClasses(processedUserCode, 'java', problem)}`;
             for (int i = 0; i <= lastNonNull; i++) {
                 if (i > 0) sb.append(",");
                 TreeNode n = queue.get(i);
-                sb.append(n == null ? "null" : String.valueOf(n.val));
+                if (n == null) {
+                    sb.append("null");
+                } else {
+                    int nodeVal = 0;
+                    try {
+                        java.lang.reflect.Field f = n.getClass().getDeclaredField("data");
+                        f.setAccessible(true);
+                        nodeVal = f.getInt(n);
+                    } catch (Exception _e) {
+                        try {
+                            java.lang.reflect.Field f = n.getClass().getDeclaredField("val");
+                            f.setAccessible(true);
+                            nodeVal = f.getInt(n);
+                        } catch (Exception _ex) {}
+                    }
+                    sb.append(nodeVal);
+                }
             }
         }
         sb.append("]");
@@ -727,13 +786,15 @@ ${this.injectCustomClasses(processedUserCode, 'java', problem)}`;
     const inputArgs = pyArgs.join(', ');
     const isVoid = problem.outputType.toLowerCase() === 'void';
     const targetName = isVoid ? problem.inputNames[0] : 'result';
+    const hasSolutionClass = /\bclass\s+Solution\b/.test(userCode);
+    const callPrefix = hasSolutionClass ? 'sol.' : '';
+    const instCode = hasSolutionClass ? '    sol = Solution()\n' : '';
     
     return `${this.injectCustomClasses(userCode, 'python', problem)}
 
 def main():
-    sol = Solution()
-${prepCode}
-    ${isVoid ? `sol.${problem.functionName}(${inputArgs})` : `result = sol.${problem.functionName}(${inputArgs})`}
+${instCode}${prepCode}
+    ${isVoid ? `${callPrefix}${problem.functionName}(${inputArgs})` : `result = ${callPrefix}${problem.functionName}(${inputArgs})`}
     
     target = ${targetName}
     if target is None:
@@ -893,12 +954,14 @@ if (vals_${name}.length > 0 && vals_${name}[0] !== null) {
     const inputArgs = jsArgs.join(', ');
     const isVoid = problem.outputType.toLowerCase() === 'void';
     const targetName = isVoid ? problem.inputNames[0] : 'result';
+    const hasSolutionClass = /\bclass\s+Solution\b/.test(userCode);
+    const callPrefix = hasSolutionClass ? 'sol.' : '';
+    const instCode = hasSolutionClass ? 'const sol = new Solution();\n' : '';
     
     return `${this.injectCustomClasses(userCode, 'javascript', problem)}
 
-const sol = new Solution();
-${prepCode}
-${isVoid ? `sol.${problem.functionName}(${inputArgs});` : `const result = sol.${problem.functionName}(${inputArgs});`}
+${instCode}${prepCode}
+${isVoid ? `${callPrefix}${problem.functionName}(${inputArgs});` : `const result = ${callPrefix}${problem.functionName}(${inputArgs});`}
 
 const target = ${targetName};
 if (target === null || target === undefined) {
@@ -971,6 +1034,9 @@ if (target === null || target === undefined) {
     const inputs = this.parseInput(testCase.input, problem.inputTypes, 'cpp');
     const inputArgs = problem.inputNames.join(', ');
     const isVoid = problem.outputType.toLowerCase() === 'void';
+    const hasClassSolution = /\bclass\s+Solution\b/.test(userCode) || /\bstruct\s+Solution\b/.test(userCode);
+    const callPrefix = hasClassSolution ? "sol." : "";
+    const solInst = hasClassSolution ? "Solution sol;\n    " : "";
     
     return `#include <iostream>
 #include <vector>
@@ -978,6 +1044,10 @@ if (target === null || target === undefined) {
 #include <sstream>
 #include <utility>
 #include <tuple>
+#include <queue>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 using namespace std;
 
 // Formatter for std::pair
@@ -1001,11 +1071,9 @@ ostream& operator<<(ostream& os, const tuple<Args...>& t) {
 ${this.injectCustomClasses(userCode, 'cpp', problem)}
 
 int main() {
-    Solution sol;
+    ${solInst}${this.generateCppVariableDeclarations(problem, inputs)}
     
-    ${this.generateCppVariableDeclarations(problem, inputs)}
-    
-    ${isVoid ? `sol.${problem.functionName}(${inputArgs});` : `auto result = sol.${problem.functionName}(${inputArgs});`}
+    ${isVoid ? `${callPrefix}${problem.functionName}(${inputArgs});` : `auto result = ${callPrefix}${problem.functionName}(${inputArgs});`}
     
     ${isVoid ? this.generateCppVoidOutputFormatting(problem) : this.generateCppOutputFormatting(problem.outputType, problem.functionName, problem.className)}
     
@@ -1089,7 +1157,13 @@ int main() {
         vector<TreeNode*> nodes_${name}(vals_${name}.size(), nullptr);
         for (int idx = 0; idx < vals_${name}.size(); idx++) {
             if (vals_${name}[idx] != "null" && !vals_${name}[idx].empty()) {
-                nodes_${name}[idx] = new TreeNode(stoi(vals_${name}[idx]));
+                string s_${name} = "";
+                for (char ch : vals_${name}[idx]) {
+                    if (isdigit(ch) || ch == '-') s_${name} += ch;
+                }
+                if (!s_${name}.empty()) {
+                    nodes_${name}[idx] = new TreeNode(stoi(s_${name}));
+                }
             }
         }
         int childIdx = 1;
@@ -1153,30 +1227,30 @@ int main() {
     }
 
     if (isTreeNode) {
-      return `#include <queue>
-    cout << "[";
-    if (result != nullptr) {
+      return `if (result == nullptr) {
+        cout << "N" << endl;
+    } else {
         vector<TreeNode*> q;
         q.push_back(result);
         int ptr = 0;
-        while (ptr < q.size()) {
+        while (ptr < (int)q.size()) {
             TreeNode* curr = q[ptr++];
             if (curr != nullptr) {
                 q.push_back(curr->left);
                 q.push_back(curr->right);
             }
         }
-        int lastNonNull = q.size() - 1;
+        int lastNonNull = (int)q.size() - 1;
         while (lastNonNull >= 0 && q[lastNonNull] == nullptr) {
             lastNonNull--;
         }
         for (int i = 0; i <= lastNonNull; i++) {
-            if (i > 0) cout << ",";
-            if (q[i] == nullptr) cout << "null";
-            else cout << q[i]->val;
+            if (i > 0) cout << " ";
+            if (q[i] == nullptr) cout << "N";
+            else cout << q[i]->data;
         }
-    }
-    cout << "]" << endl;`;
+        cout << endl;
+    }`;
     }
 
     if (isNode) {

@@ -43,7 +43,7 @@ const PISTON_LANGUAGE_MAP: Record<string, string> = {
   javascript: "javascript",
   typescript: "typescript",
   cpp: "c++",
-  c: "c",
+  c: "c++",
   java: "java",
   go: "go",
   rust: "rust",
@@ -98,7 +98,7 @@ const PISTON_FILENAME_MAP: Record<string, string> = {
   javascript: "main.js",
   typescript: "main.ts",
   cpp: "main.cpp",
-  c: "main.c",
+  c: "main.cpp",
   java: "Main.java",
   go: "main.go",
   rust: "main.rs",
@@ -179,54 +179,101 @@ export class ExternalCodeExecutor {
       };
     }
 
+    const filename = PISTON_FILENAME_MAP[request.language] || "main";
+    const payload: any = {
+      language,
+      files: [{ name: filename, content: request.code }],
+      stdin: request.input || "",
+      compile_timeout: Math.min(10000, request.timeLimit || 10000),
+      run_timeout: Math.min(3000, request.timeLimit || 3000),
+      version: "*"
+    };
+
     try {
-      const filename = PISTON_FILENAME_MAP[request.language] || "main";
-      const PISTON_VERSION_MAP: Record<string, string> = {
-        python: "3.10.0",
-        javascript: "18.15.0",
-        typescript: "5.0.3",
-        cpp: "10.2.0",
-        c: "10.2.0",
-        java: "15.0.2",
-        go: "1.16.2",
-        rust: "1.68.2",
-      };
-
-      const payload: any = {
-        language,
-        files: [{ name: filename, content: request.code }],
-        stdin: request.input || "",
-        compile_timeout: Math.min(10000, request.timeLimit || 10000),
-        run_timeout: Math.min(3000, request.timeLimit || 3000),
-      };
-      payload.version = PISTON_VERSION_MAP[request.language] || "*";
-
       const response = await axios.post(`${PISTON_API_URL}/execute`, payload, {
         headers: { "Content-Type": "application/json" }
       });
 
       const { run, compile } = response.data;
 
-      if (compile && compile.code !== 0) {
+      if (compile && (compile.code !== 0 || (compile.stderr && compile.stderr.includes('error')))) {
+        const compErr = compile.stderr || compile.output || "Compilation failed";
         return {
           success: false,
           output: "",
-          stderr: compile.output || "Compilation failed",
-          error: "Compilation failed",
+          stderr: compErr,
+          error: compErr,
+          executionTime: Date.now() - startTime,
+        };
+      }
+
+      if (run && (run.code !== 0 || (run.stderr && run.stderr.includes('chmod')))) {
+        const runErr = (compile && (compile.stderr || compile.output)) 
+          ? (compile.stderr || compile.output) 
+          : (run.stderr || run.output || `Exit code: ${run.code}`);
+        return {
+          success: false,
+          output: "",
+          stderr: runErr,
+          error: runErr,
           executionTime: Date.now() - startTime,
         };
       }
 
       return {
-        success: run?.code === 0,
+        success: true,
         output: run?.output || "",
         stderr: run?.stderr || "",
-        error: run?.code !== 0 ? `Exit code: ${run?.code}` : undefined,
         executionTime: Date.now() - startTime,
       };
     } catch (error: any) {
       const msg = error.response?.data?.message || error.message || "";
       console.warn("Piston Docker request failed:", msg);
+
+      if (PISTON_API_URL !== "https://emkc.org/api/v2/piston" && (msg.includes("ETIMEDOUT") || msg.includes("ECONNREFUSED") || msg.includes("timeout") || !error.response)) {
+        console.log("[FALLBACK] Custom Piston server unreachable, attempting fallback to public EMKC Piston API...");
+        try {
+          const fallbackRes = await axios.post(`https://emkc.org/api/v2/piston/execute`, payload, {
+            headers: { "Content-Type": "application/json" },
+            timeout: 10000
+          });
+          const { run, compile } = fallbackRes.data;
+
+          if (compile && (compile.code !== 0 || (compile.stderr && compile.stderr.includes('error')))) {
+            const compErr = compile.stderr || compile.output || "Compilation failed";
+            return {
+              success: false,
+              output: "",
+              stderr: compErr,
+              error: compErr,
+              executionTime: Date.now() - startTime,
+            };
+          }
+
+          if (run && (run.code !== 0 || (run.stderr && run.stderr.includes('chmod')))) {
+            const runErr = (compile && (compile.stderr || compile.output)) 
+              ? (compile.stderr || compile.output) 
+              : (run.stderr || run.output || `Exit code: ${run.code}`);
+            return {
+              success: false,
+              output: "",
+              stderr: runErr,
+              error: runErr,
+              executionTime: Date.now() - startTime,
+            };
+          }
+
+          return {
+            success: true,
+            output: run?.output || "",
+            stderr: run?.stderr || "",
+            executionTime: Date.now() - startTime,
+          };
+        } catch (fallbackErr: any) {
+          console.warn("EMKC Piston fallback failed:", fallbackErr.message);
+        }
+      }
+
       return {
         success: false,
         output: "",
@@ -520,7 +567,7 @@ export class ExternalCodeExecutor {
   }
 
   getSupportedLanguages(): string[] {
-    return ["java"];
+    return ["c", "cpp", "c++", "java", "python", "python3", "javascript", "typescript", "go", "rust", "ruby", "csharp", "php", "swift", "kotlin", "scala", "dart", "sql", "bash", "lua"];
   }
 }
 

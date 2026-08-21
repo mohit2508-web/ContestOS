@@ -30,6 +30,13 @@ export function generateSebConfig(options: SebConfigOptions): string {
     ? crypto.createHash('sha256').update(adminPassword).digest('hex')
     : '';
 
+  // Extract allowed domain from startUrl for URL filter rules
+  let allowedDomain = 'kryptaviaos.vercel.app';
+  try {
+    const parsed = new URL(startUrl);
+    allowedDomain = parsed.hostname;
+  } catch (_) {}
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -77,20 +84,51 @@ export function generateSebConfig(options: SebConfigOptions): string {
     <key>allowScreenSharing</key>
     <false/>
 
-    <key>enableURLFilter</key>
-    <true/>
+    <!-- Block all new windows/tabs — prevents external link navigation -->
+    <key>newBrowserWindowByLinkPolicy</key>
+    <integer>2</integer>
 
-    <key>urlFilterRules</key>
+    <!-- Disable right-click context menu -->
+    <key>enableRightMouse</key>
+    <false/>
+
+    <!-- Disable F5 / page reload -->
+    <key>browserWindowAllowReload</key>
+    <false/>
+
+    <!-- URL Filter: whitelist-only with default deny -->
+    <key>URLFilterEnable</key>
+    <true/>
+    <key>URLFilterEnableContentFilter</key>
+    <true/>
+    <key>URLFilterRules</key>
     <array>
+        <!-- ALLOW: Contest platform domain -->
         <dict>
-            <key>action</key>
-            <integer>1</integer>
-            <key>active</key>
-            <true/>
-            <key>expression</key>
-            <string>*</string>
-            <key>regex</key>
-            <false/>
+            <key>action</key><integer>1</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>${allowedDomain}</string>
+            <key>regex</key><false/>
+        </dict>
+        <!-- ALLOW: Google Fonts (UI typography) -->
+        <dict>
+            <key>action</key><integer>1</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>fonts.googleapis.com</string>
+            <key>regex</key><false/>
+        </dict>
+        <dict>
+            <key>action</key><integer>1</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>fonts.gstatic.com</string>
+            <key>regex</key><false/>
+        </dict>
+        <!-- BLOCK ALL: Default deny — MUST be LAST rule (SEB evaluates top-to-bottom) -->
+        <dict>
+            <key>action</key><integer>0</integer>
+            <key>active</key><true/>
+            <key>expression</key><string>.*</string>
+            <key>regex</key><true/>
         </dict>
     </array>
 

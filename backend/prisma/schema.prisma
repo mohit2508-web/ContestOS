@@ -122,6 +122,7 @@ model Organization {
   auditLogs       AuditLog[]
   questionBanks   QuestionBank[]
   interviewSessions MockInterviewSession[]
+  companyVaults     CompanyVault[]
 }
 
 model User {
@@ -171,6 +172,12 @@ model User {
   interviewerSessions MockInterviewSession[] @relation("InterviewerSessions")
   candidateSessions   MockInterviewSession[] @relation("CandidateSessions")
   interviewParticipants InterviewParticipant[]
+  
+  // Capgemini AI-assisted Coding Socratic Engine
+  assistantSessions   AssistantSession[]
+  problemAiCreditLogs ProblemAiCreditLog[]
+  createdCompanyVaults CompanyVault[]   @relation("CreatedCompanyVaults")
+  companyAccessLogs   CompanyAccessLog[]
 }
 
 model Problem {
@@ -194,6 +201,11 @@ model Problem {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
+  // Per-Question AI Credit System
+  aiCreditsRemaining Int                @default(2000)
+  aiCreditsMax       Int                @default(2000)
+  aiCreditLogs       ProblemAiCreditLog[]
+
   testCases         TestCase[]
   contestProblems   ContestProblem[]
   submissions       Submission[]
@@ -201,6 +213,20 @@ model Problem {
 
   @@index([organizationId, isPublic])
   @@index([createdById])
+}
+
+model ProblemAiCreditLog {
+  id               String   @id @default(uuid())
+  problemId        String
+  problem          Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action           String   // 'GENERATE_PROBLEM' | 'AI_CODE_ASSIST' | 'TESTCASE_GENERATE' | 'HINT_GENERATE'
+  creditsDeducted  Int
+  creditsRemaining Int
+  createdAt        DateTime @default(now())
+
+  @@index([problemId, createdAt])
 }
 
 model TestCase {
@@ -886,5 +912,152 @@ model InterviewExecutionResult {
   executedAt  DateTime             @default(now())
 
   @@index([sessionId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// CAPGEMINI STAGE 4: GUIDED SOCRATIC AI CODING ASSISTANT
+// ─────────────────────────────────────────────────────────────
+
+enum AssistantStage {
+  PROBLEM
+  DATA_STRUCTURE
+  APPROACH
+  AWAITING_CODE_REQUEST
+  CODE_GEN
+  REFINEMENT
+}
+
+model AssistantSession {
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId      String?
+  stage          AssistantStage  @default(PROBLEM)
+  tokenBudget    Int             @default(2000)
+  tokensUsed     Int             @default(0)
+  codeGenerated  Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  capturedAnswers CapturedAnswer?
+  transcripts     AssistantTranscript[]
+  stageEvents     AssistantStageEvent[]
+  codeSnapshots   AssistantCodeSnapshot[]
+
+  @@index([userId, problemId])
+}
+
+model CapturedAnswer {
+  sessionId      String           @id
+  session        AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  problemSummary String?
+  dsChoice       String?
+  approach       String?
+}
+
+model AssistantTranscript {
+  id             String           @id @default(uuid())
+  sessionId      String
+  session        AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  turnIndex      Int
+  role           String           // 'candidate' | 'assistant' | 'system'
+  stageAtTime    AssistantStage
+  message        String
+  gateResult     Json?
+  tokensConsumed Int              @default(0)
+  llmCallType    String?          // 'prefilter' | 'gate_classifier' | 'code_gen' | 'templated'
+  createdAt      DateTime         @default(now())
+}
+
+model AssistantStageEvent {
+  id             String           @id @default(uuid())
+  sessionId      String
+  session        AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  fromStage      AssistantStage?
+  toStage        AssistantStage?
+  eventType      String           // 'gate_pass' | 'gate_reject' | 'stage_advance'
+  reason         String?
+  createdAt      DateTime         @default(now())
+}
+
+model AssistantCodeSnapshot {
+  id             String           @id @default(uuid())
+  sessionId      String
+  session        AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  code           String
+  version        Int              @default(1)
+  insertedAt     DateTime?
+  createdAt      DateTime         @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// COMPANY PLACEMENT PREP & SECRET VAULT MODULE
+// ─────────────────────────────────────────────────────────────
+
+model CompanyVault {
+  id              String            @id @default(uuid())
+  name            String            // e.g. "Amazon SDE-1 Placement Vault"
+  slug            String            @unique
+  companyName     String            // "Amazon"
+  brandColor      String            @default("#FF9900") // Ambient glow color
+  logoUrl         String?
+  targetCtc       String?           // "18 - 32 LPA"
+  examPattern     String?           // "AON Assessment + 3 Technical Rounds"
+  description     String?
+  accessCode      String            // Hashed secret code
+  accessCodePlain String?           // Admin reference
+  expiresAt       DateTime?         // Passcode expiration date
+  isLocked        Boolean           @default(true)
+  organizationId  String?
+  organization    Organization?     @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById     String
+  createdBy       User              @relation("CreatedCompanyVaults", fields: [createdById], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  materials       CompanyMaterial[]
+  transcripts     CompanyInterviewTranscript[]
+  accessLogs      CompanyAccessLog[]
+
+  @@index([slug, isLocked])
+}
+
+model CompanyMaterial {
+  id          String       @id @default(uuid())
+  vaultId     String
+  vault       CompanyVault @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  title       String
+  materialType String      // 'PROBLEM' | 'QUIZ' | 'PDF_GUIDE' | 'ROUND_INTEL'
+  contentUrl  String?      // PDF link or external resource
+  dataJson    Json?        // Problem/Quiz embedded payload
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+
+  @@index([vaultId, order])
+}
+
+model CompanyInterviewTranscript {
+  id          String       @id @default(uuid())
+  vaultId     String
+  vault       CompanyVault @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  roleTitle   String       // "SDE-1 / System Engineer"
+  location    String?      // "Bangalore / Remote"
+  experience  String       // Detailed candidate interview breakdown
+  difficulty  String       @default("Medium")
+  upvotes     Int          @default(0)
+  createdAt   DateTime     @default(now())
+
+  @@index([vaultId])
+}
+
+model CompanyAccessLog {
+  id         String       @id @default(uuid())
+  vaultId    String
+  vault      CompanyVault @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unlockedAt DateTime     @default(now())
+
+  @@unique([vaultId, userId])
 }
 

@@ -4,11 +4,33 @@ import * as path from "path";
 import * as crypto from "crypto";
 import * as os from "os";
 import externalCodeExecutor from "./externalCodeExecutor";
+import wrapperGenerator from "./codeWrapperGenerator";
 
 const isWindows = os.platform() === "win32";
 const PYTHON_CMD = isWindows ? "py" : "python3";
 
 const PYTHON_WRAPPER_TEMPLATE = `
+def build_tree_from_level_order(input_str):
+    if not input_str or input_str.strip() in ["N", "null", "[]"]:
+        return None
+    parts = input_str.strip().replace('[', '').replace(']', '').replace('"', '').split()
+    if not parts or parts[0] in ["N", "null"]:
+        return None
+    root = TreeNode(int(parts[0]))
+    queue = [root]
+    i = 1
+    while queue and i < len(parts):
+        curr = queue.pop(0)
+        if i < len(parts) and parts[i] not in ["N", "null"]:
+            curr.left = TreeNode(int(parts[i]))
+            queue.append(curr.left)
+        i += 1
+        if i < len(parts) and parts[i] not in ["N", "null"]:
+            curr.right = TreeNode(int(parts[i]))
+            queue.append(curr.right)
+        i += 1
+    return root
+
 {{userCode}}
 
 if __name__ == "__main__":
@@ -17,7 +39,44 @@ if __name__ == "__main__":
 
 const CPP_WRAPPER_TEMPLATE = `#include <iostream>
 #include <vector>
+#include <string>
+#include <sstream>
+#include <queue>
+#include <unordered_set>
 using namespace std;
+
+#ifndef TREE_NODE_HELPER
+#define TREE_NODE_HELPER
+TreeNode* buildTreeFromLevelOrder(string input) {
+    if (input.empty() || input == "N" || input == "null" || input == "[]") return nullptr;
+    stringstream ss(input);
+    string item;
+    vector<string> parts;
+    while (ss >> item) {
+        if (!item.empty()) parts.push_back(item);
+    }
+    if (parts.empty() || parts[0] == "N" || parts[0] == "null") return nullptr;
+    TreeNode* root = new TreeNode(stoi(parts[0]));
+    queue<TreeNode*> q;
+    q.push(root);
+    int i = 1;
+    while (!q.empty() && i < (int)parts.size()) {
+        TreeNode* curr = q.front();
+        q.pop();
+        if (i < (int)parts.size() && parts[i] != "N" && parts[i] != "null") {
+            curr->left = new TreeNode(stoi(parts[i]));
+            q.push(curr->left);
+        }
+        i++;
+        if (i < (int)parts.size() && parts[i] != "N" && parts[i] != "null") {
+            curr->right = new TreeNode(stoi(parts[i]));
+            q.push(curr->right);
+        }
+        i++;
+    }
+    return root;
+}
+#endif
 
 {{userCode}}
 
@@ -45,7 +104,7 @@ int main() {
 
 const JAVA_WRAPPER_TEMPLATE = `{{imports}}
 
-class Main {
+public class Main {
     public static void main(String[] args) {
 {{testCode}}
     }
@@ -504,7 +563,7 @@ export class LanguageAdapter {
       const targetCode = solutionMatch ? solutionMatch[1] : cleanCode;
       const regex = /(?:public\s+|protected\s+|private\s+|static\s+)*([\w<>[\]*]+)\s+(\w+)\s*\(([^)]*)\)/g;
       const matches = [...targetCode.matchAll(regex)];
-      const valid = matches.filter(m => !['Solution', 'ListNode', 'TreeNode', 'Node', 'Main', 'Group', 'SparseTable', 'if', 'while', 'for'].includes(m[2]) && m[1] !== m[2]);
+      const valid = matches.filter(m => !['Solution', 'ListNode', 'TreeNode', 'Node', 'Main', 'Group', 'SparseTable', 'if', 'while', 'for', 'gcd', 'lcm', 'gcd_cpp', 'lcm_cpp', 'gcd_c', 'lcm_c'].includes(m[2]) && m[1] !== m[2]);
       const publicValid = valid.filter(m => m[0].includes("public"));
       const bestMatches = publicValid.length > 0 ? publicValid : valid;
       if (bestMatches.length > 0) {
@@ -525,37 +584,16 @@ export class LanguageAdapter {
         const params = paramStr.split(',').map(p => p.trim()).filter(p => p && p !== 'self');
         return { name: match[1], params };
       }
-    } else if (language === "cpp") {
+    } else if (language === "cpp" || language === "c") {
       const solutionMatch = cleanCode.match(/class\s+Solution\s*\{([\s\S]*)\}/i);
       const targetCode = solutionMatch ? solutionMatch[1] : cleanCode;
-      const regex = /(?:public:\s+|private:\s+|protected:\s+)?([\w<>[\]*]+)\s+(\w+)\s*\(([^)]*)\)/g;
+      const regex = /(?:public:\s+|private:\s+|protected:\s+)?(?:struct\s+[\w*]+|[\w<>[\]*]+)\s+\*?\s*(\w+)\s*\(([^)]*)\)/g;
       const matches = [...targetCode.matchAll(regex)];
-      const valid = matches.filter(m => !['Solution', 'ListNode', 'TreeNode', 'Node', 'Main', 'Group', 'SparseTable', 'main', 'if', 'while', 'for'].includes(m[2]) && m[1] !== m[2]);
+      const valid = matches.filter(m => !['Solution', 'ListNode', 'TreeNode', 'Node', 'Main', 'Group', 'SparseTable', 'main', 'if', 'while', 'for', 'switch', 'return', 'gcd', 'lcm', 'gcd_cpp', 'lcm_cpp', 'gcd_c', 'lcm_c'].includes(m[1]) && m[1] !== 'struct');
       const publicValid = valid.filter(m => m[0].includes("public"));
       const bestMatches = publicValid.length > 0 ? publicValid : valid;
       if (bestMatches.length > 0) {
         const match = bestMatches[0];
-        const paramStr = match[3] || "";
-        const params = paramStr.split(',').map(p => p.trim()).filter(p => p);
-        return { name: match[2], params };
-      }
-    } else if (language === "javascript" || language === "typescript") {
-      const regex = /(?:function\s+(\w+)|(?:var|let|const)\s+(\w+)\s*=\s*(?:function|\([^)]*\)\s*=>))\s*\(([^)]*)\)/g;
-      const matches = [...cleanCode.matchAll(regex)];
-      const valid = matches.filter(m => {
-        const name = m[1] || m[2];
-        return name && !['ListNode', 'TreeNode', 'Node', 'Solution', 'main'].includes(name);
-      });
-      if (valid.length > 0) {
-        const match = valid[0];
-        const name = match[1] || match[2];
-        const paramStr = match[3] || "";
-        const params = paramStr.split(',').map(p => p.trim()).filter(p => p);
-        return { name, params };
-      }
-    } else if (language === "c") {
-      const match = cleanCode.match(/\w+\s+\*?\s*(\w+)\s*\(([^)]*)\)/);
-      if (match) {
         const paramStr = match[2] || "";
         const params = paramStr.split(',').map(p => p.trim()).filter(p => p);
         return { name: match[1], params };
@@ -642,12 +680,14 @@ export class LanguageAdapter {
     const needsTreeNode = result.includes("TreeNode") || testBlocks.includes("TreeNode") || helpers.includes("TreeNode");
 
     if (language === "java") {
-      result = result.replace(/\bpublic\s+class\s+Solution\b/g, "class Solution");
-      if (!/\bclass\s+ListNode\b/.test(cleanCode)) {
-        result = `class ListNode {\n    int val;\n    ListNode next;\n    ListNode() {}\n    ListNode(int val) { this.val = val; }\n    ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n}\n\n` + result;
+      if (!/\bpublic\s+static\s+void\s+main\b/.test(result)) {
+        result = result.replace(/\bpublic\s+class\s+Solution\b/g, "class Solution");
       }
-      if (!/\bclass\s+TreeNode\b/.test(cleanCode)) {
-        result = `class TreeNode {\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) { this.val = val; this.left = left; this.right = right; }\n}\n\n` + result;
+      if (needsListNode && !/\bclass\s+ListNode\s*\{/.test(cleanCode)) {
+        result = result + `\n\nclass ListNode {\n    int data;\n    int val;\n    ListNode next;\n    ListNode() {}\n    ListNode(int val) { this.data = val; this.val = val; }\n    ListNode(int val, ListNode next) { this.data = val; this.val = val; this.next = next; }\n}`;
+      }
+      if (needsTreeNode && !/\bclass\s+TreeNode\s*\{/.test(cleanCode)) {
+        result = result + `\n\nclass TreeNode {\n    int data;\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.data = val; this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) { this.data = val; this.val = val; this.left = left; this.right = right; }\n}`;
       }
     } else if (language === "python") {
       if (needsListNode && !/\bclass\s+ListNode\b/.test(cleanCode)) {
@@ -656,13 +696,21 @@ export class LanguageAdapter {
       if (needsTreeNode && !/\bclass\s+TreeNode\b/.test(cleanCode)) {
         result = `class TreeNode:\n    def __init__(self, val=0, left=None, right=None):\n        self.val = val\n        self.left = left\n        self.right = right\n\n` + result;
       }
-    } else if (language === "cpp") {
-      if (needsListNode && !/\bstruct\s+ListNode\b/.test(cleanCode) && !/\bclass\s+ListNode\b/.test(cleanCode)) {
-        result = `struct ListNode {\n    int val;\n    ListNode *next;\n    ListNode() : val(0), next(nullptr) {}\n    ListNode(int x) : val(x), next(nullptr) {}\n    ListNode(int x, ListNode *next) : val(x), next(next) {}\n};\n\n` + result;
+    } else if (language === "cpp" || language === "c") {
+      let includes = "";
+      if (!cleanCode.includes("<stdio.h>")) includes += "#include <stdio.h>\n";
+      if (!cleanCode.includes("<stdlib.h>")) includes += "#include <stdlib.h>\n";
+      if (!cleanCode.includes("<stdbool.h>")) includes += "#include <stdbool.h>\n";
+      if (language === "cpp" && !cleanCode.includes("<iostream>")) includes += "#include <iostream>\nusing namespace std;\n";
+      
+      let structs = "";
+      if (needsListNode && !/\bstruct\s+ListNode\s*\{/.test(cleanCode) && !/\bclass\s+ListNode\s*\{/.test(cleanCode)) {
+        structs += `struct ListNode {\n    int data;\n    int val;\n    struct ListNode *next;\n#ifdef __cplusplus\n    ListNode() : data(0), val(0), next(nullptr) {}\n    ListNode(int x) : data(x), val(x), next(nullptr) {}\n    ListNode(int x, ListNode *next) : data(x), val(x), next(next) {}\n#endif\n};\n\n`;
       }
-      if (needsTreeNode && !/\bstruct\s+TreeNode\b/.test(cleanCode) && !/\bclass\s+TreeNode\b/.test(cleanCode)) {
-        result = `struct TreeNode {\n    int val;\n    TreeNode *left;\n    TreeNode *right;\n    TreeNode() : val(0), left(nullptr), right(nullptr) {}\n    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n};\n\n` + result;
+      if (needsTreeNode && !/\bstruct\s+TreeNode\s*\{/.test(cleanCode) && !/\bclass\s+TreeNode\s*\{/.test(cleanCode)) {
+        structs += `struct TreeNode {\n    int data;\n    int val;\n    struct TreeNode *left;\n    struct TreeNode *right;\n#ifdef __cplusplus\n    TreeNode() : data(0), val(0), left(nullptr), right(nullptr) {}\n    TreeNode(int x) : data(x), val(x), left(nullptr), right(nullptr) {}\n    TreeNode(int x, TreeNode *left, TreeNode *right) : data(x), val(x), left(left), right(right) {}\n#endif\n};\n\n`;
       }
+      result = includes + structs + result;
     } else if (language === "javascript" || language === "typescript") {
       if (needsListNode && !/\bfunction\s+ListNode\b/.test(cleanCode) && !/\bclass\s+ListNode\b/.test(cleanCode)) {
         result = `function ListNode(val, next) {\n    this.val = (val===undefined ? 0 : val);\n    this.next = (next===undefined ? null : next);\n}\n\n` + result;
@@ -681,8 +729,8 @@ export class LanguageAdapter {
     }
     if (!code) return "java";
 
-    if (code.includes("#include") || code.includes("using namespace std") || code.includes("vector<") || code.includes("std::")) {
-      return "cpp";
+    if (code.includes("struct TreeNode") || code.includes("struct Node") || code.includes("->") || code.includes("#include") || code.includes("using namespace std") || code.includes("vector<") || code.includes("std::")) {
+      return code.includes("using namespace std") || code.includes("vector<") || code.includes("class Solution") ? "cpp" : "c";
     }
     if (code.includes("def ") || (code.includes("class Solution:") && !code.includes("{"))) {
       return "python";
@@ -700,16 +748,34 @@ export class LanguageAdapter {
   public generateBatchedWrapper(code: string, testCases: TestCase[], language: string): string {
     if (testCases.length === 0) return code;
     language = this.detectRealLanguage(code, language);
+
+    const hasStandaloneMain =
+      (language === "java" && (code.includes("static void main") || code.includes("public static void main"))) ||
+      ((language === "cpp" || language === "c") && /\bint\s+main\b/.test(code)) ||
+      (language === "python" && (code.includes("__main__") || code.includes("sys.stdin")));
+
+    if (hasStandaloneMain) {
+      if (language === "java") {
+        let mainCode = code;
+        if (!mainCode.includes("public class Main")) {
+          mainCode = mainCode.replace(/\bpublic\s+class\s+\w+/, "public class Main");
+        }
+        return mainCode;
+      }
+      return code;
+    }
     
     const inputType = this.detectInputType(testCases[0].input, code, language);
     const funcSig = this.extractFunctionSignature(code, language);
     const funcName = funcSig?.name || "solution";
     const outputFormat = this.detectOutputFormat(testCases[0].input, inputType, code, language);
-    const hasSolutionClass = code.includes("class Solution") || code.includes("struct Solution") || code.includes("class solution");
+    const hasSolutionClass = code.includes("class Solution") || code.includes("struct Solution") || code.includes("class solution") || code.includes("class Main") || code.includes("public class Main");
 
     let preparedCode = code;
     if (language === "java") {
-      preparedCode = code.replace(/\bpublic\s+class\s+Solution\b/g, "class Solution");
+      preparedCode = code
+        .replace(/\bpublic\s+class\s+(\w+)/g, "class $1")
+        .replace(/\bclass\s+Main\b/g, "class Solution");
     }
 
     switch (language) {
@@ -847,23 +913,23 @@ export class LanguageAdapter {
         
         helpers += `
     private static TreeNode buildTreeFromLevelOrder(String input) {
-        if (input == null || input.trim().isEmpty() || input.equals("[]") || input.equals("null")) return null;
+        if (input == null || input.trim().isEmpty() || input.equals("[]") || input.equals("null") || input.equals("N")) return null;
         String clean = input.replace("[", "").replace("]", "").replace(String.valueOf((char)34), "").trim();
         if (clean.isEmpty()) return null;
-        String[] parts = clean.split("\\s*,\\s*");
-        if (parts[0].equals("null") || parts[0].isEmpty()) return null;
+        String[] parts = clean.split("[\\s,]+");
+        if (parts.length == 0 || parts[0].equals("null") || parts[0].equals("N") || parts[0].isEmpty()) return null;
         TreeNode root = new TreeNode(Integer.parseInt(parts[0]));
         Queue<TreeNode> queue = new LinkedList<>();
         queue.add(root);
         int i = 1;
         while (!queue.isEmpty() && i < parts.length) {
             TreeNode curr = queue.poll();
-            if (!parts[i].equals("null") && !parts[i].isEmpty()) {
+            if (i < parts.length && !parts[i].equals("null") && !parts[i].equals("N") && !parts[i].isEmpty()) {
                 curr.left = new TreeNode(Integer.parseInt(parts[i]));
                 queue.add(curr.left);
             }
             i++;
-            if (i < parts.length && !parts[i].equals("null") && !parts[i].isEmpty()) {
+            if (i < parts.length && !parts[i].equals("null") && !parts[i].equals("N") && !parts[i].isEmpty()) {
                 curr.right = new TreeNode(Integer.parseInt(parts[i]));
                 queue.add(curr.right);
             }
@@ -889,6 +955,41 @@ export class LanguageAdapter {
     private static void printResult(Object result) {
         if (result == null) {
             System.out.println("null");
+            return;
+        }
+        if (result instanceof TreeNode) {
+            TreeNode root = (TreeNode) result;
+            List<String> res = new ArrayList<>();
+            Queue<TreeNode> q = new LinkedList<>();
+            q.add(root);
+            while (!q.isEmpty()) {
+                TreeNode curr = q.poll();
+                if (curr != null) {
+                    int nodeVal = 0;
+                    try {
+                        java.lang.reflect.Field f = curr.getClass().getDeclaredField("data");
+                        f.setAccessible(true);
+                        nodeVal = f.getInt(curr);
+                    } catch (Exception _e) {
+                        try {
+                            java.lang.reflect.Field f = curr.getClass().getDeclaredField("val");
+                            f.setAccessible(true);
+                            nodeVal = f.getInt(curr);
+                        } catch (Exception _ex) {
+                            nodeVal = curr.val;
+                        }
+                    }
+                    res.add(String.valueOf(nodeVal));
+                    q.add(curr.left);
+                    q.add(curr.right);
+                } else {
+                    res.add("N");
+                }
+            }
+            while (res.size() > 1 && res.get(res.size() - 1).equals("N")) {
+                res.remove(res.size() - 1);
+            }
+            System.out.println(String.join(" ", res));
             return;
         }
         if (result instanceof int[]) {
@@ -991,6 +1092,7 @@ ${testLines}
           .replace('{{userCode}}', finalUserCode);
       }
 
+      case "c":
       case "cpp": {
         let testBlocks = "";
         for (let i = 0; i < testCases.length; i++) {
@@ -1030,25 +1132,6 @@ ${testLines}
         return JAVASCRIPT_WRAPPER_TEMPLATE
           .replace('{{testCode}}', testBlocks)
           .replace('{{userCode}}', finalUserCode);
-      }
-
-      case "c": {
-        let testBlocks = "";
-        for (let i = 0; i < testCases.length; i++) {
-          const variables = this.parseInputToVariablesAdvanced(testCases[i].input, "c", inputType, code);
-          const testCode = `    int returnSize;\n    int* result = ${funcName}(nums, n, target, &returnSize);\n    printf("%d %d\\n", result[0], result[1]);`;
-          testBlocks += `
-    {
-        // Testcase ${i + 1}
-        ${variables.declaration.replace(/\n/g, "\n        ")}
-        ${testCode.replace(/\n/g, "\n        ")}
-        printf("###TC_END###\\n");
-    }
-          `;
-        }
-        return C_WRAPPER_TEMPLATE
-          .replace('{{testCode}}', testBlocks)
-          .replace('{{userCode}}', code);
       }
 
       default:
@@ -1320,6 +1403,62 @@ ${testLines}
 
   private parseInputToVariablesAdvanced(input: string, language: string, inputType: string, code: string): { declaration: string; varNames: string[] } {
     const funcSig = this.extractFunctionSignature(code, language);
+
+    const isTree = code.includes("TreeNode") || code.includes("root1") || code.includes("root2") || (funcSig?.name && funcSig.name.includes("Trees"));
+    if (isTree) {
+      const lines = input.trim().split(/\n/).map(l => l.trim()).filter(l => l !== '');
+      const paramCount = funcSig?.params?.length || (code.includes("root2") ? 2 : 1);
+
+      if (paramCount === 2) {
+        const val1 = lines[0] || "N";
+        const val2 = lines[1] || "N";
+        if (language === 'cpp' || language === 'c') {
+          return {
+            declaration: `TreeNode* root1 = buildTreeFromLevelOrder("${val1}");\n        TreeNode* root2 = buildTreeFromLevelOrder("${val2}");`,
+            varNames: ['root1', 'root2']
+          };
+        } else if (language === 'java') {
+          return {
+            declaration: `TreeNode root1 = buildTreeFromLevelOrder("${val1}");\n        TreeNode root2 = buildTreeFromLevelOrder("${val2}");`,
+            varNames: ['root1', 'root2']
+          };
+        } else if (language === 'python') {
+          return {
+            declaration: `root1 = build_tree_from_level_order("${val1}")\nroot2 = build_tree_from_level_order("${val2}")`,
+            varNames: ['root1', 'root2']
+          };
+        } else if (language === 'javascript') {
+          return {
+            declaration: `const root1 = buildTreeFromLevelOrder("${val1}");\nconst root2 = buildTreeFromLevelOrder("${val2}");`,
+            varNames: ['root1', 'root2']
+          };
+        }
+      } else {
+        const val1 = lines.join(" ") || "N";
+        if (language === 'cpp' || language === 'c') {
+          return {
+            declaration: `TreeNode* root = buildTreeFromLevelOrder("${val1}");`,
+            varNames: ['root']
+          };
+        } else if (language === 'java') {
+          return {
+            declaration: `TreeNode root = buildTreeFromLevelOrder("${val1}");`,
+            varNames: ['root']
+          };
+        } else if (language === 'python') {
+          return {
+            declaration: `root = build_tree_from_level_order("${val1}")`,
+            varNames: ['root']
+          };
+        } else if (language === 'javascript') {
+          return {
+            declaration: `const root = buildTreeFromLevelOrder("${val1}");`,
+            varNames: ['root']
+          };
+        }
+      }
+    }
+
     if (funcSig && funcSig.params && funcSig.params.length > 0) {
       const univ = this.parseUniversalMultiParam(input, language, funcSig);
       if (univ) return univ;
@@ -2095,19 +2234,7 @@ const lists = lists_vals.map(vals => {
     } else {
       return `${listBuilder}
         Object result = ${invocation};
-        if (result == null) {
-            System.out.println("null");
-        } else if (result instanceof boolean[]) {
-            System.out.println(java.util.Arrays.toString((boolean[]) result));
-        } else if (result instanceof int[]) {
-            System.out.println(java.util.Arrays.toString((int[]) result));
-        } else if (result instanceof double[]) {
-            System.out.println(java.util.Arrays.toString((double[]) result));
-        } else if (result instanceof Object[]) {
-            System.out.println(java.util.Arrays.deepToString((Object[]) result));
-        } else {
-            System.out.println(result);
-        }`;
+        printResult(result);`;
     }
   }
 
@@ -2178,9 +2305,21 @@ const lists = lists_vals.map(vals => {
             if len(${targetVar}) > 0 and isinstance(${targetVar}[0], list):
                 for row in ${targetVar}:
                     print(''.join(map(str, row)))
+    elif hasattr(result, 'left') or hasattr(result, 'right'):
+        res = []
+        queue = [result]
+        while queue:
+            curr = queue.pop(0)
+            if curr:
+                res.append(str(getattr(curr, 'val', getattr(curr, 'data', None))))
+                queue.append(curr.left)
+                queue.append(curr.right)
             else:
-                print(*(${targetVar}))
-    elif isinstance(result, ListNode) or (result and hasattr(result, 'val')):
+                res.append("N")
+        while len(res) > 1 and res[-1] == "N":
+            res.pop()
+        print(' '.join(res))
+    elif isinstance(result, ListNode):
         if result is None:
             print("-1")
         else:
@@ -2246,7 +2385,8 @@ const lists = lists_vals.map(vals => {
     const firstParamIsList = paramStr.toLowerCase().includes("listnode") && !paramStr.includes("[]") && !paramStr.includes("vector") && !/\blist\b/i.test(paramStr);
     const returnsListNodeArray = returnType.toLowerCase().includes("listnode") && (returnType.includes("[]") || returnType.toLowerCase().includes("vector") || returnType.toLowerCase().includes("list<"));
     const returnsList = returnType.toLowerCase().includes("listnode") && !returnsListNodeArray;
-    const returnsArray = (returnType.includes("vector") || returnType.includes("[]") || returnType.includes("*")) && !returnsListNodeArray;
+    const returnsTreeNode = returnType.toLowerCase().includes("treenode") || code.includes("TreeNode") || funcName.includes("Trees");
+    const returnsArray = (returnType.includes("vector") || returnType.includes("[]") || (returnType.includes("*") && !returnsTreeNode)) && !returnsListNodeArray;
     
     let expectedParamCount = varNames.length;
     if (paramStr) {
@@ -2376,6 +2516,32 @@ const lists = lists_vals.map(vals => {
                 }
                 cout << endl;
             }
+        }`;
+    } else if (returnsTreeNode) {
+      return `${inst}${listBuilder}        TreeNode* result = ${invocation};
+        if (result == nullptr) {
+            cout << "N" << endl;
+        } else {
+            vector<TreeNode*> q;
+            q.push_back(result);
+            int ptr = 0;
+            while (ptr < (int)q.size()) {
+                TreeNode* curr = q[ptr++];
+                if (curr != nullptr) {
+                    q.push_back(curr->left);
+                    q.push_back(curr->right);
+                }
+            }
+            int lastNonNull = (int)q.size() - 1;
+            while (lastNonNull >= 0 && q[lastNonNull] == nullptr) {
+                lastNonNull--;
+            }
+            for (int i = 0; i <= lastNonNull; i++) {
+                if (i > 0) cout << " ";
+                if (q[i] == nullptr) cout << "N";
+                else cout << q[i]->data;
+            }
+            cout << endl;
         }`;
     } else if (returnsArray) {
       return `${inst}${listBuilder}        auto result = ${invocation};
@@ -2585,14 +2751,15 @@ if (result === undefined) {
   }
 
   async executeCode(code: string, language: string, input: string = "", timeout: number = 10000): Promise<ExecutionResult> {
+    const startTime = Date.now();
     const config = this.LANGUAGE_CONFIGS[language];
     if (!config) {
       return { success: false, output: "", stderr: "Unsupported language", error: "Language not supported", executionTime: 0 };
     }
 
-    let processedCode = code;
-    if (language === "java" || language === "cpp" || language === "javascript" || language === "typescript") {
-      processedCode = code
+    let processedCode = this.getInjectedUserCode(code, "", language);
+    if (language === "java" || language === "cpp" || language === "c" || language === "javascript" || language === "typescript") {
+      processedCode = processedCode
         .replace(/^\s*#region\b.*$/gm, "")
         .replace(/^\s*#endregion\b.*$/gm, "");
     }
@@ -2603,60 +2770,48 @@ if (result === undefined) {
         imports.push(match.trim());
         return '';
       });
-      const uniqueImports = [...new Set(['import java.util.*;', ...imports])].join('\n');
-      processedCode = uniqueImports + "\n\n" + cleaned;
+      const uniqueImports = [...new Set(['import java.util.*;', 'import java.io.*;', ...imports])].join('\n');
+      
+      let finalBody = cleaned.trim();
+      const mainClassIndex = finalBody.search(/(?:public\s+)?class\s+Main\b/);
+      if (mainClassIndex > 0) {
+        const helperCode = finalBody.substring(0, mainClassIndex).trim();
+        const mainCode = finalBody.substring(mainClassIndex).trim();
+        finalBody = mainCode + "\n\n" + helperCode;
+      }
+      processedCode = uniqueImports + "\n\n" + finalBody;
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // External Docker execution (Piston / Judge0)
+    // ──────────────────────────────────────────────────────────
+    if (externalCodeExecutor.isAvailable() && externalCodeExecutor.getSupportedLanguages().includes(language)) {
+      try {
+        const externalResult = await externalCodeExecutor.executeCode({
+          language,
+          code: processedCode,
+          input,
+          timeLimit: timeout,
+        });
+        return {
+          success: externalResult.success,
+          output: externalResult.output,
+          stderr: externalResult.stderr,
+          error: externalResult.error,
+          executionTime: externalResult.executionTime,
+          memoryUsed: externalResult.memoryUsed,
+        };
+      } catch (extError: any) {
+        console.warn("External Piston execution error, falling back to local:", extError.message);
+      }
     }
 
     const langError = this.getLanguageErrorMessage(language);
     if (langError) {
-      if (externalCodeExecutor.isAvailable() && externalCodeExecutor.getSupportedLanguages().includes(language)) {
-        try {
-          const externalResult = await externalCodeExecutor.executeCode({
-            language,
-            code: processedCode,
-            input,
-            timeLimit: timeout,
-          });
-          return {
-            success: externalResult.success,
-            output: externalResult.output,
-            stderr: externalResult.stderr,
-            error: externalResult.error,
-            executionTime: externalResult.executionTime,
-            memoryUsed: externalResult.memoryUsed,
-          };
-        } catch (extError: any) {
-          console.error("External executor fallback failed:", extError);
-        }
-      }
       return { success: false, output: "", stderr: langError, error: langError, executionTime: 0 };
     }
 
-    const startTime = Date.now();
 
-    // Try external executors first (code-runner Docker, Judge0, Piston)
-    const isJavaLocalAvailable = language === "java" && !langError;
-    if (isJavaLocalAvailable) {
-      // Bypass external executor and drop down to local execution
-    } else if (externalCodeExecutor.isAvailable()) {
-      try {
-        const externalResult = await externalCodeExecutor.executeCode({
-          language,
-          code,
-          input,
-          timeLimit: timeout,
-        });
-        if (externalResult.success) {
-          return externalResult;
-        }
-        const isApiFailure = externalResult.error?.includes("Judge0") || externalResult.error?.includes("Piston") || externalResult.error?.includes("External API") || externalResult.error?.includes("no fallback") || externalResult.error?.includes("unknown");
-        if (!isApiFailure) {
-          return externalResult;
-        }
-      } catch {
-        // External failed — fall through to local
-      }
-    }
 
     // Only fall back to local subprocess execution in development mode
     if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== undefined) {
@@ -2670,24 +2825,46 @@ if (result === undefined) {
     }
 
     // ──────────────────────────────────────────────────────────
-    // Local subprocess execution (development only)
+    // External Docker execution (Piston / Judge0)
     // ──────────────────────────────────────────────────────────
+    if (process.env.PISTON_API_URL || process.env.JUDGE0_API_URL) {
+      try {
+        const externalResult = await externalCodeExecutor.executeCode({
+          language,
+          code: processedCode,
+          input,
+          timeLimit: timeout,
+        });
+        return {
+          success: externalResult.success,
+          output: externalResult.output,
+          stderr: externalResult.stderr,
+          error: externalResult.error,
+          executionTime: externalResult.executionTime,
+        };
+      } catch (extError: any) {
+        console.warn("External Piston execution error, attempting local fallback:", extError.message);
+      }
+    }
+
     const sessionDir = this.createSessionDir();
 
     try {
       let className = "Main";
       
       if (language === "java") {
-        if (/\bclass\s+Main\b/.test(processedCode)) {
+        if (/\bpublic\s+class\s+Main\b/.test(processedCode) || /\bclass\s+Main\b/.test(processedCode)) {
           className = "Main";
         } else {
-          const publicClassMatch = processedCode.match(/public\s+class\s+(\w+)/);
-          if (publicClassMatch) {
-            className = publicClassMatch[1];
+          const mainClassMatch = processedCode.match(/(?:public\s+)?class\s+(\w+)[\s\S]*?\bpublic\s+static\s+void\s+main\b/);
+          if (mainClassMatch) {
+            className = mainClassMatch[1];
           } else {
-            const regularClassMatch = processedCode.match(/class\s+(\w+)/);
-            if (regularClassMatch) {
-              className = regularClassMatch[1];
+            const publicClassMatch = processedCode.match(/public\s+class\s+(\w+)/);
+            if (publicClassMatch) {
+              className = publicClassMatch[1];
+            } else {
+              className = "Main";
             }
           }
         }
@@ -2823,9 +3000,17 @@ if (result === undefined) {
       return aParts.every((v, i) => v === bParts[i]);
     };
 
-    // Smart comparison: handles exact match, unordered match, and list-of-lists
+    const canonicalizeTreeOutput = (s: string): string => {
+      if (!s) return "";
+      let clean = s.trim().replace(/^\[|\]$/g, '').replace(/,/g, ' ');
+      clean = clean.replace(/\b(null|NULL|None|nil)\b/g, 'N');
+      return clean.split(/\s+/).join(' ');
+    };
+
+    // Smart comparison: handles exact match, tree output normalization, unordered match, and list-of-lists
     const smartCompare = (actual: string, expected: string, orderIndependent: boolean): boolean => {
       if (actual === expected) return true;
+      if (canonicalizeTreeOutput(actual) === canonicalizeTreeOutput(expected)) return true;
       if (orderIndependent) {
         if (compareUnordered(actual, expected)) return true;
       }
@@ -2840,7 +3025,7 @@ if (result === undefined) {
     // No auto-wrapping — student writes complete program with main() and reads from stdin.
     const hasMain = true; // Always treat code as a complete program (Codeforces style)
 
-    const hasDriver = driverCode && driverCode[language];
+    const hasDriver = !!(driverCode && driverCode[language] && driverCode[language].includes("{{userCode}}"));
 
     // Each test case runs individually (stdin = one test case input)
     const batchSize = 1;
@@ -2858,12 +3043,40 @@ if (result === undefined) {
       // Codeforces-style execution:
       // 1. hasDriver (legacy): inject student code into driverCode template via {{userCode}},
       //    then pass test input via stdin. Kept for backward compatibility.
-      // 2. Default (Codeforces): run code as-is, pass test case input via stdin.
+      const hasMain = /\bint\s+main\b|\bvoid\s+main\s*\(|\bstatic\s+void\s+main\s*\(|\bdef\s+main\s*\(|__main__/.test(code);
+
       if (hasDriver) {
         wrappedCode = driverCode[language].replace("{{userCode}}", code);
         runInput = chunk.map(tc => tc.input).join('\n');
+      } else if (!hasMain && (language === "c" || language === "cpp" || language === "java" || language === "python" || language === "javascript")) {
+        try {
+          const testCase = chunk[0];
+          const funcSig = this.extractFunctionSignature(code, language);
+          const detectedFuncName = funcSig?.name || (code.match(/(?:struct\s+\w+\*?|\w+\*?)\s+(\w+)\s*\(/)?.[1]) || "solution";
+          const paramCount = funcSig?.params?.length || (code.includes("root2") ? 2 : 1);
+
+          const isTree = code.includes("TreeNode") || code.includes("root1") || code.includes("root2");
+          const isList = code.includes("ListNode") || code.includes("head");
+
+          const defaultType = isTree ? "TreeNode" : isList ? "ListNode" : "int";
+          const inputNames = paramCount === 2 ? ["root1", "root2"] : ["root"];
+          const inputTypes = paramCount === 2 ? [defaultType, defaultType] : [defaultType];
+
+          const problemConfig = {
+            functionName: detectedFuncName,
+            className: "Solution",
+            inputTypes: inputTypes,
+            outputType: isTree ? "TreeNode" : isList ? "ListNode" : "int",
+            inputNames: inputNames,
+          };
+          wrappedCode = wrapperGenerator.generateWrapper(code, language, testCase, problemConfig);
+          runInput = "";
+        } catch {
+          wrappedCode = code;
+          runInput = chunk.map(tc => tc.input).join('\n');
+        }
       } else {
-        // Codeforces style: full program, raw stdin per test case
+        // Codeforces style: full program with main(), raw stdin per test case
         wrappedCode = code;
         runInput = chunk.map(tc => tc.input).join('\n');
       }

@@ -21,6 +21,7 @@ import { CodePlaygroundPage } from './pages/CodePlaygroundPage';
 import { WebPlaygroundPage } from './pages/WebPlaygroundPage';
 import { SqlPlaygroundPage } from './pages/SqlPlaygroundPage';
 import { QuizPlaygroundPage } from './pages/QuizPlaygroundPage';
+import { AiAssistedPlaygroundPage } from './pages/AiAssistedPlaygroundPage';
 import { QuizAnalyticsPage } from './pages/teacher/QuizAnalyticsPage';
 import { PlatformDashboard } from './pages/superadmin/PlatformDashboard';
 import { OrgDashboard } from './pages/orgadmin/OrgDashboard';
@@ -45,6 +46,8 @@ import { NotificationsPage } from './pages/NotificationsPage';
 import { SsoCallbackPage } from './pages/SsoCallbackPage';
 import { InterviewDashboardPage } from './pages/InterviewDashboardPage';
 import { LiveInterviewRoomPage } from './pages/LiveInterviewRoomPage';
+import { CompanyVaultsPage } from './pages/CompanyVaultsPage';
+import { CompanyWorkspacePage } from './pages/CompanyWorkspacePage';
 
 import LandingPageApp from './landing/LandingPageApp';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
@@ -341,9 +344,26 @@ export default function App() {
                   <QuizPlaygroundPage />
                 </RoleRoute>
               } />
+              <Route path="/playground/ai-assisted" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <AiAssistedPlaygroundPage />
+                </RoleRoute>
+              } />
               <Route path="/playground" element={
                 <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'GUEST_CANDIDATE', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
                   <CodePlaygroundPage />
+                </RoleRoute>
+              } />
+
+              {/* ========== Company Materials & Passcode Vault ========== */}
+              <Route path="/company-materials" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <CompanyVaultsPage />
+                </RoleRoute>
+              } />
+              <Route path="/company-materials/:slug" element={
+                <RoleRoute allowedRoles={['SUPER_ADMIN', 'PLATFORM_CONTENT_AUTHOR', 'ORG_ADMIN', 'PROCTOR', 'ORG_MEMBER', 'EVALUATOR', 'STUDENT', 'CANDIDATE', 'ANALYTICS_VIEWER', 'COMPLIANCE_OFFICER', 'CONTEST_MODERATOR']}>
+                  <CompanyWorkspacePage />
                 </RoleRoute>
               } />
 

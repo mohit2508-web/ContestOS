@@ -33,13 +33,12 @@ import {
 import { ContestHeroHeader } from '../components/participant/ContestHeroHeader';
 import { ProblemQuickViewModal } from '../components/participant/ProblemQuickViewModal';
 
-// ── Helper: detect Safe Exam Browser from user agent or URL param ──
+// ── Helper: detect Safe Exam Browser ONLY via User-Agent (cannot be spoofed by students) ──
+// NOTE: URL param ?seb=1 is intentionally NOT checked here — it was a major security bypass.
+// Dev simulation is handled separately via import.meta.env.DEV checks.
 export function detectSebBrowser(): boolean {
-  return (
-    navigator.userAgent.toLowerCase().includes('seb') ||
-    navigator.userAgent.toLowerCase().includes('safeexambrowser') ||
-    new URLSearchParams(window.location.search).get('seb') === '1'
-  );
+  const ua = navigator.userAgent.toLowerCase();
+  return ua.includes('safebrowser') || ua.includes('safeexambrowser');
 }
 
 // -------------------------------------------------------------
@@ -167,10 +166,17 @@ export function useContestEntryFlow(contest: any) {
     if (handshakeCalledRef.current) return;
     handshakeCalledRef.current = true;
 
-    // Simulation mode (?seb=1 in URL or non-SEB standard browser testing) — pass immediately
-    const isSimulation = new URLSearchParams(window.location.search).get('seb') === '1' || !detectSebBrowser();
-    if (isSimulation) {
+    // ── DEV-ONLY simulation bypass (not available in production build) ──
+    if (import.meta.env.DEV && new URLSearchParams(window.location.search).get('seb') === '1') {
+      console.warn('[DEV] SEB simulation mode active — bypassing SEB check.');
       setState('entered');
+      return;
+    }
+
+    // ── PRODUCTION: Block non-SEB browsers immediately ──
+    if (!detectSebBrowser()) {
+      setState('blocked');
+      setErrorMsg('This exam requires Safe Exam Browser. Please launch SEB from the Overview tab.');
       return;
     }
 
@@ -1125,12 +1131,12 @@ export function OverviewTab() {
         </div>
       )}
 
-      {/* ── Dev: SEB Simulation Mode Button (for testing in normal browser) ── */}
-      {effectivelyJoined && isLive && contest.requireSeb && !isSebBrowser && (
-        <div className="bg-zinc-900/30 border border-white/5 rounded-2xl p-4 flex items-center justify-between gap-4">
+      {/* ── Dev: SEB Simulation Mode Button (DEV-ONLY — hidden in production build) ── */}
+      {import.meta.env.DEV && effectivelyJoined && isLive && contest.requireSeb && !isSebBrowser && (
+        <div className="bg-zinc-900/30 border border-yellow-500/20 rounded-2xl p-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-black text-gray-400">Developer Testing</p>
-            <p className="text-[10px] text-gray-600">Simulate SEB browser (appends ?seb=1) to test diagnostics flow without actual SEB installed.</p>
+            <p className="text-xs font-black text-yellow-500">🔧 Developer Testing (DEV BUILD ONLY)</p>
+            <p className="text-[10px] text-gray-600">Simulate SEB browser (appends ?seb=1) to test diagnostics flow without actual SEB installed. Not visible in production.</p>
           </div>
           <button
             onClick={() => {
@@ -1138,7 +1144,7 @@ export function OverviewTab() {
               url.searchParams.set('seb', '1');
               window.location.href = url.toString();
             }}
-            className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-400 font-extrabold text-[10px] rounded-xl transition shrink-0 cursor-pointer"
+            className="px-4 py-2 bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 font-extrabold text-[10px] rounded-xl transition shrink-0 cursor-pointer"
           >
             🧪 Test SEB Simulation
           </button>
@@ -1188,13 +1194,12 @@ export function ProblemsTab() {
   const maxContestScore = problems.reduce((acc: number, p: any) => acc + (p.points || 100), 0);
 
   // Lock logic:
-  // - Inside SEB: locked until diagnostics complete
-  // - Normal browser + requireSeb: locked unless seb_bypass is set in sessionStorage
+  // - Inside SEB: locked until diagnostics complete (state must be 'entered')
+  // - Normal browser + requireSeb: ALWAYS locked (no client-side bypass allowed)
   // - Normal browser + no requireSeb: always unlocked
-  const isBypassed = typeof window !== 'undefined' && sessionStorage.getItem(`seb_bypass_${contest.id}`) === '1';
   const isLocked = isSebBrowser
     ? diagnostics?.state !== 'entered'
-    : (contest.requireSeb === true && !isBypassed);
+    : contest.requireSeb === true;
 
   // ── Exam Flow State ──
   const [showInstructions, setShowInstructions] = useState(() => {

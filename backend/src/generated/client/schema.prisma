@@ -171,6 +171,9 @@ model User {
   interviewerSessions   MockInterviewSession[] @relation("InterviewerSessions")
   candidateSessions     MockInterviewSession[] @relation("CandidateSessions")
   interviewParticipants InterviewParticipant[]
+
+  // Capgemini AI-assisted Coding Socratic Engine
+  assistantSessions AssistantSession[]
 }
 
 model Problem {
@@ -886,4 +889,80 @@ model InterviewExecutionResult {
   executedAt DateTime             @default(now())
 
   @@index([sessionId])
+}
+
+// ─────────────────────────────────────────────────────────────
+// CAPGEMINI STAGE 4: GUIDED SOCRATIC AI CODING ASSISTANT
+// ─────────────────────────────────────────────────────────────
+
+enum AssistantStage {
+  PROBLEM
+  DATA_STRUCTURE
+  APPROACH
+  AWAITING_CODE_REQUEST
+  CODE_GEN
+  REFINEMENT
+}
+
+model AssistantSession {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problemId     String?
+  stage         AssistantStage @default(PROBLEM)
+  tokenBudget   Int            @default(2000)
+  tokensUsed    Int            @default(0)
+  codeGenerated Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  capturedAnswers CapturedAnswer?
+  transcripts     AssistantTranscript[]
+  stageEvents     AssistantStageEvent[]
+  codeSnapshots   AssistantCodeSnapshot[]
+
+  @@index([userId, problemId])
+}
+
+model CapturedAnswer {
+  sessionId      String           @id
+  session        AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  problemSummary String?
+  dsChoice       String?
+  approach       String?
+}
+
+model AssistantTranscript {
+  id             String           @id @default(uuid())
+  sessionId      String
+  session        AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  turnIndex      Int
+  role           String // 'candidate' | 'assistant' | 'system'
+  stageAtTime    AssistantStage
+  message        String
+  gateResult     Json?
+  tokensConsumed Int              @default(0)
+  llmCallType    String? // 'prefilter' | 'gate_classifier' | 'code_gen' | 'templated'
+  createdAt      DateTime         @default(now())
+}
+
+model AssistantStageEvent {
+  id        String           @id @default(uuid())
+  sessionId String
+  session   AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  fromStage AssistantStage?
+  toStage   AssistantStage?
+  eventType String // 'gate_pass' | 'gate_reject' | 'stage_advance'
+  reason    String?
+  createdAt DateTime         @default(now())
+}
+
+model AssistantCodeSnapshot {
+  id         String           @id @default(uuid())
+  sessionId  String
+  session    AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  code       String
+  version    Int              @default(1)
+  insertedAt DateTime?
+  createdAt  DateTime         @default(now())
 }

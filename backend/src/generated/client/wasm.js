@@ -175,7 +175,19 @@ exports.Prisma.ProblemScalarFieldEnum = {
   organizationId: 'organizationId',
   createdById: 'createdById',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  aiCreditsRemaining: 'aiCreditsRemaining',
+  aiCreditsMax: 'aiCreditsMax'
+};
+
+exports.Prisma.ProblemAiCreditLogScalarFieldEnum = {
+  id: 'id',
+  problemId: 'problemId',
+  userId: 'userId',
+  action: 'action',
+  creditsDeducted: 'creditsDeducted',
+  creditsRemaining: 'creditsRemaining',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.TestCaseScalarFieldEnum = {
@@ -643,6 +655,57 @@ exports.Prisma.InterviewExecutionResultScalarFieldEnum = {
   executedAt: 'executedAt'
 };
 
+exports.Prisma.AssistantSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  problemId: 'problemId',
+  stage: 'stage',
+  tokenBudget: 'tokenBudget',
+  tokensUsed: 'tokensUsed',
+  codeGenerated: 'codeGenerated',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CapturedAnswerScalarFieldEnum = {
+  sessionId: 'sessionId',
+  problemSummary: 'problemSummary',
+  dsChoice: 'dsChoice',
+  approach: 'approach'
+};
+
+exports.Prisma.AssistantTranscriptScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  turnIndex: 'turnIndex',
+  role: 'role',
+  stageAtTime: 'stageAtTime',
+  message: 'message',
+  gateResult: 'gateResult',
+  tokensConsumed: 'tokensConsumed',
+  llmCallType: 'llmCallType',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AssistantStageEventScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  fromStage: 'fromStage',
+  toStage: 'toStage',
+  eventType: 'eventType',
+  reason: 'reason',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AssistantCodeSnapshotScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  code: 'code',
+  version: 'version',
+  insertedAt: 'insertedAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -805,10 +868,20 @@ exports.Recommendation = exports.$Enums.Recommendation = {
   NO_HIRE: 'NO_HIRE'
 };
 
+exports.AssistantStage = exports.$Enums.AssistantStage = {
+  PROBLEM: 'PROBLEM',
+  DATA_STRUCTURE: 'DATA_STRUCTURE',
+  APPROACH: 'APPROACH',
+  AWAITING_CODE_REQUEST: 'AWAITING_CODE_REQUEST',
+  CODE_GEN: 'CODE_GEN',
+  REFINEMENT: 'REFINEMENT'
+};
+
 exports.Prisma.ModelName = {
   Organization: 'Organization',
   User: 'User',
   Problem: 'Problem',
+  ProblemAiCreditLog: 'ProblemAiCreditLog',
   TestCase: 'TestCase',
   Contest: 'Contest',
   ContestProblem: 'ContestProblem',
@@ -842,7 +915,12 @@ exports.Prisma.ModelName = {
   InterviewFeedback: 'InterviewFeedback',
   InterviewCodeSnapshot: 'InterviewCodeSnapshot',
   InterviewHintRequest: 'InterviewHintRequest',
-  InterviewExecutionResult: 'InterviewExecutionResult'
+  InterviewExecutionResult: 'InterviewExecutionResult',
+  AssistantSession: 'AssistantSession',
+  CapturedAnswer: 'CapturedAnswer',
+  AssistantTranscript: 'AssistantTranscript',
+  AssistantStageEvent: 'AssistantStageEvent',
+  AssistantCodeSnapshot: 'AssistantCodeSnapshot'
 };
 
 /**

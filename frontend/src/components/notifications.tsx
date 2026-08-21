@@ -40,6 +40,10 @@ interface NotificationContextType {
     warning: (msg: string) => void;
     info: (msg: string) => void;
   };
+  success: (msg: string) => void;
+  error: (msg: string) => void;
+  warning: (msg: string) => void;
+  info: (msg: string) => void;
   confirm: (title: string, options?: ModalOptions) => Promise<boolean>;
   alert: (title: string, options?: ModalOptions) => Promise<void>;
   prompt: (title: string, options?: ModalOptions) => Promise<string | null>;
@@ -139,6 +143,10 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       warning: (msg: string) => addToast('warning', msg),
       info: (msg: string) => addToast('info', msg),
     },
+    success: (msg: string) => addToast('success', msg),
+    error: (msg: string) => addToast('error', msg),
+    warning: (msg: string) => addToast('warning', msg),
+    info: (msg: string) => addToast('info', msg),
     confirm,
     alert,
     prompt,
@@ -347,11 +355,15 @@ export function useNotify(): NotificationContextType {
     // Fallback if rendered outside NotificationProvider
     return {
       toast: {
-        success: (msg: string) => alert(`[SUCCESS] ${msg}`),
-        error: (msg: string) => alert(`[ERROR] ${msg}`),
-        warning: (msg: string) => alert(`[WARNING] ${msg}`),
-        info: (msg: string) => alert(`[INFO] ${msg}`),
+        success: (msg: string) => window.alert(`[SUCCESS] ${msg}`),
+        error: (msg: string) => window.alert(`[ERROR] ${msg}`),
+        warning: (msg: string) => window.alert(`[WARNING] ${msg}`),
+        info: (msg: string) => window.alert(`[INFO] ${msg}`),
       },
+      success: (msg: string) => window.alert(`[SUCCESS] ${msg}`),
+      error: (msg: string) => window.alert(`[ERROR] ${msg}`),
+      warning: (msg: string) => window.alert(`[WARNING] ${msg}`),
+      info: (msg: string) => window.alert(`[INFO] ${msg}`),
       confirm: async (title: string, options?: ModalOptions) => {
         return window.confirm(`${title}\n${options?.description || ''}`);
       },

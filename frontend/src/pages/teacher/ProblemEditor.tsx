@@ -8,6 +8,7 @@ import { generateStarterCode, generateDriverCode } from '../../utils/signatureBu
 import { useNotify } from '../../components/notifications';
 import { useAuth } from '../../contexts/AuthContext';
 import { SqlProblemBuilder } from '../../components/admin/SqlProblemBuilder';
+import { ProblemAiCreditMeter } from '../../components/ai/ProblemAiCreditMeter';
 
 interface TestCaseEntry {
   input: string;
@@ -16,62 +17,69 @@ interface TestCaseEntry {
   setup?: string;
 }
 
-const LANGUAGE_KEYS = ['java', 'cpp', 'python', 'javascript', 'c'] as const;
+const LANGUAGE_KEYS = ['cpp', 'java', 'python'] as const;
 
 const AI_PROMPT_TEMPLATE = `You are a problem-import assistant for Kryptavia OS.
-Your task is to convert any coding problem description into a structured JSON configuration block matching the following schema.
+Your task is to convert ANY coding problem description (Arrays, Strings, Dynamic Programming, Graphs, Matrices, Trees, Math, Linked Lists, etc.) into a structured JSON configuration block matching the corporate assessment format used in AON, CoCubes, HackerEarth, and AMCAT exams.
 
-Kryptavia OS uses a CODEFORCES-STYLE execution model:
-- Students write COMPLETE programs with main() that read from stdin and print to stdout.
-- There is NO function-only wrapper. Students must handle all input parsing themselves.
-- The "starterCode" for each language must be a COMPLETE program (with imports, main(), stdin reading, and a TODO section for the student's logic).
-- Test case "input" is raw stdin text exactly as your program would read it.
-- Test case "expectedOutput" is the exact stdout your program should print.
+CRITICAL REQUIREMENTS FOR GENERIC DESCRIPTION FORMATTING:
+The "description" field MUST be formatted as Markdown following a clean corporate assessment structure:
+1. **Title Header**: e.g., \`## Problem Title\`
+2. **Problem Statement**:
+   - Detailed explanation of problem context and goals.
+   - Include Data Structure definition (if Trees/Linked Lists/Custom Objects).
+   - Include Target Function Signature (if function-based).
+   - Bulleted **Note** list (constraints, edge cases, memory rules).
+3. **Example & Step-by-Step Explanation Section**:
+   - Detailed trace of calculation for sample inputs.
+4. **Sample Input & Output Visuals**:
+   - Visual diagrams (ASCII text trees for Trees/Graphs) or formatted text blocks.
+5. **Standard Corporate Instructions List**:
+   - \`- This is a template based question, DO NOT write the "main" function.\`
+   - \`- Your code is judged by an automated system, do not write any additional welcome/greeting messages.\`
+   - \`- "Save and Test" only checks for basic test cases, more rigorous cases will be used to judge your code while scoring.\`
+   - \`- Additional score will be given for writing optimized code both in terms of space and time complexity.\`
 
-Requirements:
-1. "starterCode" MUST be a complete runnable program for each language with:
-   - All necessary imports
-   - A main() function / entry point
-   - stdin reading boilerplate (pre-filled with the correct input format for this problem)
-   - A clear "// TODO: Your solution here" section
-   - stdout printing of the result
-2. Java: public class must be named "Main" (NOT Solution). Use BufferedReader for fast I/O.
-3. C++: Use #include <bits/stdc++.h>, int main() with ios_base::sync_with_stdio(false).
-4. Python: Use import sys; input = sys.stdin.readline for fast I/O.
-5. JavaScript: Use require('fs').readFileSync(0, 'utf8') to read all stdin at once.
-6. Test case input format: raw multiline text matching exactly what stdin receives. For multiple test cases use T on first line.
-7. "referenceSolution" should be a COMPLETE working program (with main + stdin/stdout) in Java or C++.
-8. If the problem includes any figures or diagrams, extract image URLs into the "images" object.
-9. Return ONLY a valid JSON object. Do not include extra commentary or markdown outside the JSON.
+CRITICAL REQUIREMENTS FOR REFERENCE SOLUTIONS:
+1. "referenceSolutions" MUST contain FULL, COMPLETE, WORKING CODEFORCES-STYLE PROGRAM IMPLEMENTATIONS for ALL THREE LANGUAGES ("cpp", "java", "python"):
+   - C++: #include headers + I/O reader + algorithm + output printer + int main().
+   - Java: public class Main with BufferedReader stdin + algorithm + output printer + public static void main(String[] args).
+   - Python: sys.stdin reading + algorithm + output printer + def main().
+   - DO NOT USE PLACEHOLDERS, TRUNCATIONS, OR "..." IN THE REFERENCE SOLUTIONS!
+2. "starterCode" MUST contain complete runnable starters for "cpp", "java", and "python".
+3. "testCases" MUST contain AT LEAST 10 comprehensive test cases (minimum 10 testcases).
+4. Return ONLY a valid JSON object matching the schema below. Do not include markdown commentary outside JSON.
 
 {
   "title": "Problem Title",
   "difficulty": "Easy | Medium | Hard",
-  "category": "e.g. Array, String, Linked List, Tree, Graph, DP",
+  "category": "Topic Name (e.g. Array, String, Linked List, Tree, Graph, DP)",
   "problemType": "code | sql | web-dev",
   "evaluationStrategy": "EXACT_MATCH | UNORDERED_MATCH | FLOAT_TOLERANCE",
-  "description": "Markdown formatted problem statement with examples and constraints",
+  "description": "Markdown formatted description following corporate structure above",
   "images": {
-    "main": "Image URL for main problem diagram (or empty string)",
-    "example1": "Image URL for Example 1 diagram (or empty string)",
-    "example2": "Image URL for Example 2 diagram (or empty string)",
-    "example3": "Image URL for Example 3 diagram (or empty string)"
+    "main": "",
+    "example1": "",
+    "example2": "",
+    "example3": ""
   },
-  "referenceSolution": "Complete Java or C++ program (with main + stdin/stdout) that solves the problem",
-  "schema": "SQL schema DDL (only if problemType is sql, else omit)",
+  "referenceSolutions": {
+    "cpp": "Complete working Codeforces-style C++ program with int main() and stdin/stdout (NO PLACEHOLDERS)",
+    "java": "import java.util.*;\\nimport java.io.*;\\n\\npublic class Main {\\n    public static void main(String[] args) throws IOException {\\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\\n        // Full Java solution logic\\n    }\\n}",
+    "python": "import sys\\n\\ndef main():\\n    lines = sys.stdin.read().splitlines()\\n    # Full Python solution logic\\n\\nif __name__ == '__main__':\\n    main()"
+  },
   "testCases": [
     {
-      "input": "raw stdin text\\n(exactly what your program reads from stdin)",
-      "expectedOutput": "exact stdout your program should print",
-      "isHidden": false,
-      "setup": "SQL INSERT statements (only if SQL problem, else omit)"
+      "input": "raw stdin text",
+      "expectedOutput": "exact stdout output",
+      "isHidden": false
     }
+    // ... MUST PROVIDE AT LEAST 10 TEST CASES ...
   ],
   "starterCode": {
-    "java": "import java.util.*;\\nimport java.io.*;\\n\\npublic class Main {\\n    public static void main(String[] args) throws IOException {\\n        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));\\n        // TODO: Read input and write your solution\\n        System.out.println(0);\\n    }\\n}",
-    "cpp": "#include <bits/stdc++.h>\\nusing namespace std;\\n\\nint main() {\\n    ios_base::sync_with_stdio(false);\\n    cin.tie(NULL);\\n    // TODO: Read input and write your solution\\n    cout << 0 << \\"\\\\n\\";\\n    return 0;\\n}",
-    "python": "import sys\\ninput = sys.stdin.readline\\n\\n# TODO: Read input and write your solution\\nprint(0)",
-    "javascript": "const lines = require('fs').readFileSync(0, 'utf8').trim().split('\\\\n');\\nlet idx = 0;\\n\\n// TODO: Read input and write your solution\\nconsole.log(0);"
+    "cpp": "#include <bits/stdc++.h>\\n...",
+    "java": "import java.util.*;\\n...",
+    "python": "import sys\\n..."
   }
 }
 
@@ -84,14 +92,10 @@ Your task is to convert any SQL problem description (from LeetCode, HackerRank, 
 
 Requirements:
 1. "problemType" MUST be "sql".
-2. "schema" MUST be a string containing valid CREATE TABLE DDL statements for all entities mentioned in the problem (e.g. CREATE TABLE Person (personId INT PRIMARY KEY, firstName VARCHAR(50)...);).
-3. "testCases" MUST contain:
-   - "setup": INSERT INTO statements to seed sample data into the tables (e.g. INSERT INTO Person VALUES (1, 'Wang', 'Allen');).
-   - "expectedOutput": Tab-separated tabular string matching the expected result table format (e.g. "firstName\tlastName\tcity\tstate\nAllen\tWang\tNULL\tNULL").
-   - "isHidden": false for public sample cases, true for hidden test cases.
-4. "starterCode": { "sql": "-- Write your SQL query below\n" }
-5. "referenceSolution": The complete working SQL query solution.
-6. Return ONLY a valid JSON object matching the schema below. Do not include markdown or extra commentary outside the JSON.
+2. "schema" MUST be a string containing valid CREATE TABLE DDL statements for all entities mentioned in the problem.
+3. "testCases" MUST contain setup DML and expected tabular string output.
+4. "referenceSolution": The complete working SQL query solution.
+5. Return ONLY a valid JSON object matching the schema below.
 
 {
   "title": "Problem Title",
@@ -99,15 +103,15 @@ Requirements:
   "category": "Database",
   "problemType": "sql",
   "description": "Markdown formatted problem statement explaining table structures, required result columns, and order requirements.",
-  "schema": "CREATE TABLE Person (personId INT PRIMARY KEY, lastName VARCHAR(50), firstName VARCHAR(50)); CREATE TABLE Address (addressId INT PRIMARY KEY, personId INT, city VARCHAR(50), state VARCHAR(50));",
-  "referenceSolution": "SELECT p.firstName, p.lastName, a.city, a.state FROM Person p LEFT JOIN Address a ON p.personId = a.personId;",
+  "schema": "CREATE TABLE Person (personId INT PRIMARY KEY, lastName VARCHAR(50), firstName VARCHAR(50));",
+  "referenceSolution": "SELECT firstName, lastName FROM Person;",
   "starterCode": {
-    "sql": "-- Write your SQL query below\n"
+    "sql": "-- Write your SQL query below\\n"
   },
   "testCases": [
     {
-      "setup": "INSERT INTO Person VALUES (1, 'Wang', 'Allen'); INSERT INTO Address VALUES (1, 2, 'New York City', 'New York');",
-      "expectedOutput": "firstName\tlastName\tcity\tstate\nAllen\tWang\tNULL\tNULL",
+      "setup": "INSERT INTO Person VALUES (1, 'Wang', 'Allen');",
+      "expectedOutput": "firstName\\tlastName\\nAllen\\tWang",
       "isHidden": false
     }
   ]
@@ -118,20 +122,13 @@ Now convert the following SQL problem into JSON:
 [PASTE YOUR SQL PROBLEM QUESTION HERE]`;
 
 const WEB_DEV_AI_PROMPT_TEMPLATE = `You are a Web Development problem import assistant for Kryptavia OS.
-Your task is to convert any frontend web development challenge (HTML, CSS, JavaScript, DOM manipulation, React/Vue UI component) into a structured JSON configuration block matching the following schema.
+Your task is to convert any frontend web development challenge (HTML, CSS, JavaScript, DOM manipulation, React UI component) into a structured JSON configuration block matching the following schema.
 
 Requirements:
 1. "problemType" MUST be "web-dev".
-2. "starterCode" MUST contain:
-   - "html": Initial HTML markup template.
-   - "css": Initial CSS styles template.
-   - "javascript": Initial JavaScript logic template.
-3. "testCases" MUST contain:
-   - "input": Textual DOM test scenario or event sequence description.
-   - "expectedOutput": Expected DOM state, element text, or CSS property.
-   - "isHidden": false for public cases, true for hidden cases.
-4. "referenceSolution": Full working HTML/CSS/JS solution.
-5. Return ONLY a valid JSON object matching the schema below. Do not include markdown or extra commentary outside the JSON.
+2. "starterCode" MUST contain html, css, and javascript starter templates.
+3. "referenceSolution": Full working HTML/CSS/JS solution.
+4. Return ONLY a valid JSON object matching the schema below.
 
 {
   "title": "Problem Title",
@@ -139,11 +136,11 @@ Requirements:
   "category": "Frontend",
   "problemType": "web-dev",
   "description": "Markdown formatted problem statement explaining required HTML elements, CSS styling classes, and JavaScript DOM interaction rules.",
-  "referenceSolution": "<!-- HTML -->\n<button id=\"btn\">Click Me</button>\n\n/* CSS */\nbutton { color: red; }\n\n// JS\ndocument.getElementById('btn').addEventListener('click', () => alert('Clicked'));",
+  "referenceSolution": "<!-- HTML -->\\n<button id='btn'>Click Me</button>",
   "starterCode": {
-    "html": "<div id=\"app\">\n  <!-- Build your HTML layout here -->\n</div>",
-    "css": "/* Write your custom CSS styles here */\n#app {\n  font-family: sans-serif;\n}",
-    "javascript": "// Write your DOM event handlers & JavaScript logic here\ndocument.addEventListener('DOMContentLoaded', () => {\n  console.log('App ready');\n});"
+    "html": "<div id='app'></div>",
+    "css": "#app { font-family: sans-serif; }",
+    "javascript": "console.log('App ready');"
   },
   "testCases": [
     {
@@ -157,6 +154,77 @@ Requirements:
 Now convert the following Web-Dev problem into JSON:
 
 [PASTE YOUR WEB DEV PROBLEM HERE]`;
+
+const VIBE_CODE_AI_PROMPT_TEMPLATE = `You are an AI Coding Assistant problem import helper for Kryptavia OS (AON Socratic / Corporate Assessment Mode).
+Your task is to convert ANY coding problem description (Arrays, Strings, Dynamic Programming, Graphs, Matrices, Linked Lists, Trees, Stack/Queue, Math, etc.) into a structured JSON configuration block matching the corporate assessment format used in AON, CoCubes, HackerEarth, and AMCAT exams.
+
+CRITICAL REQUIREMENTS FOR GENERIC DESCRIPTION FORMATTING:
+The "description" field MUST be formatted as Markdown with the following exact corporate structure adapted to the specific topic of the problem:
+
+1. **Title Header**: e.g., \`## 01. Problem Title\`
+2. **Problem Statement**:
+   - Clear high-level explanation of the problem objectives.
+   - **Data Structure Definition** (if applicable):
+     - For Trees: Include \`struct TreeNode { int data; TreeNode* left; TreeNode* right; };\`
+     - For Linked Lists: Include \`struct ListNode { int val; ListNode* next; };\`
+     - For Custom Objects/Structs: Include the relevant C++/Java struct definition.
+   - **Target Function Signature**:
+     - Explicitly define the C++/Java/Python function signature the candidate must implement (e.g., \`struct TreeNode* solve(struct TreeNode* root1, struct TreeNode* root2);\` or \`int minOperations(vector<int>& nums, int k);\`).
+   - Detailed conceptual explanation of mathematical/logical rules.
+   - Bulleted **Note** list (e.g. constraints, edge cases like null inputs, memory rules).
+3. **Example / Step-by-Step Explanation Section**:
+   - Detailed step-by-step trace or calculation breakdown for the sample input.
+4. **Sample Input Visuals**:
+   - For Trees/Graphs: Include clear ASCII text tree diagrams or graph adjacency visuals.
+   - For Matrices/Arrays/Strings: Include clearly formatted sample inputs.
+5. **Sample Output Visuals**:
+   - Visual output representation matching the problem output.
+6. **Standard Corporate Instructions List**:
+   - \`- This is a template based question, DO NOT write the "main" function.\`
+   - \`- Your code is judged by an automated system, do not write any additional welcome/greeting messages.\`
+   - \`- "Save and Test" only checks for basic test cases, more rigorous cases will be used to judge your code while scoring.\`
+   - \`- Additional score will be given for writing optimized code both in terms of space and time complexity.\`
+
+CRITICAL REQUIREMENTS FOR REFERENCE SOLUTIONS & STARTER CODE:
+1. "referenceSolutions" MUST contain FULL, COMPLETE, WORKING CODEFORCES-STYLE PROGRAM IMPLEMENTATIONS for ALL THREE LANGUAGES ("cpp", "java", "python"):
+   - C++: #include headers + data structure definitions + I/O reader + algorithm + output printer + int main().
+   - Java: public class Main with BufferedReader stdin + data structure definitions + algorithm + output printer + public static void main(String[] args).
+   - Python: sys.stdin reading + algorithm + output printer + def main().
+   - DO NOT USE PLACEHOLDERS, TRUNCATIONS, OR "..." IN REFERENCE SOLUTIONS!
+2. "starterCode" MUST contain clean template starters for "cpp", "java", and "python" containing ONLY the target function signature for the candidate to fill in.
+3. "testCases" MUST contain AT LEAST 10 comprehensive test cases (minimum 10 testcases) covering edge cases, single element inputs, null/empty cases, negative values, and large inputs.
+4. Return ONLY a valid JSON object matching the schema below. Do not include extra commentary outside JSON.
+
+{
+  "title": "Problem Title",
+  "difficulty": "Easy | Medium | Hard",
+  "category": "Topic Name (e.g. Dynamic Programming, Trees, Graphs, Arrays)",
+  "problemType": "vibe-code",
+  "evaluationStrategy": "EXACT_MATCH",
+  "description": "Markdown formatted description following the corporate 6-part structure above",
+  "referenceSolutions": {
+    "cpp": "Complete working Codeforces-style C++ solution (NO PLACEHOLDERS)",
+    "java": "import java.util.*;\\nimport java.io.*;\\n\\npublic class Main {\\n    public static void main(String[] args) throws IOException {\\n        // Complete Java solution\\n    }\\n}",
+    "python": "import sys\\n\\ndef main():\\n    // Complete Python solution\\n\\nif __name__ == '__main__':\\n    main()"
+  },
+  "starterCode": {
+    "cpp": "// Function template for candidate\\n",
+    "java": "public class Solution {\\n    // Function template for candidate\\n}",
+    "python": "# Function template for candidate\\n"
+  },
+  "testCases": [
+    {
+      "input": "raw stdin text",
+      "expectedOutput": "exact stdout output",
+      "isHidden": false
+    }
+    // ... MUST PROVIDE AT LEAST 10 TEST CASES ...
+  ]
+};
+
+Now convert the following coding problem into JSON:
+
+[PASTE YOUR PROBLEM HERE]`;
 
 
 
@@ -332,6 +400,39 @@ export function TeacherProblemEditorPage() {
   const isEditing = Boolean(id);
   const [showGuide, setShowGuide] = useState(false);
   const [aiJsonInput, setAiJsonInput] = useState('');
+  const [aiCreditsRemaining, setAiCreditsRemaining] = useState<number>(2000);
+  const [aiCreditsMax, setAiCreditsMax] = useState<number>(2000);
+
+  useEffect(() => {
+    if (id && id !== 'new') {
+      api.get(`/problems/${id}/ai-credits`).then(res => {
+        if (res.data?.remaining !== undefined) {
+          setAiCreditsRemaining(res.data.remaining);
+          setAiCreditsMax(res.data.max || 2000);
+        }
+      }).catch(err => console.error(err));
+    }
+  }, [id]);
+
+  const deductAiCredits = async (cost: number, action: string) => {
+    if (id && id !== 'new') {
+      try {
+        const res = await api.post(`/problems/${id}/deduct-ai-credits`, { cost, action });
+        if (res.data?.remaining !== undefined) {
+          setAiCreditsRemaining(res.data.remaining);
+          setAiCreditsMax(res.data.max || 2000);
+        }
+      } catch (err: any) {
+        if (err.response?.status === 402) {
+          notify.toast.error(err.response?.data?.error || "AI Limit Reached for this Question (0 / 2000).");
+          setAiCreditsRemaining(0);
+          throw err;
+        }
+      }
+    } else {
+      setAiCreditsRemaining(prev => Math.max(0, prev - cost));
+    }
+  };
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -339,7 +440,17 @@ export function TeacherProblemEditorPage() {
   const [category, setCategory] = useState('DSA');
   const [isPublic, setIsPublic] = useState(false);
   const [evaluationStrategy, setEvaluationStrategy] = useState('EXACT_MATCH');
-  const [referenceSolution, setReferenceSolution] = useState('');
+  const [referenceSolutions, setReferenceSolutions] = useState<Record<string, string>>({
+    cpp: '',
+    java: '',
+    python: ''
+  });
+  const [refSolLang, setRefSolLang] = useState<'cpp' | 'java' | 'python'>('cpp');
+
+  const referenceSolution = referenceSolutions[refSolLang] || Object.values(referenceSolutions).find(v => Boolean(v?.trim())) || '';
+  const setReferenceSolution = (val: string) => {
+    setReferenceSolutions(prev => ({ ...prev, [refSolLang]: val }));
+  };
   const [testCases, setTestCases] = useState<TestCaseEntry[]>([
     { input: '', expectedOutput: '', isHidden: false, setup: '' },
   ]);
@@ -409,7 +520,13 @@ export function TeacherProblemEditorPage() {
 
   const handleCopyPrompt = useCallback(async () => {
     try {
-      const templateToCopy = problemType === 'sql' ? SQL_AI_PROMPT_TEMPLATE : AI_PROMPT_TEMPLATE;
+      const templateToCopy = problemType === 'sql' 
+        ? SQL_AI_PROMPT_TEMPLATE 
+        : problemType === 'web-dev' 
+        ? WEB_DEV_AI_PROMPT_TEMPLATE 
+        : problemType === 'vibe-code'
+        ? VIBE_CODE_AI_PROMPT_TEMPLATE
+        : AI_PROMPT_TEMPLATE;
       await navigator.clipboard.writeText(templateToCopy);
       setAiCopied(true);
       setTimeout(() => setAiCopied(false), 2000);
@@ -447,29 +564,34 @@ export function TeacherProblemEditorPage() {
       // 3. Clean up trailing commas
       rawJson = rawJson.replace(/,(\s*[}\]])/g, '$1');
 
-      // 4. Fix literal newlines AND invalid backslash escapes inside JSON strings.
-      //    Step A: Replace literal CRLF/LF/TAB with proper JSON escape sequences.
-      //    Step B: Escape any lone backslash NOT followed by a valid JSON escape char
-      //            (\", \\, \/, \b, \f, \n, \r, \t, \uXXXX) — fixes AI-generated code
-      //            that has things like \n53, \S, \i, \j etc. from Java/C++ solutions.
-      const sanitized = rawJson.replace(
-        /"((?:[^"\\]|\\[\s\S])*)"/g,
-        (_match, content: string) => {
-          let fixed = content;
-          // Step A: literal newlines/tabs → JSON escape sequences
-          fixed = fixed
-            .replace(/\r\n/g, '\\n')
-            .replace(/\r/g, '\\n')
-            .replace(/\n/g, '\\n')
-            .replace(/\t/g, '\\t');
-          // Step B: fix lone backslashes that are not valid JSON escapes
-          // Valid JSON escape chars after \: " \ / b f n r t or u followed by 4 hex digits
-          fixed = fixed.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\');
-          return `"${fixed}"`;
+      let data: any;
+      try {
+        data = JSON.parse(rawJson);
+      } catch {
+        try {
+          const sanitized = rawJson.replace(
+            /"((?:[^"\\]|\\[\s\S])*)"/g,
+            (_match, content: string) => {
+              let fixed = content
+                .replace(/\r\n/g, '\\n')
+                .replace(/\r/g, '\\n')
+                .replace(/\n/g, '\\n')
+                .replace(/\t/g, '\\t');
+              fixed = fixed.replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\');
+              return `"${fixed}"`;
+            }
+          );
+          data = JSON.parse(sanitized);
+        } catch {
+          const fallback = rawJson
+            .replace(/\\s/g, '\\\\s')
+            .replace(/\\d/g, '\\\\d')
+            .replace(/\\w/g, '\\\\w')
+            .replace(/\\S/g, '\\\\S')
+            .replace(/\\(?!["\\/bfnrt]|u[0-9a-fA-F]{4})/g, '\\\\');
+          data = JSON.parse(fallback);
         }
-      );
-
-      const data = JSON.parse(sanitized);
+      }
       
       if (data.title) setTitle(data.title);
       if (data.description) setDescription(data.description);
@@ -477,7 +599,18 @@ export function TeacherProblemEditorPage() {
       if (data.category) setCategory(data.category);
       if (data.problemType) setProblemType(data.problemType);
       if (data.evaluationStrategy) setEvaluationStrategy(data.evaluationStrategy);
-      if (data.referenceSolution) setReferenceSolution(data.referenceSolution);
+      if (data.referenceSolutions && typeof data.referenceSolutions === 'object') {
+        setReferenceSolutions(prev => ({
+          ...prev,
+          cpp: data.referenceSolutions.cpp || data.referenceSolutions.c || '',
+          java: data.referenceSolutions.java || '',
+          python: data.referenceSolutions.python || ''
+        }));
+      } else if (data.referenceSolution) {
+        const ref = typeof data.referenceSolution === 'string' ? data.referenceSolution : String(data.referenceSolution);
+        const detected = detectLanguageFromCode(ref);
+        setReferenceSolutions(prev => ({ ...prev, [detected]: ref, cpp: prev.cpp || ref }));
+      }
       if (data.schema) {
         const schemaStr = typeof data.schema === 'string' ? data.schema : (data.schema.setup || '');
         setSchema(schemaStr);
@@ -513,7 +646,8 @@ export function TeacherProblemEditorPage() {
       
       setShowAIModal(false);
       setAiJsonInput("");
-      notify.toast.success("Success! The problem form has been automatically populated.");
+      deductAiCredits(50, 'GENERATE_PROBLEM').catch(() => {});
+      notify.toast.success("Success! The problem form has been automatically populated (-50 AI Credits).");
     } catch (err) {
       console.error(err);
       await notify.alert("JSON Parse Failure", {
@@ -530,7 +664,8 @@ export function TeacherProblemEditorPage() {
       category,
       problemType,
       evaluationStrategy,
-      referenceSolution,
+      referenceSolutions,
+      referenceSolution: referenceSolutions[refSolLang] || Object.values(referenceSolutions).find(v => Boolean(v?.trim())) || '',
       testCases: testCases.map(tc => ({
         input: tc.input,
         expectedOutput: tc.expectedOutput,
@@ -615,30 +750,49 @@ export function TeacherProblemEditorPage() {
     setSigParams(prev => prev.map((p, i) => i === index ? { ...p, [key]: value } : p));
   }, []);
 
-  const handleVerify = useCallback(async () => {
-    if (!referenceSolution.trim()) {
-      notify.toast.error("Please provide a Reference Solution to test against.");
+  const detectLanguageFromCode = (codeText: string): string => {
+    const trimmed = codeText.trim();
+    if (!trimmed) return refSolLang || 'cpp';
+    if (trimmed.includes('def ') || trimmed.includes('import sys') || trimmed.includes('print(') || trimmed.includes('-> TreeNode:')) {
+      return 'python';
+    }
+    if (trimmed.includes('public class') || trimmed.includes('System.out') || trimmed.includes('class Solution') || trimmed.includes('class Main') || trimmed.includes('import java')) {
+      return 'java';
+    }
+    if (trimmed.includes('struct TreeNode') || trimmed.includes('#include') || trimmed.includes('->') || trimmed.startsWith('struct ') || trimmed.includes('using namespace std') || trimmed.includes('vector<') || trimmed.includes('cout <<') || trimmed.includes('cin >>')) {
+      return 'cpp';
+    }
+    return refSolLang || 'cpp';
+  };
+
+  const handleVerify = useCallback(async (overrideLang?: string) => {
+    const langToUse = (overrideLang || verifyLanguage || 'cpp') as 'cpp' | 'java' | 'python';
+    const codeToTest = referenceSolutions[langToUse] || '';
+
+    if (!codeToTest || !codeToTest.trim()) {
+      notify.toast.error(`Please enter a Reference Solution for ${langToUse.toUpperCase()} in the ${langToUse.toUpperCase()} tab first.`);
+      setVerifying(false);
       return;
     }
     if (testCases.length === 0 || !testCases[0].input.trim()) {
       notify.toast.error("Please add at least one test case to verify.");
       return;
     }
-    
+
     setVerifying(true);
     setVerifyResults(null);
     setShowVerifyModal(true);
     
     try {
       const response = await api.post('/code/run-tests', {
-        language: verifyLanguage,
-        code: referenceSolution,
+        language: langToUse,
+        code: codeToTest,
         testCases: testCases.map(tc => ({
           input: tc.input,
           expectedOutput: tc.expectedOutput,
           setup: tc.setup
         })),
-        driverCode: driverCode,
+        driverCode: (driverCode && driverCode[langToUse] && driverCode[langToUse].includes("{{userCode}}")) ? driverCode : undefined,
         problemId: id
       });
       setVerifyResults(response.results || []);
@@ -669,7 +823,7 @@ export function TeacherProblemEditorPage() {
   useEffect(() => {
     if (!isVisualBuilder) return;
     
-    const langs = ['java', 'cpp', 'python', 'javascript'] as const;
+    const langs = ['cpp', 'java', 'python'] as const;
     const newStarter: Record<string, string> = { ...starterCode };
     const newDriver: Record<string, string> = { ...driverCode };
     
@@ -693,7 +847,13 @@ export function TeacherProblemEditorPage() {
       setCategory(p.category || 'DSA');
       setIsPublic(Boolean(p.isPublic));
       setEvaluationStrategy(p.evaluationStrategy || 'EXACT_MATCH');
-      setReferenceSolution(p.referenceSolution || '');
+      if (p.referenceSolutions && typeof p.referenceSolutions === 'object') {
+        setReferenceSolutions(prev => ({ ...prev, ...p.referenceSolutions }));
+      } else if (p.referenceSolution) {
+        const ref = p.referenceSolution;
+        const detected = detectLanguageFromCode(ref);
+        setReferenceSolutions(prev => ({ ...prev, [detected]: ref, cpp: prev.cpp || ref }));
+      }
       setTestCases(
         (p.testCases || []).map((tc: any) => ({
           input: tc.input,
@@ -786,6 +946,7 @@ export function TeacherProblemEditorPage() {
       category,
       problemType,
       evaluationStrategy,
+      referenceSolutions,
       referenceSolution: referenceSolution.trim() || undefined,
       testCases: testCases.map(tc => ({
         input: tc.input.trim(),
@@ -839,7 +1000,8 @@ export function TeacherProblemEditorPage() {
             {isEditing ? 'Update the problem details below' : 'Define a new coding challenge'}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <ProblemAiCreditMeter remaining={aiCreditsRemaining} max={aiCreditsMax} compact />
           <button
             onClick={handleExportJson}
             className="px-4 py-2 text-blue-400 hover:text-blue-300 border border-blue-500/30 rounded-lg transition text-sm"
@@ -858,8 +1020,19 @@ export function TeacherProblemEditorPage() {
             />
           </label>
           <button
-            onClick={() => setShowAIModal(true)}
-            className="px-4 py-2 text-purple-400 hover:text-purple-300 border border-purple-500/30 rounded-lg transition text-sm"
+            onClick={() => {
+              if (aiCreditsRemaining <= 0) {
+                notify.toast.error("AI Limit Reached for this Question (0 / 2000 credits). AI Assistance is disabled.");
+                return;
+              }
+              setShowAIModal(true);
+            }}
+            disabled={aiCreditsRemaining <= 0}
+            className={`px-4 py-2 border rounded-lg transition text-sm flex items-center gap-1.5 ${
+              aiCreditsRemaining <= 0
+                ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
+                : 'text-purple-400 hover:text-purple-300 border-purple-500/30'
+            }`}
           >
             AI Import
           </button>
@@ -869,9 +1042,15 @@ export function TeacherProblemEditorPage() {
           >
             Cancel
           </button>
-          {problemType === 'code' && (
+          {(problemType === 'code' || problemType === 'vibe-code') && (
             <button
-              onClick={handleVerify}
+              onClick={() => {
+                const currentTabCode = referenceSolutions[refSolLang] || '';
+                const detected = currentTabCode.trim() ? detectLanguageFromCode(currentTabCode) : refSolLang;
+                const targetLang = detected || refSolLang || 'cpp';
+                setVerifyLanguage(targetLang);
+                handleVerify(targetLang);
+              }}
               disabled={verifying}
               className="px-4 py-2 text-[var(--accent-yellow)] hover:text-yellow-300 border border-yellow-500/30 rounded-lg transition text-sm flex items-center gap-1.5 font-semibold disabled:opacity-50"
             >
@@ -1093,25 +1272,33 @@ export function TeacherProblemEditorPage() {
           <p className="text-sm text-gray-500 mb-4">
             Select which playground environment students will use for this problem.
           </p>
-          <div className="flex gap-3">
-            {(['code', 'sql', 'web-dev'] as const).map(type => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {(['code', 'vibe-code', 'sql', 'web-dev'] as const).map(type => (
               <button
                 key={type}
+                type="button"
                 onClick={() => {
                   setProblemType(type);
                   if (type === 'sql') setCategory('SQL');
                 }}
-                className={`flex-1 p-4 rounded-lg border text-left transition-all ${
+                className={`p-4 rounded-lg border text-left transition-all ${
                   problemType === type
-                    ? 'border-[var(--accent-blue)] bg-[var(--accent-blue)]/10'
+                    ? 'border-[var(--accent-blue)] bg-[var(--accent-blue)]/10 ring-1 ring-[var(--accent-blue)]'
                     : 'border-white/10 bg-white/[0.02] hover:bg-white/5'
                 }`}
               >
-                <span className="block text-white font-medium mb-1">
-                  {type === 'code' ? 'Code' : type === 'sql' ? 'SQL' : 'Web Dev'}
+                <span className="flex items-center justify-between text-white font-medium mb-1">
+                  {type === 'code' ? 'Code' : type === 'vibe-code' ? 'Vibe AI Code 🤖' : type === 'sql' ? 'SQL' : 'Web Dev'}
+                  {type === 'vibe-code' && <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-bold">AON Mode</span>}
                 </span>
-                <span className="text-xs text-gray-500">
-                  {type === 'code' ? 'Java, C++, Python, JS, C' : type === 'sql' ? 'SQL queries with schema' : 'HTML, CSS, JavaScript'}
+                <span className="text-xs text-gray-500 block leading-tight">
+                  {type === 'code' 
+                    ? 'Java, C++, Python, JS, C' 
+                    : type === 'vibe-code' 
+                    ? 'AON Socratic Gated AI Assistant Assessment'
+                    : type === 'sql' 
+                    ? 'SQL queries with schema' 
+                    : 'HTML, CSS, JavaScript'}
                 </span>
               </button>
             ))}
@@ -1359,17 +1546,79 @@ export function TeacherProblemEditorPage() {
 
         {/* Reference Solution */}
         <div className="bg-[var(--bg-card)] border border-white/10 rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Reference Solution</h2>
-          <p className="text-sm text-gray-500 mb-3">
-            Optional: Provide your solved implementation. This will be used to verify test cases produce the expected output.
-          </p>
-          <textarea
-            value={referenceSolution}
-            onChange={e => setReferenceSolution(e.target.value)}
-            rows={6}
-            placeholder={problemType === 'sql' ? `SELECT *\nFROM Cinema\nWHERE id % 2 = 1\n  AND description <> 'boring'\nORDER BY rating DESC;` : problemType === 'web-dev' ? '<!-- Your solution here -->' : `def solve(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        complement = target - num\n        if complement in seen:\n            return [seen[complement], i]\n        seen[num] = i`}
-            className="w-full px-3 py-2 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-[var(--accent-blue)] resize-y"
-          />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Reference Solution</h2>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Provide solved implementations for each language to test and verify testcases.
+              </p>
+            </div>
+            {problemType !== 'sql' && problemType !== 'web-dev' && (
+              <div className="flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-lg self-start sm:self-auto">
+                {(['cpp', 'java', 'python'] as const).map(lang => (
+                  <button
+                    key={lang}
+                    type="button"
+                    onClick={() => {
+                      setRefSolLang(lang);
+                      setVerifyLanguage(lang);
+                    }}
+                    className={`px-3 py-1 rounded-md text-xs font-semibold uppercase transition ${
+                      refSolLang === lang
+                        ? 'bg-[var(--accent-blue)] text-white shadow-sm'
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {lang === 'cpp' ? 'C++' : lang}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {problemType === 'sql' || problemType === 'web-dev' ? (
+            <textarea
+              value={referenceSolutions['cpp'] || referenceSolution}
+              onChange={e => {
+                const val = e.target.value;
+                setReferenceSolutions(prev => ({ ...prev, cpp: val, java: val, python: val }));
+              }}
+              rows={6}
+              placeholder={problemType === 'sql' ? `SELECT *\nFROM Cinema;` : '<!-- Your solution here -->'}
+              className="w-full px-3 py-2 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-[var(--accent-blue)] resize-y"
+            />
+          ) : (
+            <div>
+              <div className="flex items-center justify-between text-xs text-gray-400 mb-1.5 font-medium">
+                <span className="capitalize">{refSolLang === 'cpp' ? 'C++' : refSolLang} Reference Implementation</span>
+                {Boolean(referenceSolutions[refSolLang]?.trim()) ? (
+                  <span className="text-emerald-400 text-[11px] flex items-center gap-1">
+                    <span>✓</span> Solution Provided
+                  </span>
+                ) : (
+                  <span className="text-amber-400/80 text-[11px]">
+                    No solution entered for {refSolLang === 'cpp' ? 'C++' : refSolLang}
+                  </span>
+                )}
+              </div>
+              <textarea
+                value={referenceSolutions[refSolLang] || ''}
+                onChange={e => {
+                  const val = e.target.value;
+                  setReferenceSolutions(prev => ({ ...prev, [refSolLang]: val }));
+                }}
+                rows={8}
+                placeholder={
+                  refSolLang === 'cpp'
+                    ? `#include <iostream>\nusing namespace std;\n\nint main() {\n    // C++ Reference Solution\n    return 0;\n}`
+                    : refSolLang === 'java'
+                    ? `import java.util.*;\nimport java.io.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        // Java Reference Solution\n    }\n}`
+                    : `import sys\n\n# Python Reference Solution\ndef solve():\n    pass`
+                }
+                className="w-full px-3 py-2 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-[var(--accent-blue)] resize-y"
+              />
+            </div>
+          )}
         </div>
 
         {/* Test Cases */}
@@ -1752,7 +2001,13 @@ export function TeacherProblemEditorPage() {
                 </div>
                 <div className="relative">
                   <pre className="w-full bg-black/40 border border-white/10 rounded-lg p-4 text-gray-300 font-mono text-xs leading-relaxed overflow-x-auto max-h-80 overflow-y-auto whitespace-pre-wrap">
-                    {problemType === 'sql' ? SQL_AI_PROMPT_TEMPLATE : problemType === 'web-dev' ? WEB_DEV_AI_PROMPT_TEMPLATE : AI_PROMPT_TEMPLATE}
+                    {problemType === 'sql' 
+                      ? SQL_AI_PROMPT_TEMPLATE 
+                      : problemType === 'web-dev' 
+                      ? WEB_DEV_AI_PROMPT_TEMPLATE 
+                      : problemType === 'vibe-code'
+                      ? VIBE_CODE_AI_PROMPT_TEMPLATE
+                      : AI_PROMPT_TEMPLATE}
                   </pre>
                 </div>
               </div>
@@ -1816,16 +2071,21 @@ export function TeacherProblemEditorPage() {
                 <div className="flex gap-2">
                   <select
                     value={verifyLanguage}
-                    onChange={e => setVerifyLanguage(e.target.value)}
+                    onChange={e => {
+                      const newLang = e.target.value as 'cpp' | 'java' | 'python';
+                      setVerifyLanguage(newLang);
+                      setRefSolLang(newLang);
+                      handleVerify(newLang);
+                    }}
                     disabled={verifying}
                     className="px-3 py-1.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-[var(--accent-blue)]"
                   >
-                    {['java', 'cpp', 'python', 'javascript', 'c'].map(lang => (
+                    {['cpp', 'java', 'python'].map(lang => (
                       <option key={lang} value={lang} className="bg-[#1a1a2e] text-white">{lang}</option>
                     ))}
                   </select>
                   <button
-                    onClick={handleVerify}
+                    onClick={() => handleVerify()}
                     disabled={verifying}
                     className="px-5 py-1.5 bg-yellow-600 hover:bg-yellow-500 disabled:bg-yellow-800 text-white font-semibold rounded-lg text-sm transition"
                   >
@@ -1833,6 +2093,22 @@ export function TeacherProblemEditorPage() {
                   </button>
                 </div>
               </div>
+
+              {(() => {
+                const currentCode = referenceSolutions[verifyLanguage as 'cpp' | 'java' | 'python'] || '';
+                const detected = currentCode.trim() ? detectLanguageFromCode(currentCode) : null;
+                if (detected && detected !== verifyLanguage) {
+                  return (
+                    <div className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5 flex items-center gap-2">
+                      <span>💡</span>
+                      <span>
+                        <strong>Language Notice:</strong> Your Reference Solution code syntax matches <strong>{detected.toUpperCase()}</strong>, but <strong>{verifyLanguage.toUpperCase()}</strong> is selected. Select <strong>{detected.toUpperCase()}</strong> in the dropdown to test this reference solution.
+                      </span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               {verifying && (
                 <div className="flex flex-col items-center justify-center py-12 space-y-4">

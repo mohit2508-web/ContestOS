@@ -105,7 +105,9 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
       } else if (t === 'web' || t === 'web-dev' || t === 'web_dev') {
         problemTypeFilter = { problemType: { in: ['web', 'web-dev'] } };
       } else if (t === 'code') {
-        problemTypeFilter = { problemType: { in: ['code', 'algorithm', 'algorithmic'] } };
+        problemTypeFilter = { problemType: { in: ['code', 'algorithm', 'algorithmic', 'vibe-code'] } };
+      } else if (t === 'vibe-code' || t === 'vibe' || t === 'socratic') {
+        problemTypeFilter = { problemType: { in: ['vibe-code', 'vibe', 'socratic'] } };
       }
     }
 
@@ -136,26 +138,18 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
       }
     } else {
       // Default 'all' or unspecified:
-      // Super Admin sees everything
       if (userHierarchy === 1) {
         bankCondition = {};
       } else if (userOrgId) {
-        // Sees Public Bank + Own Org Private Bank
         bankCondition = {
           OR: [
             { isPublic: true },
             { organizationId: null },
-            { isPublic: false, organizationId: userOrgId },
+            { organizationId: userOrgId },
           ],
         };
       } else {
-        // Public items only for external/student users
-        bankCondition = {
-          OR: [
-            { isPublic: true },
-            { organizationId: null },
-          ],
-        };
+        bankCondition = {};
       }
     }
 
@@ -560,6 +554,48 @@ router.post('/:id/copy', authenticateToken, requireRole('super_admin', 'org_admi
   } catch (error: any) {
     console.error('Copy problem error:', error);
     res.status(500).json({ error: 'Failed to copy problem to private bank' });
+  }
+});
+
+// GET /api/problems/:id/ai-credits — Get remaining AI credits for a specific problem
+router.get('/:id/ai-credits', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { getProblemAiCredits } = await import('../services/problemAiCreditService');
+    const credits = await getProblemAiCredits(id);
+    res.json(credits);
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to fetch AI credits' });
+  }
+});
+
+// POST /api/problems/:id/deduct-ai-credits — Deduct AI credits for an operation on a problem
+router.post('/:id/deduct-ai-credits', authenticateToken, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { cost = 10, action = 'AI_ASSIST' } = req.body;
+    const user = req.user!;
+
+    const { checkAndDeductProblemAiCredits } = await import('../services/problemAiCreditService');
+    const result = await checkAndDeductProblemAiCredits({
+      problemId: id,
+      cost,
+      userId: user.userId,
+      action
+    });
+
+    res.json(result);
+  } catch (error: any) {
+    if (error.statusCode === 402) {
+      res.status(402).json({
+        error: error.message,
+        remaining: error.remaining,
+        max: error.max
+      });
+      return;
+    }
+    console.error('Deduct AI credits error:', error);
+    res.status(500).json({ error: 'Failed to deduct AI credits' });
   }
 });
 

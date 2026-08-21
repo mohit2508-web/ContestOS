@@ -588,6 +588,38 @@ router.post('/:id/seb-token', authenticateToken, async (_req: Request, res: Resp
 router.get('/:id/verify-seb', authenticateToken, async (req: Request, res: Response): Promise<void> => {
   const contestId = req.params.id;
   const userId = req.user?.userId;
+
+  // ── Security Fix: Validate that the request actually comes from Safe Exam Browser ──
+  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+  const sebRequestHash = req.headers['x-safeexambrowser-requesthash'] as string | undefined;
+  const isSebBrowser =
+    userAgent.includes('safebrowser') ||
+    userAgent.includes('safeexambrowser') ||
+    !!sebRequestHash;
+
+  if (!isSebBrowser) {
+    // Log the failed verification attempt
+    if (userId && contestId) {
+      try {
+        await prisma.proctoringLog.create({
+          data: {
+            contestId,
+            userId,
+            eventType: 'SEB_INTEGRITY_BREACH',
+            details: `SEB verification failed — non-SEB browser detected. UA: ${req.headers['user-agent'] || 'unknown'}`,
+          },
+        });
+      } catch (_e) {}
+    }
+    res.status(403).json({
+      success: false,
+      verified: false,
+      error: 'Access denied: Safe Exam Browser is required to access this exam.',
+    });
+    return;
+  }
+
+  // ── SEB verified: log session start and emit real-time event to proctors ──
   if (userId && contestId) {
     try {
       await prisma.proctoringLog.create({
@@ -595,10 +627,9 @@ router.get('/:id/verify-seb', authenticateToken, async (req: Request, res: Respo
           contestId,
           userId,
           eventType: 'SEB_SESSION_START',
-          details: 'Verified Safe Exam Browser session start.',
+          details: `Verified Safe Exam Browser session start. UA: ${req.headers['user-agent']}`,
         },
       });
-      // ── FIX #3: Emit real-time seb_entry to proctor rooms immediately ──
       try {
         const { io } = await import('../app');
         const payload = { userId, contestId, _ts: Date.now() };
@@ -607,6 +638,7 @@ router.get('/:id/verify-seb', authenticateToken, async (req: Request, res: Respo
       } catch (_e) {}
     } catch (_e) {}
   }
+
   res.json({ success: true, verified: true });
 });
 

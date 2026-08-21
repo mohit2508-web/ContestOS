@@ -24,9 +24,9 @@ html {
   --signal-red:    #C1543A;
   --signal-green:  #6F9C7E;
   --radius:        3px;
-  --font-display:  'Fraunces', serif;
-  --font-body:     'Inter', sans-serif;
-  --font-mono:     'IBM Plex Mono', monospace;
+  --font-display:  'Roboto', sans-serif;
+  --font-body:     'Roboto', 'Inter', 'Segoe UI', -apple-system, sans-serif;
+  --font-mono:     'JetBrains Mono', 'IBM Plex Mono', monospace;
 
   --bg-obsidian: #14161A;
   --bg-surface: #1B1E23;

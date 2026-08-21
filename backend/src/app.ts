@@ -44,6 +44,8 @@ import guestRoutes from './routes/guest.routes';
 import complianceRoutes from './routes/compliance.routes';
 import notificationRoutes from './routes/notification.routes';
 import ssoRoutes from './routes/sso.routes';
+import assistantRoutes from './routes/assistant.routes';
+import companyVaultRoutes from './routes/company-vault.routes';
 import { closeBrowser } from './services/webDevEvaluatorV2';
 
 const app = express();
@@ -313,6 +315,12 @@ app.use('/api/notifications', notificationRoutes);
 
 // Live 1-on-1 Mock Interview & Collaborative IDE System
 app.use('/api/interviews', interviewRoutes);
+
+// Capgemini Stage 4: Guided Socratic AI Coding Assistant
+app.use('/api/assistant', assistantRoutes);
+
+// Company Placement Prep & Secret Vault Module
+app.use('/api/company-vaults', companyVaultRoutes);
 
 // Start Server
 httpServer.listen(PORT, () => {

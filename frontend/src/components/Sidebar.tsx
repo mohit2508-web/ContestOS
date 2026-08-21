@@ -181,7 +181,9 @@ function getNavSections(role: string): NavSection[] {
           { path: '/dashboard?tab=scorecards', label: '📁 My Scorecards', icon: icons.clipboard },
         ]},
         { title: 'Practice & Skills', items: [
+          { path: '/company-materials', label: '🏢 Company Materials', icon: icons.shield },
           { path: '/playground', label: 'Code Playground', icon: icons.code },
+          { path: '/playground/ai-assisted', label: '🤖 AI-assisted Coding', icon: icons.code },
           { path: '/playground/web-dev', label: 'Web Dev Playground', icon: icons.flag },
           { path: '/playground/sql', label: 'SQL Playground', icon: icons.doc },
           { path: '/playground/quiz', label: 'MCQ Quiz Playground', icon: icons.clipboard },
