@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotify } from '../../components/notifications';
 import { ContestAssemblyBuilder } from '../../components/teacher/ContestAssemblyBuilder';
 import { EmptyState } from '../../components/common/EmptyState';
+import { SOCRATIC_FALLBACK_PROBLEMS } from '../../data/socraticFallbackProblems';
 
 interface Contest {
   id: string;
@@ -868,9 +869,11 @@ export function ContestManagementPage() {
   const loadProblems = async () => {
     try {
       const data = await api.getProblems();
-      setProblemBank(data.problems || []);
+      const fetched = data.problems || [];
+      const combined = [...SOCRATIC_FALLBACK_PROBLEMS, ...fetched.filter((p: any) => !SOCRATIC_FALLBACK_PROBLEMS.some(fb => fb.id === p.id))];
+      setProblemBank(combined);
     } catch (err) {
-      console.error('Failed to load problems', err);
+      setProblemBank(SOCRATIC_FALLBACK_PROBLEMS);
     }
   };
 

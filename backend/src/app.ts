@@ -322,10 +322,14 @@ app.use('/api/assistant', assistantRoutes);
 // Company Placement Prep & Secret Vault Module
 app.use('/api/company-vaults', companyVaultRoutes);
 
+import { seedCapgeminiLcmProblem } from './seed_capgemini_lcm_problem';
+
 // Start Server
 httpServer.listen(PORT, () => {
   console.log(`Kryptavia OS Server running on port ${PORT}`);
   console.log(`Health Check: http://localhost:${PORT}/api/health`);
+
+  seedCapgeminiLcmProblem().catch((err) => console.warn('Could not seed Capgemini LCM problem:', err));
 
   // Anti-Sleep Self-Waker for Free Hosting Tiers (Render/Railway/Koyeb)
   const KEEP_ALIVE_URL = process.env.KEEP_ALIVE_URL || process.env.BACKEND_URL;

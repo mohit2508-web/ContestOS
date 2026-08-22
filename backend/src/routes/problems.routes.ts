@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken, optionalAuth } from '../middlewares/auth';
 import { requireRole } from '../middlewares/rbac';
+import { LCM_OF_TWO_TREES } from '../data/socraticQuestionBank';
 
 const router = Router();
 
@@ -198,12 +199,36 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
       prisma.problem.count({ where: whereCondition }),
     ]);
 
+    const mappedDbProblems = problems.map((p: any) => {
+      if (p.slug === 'lcm-of-two-trees-c' || p.id === 'lcm_of_two_trees' || (p.title && p.title.toLowerCase().includes('lcm of two'))) {
+        return { ...p, problemType: 'vibe-code', title: '01. LCM of Two Binary Trees' };
+      }
+      return p;
+    });
+
+    const hasLcm = mappedDbProblems.some((p: any) => p.id === 'lcm_of_two_trees' || p.slug === 'lcm-of-two-trees-c');
+    const finalProblems = hasLcm ? mappedDbProblems : [
+      {
+        id: 'lcm_of_two_trees',
+        title: LCM_OF_TWO_TREES.title,
+        slug: 'lcm-of-two-trees-c',
+        difficulty: 'Medium',
+        category: 'Trees',
+        problemType: 'vibe-code',
+        isPublic: true,
+        description: LCM_OF_TWO_TREES.description,
+        starterCode: LCM_OF_TWO_TREES.starterCode,
+        _count: { testCases: LCM_OF_TWO_TREES.testCases.length, contestProblems: 0 }
+      },
+      ...mappedDbProblems
+    ];
+
     res.json({
-      problems,
-      total,
+      problems: finalProblems,
+      total: hasLcm ? total : total + 1,
       page: pageNum,
       limit: limitNum,
-      totalPages: Math.ceil(total / limitNum),
+      totalPages: Math.ceil((hasLcm ? total : total + 1) / limitNum),
     });
   } catch (error: any) {
     console.error('Fetch problems error:', error);
