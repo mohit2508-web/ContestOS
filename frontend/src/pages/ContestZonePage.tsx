@@ -1310,18 +1310,91 @@ export function ProblemsTab() {
       return;
     }
 
-    const probType = p.problem.problemType || 'code';
+    const probType = p.problem?.problemType || p.problemType || 'code';
     let path = '/playground/logic';
     if (probType === 'web-dev') path = '/playground/web-dev';
     else if (probType === 'sql') path = '/playground/sql';
     else if (probType === 'quiz' || probType === 'mcq') path = '/playground/quiz';
+    else if (probType === 'vibe-code' || probType === 'ai-assisted') path = '/playground/ai-assisted';
 
-    navigate(`${path}?contestId=${contest.id}&problem=${p.problem.id}`);
+    navigate(`${path}?contestId=${contest.id}&problem=${p.problem?.id || p.id}`);
   };
 
   const [statusFilter, setStatusFilter] = useState<'all' | 'solved' | 'attempted' | 'unattempted'>('all');
-  const [activeSectionId, setActiveSectionId] = useState<string>('all');
   const [quickViewItem, setQuickViewItem] = useState<{ problem: any; points: number } | null>(null);
+
+  // ── Strict Sequential Section Progression & Timers ──
+  const [lockedSectionIds, setLockedSectionIds] = useState<string[]>(() => {
+    try {
+      const saved = sessionStorage.getItem(`locked_secs_${contest.id}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [activeSectionIndex, setActiveSectionIndex] = useState<number>(() => {
+    if (!contest.sections || contest.sections.length === 0) return 0;
+    try {
+      const savedLocked: string[] = JSON.parse(sessionStorage.getItem(`locked_secs_${contest.id}`) || '[]');
+      const firstUnlockedIdx = contest.sections.findIndex((sec: any) => !savedLocked.includes(sec.id));
+      return firstUnlockedIdx !== -1 ? firstUnlockedIdx : contest.sections.length - 1;
+    } catch {
+      return 0;
+    }
+  });
+
+  const [confirmLockModal, setConfirmLockModal] = useState<boolean>(false);
+  const currentSection = contest.sections && contest.sections.length > 0 ? contest.sections[activeSectionIndex] : null;
+  const [sectionTimeRemaining, setSectionTimeRemaining] = useState<number | null>(null);
+
+  const lockAndAdvanceSection = (secId: string, isAutoExp: boolean = false) => {
+    if (lockedSectionIds.includes(secId)) return;
+    const newLocked = [...lockedSectionIds, secId];
+    setLockedSectionIds(newLocked);
+    sessionStorage.setItem(`locked_secs_${contest.id}`, JSON.stringify(newLocked));
+
+    if (isAutoExp) {
+      notify.toast.warning(`⏰ Section time expired! Section has been locked.`);
+    } else {
+      notify.toast.success(`🔒 Section locked and submitted successfully.`);
+    }
+
+    if (contest.sections && activeSectionIndex < contest.sections.length - 1) {
+      setActiveSectionIndex(prev => prev + 1);
+    }
+  };
+
+  useEffect(() => {
+    if (!currentSection || !currentSection.duration || currentSection.duration <= 0) {
+      setSectionTimeRemaining(null);
+      return;
+    }
+
+    const timerKey = `sec_timer_start_${contest.id}_${currentSection.id}`;
+    let startTime = Number(sessionStorage.getItem(timerKey));
+    if (!startTime) {
+      startTime = Date.now();
+      sessionStorage.setItem(timerKey, String(startTime));
+    }
+
+    const totalMs = currentSection.duration * 60 * 1000;
+
+    const updateTimer = () => {
+      const elapsed = Date.now() - startTime;
+      const remainingMs = Math.max(0, totalMs - elapsed);
+      const remainingSecs = Math.floor(remainingMs / 1000);
+      setSectionTimeRemaining(remainingSecs);
+
+      if (remainingSecs <= 0) {
+        lockAndAdvanceSection(currentSection.id, true);
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [currentSection?.id, activeSectionIndex]);
 
   const solvedCount = problems.filter((p: any) => {
     const sub = candidateSubmissions.find((s: any) => s.problemId === p.problem?.id);
@@ -1343,12 +1416,14 @@ export function ProblemsTab() {
     const isSolved = isProblemLocked || (sub && ((sub.score || sub.points || 0) > 0 || sub.status === 'ACCEPTED' || sub.status === 'passed'));
     const isAttempted = !!sub && !isSolved;
 
-    // Section filtering
-    if (activeSectionId !== 'all' && contest.sections && contest.sections.length > 0) {
-      const sec = contest.sections.find((s: any) => s.id === activeSectionId);
-      const secProbIds: string[] = Array.isArray(sec?.problemIds) ? sec.problemIds : [];
-      if (secProbIds.length > 0 && !secProbIds.includes(p.problem?.id)) {
-        return false;
+    // Strict Section Filtering: restrict to current active section when sections exist
+    if (contest.sections && contest.sections.length > 0) {
+      const activeSec = contest.sections[activeSectionIndex];
+      if (activeSec) {
+        const secProbIds: string[] = Array.isArray(activeSec.problemIds) ? activeSec.problemIds : [];
+        if (secProbIds.length > 0 && !secProbIds.includes(p.problem?.id)) {
+          return false;
+        }
       }
     }
 
@@ -1391,6 +1466,42 @@ export function ProblemsTab() {
         )}
       </AnimatePresence>
 
+      {/* Section Lock Confirmation Modal */}
+      <AnimatePresence>
+        {confirmLockModal && currentSection && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="bg-zinc-950 border border-white/10 rounded-3xl p-6 max-w-md w-full space-y-5 shadow-2xl text-white">
+              <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center text-2xl">
+                🔒
+              </div>
+              <div>
+                <h3 className="text-xl font-black">Lock &amp; Submit {currentSection.title}?</h3>
+                <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                  Once you lock Section {activeSectionIndex + 1}, your answers will be permanently saved and you will automatically advance to Section {activeSectionIndex + 2}. <span className="text-amber-400 font-bold">You cannot reopen or modify Section {activeSectionIndex + 1} after locking.</span>
+                </p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setConfirmLockModal(false)}
+                  className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-gray-300 font-bold text-xs rounded-xl transition cursor-pointer"
+                >
+                  Cancel &amp; Continue Solving
+                </button>
+                <button
+                  onClick={() => {
+                    setConfirmLockModal(false);
+                    lockAndAdvanceSection(currentSection.id, false);
+                  }}
+                  className="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs rounded-xl transition shadow-lg shadow-amber-500/20 cursor-pointer"
+                >
+                  Yes, Lock Section →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Quick View Problem Drawer / Modal */}
       <ProblemQuickViewModal
         isOpen={!!quickViewItem}
@@ -1406,51 +1517,84 @@ export function ProblemsTab() {
 
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
         
-        {/* 📚 Section Switcher Bar (shown when contest has configured sections) */}
+        {/* 📚 Sequential Section Switcher Bar */}
         {contest.sections && contest.sections.length > 0 && (
           <div className="bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-zinc-950/80 border border-indigo-500/30 rounded-2xl p-4 shadow-xl space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xl">📚</span>
                 <div>
-                  <h3 className="text-sm font-black text-indigo-300">Exam Sections</h3>
-                  <p className="text-[10px] text-gray-400">Switch between sections to attempt assigned questions &amp; timed modules</p>
+                  <h3 className="text-sm font-black text-indigo-300">Exam Sections (Sequential Progression)</h3>
+                  <p className="text-[10px] text-gray-400">Complete &amp; lock each section in order before proceeding to the next</p>
                 </div>
               </div>
               <span className="text-xs px-2.5 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-lg font-bold">
-                {contest.sections.length} Sections
+                Section {activeSectionIndex + 1} of {contest.sections.length} Active
               </span>
             </div>
 
             <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pt-1">
-              <button
-                onClick={() => setActiveSectionId('all')}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border ${
-                  activeSectionId === 'all'
-                    ? 'bg-indigo-500 text-white border-indigo-400 shadow-lg shadow-indigo-500/30'
-                    : 'bg-black/60 text-gray-400 border-white/10 hover:text-white'
-                }`}
-              >
-                All Sections ({problems.length})
-              </button>
               {contest.sections.map((sec: any, idx: number) => {
-                const isSelected = activeSectionId === sec.id;
+                const isLockedSec = lockedSectionIds.includes(sec.id) || idx < activeSectionIndex;
+                const isActiveSec = idx === activeSectionIndex;
+                const isFutureSec = idx > activeSectionIndex;
+
                 return (
                   <button
                     key={sec.id}
-                    onClick={() => setActiveSectionId(sec.id)}
+                    disabled={isFutureSec || isLockedSec}
+                    onClick={() => {
+                      if (!isFutureSec && !isLockedSec) {
+                        setActiveSectionIndex(idx);
+                      }
+                    }}
                     className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border flex items-center gap-2 ${
-                      isSelected
+                      isActiveSec
                         ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-300 shadow-lg shadow-indigo-500/30'
-                        : 'bg-black/60 text-gray-300 border-white/10 hover:border-indigo-500/30'
+                        : isLockedSec
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 cursor-not-allowed'
+                        : 'bg-black/60 text-gray-500 border-white/5 cursor-not-allowed opacity-60'
                     }`}
                   >
-                    <span>Section {idx + 1}: {sec.title}</span>
-                    {sec.duration > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-black/40 rounded">⏱️ {sec.duration}m</span>}
+                    <span>
+                      {isLockedSec ? '✓' : isFutureSec ? '🔒' : `Section ${idx + 1}`}: {sec.title}
+                    </span>
+                    {sec.duration > 0 && isActiveSec && sectionTimeRemaining !== null && (
+                      <span className="text-[10px] px-1.5 py-0.5 bg-black/40 text-amber-300 rounded font-mono">
+                        ⏱️ {Math.floor(sectionTimeRemaining / 60)}m {String(sectionTimeRemaining % 60).padStart(2, '0')}s
+                      </span>
+                    )}
                   </button>
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* 🔒 Active Section Action Banner (when sections enabled) */}
+        {contest.sections && contest.sections.length > 0 && currentSection && (
+          <div className="bg-gradient-to-r from-amber-500/10 via-indigo-500/10 to-purple-500/10 border border-amber-500/30 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+            <div className="space-y-1 text-left w-full sm:w-auto">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-[10px] font-black uppercase tracking-wider">
+                  Section {activeSectionIndex + 1} of {contest.sections.length}
+                </span>
+                {sectionTimeRemaining !== null && (
+                  <span className="px-2.5 py-0.5 bg-red-500/20 text-red-400 border border-red-500/40 rounded-full text-[10px] font-mono font-black animate-pulse">
+                    ⏱️ Section Time: {Math.floor(sectionTimeRemaining / 60)}m {String(sectionTimeRemaining % 60).padStart(2, '0')}s
+                  </span>
+                )}
+              </div>
+              <h3 className="text-lg font-black text-white">{currentSection.title}</h3>
+              <p className="text-xs text-gray-400">Complete all assigned questions in this module before locking to proceed.</p>
+            </div>
+
+            <button
+              onClick={() => setConfirmLockModal(true)}
+              className="w-full sm:w-auto px-5 py-3 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-yellow-400 text-black font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer shrink-0 transition"
+            >
+              🔒 Lock &amp; Proceed to Next Section →
+            </button>
           </div>
         )}
 

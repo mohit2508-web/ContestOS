@@ -108,9 +108,27 @@ export function AiAssistedPlaygroundPage({
   const [showProblemsModal, setShowProblemsModal] = useState(false);
   const [problemSearchQuery, setProblemSearchQuery] = useState('');
   useEffect(() => {
-    // Only use the single mapped Socratic problem (LCM of Two Binary Trees)
-    setProblemsList(SOCRATIC_FALLBACK_PROBLEMS);
-    setSelectedProblem(SOCRATIC_FALLBACK_PROBLEMS[0]);
+    const search = new URLSearchParams(window.location.search);
+    const problemIdParam = search.get('problem');
+
+    if (problemIdParam) {
+      const matchedFb = SOCRATIC_FALLBACK_PROBLEMS.find(p => p.id === problemIdParam || (p as any).slug === problemIdParam);
+      if (matchedFb) {
+        setSelectedProblem(matchedFb);
+      } else {
+        api.getProblem(problemIdParam).then(res => {
+          if (res?.problem) {
+            setSelectedProblem(res.problem);
+            setProblemsList(prev => [res.problem, ...prev]);
+          }
+        }).catch(() => {
+          setSelectedProblem(SOCRATIC_FALLBACK_PROBLEMS[0]);
+        });
+      }
+    } else {
+      setProblemsList(SOCRATIC_FALLBACK_PROBLEMS);
+      setSelectedProblem(SOCRATIC_FALLBACK_PROBLEMS[0]);
+    }
   }, []);
 
   const handleSelectProblem = async (prob: any, idx: number) => {
