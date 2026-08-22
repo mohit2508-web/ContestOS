@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import { apiAxios } from '../../services/api';
 import { TokenUsageBar } from './TokenUsageBar';
 import { InsertInEditorButton } from './InsertInEditorButton';
 import { ProblemAiCreditMeter } from '../ai/ProblemAiCreditMeter';
@@ -57,8 +58,7 @@ export const VibeAssistantPanel: React.FC<VibeAssistantPanelProps> = ({
     const initialUsed = saved ? parseInt(saved, 10) : 0;
     setTokensUsed(initialUsed);
 
-    const apiHost = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
-    axios.post(`${apiHost}/api/assistant/session/init`, {
+    apiAxios.post('/assistant/session/init', {
       sessionId,
       userId: 'candidate_1',
       problemId
@@ -96,8 +96,7 @@ export const VibeAssistantPanel: React.FC<VibeAssistantPanelProps> = ({
     setIsLoading(true);
 
     try {
-      const apiHost = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
-      const response = await axios.post(`${apiHost}/api/assistant/${sessionId}/message`, {
+      const response = await apiAxios.post(`/assistant/${sessionId}/message`, {
         text,
         language,
         problemId,
