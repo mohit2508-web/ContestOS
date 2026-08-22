@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { TokenUsageBar } from './TokenUsageBar';
 import { InsertInEditorButton } from './InsertInEditorButton';
+import { ProblemAiCreditMeter } from '../ai/ProblemAiCreditMeter';
 
 interface Message {
   id: string;
@@ -16,15 +17,22 @@ interface VibeAssistantPanelProps {
   onHideAssistant?: () => void;
   isDayMode?: boolean;
   language?: string;
+  problemId?: string;
+  contestId?: string;
 }
 
 export const VibeAssistantPanel: React.FC<VibeAssistantPanelProps> = ({
   onInsertCode,
   onHideAssistant,
   isDayMode = true,
-  language = 'cpp'
+  language = 'cpp',
+  problemId = 'default',
+  contestId = 'default'
 }) => {
-  const [sessionId] = useState(() => `capgemini_${Date.now()}`);
+  const storageKey = `kryptavia_ai_tokens_${contestId}_${problemId}`;
+
+  const sessionId = `capgemini_sess_${problemId}`;
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'init_welcome',
@@ -34,8 +42,39 @@ export const VibeAssistantPanel: React.FC<VibeAssistantPanelProps> = ({
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [tokensUsed, setTokensUsed] = useState(869);
-  const [tokenBudget] = useState(2000);
+
+  // Per-Question 2,000 AI Token Credit Tracking
+  const [tokensUsed, setTokensUsed] = useState<number>(() => {
+    const saved = localStorage.getItem(storageKey);
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const tokenBudget = 2000;
+  const remainingCredits = Math.max(0, tokenBudget - tokensUsed);
+
+  // Sync token budget & session state on load / problemId change
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    const initialUsed = saved ? parseInt(saved, 10) : 0;
+    setTokensUsed(initialUsed);
+
+    const apiHost = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '';
+    axios.post(`${apiHost}/api/assistant/session/init`, {
+      sessionId,
+      userId: 'candidate_1',
+      problemId
+    }).then(res => {
+      if (res.data?.session?.tokensUsed !== undefined) {
+        const syncedUsed = Math.max(initialUsed, res.data.session.tokensUsed);
+        setTokensUsed(syncedUsed);
+        localStorage.setItem(storageKey, syncedUsed.toString());
+      }
+    }).catch(() => {});
+  }, [problemId, contestId, sessionId, storageKey]);
+
+  // Persist token usage on change
+  useEffect(() => {
+    localStorage.setItem(storageKey, tokensUsed.toString());
+  }, [tokensUsed, storageKey]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,6 +100,7 @@ export const VibeAssistantPanel: React.FC<VibeAssistantPanelProps> = ({
       const response = await axios.post(`${apiHost}/api/assistant/${sessionId}/message`, {
         text,
         language,
+        problemId,
         userId: 'candidate_17100641'
       });
 
@@ -104,10 +144,11 @@ export const VibeAssistantPanel: React.FC<VibeAssistantPanelProps> = ({
       isDayMode ? 'bg-[#f4f7fb] text-gray-900' : 'bg-[#14161f] text-gray-100'
     }`}>
       {/* Header Bar */}
-      <div className={`h-9 px-3 border-b flex items-center justify-between shrink-0 ${
+      <div className={`h-11 px-3 border-b flex items-center justify-between shrink-0 ${
         isDayMode ? 'bg-[#f4f6f8] border-gray-200' : 'bg-[#181a24] border-zinc-800'
       }`}>
-        <span className={`font-bold text-xs ${isDayMode ? 'text-gray-700' : 'text-zinc-200'}`}>Your Coding Assistant</span>
+        <span className={`font-bold text-xs ${isDayMode ? 'text-gray-700' : 'text-zinc-200'}`}>Socratic AI Assistant</span>
+        <ProblemAiCreditMeter remaining={remainingCredits} max={tokenBudget} compact />
       </div>
 
       {/* Main Chat Scroll Area */}

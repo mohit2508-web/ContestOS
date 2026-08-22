@@ -470,7 +470,6 @@ router.post('/:id/unlock', authenticateToken, async (req: Request, res: Response
       return;
     }
 
-    const cleanInputCode = accessCode.trim().toUpperCase();
     const cleanStoredCode = (vault.accessCodePlain || vault.accessCode).trim().toUpperCase();
 
     if (cleanInputCode !== cleanStoredCode) {

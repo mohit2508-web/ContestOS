@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import prisma from './lib/prisma';
 
 export async function seedCapgeminiLcmProblem() {

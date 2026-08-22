@@ -1,125 +1,157 @@
-import redis from '../../lib/redis';
-import { prisma } from '../../lib/prisma';
-import { 
-  AssistantStage, 
-  SessionState, 
-  QuestionMeta, 
-  AssistantMessageResponse 
-} from '../../types/assistant.types';
-import { preFilterReject, STAGE_REDIRECTS, STAGE_NEXT_QUESTIONS, getDynamicRedirectReply, getStageNextQuestion } from './prefilter.service';
-import { callGateClassifier } from './gateClassifier.service';
-import { callCodeGeneration } from './codeGen.service';
+import { SOCRATIC_QUESTION_BANK, SocraticProblem } from '../../data/socraticQuestionBank';
+import {
+  detectDeflection,
+  buildRedirect,
+  buildAckAndNextQuestion,
+  WELCOME_MESSAGE
+} from './prefilter.service';
+import { scoreConcepts } from './gateClassifier.service';
+import { generateStaticCode } from './codeGen.service';
 
-const inMemorySessions = new Map<string, SessionState>();
+export type Stage = 'PROBLEM' | 'DATA_STRUCTURE' | 'APPROACH' | 'AWAITING_CODE_REQUEST' | 'CODE_GEN' | 'REFINEMENT';
+const STAGE_ORDER: Stage[] = ['PROBLEM', 'DATA_STRUCTURE', 'APPROACH', 'AWAITING_CODE_REQUEST', 'CODE_GEN', 'REFINEMENT'];
 
-export const DEFAULT_LCM_QUESTION_META: QuestionMeta = {
-  language: 'c',
-  noMain: true,
-  inPlaceRequired: true,
-  functionSignature: 'struct TreeNode* LCMOfTrees(struct TreeNode* root1, struct TreeNode* root2)',
-  readonlyBoilerplate: `struct TreeNode
-{
-    int data;
-    struct TreeNode* left;
-    struct TreeNode* right;
-};`,
-  problemStatement: `01. LCM of two trees
-Given two binary trees root1 and root2. Calculate node-wise LCM of values. 
-Re-use existing tree nodes in-place (do not allocate extra memory). Return modified root1.
+export interface TranscriptTurn {
+  turn: number;
+  role: 'candidate' | 'assistant';
+  stage: Stage;
+  text: string;
+  meta: Record<string, unknown>;
+  at: string;
+}
 
-Explanation:
-LCM of:
-• (1,4) = 4
-• (2,6) = 6
-• (3,8) = 24
-• (4,null) = 4
-• (5,2) = 10
-• (9,null) = 9
+export interface AssistantSession {
+  key: string;
+  sessionId: string;
+  userId: string;
+  problemId: string;
+  problem: SocraticProblem;
+  stage: Stage;
+  captured: { PROBLEM: string | null; DATA_STRUCTURE: string | null; APPROACH: string | null };
+  matchedConcepts: { PROBLEM: string[]; DATA_STRUCTURE: string[]; APPROACH: string[] };
+  turnCountThisStage: number;
+  codeGenerated: boolean;
+  creditsUsed: number;
+  creditBudget: number;
+  tokensUsed: number;
+  tokenBudget: number;
+  transcript: TranscriptTurn[];
+  createdAt: string;
+  welcomeSent: boolean;
+  questionMeta: {
+    language: string;
+    noMain: boolean;
+    inPlaceRequired: boolean;
+    functionSignature: string;
+    readonlyBoilerplate: string;
+    problemStatement: string;
+  };
+}
 
-Sample input:
-root1: 2 (left:3, right:5), root2: 5 (left:6, right:3)
-Sample Output:
-10 (left:6, right:15)`
-};
+export interface AssistantMessageResponse {
+  reply: string;
+  stage: Stage;
+  stageAdvanced: boolean;
+  tokensUsed: number;
+  tokenBudget: number;
+  code?: string | null;
+  canInsert?: boolean;
+}
+
+const sessionStoreMap = new Map<string, AssistantSession>();
+
+export function sessionKey(sessionId: string, problemId?: string): string {
+  return problemId ? `${sessionId}:${problemId}` : sessionId;
+}
 
 export async function getOrCreateSession(
   sessionId: string,
-  userId: string,
-  problemId?: string
-): Promise<SessionState> {
-  const redisKey = `assistant:session:${sessionId}`;
+  userId: string = 'candidate_1',
+  problemId: string = 'lcm_of_two_trees',
+  language: string = 'c'
+): Promise<AssistantSession> {
+  const actualProbId = problemId || 'lcm_of_two_trees';
+  const key = sessionKey(sessionId, actualProbId);
+  const existing = sessionStoreMap.get(key);
+  if (existing) return existing;
 
-  // 1. Check in-memory cache first
-  if (inMemorySessions.has(sessionId)) {
-    return inMemorySessions.get(sessionId)!;
-  }
+  const problem = SOCRATIC_QUESTION_BANK[actualProbId] || SOCRATIC_QUESTION_BANK['lcm_of_two_trees'];
 
-  // 2. Check Redis cache
-  if (redis) {
-    try {
-      const cachedStr = await redis.get(redisKey);
-      if (cachedStr) {
-        const state: SessionState = JSON.parse(cachedStr);
-        inMemorySessions.set(sessionId, state);
-        return state;
-      }
-    } catch {
-      // Ignore Redis error and proceed
-    }
-  }
-
-  // 3. Create fresh session
-  const newState: SessionState = {
+  const session: AssistantSession = {
+    key,
     sessionId,
     userId,
-    problemId: problemId || 'lcm_of_two_trees_c',
+    problemId: actualProbId,
+    problem,
     stage: 'PROBLEM',
-    captured: {
-      problem_summary: null,
-      ds_choice: null,
-      approach: null,
-    },
-    tokensUsed: 0,
-    tokenBudget: 2000,
+    captured: { PROBLEM: null, DATA_STRUCTURE: null, APPROACH: null },
+    matchedConcepts: { PROBLEM: [], DATA_STRUCTURE: [], APPROACH: [] },
     turnCountThisStage: 0,
     codeGenerated: false,
-    questionMeta: DEFAULT_LCM_QUESTION_META,
+    creditsUsed: 0,
+    creditBudget: 40,
+    tokensUsed: 0,
+    tokenBudget: 2000,
+    transcript: [],
+    createdAt: new Date().toISOString(),
+    welcomeSent: false,
+    questionMeta: {
+      language,
+      noMain: true,
+      inPlaceRequired: true,
+      functionSignature: problem.functionSignatureByLanguage[language] || problem.functionSignatureByLanguage['c'],
+      readonlyBoilerplate: '',
+      problemStatement: problem.description
+    }
   };
 
-  inMemorySessions.set(sessionId, newState);
-  if (redis) {
-    try {
-      await redis.setex(redisKey, 7200, JSON.stringify(newState));
-    } catch {}
-  }
-
-  return newState;
+  sessionStoreMap.set(key, session);
+  return session;
 }
 
-export async function saveSessionState(state: SessionState): Promise<void> {
-  inMemorySessions.set(state.sessionId, state);
-  if (redis) {
-    try {
-      await redis.setex(`assistant:session:${state.sessionId}`, 7200, JSON.stringify(state));
-    } catch {}
-  }
+export function saveSessionState(session: AssistantSession): void {
+  sessionStoreMap.set(session.key, session);
+}
+
+function nextStage(current: Stage): Stage {
+  const idx = STAGE_ORDER.indexOf(current);
+  if (idx === -1 || idx === STAGE_ORDER.length - 1) return current;
+  return STAGE_ORDER[idx + 1];
+}
+
+function logTranscript(session: AssistantSession, role: 'candidate' | 'assistant', text: string, meta: Record<string, unknown> = {}): void {
+  session.transcript.push({
+    turn: session.transcript.length + 1,
+    role,
+    stage: session.stage,
+    text,
+    meta,
+    at: new Date().toISOString()
+  });
+}
+
+export function getWelcomeMessage(session: AssistantSession): string | null {
+  if (session.welcomeSent) return null;
+  session.welcomeSent = true;
+  logTranscript(session, 'assistant', WELCOME_MESSAGE, { welcome: true });
+  saveSessionState(session);
+  return WELCOME_MESSAGE;
 }
 
 export async function processCandidateMessage(
   sessionId: string,
   userId: string,
-  candidateMessage: string,
-  language: string = 'c'
+  text: string,
+  language: string = 'c',
+  problemId: string = 'lcm_of_two_trees'
 ): Promise<AssistantMessageResponse> {
-  const session = await getOrCreateSession(sessionId, userId);
-  if (language) {
-    session.questionMeta.language = language;
-  }
+  const session = await getOrCreateSession(sessionId, userId, problemId, language);
+  session.questionMeta.language = language;
 
-  // Check Token Budget
-  if (session.tokensUsed >= session.tokenBudget) {
+  if (session.creditsUsed >= session.creditBudget || session.tokensUsed >= session.tokenBudget) {
+    const reply = buildRedirect('BUDGET_EXHAUSTED');
     return {
-      reply: "Token budget limit reached (2,000 max tokens used). You can continue coding directly in the editor.",
+      reply,
       stage: session.stage,
       stageAdvanced: false,
       tokensUsed: session.tokensUsed,
@@ -128,14 +160,41 @@ export async function processCandidateMessage(
     };
   }
 
-  const currentStage = session.stage;
+  session.creditsUsed += 1;
+  session.tokensUsed = Math.min(session.tokenBudget, session.tokensUsed + 100);
+  logTranscript(session, 'candidate', text);
 
-  // Step 1: Pre-filter Check (Zero-cost instantaneous check)
-  if (preFilterReject(candidateMessage, currentStage)) {
-    const redirectReply = getDynamicRedirectReply(candidateMessage, currentStage);
+  const stage = session.stage;
+
+  // Handle AWAITING_CODE_REQUEST stage
+  if (stage === 'AWAITING_CODE_REQUEST') {
+    const deflect = detectDeflection(text, stage);
+    if (deflect.isDeflection && !/generat|code/i.test(text)) {
+      const reply = buildRedirect('AWAITING_CODE_REQUEST');
+      logTranscript(session, 'assistant', reply, { gate: 'reject' });
+      saveSessionState(session);
+      return {
+        reply,
+        stage: session.stage,
+        stageAdvanced: false,
+        tokensUsed: session.tokensUsed,
+        tokenBudget: session.tokenBudget,
+        canInsert: false
+      };
+    }
+    return generateCodeResponse(session, language);
+  }
+
+  // Deflection detection check
+  const deflection = detectDeflection(text, stage);
+  if (deflection.isDeflection) {
+    session.turnCountThisStage += 1;
+    const reply = buildRedirect(stage);
+    logTranscript(session, 'assistant', reply, { gate: 'reject', reason: deflection.matchedPattern });
+    saveSessionState(session);
     return {
-      reply: redirectReply,
-      stage: currentStage,
+      reply,
+      stage: session.stage,
       stageAdvanced: false,
       tokensUsed: session.tokensUsed,
       tokenBudget: session.tokenBudget,
@@ -143,16 +202,18 @@ export async function processCandidateMessage(
     };
   }
 
-  // Step 2: Gate Classification (Claude Haiku or heuristic)
-  const gateResult = await callGateClassifier(currentStage, candidateMessage, session.questionMeta);
-  session.tokensUsed += gateResult.tokensUsed || 20;
+  // Pure Deterministic Concept Scoring Gate
+  const stageConfig = session.problem.socraticConfig[stage as 'PROBLEM' | 'DATA_STRUCTURE' | 'APPROACH'];
+  const result = scoreConcepts(text, stageConfig.concepts, stageConfig.minConceptsRequired);
 
-  if (!gateResult.complete || gateResult.confidence < 0.6) {
-    const redirectReply = getDynamicRedirectReply(candidateMessage, currentStage);
-    await saveSessionState(session);
+  if (!result.complete) {
+    session.turnCountThisStage += 1;
+    const reply = buildRedirect(stage);
+    logTranscript(session, 'assistant', reply, { gate: 'reject', reason: 'insufficient_concept_coverage', matched: result.matchedConcepts });
+    saveSessionState(session);
     return {
-      reply: redirectReply,
-      stage: currentStage,
+      reply,
+      stage: session.stage,
       stageAdvanced: false,
       tokensUsed: session.tokensUsed,
       tokenBudget: session.tokenBudget,
@@ -160,50 +221,46 @@ export async function processCandidateMessage(
     };
   }
 
-  // Step 3: Gate Passed! Update captured answers & advance stage state
-  if (currentStage === 'PROBLEM') {
-    session.captured.problem_summary = candidateMessage;
-    session.stage = 'DATA_STRUCTURE';
-  } else if (currentStage === 'DATA_STRUCTURE') {
-    session.captured.ds_choice = candidateMessage;
-    session.stage = 'APPROACH';
-  } else if (currentStage === 'APPROACH') {
-    session.captured.approach = candidateMessage;
-    session.stage = 'AWAITING_CODE_REQUEST';
-  } else if (currentStage === 'AWAITING_CODE_REQUEST') {
-    session.stage = 'CODE_GEN';
-  }
-
+  // Concept Gate PASSED! Advance stage state
+  (session.captured as any)[stage] = text;
+  (session.matchedConcepts as any)[stage] = result.matchedConcepts;
   session.turnCountThisStage = 0;
+  const advancedStage = nextStage(stage);
+  session.stage = advancedStage;
 
-  // Step 4: Code Generation branch vs Templated Question branch
-  if (session.stage === 'CODE_GEN') {
-    const codeGenResult = await callCodeGeneration(session.captured, session.questionMeta, language);
-    session.tokensUsed += codeGenResult.tokensUsed;
-    session.codeGenerated = true;
-    await saveSessionState(session);
-
-    return {
-      reply: codeGenResult.text,
-      stage: 'CODE_GEN',
-      stageAdvanced: true,
-      tokensUsed: session.tokensUsed,
-      tokenBudget: session.tokenBudget,
-      code: codeGenResult.code,
-      canInsert: true
-    };
-  }
-
-  // Dynamic next question with candidate word mirroring
-  const nextQuestion = getStageNextQuestion(session.stage, candidateMessage);
-  await saveSessionState(session);
+  const reply = buildAckAndNextQuestion(stage, text, result.matchedConcepts, stageConfig.concepts);
+  logTranscript(session, 'assistant', reply, { gate: 'pass', matched: result.matchedConcepts });
+  saveSessionState(session);
 
   return {
-    reply: nextQuestion,
+    reply,
     stage: session.stage,
     stageAdvanced: true,
     tokensUsed: session.tokensUsed,
     tokenBudget: session.tokenBudget,
     canInsert: false
+  };
+}
+
+function generateCodeResponse(session: AssistantSession, language: string): AssistantMessageResponse {
+  const { code } = generateStaticCode(session.problem, language, {
+    DATA_STRUCTURE: session.matchedConcepts.DATA_STRUCTURE,
+    APPROACH: session.matchedConcepts.APPROACH,
+  });
+
+  session.stage = 'CODE_GEN';
+  session.codeGenerated = true;
+  const reply = "Here's a starting point based on what you described:";
+  logTranscript(session, 'assistant', code, { code: true, language });
+  saveSessionState(session);
+
+  return {
+    reply: `${reply}\n\n\`\`\`${language}\n${code}\n\`\`\``,
+    stage: 'CODE_GEN',
+    stageAdvanced: true,
+    tokensUsed: session.tokensUsed,
+    tokenBudget: session.tokenBudget,
+    code,
+    canInsert: true
   };
 }

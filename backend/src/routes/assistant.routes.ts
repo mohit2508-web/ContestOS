@@ -28,7 +28,7 @@ router.post('/session/init', async (req: Request, res: Response) => {
 router.post('/:sessionId/message', async (req: Request, res: Response) => {
   try {
     const { sessionId } = req.params;
-    const { text, userId, language } = req.body;
+    const { text, userId, language, problemId } = req.body;
 
     if (!text || typeof text !== 'string') {
       res.status(400).json({ success: false, error: 'Text message is required' });
@@ -39,7 +39,8 @@ router.post('/:sessionId/message', async (req: Request, res: Response) => {
       sessionId,
       userId || 'candidate_1',
       text,
-      language
+      language,
+      problemId
     );
 
     res.json({ success: true, ...response });

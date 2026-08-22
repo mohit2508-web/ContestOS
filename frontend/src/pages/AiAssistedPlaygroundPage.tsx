@@ -6,186 +6,36 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNotify } from '../components/notifications';
 import { api } from '../services/api';
 import MarkdownRenderer from '../components/MarkdownRenderer';
+import { SOCRATIC_FALLBACK_PROBLEMS } from '../data/socraticFallbackProblems';
 
 const DEFAULT_STARTER_TEMPLATES: Record<string, string> = {
-  c: `struct TreeNode
-{
-    int data;
-    int val;
-    struct TreeNode* left;
-    struct TreeNode* right;
+  c: `// Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`,
+  cpp: `// Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`,
+  java: `// Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`,
+  python: `# Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`,
+  javascript: `// Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`
 };
 
-static long long gcd_c(long long a, long long b) {
-    while (b) { long long t = a % b; a = b; b = t; }
-    return a;
-}
+const getTeacherStarterCode = (prob: any, lang: string): string => {
+  if (!prob) return DEFAULT_STARTER_TEMPLATES[lang] || DEFAULT_STARTER_TEMPLATES.cpp;
 
-static long long lcm_c(long long a, long long b) {
-    if (a == 0 || b == 0) return 0;
-    return (a / gcd_c(a, b)) * b;
-}
+  let starter: any = prob.starterCode || prob.starter_code;
+  if (typeof starter === 'string') {
+    try {
+      starter = JSON.parse(starter);
+    } catch {}
+  }
 
-struct TreeNode* LCMOfTrees(struct TreeNode* root1, struct TreeNode* root2)
-{
-    if (root1 == NULL && root2 == NULL) return NULL;
-
-    int v1 = root1 ? (root1->data != 0 ? root1->data : root1->val) : 0;
-    int v2 = root2 ? (root2->data != 0 ? root2->data : root2->val) : 0;
-    int resVal = 0;
-
-    if (root1 != NULL && root2 != NULL) resVal = (int)lcm_c(v1, v2);
-    else if (root1 != NULL) resVal = v1;
-    else resVal = v2;
-
-    struct TreeNode* newNode = (struct TreeNode*)malloc(sizeof(struct TreeNode));
-    newNode->data = resVal;
-    newNode->val = resVal;
-    newNode->left = LCMOfTrees(root1 ? root1->left : NULL, root2 ? root2->left : NULL);
-    newNode->right = LCMOfTrees(root1 ? root1->right : NULL, root2 ? root2->right : NULL);
-    return newNode;
-}`,
-  cpp: `#include <iostream>
-#include <algorithm>
-using namespace std;
-
-struct TreeNode {
-    int data;
-    int val;
-    TreeNode* left;
-    TreeNode* right;
-    TreeNode() : data(0), val(0), left(nullptr), right(nullptr) {}
-    TreeNode(int x) : data(x), val(x), left(nullptr), right(nullptr) {}
-};
-
-static long long gcd_cpp(long long a, long long b) {
-    while (b) { long long t = a % b; a = b; b = t; }
-    return a;
-}
-
-static long long lcm_cpp(long long a, long long b) {
-    if (a == 0 || b == 0) return 0;
-    return (a / gcd_cpp(a, b)) * b;
-}
-
-TreeNode* LCMOfTrees(TreeNode* root1, TreeNode* root2) {
-    if (!root1 && !root2) return nullptr;
-
-    int v1 = root1 ? (root1->data != 0 ? root1->data : root1->val) : 0;
-    int v2 = root2 ? (root2->data != 0 ? root2->data : root2->val) : 0;
-    int resVal = 0;
-
-    if (root1 && root2) resVal = (int)lcm_cpp(v1, v2);
-    else if (root1) resVal = v1;
-    else resVal = v2;
-
-    TreeNode* newNode = new TreeNode(resVal);
-    newNode->left = LCMOfTrees(root1 ? root1->left : nullptr, root2 ? root2->left : nullptr);
-    newNode->right = LCMOfTrees(root1 ? root1->right : nullptr, root2 ? root2->right : nullptr);
-    return newNode;
-}`,
-  java: `public class Solution {
-    static class TreeNode {
-        int data;
-        int val;
-        TreeNode left;
-        TreeNode right;
-        TreeNode(int x) { this.data = x; this.val = x; }
+  if (starter && typeof starter === 'object') {
+    const codeForLang = starter[lang] || starter[lang.toLowerCase()] || starter[lang.toUpperCase()];
+    if (typeof codeForLang === 'string' && codeForLang.trim()) {
+      return codeForLang.trim();
     }
+  } else if (typeof starter === 'string' && starter.trim()) {
+    return starter.trim();
+  }
 
-    private static long gcd(long a, long b) {
-        while (b != 0) { long t = a % b; a = b; b = t; }
-        return a;
-    }
-
-    private static long lcm(long a, long b) {
-        if (a == 0 || b == 0) return 0;
-        return (a / gcd(a, b)) * b;
-    }
-
-    public TreeNode LCMOfTrees(TreeNode root1, TreeNode root2) {
-        if (root1 == null && root2 == null) return null;
-
-        int v1 = root1 != null ? (root1.data != 0 ? root1.data : root1.val) : 0;
-        int v2 = root2 != null ? (root2.data != 0 ? root2.data : root2.val) : 0;
-        int resVal = 0;
-
-        if (root1 != null && root2 != null) resVal = (int)lcm(v1, v2);
-        else if (root1 != null) resVal = v1;
-        else resVal = v2;
-
-        TreeNode newNode = new TreeNode(resVal);
-        newNode.left = LCMOfTrees(root1 != null ? root1.left : null, root2 != null ? root2.left : null);
-        newNode.right = LCMOfTrees(root1 != null ? root1.right : null, root2 != null ? root2.right : null);
-        return newNode;
-    }
-}`,
-  python: `import math
-
-class TreeNode:
-    def __init__(self, data=0, left=None, right=None):
-        self.data = data
-        self.val = data
-        self.left = left
-        self.right = right
-
-def LCMOfTrees(root1: TreeNode, root2: TreeNode) -> TreeNode:
-    if not root1 and not root2:
-        return None
-
-    v1 = getattr(root1, 'data', getattr(root1, 'val', 0)) if root1 else 0
-    v2 = getattr(root2, 'data', getattr(root2, 'val', 0)) if root2 else 0
-
-    if root1 and root2:
-        if v1 == 0 or v2 == 0:
-            res_val = 0
-        elif hasattr(math, 'lcm'):
-            res_val = math.lcm(v1, v2)
-        else:
-            g = math.gcd(v1, v2)
-            res_val = (v1 * v2) // g if g != 0 else 0
-    elif root1:
-        res_val = v1
-    else:
-        res_val = v2
-
-    new_node = TreeNode(res_val)
-    new_node.left = LCMOfTrees(root1.left if root1 else None, root2.left if root2 else None)
-    new_node.right = LCMOfTrees(root1.right if root1 else None, root2.right if root2 else None)
-    return new_node`,
-  javascript: `function TreeNode(data, left, right) {
-    this.data = (data === undefined ? 0 : data);
-    this.val = (data === undefined ? 0 : data);
-    this.left = (left === undefined ? null : left);
-    this.right = (right === undefined ? null : right);
-}
-
-function gcd(a, b) {
-    while (b) { let t = a % b; a = b; b = t; }
-    return a;
-}
-
-function lcm(a, b) {
-    if (a === 0 || b === 0) return 0;
-    return (a / gcd(a, b)) * b;
-}
-
-function LCMOfTrees(root1, root2) {
-    if (!root1 && !root2) return null;
-
-    let v1 = root1 ? (root1.data !== undefined ? root1.data : root1.val) : 0;
-    let v2 = root2 ? (root2.data !== undefined ? root2.data : root2.val) : 0;
-    let resVal = 0;
-
-    if (root1 && root2) resVal = lcm(v1, v2);
-    else if (root1) resVal = v1;
-    else resVal = v2;
-
-    let newNode = new TreeNode(resVal);
-    newNode.left = LCMOfTrees(root1 ? root1.left : null, root2 ? root2.left : null);
-    newNode.right = LCMOfTrees(root1 ? root1.right : null, root2 ? root2.right : null);
-    return newNode;
-}`
+  return DEFAULT_STARTER_TEMPLATES[lang] || DEFAULT_STARTER_TEMPLATES.cpp;
 };
 
 interface TestCaseResult {
@@ -253,43 +103,31 @@ export function AiAssistedPlaygroundPage({
 }: AiAssistedPlaygroundPageProps) {
   const { user } = useAuth();
   const notify = useNotify();
-  const [problemsList, setProblemsList] = useState<any[]>([]);
-  const [selectedProblem, setSelectedProblem] = useState<any>(null);
+  const [problemsList, setProblemsList] = useState<any[]>(SOCRATIC_FALLBACK_PROBLEMS);
+  const [selectedProblem, setSelectedProblem] = useState<any>(SOCRATIC_FALLBACK_PROBLEMS[0]);
   const [showProblemsModal, setShowProblemsModal] = useState(false);
   const [problemSearchQuery, setProblemSearchQuery] = useState('');
-
   useEffect(() => {
-    const fetchVibeProblems = async () => {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const problemIdParam = params.get('problem');
-
-        let res = await api.get('/problems?type=vibe-code&take=200').catch(() => null);
-        let list = res?.problems || [];
-
-        if (list.length === 0) {
-          res = await api.get('/problems?take=200').catch(() => null);
-          list = res?.problems || [];
-        }
-        setProblemsList(list);
-
-        if (problemIdParam) {
-          const detailRes = await api.getProblem(problemIdParam).catch(() => null);
-          if (detailRes?.problem) {
-            setSelectedProblem(detailRes.problem);
-            return;
-          }
-        }
-        if (list.length > 0) {
-          const detailRes = await api.getProblem(list[0].id).catch(() => null);
-          setSelectedProblem(detailRes?.problem || list[0]);
-        }
-      } catch (err) {
-        console.error("Failed to load vibe problems:", err);
-      }
-    };
-    fetchVibeProblems();
+    // Only use the single mapped Socratic problem (LCM of Two Binary Trees)
+    setProblemsList(SOCRATIC_FALLBACK_PROBLEMS);
+    setSelectedProblem(SOCRATIC_FALLBACK_PROBLEMS[0]);
   }, []);
+
+  const handleSelectProblem = async (prob: any, idx: number) => {
+    setSelectedQuestionIndex(idx);
+    setSelectedProblem(prob);
+    setShowProblemsModal(false);
+
+    const isFallback = SOCRATIC_FALLBACK_PROBLEMS.some(fb => fb.id === prob.id);
+    if (!isFallback && prob?.id) {
+      try {
+        const detailRes = await api.getProblem(prob.id);
+        if (detailRes?.problem) {
+          setSelectedProblem(detailRes.problem);
+        }
+      } catch {}
+    }
+  };
 
   const [showAssistant, setShowAssistant] = useState(true);
   const [layoutMode, setLayoutMode] = useState<'3-column' | 'tabbed'>('tabbed');
@@ -300,24 +138,51 @@ export function AiAssistedPlaygroundPage({
     return (saved && ['cpp', 'java', 'python'].includes(saved)) ? saved : 'cpp';
   });
 
-  const [code, setCode] = useState<string>(() => {
-    const savedLang = localStorage.getItem('kryptavia_playground_lang') || 'cpp';
-    const activeLang = ['cpp', 'java', 'python'].includes(savedLang) ? savedLang : 'cpp';
-    const savedCode = localStorage.getItem(`kryptavia_code_${activeLang}`);
-    return savedCode || (DEFAULT_STARTER_TEMPLATES[activeLang] || DEFAULT_STARTER_TEMPLATES.cpp);
-  });
+  const [code, setCode] = useState<string>('');
 
   const [isDayMode, setIsDayMode] = useState<boolean>(() => {
     const savedTheme = localStorage.getItem('kryptavia_playground_theme');
     return savedTheme ? savedTheme === 'day' : true;
   });
 
-  // Persist code changes in localStorage per language
+  // Load Teacher's Configured Starter Code whenever selectedProblem or language changes
   useEffect(() => {
-    if (code) {
-      localStorage.setItem(`kryptavia_code_${language}`, code);
+    if (!selectedProblem) return;
+    const probId = selectedProblem.id || 'default';
+    const storageKey = `kryptavia_code_${probId}_${language}`;
+    const savedDraft = localStorage.getItem(storageKey);
+
+    if (savedDraft && savedDraft.trim()) {
+      setCode(savedDraft);
+    } else {
+      const teacherCode = getTeacherStarterCode(selectedProblem, language);
+      setCode(teacherCode);
     }
-  }, [code, language]);
+
+    if (Array.isArray(selectedProblem.testCases) && selectedProblem.testCases.length > 0) {
+      const formattedTCs = selectedProblem.testCases.map((tc: any, i: number) => ({
+        id: tc.id || i + 1,
+        name: tc.name || `Test Case #${i + 1}`,
+        passed: false,
+        input: tc.input || '',
+        expectedOutput: tc.expectedOutput || tc.output || '',
+        actualOutput: 'Not Executed',
+        executionTime: '0 ms',
+        memoryUsage: '1804 bytes',
+        exitCode: 1,
+        isHidden: Boolean(tc.isHidden)
+      }));
+      setTestResults(formattedTCs);
+      setTestSummary({ passed: 0, total: formattedTCs.length });
+    }
+  }, [selectedProblem, language]);
+
+  // Persist candidate's code changes in localStorage per problemId + language
+  useEffect(() => {
+    if (code && selectedProblem?.id) {
+      localStorage.setItem(`kryptavia_code_${selectedProblem.id}_${language}`, code);
+    }
+  }, [code, language, selectedProblem]);
 
   // Persist language selection in localStorage
   useEffect(() => {
@@ -667,17 +532,7 @@ export function AiAssistedPlaygroundPage({
               <button
                 key={prob.id || idx}
                 title={prob.title}
-                onClick={async () => {
-                  setSelectedQuestionIndex(idx);
-                  try {
-                    const detailRes = await api.getProblem(prob.id);
-                    if (detailRes?.problem) {
-                      setSelectedProblem(detailRes.problem);
-                      return;
-                    }
-                  } catch {}
-                  setSelectedProblem(prob);
-                }}
+                onClick={() => handleSelectProblem(prob, idx)}
                 className={`w-7 h-7 rounded text-xs font-bold flex items-center justify-center transition cursor-pointer shrink-0 ${
                   selectedQuestionIndex === idx
                     ? 'bg-[#f5a623] text-gray-900 font-black shadow'
@@ -712,96 +567,13 @@ export function AiAssistedPlaygroundPage({
               isDayMode ? 'border-gray-200' : 'border-zinc-800'
             } font-sans`}
           >
-            {selectedProblem?.description ? (
-              <MarkdownRenderer content={selectedProblem.description} />
-            ) : (
-              <>
-                <div>
-                  <h3 className={`font-bold text-sm mb-2 ${isDayMode ? 'text-[#222222]' : 'text-white'}`}>LCM of Two Binary Trees</h3>
-                  <p className="text-gray-700 dark:text-zinc-300">A binary tree is represented by the following structure:</p>
-                  <div className={`my-2 border p-3 rounded-[2px] font-mono text-xs ${isDayMode ? 'bg-[#fafafa] border-gray-200 text-gray-800' : 'bg-zinc-900 border-zinc-800 text-zinc-200'}`}>
-                    <pre>{`struct TreeNode
-{
-    int data;
-    struct TreeNode* left;
-    struct TreeNode* right;
-};`}</pre>
-                  </div>
-
-                  <p className="mt-2 text-gray-700 dark:text-zinc-300">Implement the following function:</p>
-                  <div className={`my-2 border p-3 rounded-[2px] font-mono text-xs font-bold ${isDayMode ? 'bg-[#fafafa] border-gray-200 text-blue-700' : 'bg-zinc-900 border-zinc-800 text-blue-400'}`}>
-                    <pre>struct TreeNode* LCMOfTrees(struct TreeNode* root1, struct TreeNode* root2);</pre>
-                  </div>
-
-                  <p className="mt-2 text-gray-700 dark:text-zinc-300 leading-normal">
-                    <strong>LCM of 2 integers</strong> is the smallest positive integer that is exactly divisible by both integers.
-                    <br />
-                    The function accepts the root node of two binary trees <code className={`px-1 py-0.5 rounded font-mono ${isDayMode ? 'bg-gray-100 text-gray-800' : 'bg-zinc-800 text-amber-400'}`}>'root1'</code> and <code className={`px-1 py-0.5 rounded font-mono ${isDayMode ? 'bg-gray-100 text-gray-800' : 'bg-zinc-800 text-amber-400'}`}>'root2'</code> as its argument. Implement the function to return a tree which is LCM of both the trees. Each node value of output tree is equal to LCM of data values of nodes on that same position in the input trees.
-                  </p>
-                </div>
-
-                {/* Constraints & Notes */}
-                <div className="space-y-1 text-xs">
-                  <h4 className="font-bold text-gray-900 dark:text-zinc-100">Note:</h4>
-                  <ul className="list-disc pl-5 space-y-0.5 text-gray-700 dark:text-zinc-300">
-                    <li>Return null if both trees are null.</li>
-                    <li>While calculating LCM, if one of the node is null use the data value of the other node.</li>
-                    <li>Do not use extra memory.</li>
-                  </ul>
-                </div>
-
-                {/* Explanation & Sample Input / Output Trees */}
-                <div className="space-y-3 text-xs">
-                  <div>
-                    <h4 className="font-bold text-gray-900 dark:text-zinc-100 mb-1">Explanation:</h4>
-                    <p className="text-gray-700 dark:text-zinc-300 font-medium mb-1">LCM of:</p>
-                    <ul className="list-disc pl-5 space-y-0.5 text-gray-700 dark:text-zinc-300 font-mono text-[11px]">
-                      <li>(1,4) = 4</li>
-                      <li>(2,6) = 6</li>
-                      <li>(3,8) = 24</li>
-                      <li>(4,null) = 4</li>
-                      <li>(5,2) = 10</li>
-                      <li>(9,null) = 9</li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-gray-900 dark:text-zinc-100 mb-1">Sample input</h4>
-                    <div className={`my-1 border p-3 rounded-[2px] font-mono text-xs ${isDayMode ? 'bg-[#fafafa] border-gray-200 text-gray-800' : 'bg-zinc-900 border-zinc-800 text-zinc-200'}`}>
-                      <pre>{`root1:
-          2
-       3     5
-         1  7
-
-    root2:
-          5
-       6     3
-         2  8`}</pre>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-bold text-gray-900 dark:text-zinc-100 mb-1">Sample Output</h4>
-                    <div className={`my-1 border p-3 rounded-[2px] font-mono text-xs ${isDayMode ? 'bg-[#fafafa] border-gray-200 text-gray-800' : 'bg-zinc-900 border-zinc-800 text-zinc-200'}`}>
-                      <pre>{`      10
-       6     15
-         2  56`}</pre>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Instructions Section */}
-                <div className="space-y-1.5 pt-2 text-xs border-t border-gray-200 dark:border-zinc-800">
-                  <h4 className="font-bold text-gray-900 dark:text-zinc-100 text-xs">Instructions :</h4>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-700 dark:text-zinc-300">
-                    <li>This is a template based question, DO NOT write the "main" function.</li>
-                    <li>Your code is judged by an automated system, do not write any additional welcome/greeting messages.</li>
-                    <li>"Save and Test" only checks for basic test cases, more rigorous cases will be used to judge your code while scoring.</li>
-                    <li>Additional score will be given for writing optimized code both in terms of memory and execution time.</li>
-                  </ul>
-                </div>
-              </>
-            )}
+            <MarkdownRenderer 
+              content={
+                selectedProblem?.description || 
+                SOCRATIC_FALLBACK_PROBLEMS[selectedQuestionIndex]?.description || 
+                SOCRATIC_FALLBACK_PROBLEMS[0].description
+              } 
+            />
           </div>
 
           {/* ↕️ Vertical Draggable Resizer Bar (Between Problem Statement & Workspace) */}
@@ -1216,6 +988,7 @@ export function AiAssistedPlaygroundPage({
                 language={language}
                 onInsertCode={handleInsertCodeFromAI}
                 isDayMode={isDayMode}
+                problemId={selectedProblem?.id}
               />
             </div>
             </div>
@@ -1326,19 +1099,7 @@ export function AiAssistedPlaygroundPage({
                   return (
                     <div
                       key={prob.id || idx}
-                      onClick={async () => {
-                        setSelectedQuestionIndex(idx);
-                        try {
-                          const detailRes = await api.getProblem(prob.id);
-                          if (detailRes?.problem) {
-                            setSelectedProblem(detailRes.problem);
-                            setShowProblemsModal(false);
-                            return;
-                          }
-                        } catch {}
-                        setSelectedProblem(prob);
-                        setShowProblemsModal(false);
-                      }}
+                      onClick={() => handleSelectProblem(prob, idx)}
                       className={`p-3.5 rounded-lg border transition cursor-pointer flex items-center justify-between ${
                         isSelected
                           ? 'bg-amber-500/10 border-amber-500/50 shadow-xs'

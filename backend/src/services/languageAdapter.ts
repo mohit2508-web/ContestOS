@@ -686,7 +686,7 @@ export class LanguageAdapter {
       if (needsListNode && !/\bclass\s+ListNode\s*\{/.test(cleanCode)) {
         result = result + `\n\nclass ListNode {\n    int data;\n    int val;\n    ListNode next;\n    ListNode() {}\n    ListNode(int val) { this.data = val; this.val = val; }\n    ListNode(int val, ListNode next) { this.data = val; this.val = val; this.next = next; }\n}`;
       }
-      if (needsTreeNode && !/\bclass\s+TreeNode\s*\{/.test(cleanCode)) {
+      if (needsTreeNode && !/^(public\s+)?class\s+TreeNode\s*\{/m.test(cleanCode) && !/\nclass\s+TreeNode\s*\{/.test(cleanCode)) {
         result = result + `\n\nclass TreeNode {\n    int data;\n    int val;\n    TreeNode left;\n    TreeNode right;\n    TreeNode() {}\n    TreeNode(int val) { this.data = val; this.val = val; }\n    TreeNode(int val, TreeNode left, TreeNode right) { this.data = val; this.val = val; this.left = left; this.right = right; }\n}`;
       }
     } else if (language === "python") {
