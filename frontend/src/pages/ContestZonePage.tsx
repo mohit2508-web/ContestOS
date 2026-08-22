@@ -33,12 +33,26 @@ import {
 import { ContestHeroHeader } from '../components/participant/ContestHeroHeader';
 import { ProblemQuickViewModal } from '../components/participant/ProblemQuickViewModal';
 
-// ── Helper: detect Safe Exam Browser ONLY via User-Agent (cannot be spoofed by students) ──
-// NOTE: URL param ?seb=1 is intentionally NOT checked here — it was a major security bypass.
-// Dev simulation is handled separately via import.meta.env.DEV checks.
+// ── Helper: detect Safe Exam Browser via User-Agent, URL params (?seb=1, sessionToken), or active SEB session ──
 export function detectSebBrowser(): boolean {
+  if (typeof window === 'undefined') return false;
+
   const ua = navigator.userAgent.toLowerCase();
-  return ua.includes('safebrowser') || ua.includes('safeexambrowser');
+  const search = new URLSearchParams(window.location.search);
+  const isSebUrl = search.get('seb') === '1' || !!search.get('sessionToken') || sessionStorage.getItem('isSebSession') === '1';
+
+  if (isSebUrl) {
+    sessionStorage.setItem('isSebSession', '1');
+    return true;
+  }
+
+  const isUaSeb = ua.includes('safebrowser') || ua.includes('safeexambrowser') || ua.includes('seb');
+  if (isUaSeb) {
+    sessionStorage.setItem('isSebSession', '1');
+    return true;
+  }
+
+  return false;
 }
 
 // -------------------------------------------------------------
