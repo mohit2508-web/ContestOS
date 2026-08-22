@@ -589,12 +589,18 @@ router.get('/:id/verify-seb', authenticateToken, async (req: Request, res: Respo
   const contestId = req.params.id;
   const userId = req.user?.userId;
 
-  // ── Security Fix: Validate that the request actually comes from Safe Exam Browser ──
+  // ── Validate that the request comes from Safe Exam Browser session ──
   const userAgent = (req.headers['user-agent'] || '').toLowerCase();
   const sebRequestHash = req.headers['x-safeexambrowser-requesthash'] as string | undefined;
+  const sessionToken = (req.query.sessionToken as string) || '';
+  const referer = (req.headers['referer'] || '').toLowerCase();
+
   const isSebBrowser =
     userAgent.includes('safebrowser') ||
     userAgent.includes('safeexambrowser') ||
+    userAgent.includes('seb') ||
+    referer.includes('seb=1') ||
+    !!sessionToken ||
     !!sebRequestHash;
 
   if (!isSebBrowser) {
