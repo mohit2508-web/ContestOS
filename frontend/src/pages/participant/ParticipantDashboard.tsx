@@ -6,6 +6,7 @@ import { useNotify } from '../../components/notifications';
 import { CandidateSkillCockpit } from '../../components/participant/CandidateSkillCockpit';
 import { DiagnosticPreflightModal } from '../../components/participant/DiagnosticPreflightModal';
 import { AccessCodeGate } from '../../components/participant/AccessCodeGate';
+import { CapgeminiCountdownBanner } from '../../components/participant/CapgeminiCountdownBanner';
 
 interface Contest {
   id: string;
@@ -408,6 +409,12 @@ export function ParticipantDashboard() {
         {/* TAB 1: 🎯 Exam Hall & Drives (Default Screen) */}
         {activeTab === 'drives' && (
           <div className="space-y-6">
+            {/* 🚀 Capgemini Exclusive Mock Test Featured Live Countdown Banner */}
+            <CapgeminiCountdownBanner
+              onRegister={() => {
+                setShowCodeModal(true);
+              }}
+            />
             {/* Real-Time Hardware & System Readiness Telemetry Bar */}
             <div className="bg-zinc-950 border border-white/10 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
               <div className="flex items-center gap-3 bg-white/5 border border-white/5 p-3 rounded-xl">
