@@ -260,21 +260,22 @@ export function LoginPageComponent() {
             <p className="text-xs text-gray-400 mt-1">Sign in to your assessment portal</p>
           </div>
 
-          {/* Social Login Buttons */}
+          {/* Social Login Buttons (Disabled) */}
           <div className="space-y-2">
             <div className="grid grid-cols-3 gap-2">
               {[
-                { id: 'google', icon: 'G', label: 'Google', color: 'hover:border-red-500/40 hover:text-red-400 hover:bg-red-500/5' },
-                { id: 'github', icon: '⌥', label: 'GitHub', color: 'hover:border-white/40 hover:text-white hover:bg-white/5' },
-                { id: 'linkedin', icon: 'in', label: 'LinkedIn', color: 'hover:border-blue-500/40 hover:text-blue-400 hover:bg-blue-500/5' },
-              ].map(({ id, icon, label, color }) => (
+                { id: 'google', icon: 'G', label: 'Google' },
+                { id: 'github', icon: '⌥', label: 'GitHub' },
+                { id: 'linkedin', icon: 'in', label: 'LinkedIn' },
+              ].map(({ id, icon, label }) => (
                 <button
                   key={id}
                   type="button"
-                  onClick={() => handleSocialLogin(id)}
-                  className={`w-full py-2.5 bg-white/4 border border-white/10 rounded-xl text-zinc-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-sm ${color}`}
+                  disabled
+                  title="Social OAuth is currently disabled"
+                  className="w-full py-2.5 bg-white/5 border border-white/5 rounded-xl text-zinc-500 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-not-allowed opacity-40 select-none"
                 >
-                  <span className="font-black">{icon}</span>
+                  <span className="font-black opacity-50">{icon}</span>
                   <span>{label}</span>
                 </button>
               ))}
