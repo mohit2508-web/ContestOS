@@ -654,7 +654,7 @@ export function ParticipantDashboard() {
           onSuccess={() => {
             const contestId = gateContest.id;
             setGateContest(null);
-            navigate(`/contests/${contestId}`);
+            navigate(`/contests/${contestId}/overview`);
           }}
         />
       )}

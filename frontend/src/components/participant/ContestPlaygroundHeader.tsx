@@ -74,27 +74,7 @@ export const ContestPlaygroundHeader: React.FC<ContestPlaygroundHeaderProps> = (
         </div>
       </div>
 
-      {/* Middle: Problem Switcher (if problem list provided) */}
-      {problems.length > 0 && onSelectProblem && (
-        <div className="hidden md:flex items-center gap-1 bg-black/60 border border-white/10 rounded-xl p-1">
-          {problems.map((p, idx) => {
-            const isSelected = p.id === currentProblemId;
-            return (
-              <button
-                key={p.id}
-                onClick={() => onSelectProblem(p.id)}
-                className={`px-3 py-1 rounded-lg font-mono font-bold text-xs transition cursor-pointer ${
-                  isSelected
-                    ? 'bg-amber-500 text-black shadow-md shadow-amber-500/20'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                P{idx + 1}
-              </button>
-            );
-          })}
-        </div>
-      )}
+
 
       {/* Right: Live Timer + Security Badge */}
       <div className="flex items-center gap-3">

@@ -23,6 +23,7 @@ import { syncOfflineTelemetryLogs } from '../services/offlineStorage';
 import SebDiagnosticCockpit from '../components/SebDiagnosticCockpit';
 import { SecureContestWrapper } from '../components/SecureContestWrapper';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { InContestAiWorkspace } from '../components/participant/InContestAiWorkspace';
 import {
   PreExamInstructionsModal,
   FinishExamFAB,
@@ -39,19 +40,16 @@ export function detectSebBrowser(): boolean {
 
   const ua = navigator.userAgent.toLowerCase();
   const search = new URLSearchParams(window.location.search);
-  const isSebUrl = search.get('seb') === '1' || !!search.get('sessionToken') || sessionStorage.getItem('isSebSession') === '1';
+  const isSebUrl = search.get('seb') === '1' || !!search.get('sessionToken');
+  const isUaSeb = ua.includes('safebrowser') || ua.includes('safeexambrowser');
 
-  if (isSebUrl) {
-    sessionStorage.setItem('isSebSession', '1');
+  if (isSebUrl || isUaSeb) {
     return true;
   }
 
-  const isUaSeb = ua.includes('safebrowser') || ua.includes('safeexambrowser') || ua.includes('seb');
-  if (isUaSeb) {
-    sessionStorage.setItem('isSebSession', '1');
-    return true;
-  }
-
+  try {
+    sessionStorage.removeItem('isSebSession');
+  } catch {}
   return false;
 }
 
@@ -1205,10 +1203,11 @@ export function ProblemsTab() {
   const { contest, diagnostics, isSebBrowser } = useOutletContext<ContestOutletContext>();
   const navigate = useNavigate();
   const notify = useNotify();
+  const queryClient = useQueryClient();
   const problems = contest.problems || [];
 
   // Fetch candidate's real submission status & report for this contest
-  const { data: userReport } = useQuery({
+  const { data: userReport, refetch: refetchReport } = useQuery({
     queryKey: ['myContestReport', contest?.id],
     queryFn: async () => {
       if (!contest?.id) return null;
@@ -1219,7 +1218,23 @@ export function ProblemsTab() {
   });
 
   const candidateSubmissions = userReport?.submissions || [];
-  const participantScore = userReport?.participant?.score || 0;
+
+  const computedParticipantScore = problems.reduce((acc: number, p: any) => {
+    const innerId = p.problem?.id;
+    const cpId = p.id;
+    const sub = candidateSubmissions.find((s: any) => s.problemId === innerId || s.problemId === cpId);
+    const maxPts = p.points || 100;
+
+    const subScore = sub ? (sub.score ?? sub.points ?? (sub.status === 'ACCEPTED' || sub.status === 'passed' ? maxPts : 0)) : 0;
+    const sessionScore = (typeof window !== 'undefined')
+      ? Number(sessionStorage.getItem(`score_${contest.id}_${innerId}`) || sessionStorage.getItem(`score_${contest.id}_${cpId}`) || localStorage.getItem(`score_${contest.id}_${innerId}`) || localStorage.getItem(`score_${contest.id}_${cpId}`) || 0)
+      : 0;
+
+    const earnedForThisProblem = sub ? subScore : sessionScore;
+    return acc + earnedForThisProblem;
+  }, 0);
+
+  const participantScore = Math.max(userReport?.participant?.score || 0, computedParticipantScore);
   const maxContestScore = problems.reduce((acc: number, p: any) => acc + (p.points || 100), 0);
 
   // Lock logic:
@@ -1239,6 +1254,7 @@ export function ProblemsTab() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [finalized, setFinalized] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
+  const [isFinishing, setIsFinishing] = useState(false);
 
   const handleInstructionsProceed = () => {
     sessionStorage.setItem(`exam_instructions_ack_${contest.id}`, '1');
@@ -1246,25 +1262,46 @@ export function ProblemsTab() {
   };
 
   const handleFinishClick = async () => {
+    if (isFinishing) return;
+    setIsFinishing(true);
+    notify.toast.info('📊 Generating final score & summary report...');
+
     try {
-      const report = await api.getMyContestReport(contest.id);
+      const report = await api.getMyContestReport(contest.id).catch(() => null);
       const problems2 = contest.problems || [];
-      const submissions = report?.submissions || [];
+      const submissions = report?.submissions || candidateSubmissions || [];
 
       const mappedProblems = problems2.map((cp: any) => {
-        const sub = submissions.find((s: any) => s.problemId === cp.problem?.id);
+        const innerId = cp.problem?.id;
+        const cpId = cp.id;
+        const sub = submissions.find((s: any) => s.problemId === innerId || s.problemId === cpId);
+        const maxPts = cp.points || 100;
+
+        const subScore = sub ? (sub.score ?? sub.points ?? (sub.status === 'ACCEPTED' || sub.status === 'passed' ? maxPts : 0)) : 0;
+        const sessionScore = (typeof window !== 'undefined')
+          ? Number(sessionStorage.getItem(`score_${contest.id}_${innerId}`) || sessionStorage.getItem(`score_${contest.id}_${cpId}`) || localStorage.getItem(`score_${contest.id}_${innerId}`) || localStorage.getItem(`score_${contest.id}_${cpId}`) || 0)
+          : 0;
+
+        const finalEarned = sub ? subScore : Math.max(subScore, sessionScore);
+        const isFullSolved = finalEarned >= maxPts && maxPts > 0;
+        const isPartialSolved = !isFullSolved && finalEarned > 0;
+
         return {
-          problemId: cp.problem?.id || cp.id,
-          title: cp.problem?.title || `Problem ${cp.id}`,
-          points: cp.points || 100,
-          earned: sub?.points || sub?.score || 0,
-          status: sub ? ((sub.points || sub.score || 0) > 0 ? 'solved' : 'attempted') : 'unattempted',
+          problemId: innerId || cpId,
+          title: cp.problem?.title || `Problem ${cpId}`,
+          points: maxPts,
+          earned: finalEarned,
+          status: isFullSolved ? 'solved' : (isPartialSolved ? 'partial' : (sub ? 'attempted' : 'unattempted')),
         };
       });
 
+      const calculatedMax = mappedProblems.reduce((a: number, p: any) => a + p.points, 0);
+      const calculatedScore = mappedProblems.reduce((a: number, p: any) => a + p.earned, 0);
+      const finalScore = Math.max(report?.participant?.score || 0, calculatedScore);
+
       setReportData({
-        score: report?.participant?.score || 0,
-        maxScore: mappedProblems.reduce((a: number, p: any) => a + p.points, 0),
+        score: finalScore,
+        maxScore: calculatedMax,
         warnings: report?.participant?.warnings || 0,
         solvedCount: mappedProblems.filter((p: any) => p.earned > 0).length,
         totalProblems: mappedProblems.length,
@@ -1276,6 +1313,8 @@ export function ProblemsTab() {
     } catch (err) {
       console.error('Failed to load exam report:', err);
       notify.toast.error('Failed to load exam summary. Try again.');
+    } finally {
+      setIsFinishing(false);
     }
   };
 
@@ -1311,15 +1350,27 @@ export function ProblemsTab() {
     }
 
     const probType = p.problem?.problemType || p.problemType || 'code';
+    const isAiProblem =
+      probType === 'vibe-code' ||
+      probType === 'ai-assisted' ||
+      p.problem?.slug === 'lcm-of-two-trees-c' ||
+      p.problem?.title?.toLowerCase().includes('lcm of two binary trees') ||
+      (currentSection && currentSection.sectionType === 'VIBE_CODE');
+
+    if (isAiProblem) {
+      setActiveAiProblem(p);
+      return;
+    }
+
     let path = '/playground/logic';
     if (probType === 'web-dev') path = '/playground/web-dev';
     else if (probType === 'sql') path = '/playground/sql';
     else if (probType === 'quiz' || probType === 'mcq') path = '/playground/quiz';
-    else if (probType === 'vibe-code' || probType === 'ai-assisted') path = '/playground/ai-assisted';
 
     navigate(`${path}?contestId=${contest.id}&problem=${p.problem?.id || p.id}`);
   };
 
+  const [activeAiProblem, setActiveAiProblem] = useState<any | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'solved' | 'attempted' | 'unattempted'>('all');
   const [quickViewItem, setQuickViewItem] = useState<{ problem: any; points: number } | null>(null);
 
@@ -1699,13 +1750,19 @@ export function ProblemsTab() {
               const probType = p.problem?.problemType || 'code';
 
               // Tech stack icon helper
-              const techBadge = probType === 'web-dev'
+              const techBadge = probType === 'vibe-code' || probType === 'ai-assisted'
+                ? { label: '🤖 AI-Assisted (AON Socratic)', color: 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-sm shadow-purple-500/10' }
+                : probType === 'debugging'
+                ? { label: '🐞 Bug Fixing & Debugging', color: 'bg-amber-500/20 text-amber-300 border-amber-500/40' }
+                : probType === 'web-dev'
                 ? { label: '🌐 Full-Stack Web Dev', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' }
                 : probType === 'sql'
                 ? { label: '🗄️ SQL Database', color: 'bg-teal-500/10 text-teal-400 border-teal-500/20' }
                 : probType === 'quiz' || probType === 'mcq'
                 ? { label: '📝 Assessment Quiz', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' }
                 : { label: '💻 DSA & Algorithm', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' };
+
+              const isAiProblem = probType === 'vibe-code' || probType === 'ai-assisted';
 
               return (
                 <div
@@ -1719,6 +1776,8 @@ export function ProblemsTab() {
                       ? 'border-emerald-500/40 bg-emerald-500/5 shadow-lg shadow-emerald-500/5'
                       : isAttempted
                       ? 'border-amber-400/30 bg-amber-400/5 shadow-lg shadow-amber-400/5'
+                      : isAiProblem
+                      ? 'border-purple-500/40 bg-gradient-to-r from-purple-950/30 via-zinc-950 to-indigo-950/20 hover:border-purple-400/60 shadow-lg shadow-purple-950/20'
                       : 'border-white/10 bg-zinc-950/60 hover:border-amber-400/40 hover:bg-zinc-900/80 shadow-md'
                   }`}
                 >
@@ -1772,6 +1831,8 @@ export function ProblemsTab() {
                         ? 'text-gray-600 select-none'
                         : isSolved
                         ? 'text-emerald-300'
+                        : isAiProblem
+                        ? 'text-purple-200 group-hover:text-purple-300'
                         : 'text-white group-hover:text-amber-400'
                     }`}>
                       {isLocked ? (
@@ -1814,10 +1875,18 @@ export function ProblemsTab() {
                             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
                             : isAttempted
                             ? 'bg-amber-400 text-black hover:bg-amber-300 shadow-amber-400/20'
+                            : isAiProblem
+                            ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-purple-600/30 border border-purple-400/30'
                             : 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black shadow-amber-500/20'
                         }`}
                       >
-                        <span>{isProblemLocked || isSolved ? '✓ Review' : isAttempted ? '▶ Continue' : '🚀 Solve'}</span>
+                        <span>
+                          {isProblemLocked || isSolved
+                            ? isAiProblem ? '✓ Review AI Chat' : '✓ Review'
+                            : isAttempted
+                            ? isAiProblem ? '🤖 Resume AI Session' : '▶ Continue'
+                            : isAiProblem ? '🤖 Solve with AI Assistant' : '🚀 Solve'}
+                        </span>
                       </button>
                     )}
                   </div>
@@ -1831,7 +1900,23 @@ export function ProblemsTab() {
 
       {/* Floating Finish Exam FAB */}
       {!isLocked && !finalized && (
-        <FinishExamFAB contest={contest} onFinish={handleFinishClick} />
+        <FinishExamFAB contest={contest} onFinish={handleFinishClick} isFinishing={isFinishing} />
+      )}
+
+      {/* Embedded In-Contest AI Workspace (No external redirection!) */}
+      {activeAiProblem && (
+        <InContestAiWorkspace
+          contest={contest}
+          problemItem={activeAiProblem}
+          currentSection={currentSection}
+          sectionTimeRemaining={sectionTimeRemaining}
+          onBack={() => setActiveAiProblem(null)}
+          onSubmitted={() => {
+            setActiveAiProblem(null);
+            queryClient.invalidateQueries({ queryKey: ['contest', contest.id] });
+            refetchReport?.();
+          }}
+        />
       )}
     </>
   );
@@ -2285,10 +2370,64 @@ function SebProblemsListInline({
   const [quickViewItem, setQuickViewItem] = useState<{ problem: any; points: number } | null>(null);
   const { user } = useAuth();
   const currentUid = user?.id || (user as any)?.userId || 'guest';
-  const [activeSectionId, setActiveSectionId] = useState<string>('all');
+  const notify = useNotify();
+  const queryClient = useQueryClient();
+
+  const [activeSectionId, setActiveSectionId] = useState<string>(() => {
+    if (contest.sections && contest.sections.length > 0) {
+      return contest.sections[0].id;
+    }
+    return 'all';
+  });
+
+  const [activeAiProblem, setActiveAiProblem] = useState<any | null>(null);
+  const [pendingSkipSection, setPendingSkipSection] = useState<{ sec: any; idx: number } | null>(null);
+  const [skipConsentAgreed, setSkipConsentAgreed] = useState<boolean>(false);
+  const [sectionTimeRemaining, setSectionTimeRemaining] = useState<number | null>(null);
+
+  const currentSec = (contest.sections && contest.sections.length > 0)
+    ? (contest.sections.find((s: any) => s.id === activeSectionId) || contest.sections[0])
+    : null;
+
+  useEffect(() => {
+    if (!currentSec || !currentSec.duration || currentSec.duration <= 0) {
+      setSectionTimeRemaining(null);
+      return;
+    }
+    const timerKey = `sec_timer_start_${contest.id}_${currentSec.id}`;
+    let startTime = Number(sessionStorage.getItem(timerKey));
+    if (!startTime) {
+      startTime = Date.now();
+      sessionStorage.setItem(timerKey, String(startTime));
+    }
+    const totalMs = currentSec.duration * 60 * 1000;
+    const updateTimer = () => {
+      const elapsed = Date.now() - startTime;
+      const remainingMs = Math.max(0, totalMs - elapsed);
+      setSectionTimeRemaining(Math.floor(remainingMs / 1000));
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [currentSec?.id, activeSectionId, contest.id]);
+
+  const handleSebProblemLaunch = (p: any) => {
+    const probType = p.problem?.problemType || p.problemType || 'code';
+    const isAiProblem =
+      probType === 'vibe-code' ||
+      probType === 'ai-assisted' ||
+      p.problem?.slug === 'lcm-of-two-trees-c' ||
+      p.problem?.title?.toLowerCase().includes('lcm of two binary trees');
+
+    if (isAiProblem) {
+      setActiveAiProblem(p);
+      return;
+    }
+    onProblemClick(p);
+  };
 
   // Fetch candidate's real submission report
-  const { data: userReport } = useQuery({
+  const { data: userReport, refetch: refetchReport } = useQuery({
     queryKey: ['myContestReport', contest?.id],
     queryFn: async () => {
       if (!contest?.id) return null;
@@ -2299,14 +2438,29 @@ function SebProblemsListInline({
   });
 
   const candidateSubmissions = userReport?.submissions || [];
-  const participantScore = userReport?.participant?.score || 0;
+
+  const computedParticipantScore = problems.reduce((acc: number, p: any) => {
+    const probId = p.problem?.id;
+    const sub = candidateSubmissions.find((s: any) => s.problemId === probId);
+    const sessionScore = Number(typeof window !== 'undefined' ? (sessionStorage.getItem(`score_${contest.id}_${probId}`) || localStorage.getItem(`score_${contest.id}_${probId}`) || 0) : 0);
+    const subScore = sub ? Math.max(sub.score || 0, sub.points || 0) : 0;
+    return acc + Math.max(subScore, sessionScore);
+  }, 0);
+
+  const participantScore = Math.max(userReport?.participant?.score || 0, computedParticipantScore);
   const maxContestScore = problems.reduce((acc: number, p: any) => acc + (p.points || 100), 0);
 
   const solvedCount = problems.filter((p: any) => {
-    const sub = candidateSubmissions.find((s: any) => s.problemId === p.problem?.id);
+    const probId = p.problem?.id;
+    const sub = candidateSubmissions.find((s: any) => s.problemId === probId);
     const maxPoints = p.points || 100;
-    const pts = sub?.score ?? sub?.points ?? 0;
-    return sub?.status === 'ACCEPTED' || sub?.status === 'passed' || (pts >= maxPoints && maxPoints > 0);
+    const sessionScore = Number(typeof window !== 'undefined' ? (sessionStorage.getItem(`score_${contest.id}_${probId}`) || localStorage.getItem(`score_${contest.id}_${probId}`) || 0) : 0);
+    const pts = Math.max(sub?.score ?? sub?.points ?? 0, sessionScore);
+    const isLockedState = typeof window !== 'undefined' && (
+      sessionStorage.getItem(`locked_prob_${contest.id}_${probId}`) === '1' ||
+      localStorage.getItem(`locked_prob_${contest.id}_${probId}`) === '1'
+    );
+    return isLockedState || sub?.status === 'ACCEPTED' || sub?.status === 'passed' || (pts >= maxPoints && maxPoints > 0);
   }).length;
 
   const attemptedCount = problems.filter((p: any) => {
@@ -2326,12 +2480,21 @@ function SebProblemsListInline({
     const isFull = sub?.status === 'ACCEPTED' || sub?.status === 'passed' || (pts >= maxPoints && maxPoints > 0);
     const isAttempted = !!sub && !isFull;
 
-    // Section filtering in SEB mode
-    if (activeSectionId !== 'all' && contest.sections && contest.sections.length > 0) {
-      const sec = contest.sections.find((s: any) => s.id === activeSectionId);
-      const secProbIds: string[] = Array.isArray(sec?.problemIds) ? sec.problemIds : [];
-      if (secProbIds.length > 0 && !secProbIds.includes(p.problem?.id)) {
-        return false;
+    // Strict Section filtering in SEB/Overview mode
+    if (contest.sections && contest.sections.length > 0) {
+      const currentSec = contest.sections.find((s: any) => s.id === activeSectionId) || contest.sections[0];
+      if (currentSec) {
+        const secProbIds: string[] = Array.isArray(currentSec.problemIds) ? currentSec.problemIds : [];
+        if (secProbIds.length > 0) {
+          if (!secProbIds.includes(p.problem?.id)) return false;
+        } else {
+          const secIdx = contest.sections.findIndex((s: any) => s.id === currentSec.id);
+          const pIdx = problems.findIndex((probItem: any) => probItem.problem?.id === p.problem?.id);
+          if (pIdx !== -1) {
+            const expectedSecIdx = Math.floor((pIdx / problems.length) * contest.sections.length);
+            if (expectedSecIdx !== secIdx) return false;
+          }
+        }
       }
     }
 
@@ -2352,60 +2515,12 @@ function SebProblemsListInline({
         onClose={() => setQuickViewItem(null)}
         onLaunch={() => {
           if (quickViewItem) {
-            onProblemClick(quickViewItem);
+            handleSebProblemLaunch(quickViewItem);
           }
         }}
       />
 
       <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6">
-
-        {/* 📚 Section Switcher Bar in SEB Mode */}
-        {contest.sections && contest.sections.length > 0 && (
-          <div className="bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-zinc-950/80 border border-indigo-500/30 rounded-2xl p-4 shadow-xl space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">📚</span>
-                <div>
-                  <h3 className="text-sm font-black text-indigo-300">Exam Sections</h3>
-                  <p className="text-[10px] text-gray-400">Switch between sections to attempt assigned questions &amp; timed modules</p>
-                </div>
-              </div>
-              <span className="text-xs px-2.5 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-lg font-bold">
-                {contest.sections.length} Sections
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pt-1">
-              <button
-                onClick={() => setActiveSectionId('all')}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border ${
-                  activeSectionId === 'all'
-                    ? 'bg-indigo-500 text-white border-indigo-400 shadow-lg shadow-indigo-500/30'
-                    : 'bg-black/60 text-gray-400 border-white/10 hover:text-white'
-                }`}
-              >
-                All Sections ({problems.length})
-              </button>
-              {contest.sections.map((sec: any, idx: number) => {
-                const isSelected = activeSectionId === sec.id;
-                return (
-                  <button
-                    key={sec.id}
-                    onClick={() => setActiveSectionId(sec.id)}
-                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border flex items-center gap-2 ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-300 shadow-lg shadow-indigo-500/30'
-                        : 'bg-black/60 text-gray-300 border-white/10 hover:border-indigo-500/30'
-                    }`}
-                  >
-                    <span>Section {idx + 1}: {sec.title}</span>
-                    {sec.duration > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-black/40 rounded">⏱️ {sec.duration}m</span>}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
         {/* 🌟 Glassmorphic Performance Hero Header */}
         <ContestHeroHeader
@@ -2417,6 +2532,180 @@ function SebProblemsListInline({
           endTime={contest.endTime}
           isSebBrowser={true}
         />
+
+        {/* 📚 Section Switcher Bar in SEB Mode (Positioned below Hero Header) */}
+        {contest.sections && contest.sections.length > 0 && (
+          <div className="bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-zinc-950/80 border border-indigo-500/30 rounded-2xl p-4 shadow-xl space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📚</span>
+                <div>
+                  <h3 className="text-sm font-black text-indigo-300">Exam Sections</h3>
+                  <p className="text-[10px] text-gray-400 font-medium">Sequential exam section progression active</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {sectionTimeRemaining !== null && sectionTimeRemaining !== undefined && (
+                  <span className="text-xs px-3 py-1.5 bg-amber-500/15 text-amber-300 border border-amber-500/40 rounded-xl font-mono font-black shadow-md shadow-amber-500/10 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    ⏱️ Section Time Left: {Math.floor(sectionTimeRemaining / 60)}m {String(sectionTimeRemaining % 60).padStart(2, '0')}s
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    const currentSecIdx = contest.sections.findIndex((s: any) => s.id === activeSectionId);
+                    const currentSec = contest.sections[currentSecIdx] || contest.sections[0];
+                    if (currentSec) {
+                      setPendingSkipSection({ sec: currentSec, idx: currentSecIdx >= 0 ? currentSecIdx : 0 });
+                      setSkipConsentAgreed(false);
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 text-xs font-black rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-500/10"
+                  title="Lock current section and move to next"
+                >
+                  <span>🔒 Skip / Lock Current Section →</span>
+                </button>
+                <span className="text-xs px-2.5 py-1 bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 rounded-lg font-bold">
+                  {contest.sections.length} Sections
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pt-1">
+              {contest.sections.map((sec: any, idx: number) => {
+                const isSelected = activeSectionId === sec.id;
+                const isSelfLocked = sessionStorage.getItem(`sec_locked_${contest.id}_${sec.id}`) === '1';
+
+                // Check if previous sections are completed/locked
+                const prevSec = idx > 0 ? contest.sections[idx - 1] : null;
+                const prevSecProbIds: string[] = prevSec ? (Array.isArray(prevSec.problemIds) ? prevSec.problemIds : []) : [];
+                let isPrevCompleted = idx === 0;
+                if (prevSec) {
+                  const isPrevExplicitlyLocked = sessionStorage.getItem(`sec_locked_${contest.id}_${prevSec.id}`) === '1';
+                  if (isPrevExplicitlyLocked) {
+                    isPrevCompleted = true;
+                  } else if (prevSecProbIds.length > 0) {
+                    isPrevCompleted = prevSecProbIds.every(pid => candidateSubmissions.some((s: any) => s.problemId === pid && (s.status === 'ACCEPTED' || s.status === 'passed' || (s.score || 0) > 0)));
+                  } else {
+                    const prevSecIdx = idx - 1;
+                    const totalSecs = contest.sections.length;
+                    const prevSectionProbs = problems.filter((_: any, pIdx: number) => Math.floor((pIdx / Math.max(1, problems.length)) * totalSecs) === prevSecIdx);
+                    isPrevCompleted = prevSectionProbs.length > 0 && prevSectionProbs.every((p: any) => candidateSubmissions.some((s: any) => s.problemId === p.problem?.id && (s.status === 'ACCEPTED' || s.status === 'passed')));
+                  }
+                }
+                const isLocked = idx > 0 && !isPrevCompleted;
+
+                return (
+                  <button
+                    key={sec.id}
+                    onClick={() => {
+                      if (isSelfLocked) {
+                        notify.toast.info(`🔒 Section ${idx + 1} (${sec.title}) is submitted & permanently locked. Reverting is not allowed.`);
+                        return;
+                      }
+                      if (isLocked) {
+                        notify.toast.error(`🔒 Section Locked: You must complete and lock Section ${idx} (${prevSec?.title}) before moving to Section ${idx + 1}!`);
+                        return;
+                      }
+                      setActiveSectionId(sec.id);
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 border flex items-center gap-2 cursor-pointer ${
+                      isSelfLocked
+                        ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+                        : isSelected
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-300 shadow-lg shadow-indigo-500/30'
+                        : isLocked
+                        ? 'bg-black/40 text-gray-500 border-white/5 opacity-60 hover:opacity-80'
+                        : 'bg-black/60 text-gray-300 border-white/10 hover:border-indigo-500/30'
+                    }`}
+                  >
+                    <span>Section {idx + 1}: {sec.title}</span>
+                    {sec.duration > 0 && <span className="text-[10px] px-1.5 py-0.5 bg-black/40 rounded">⏱️ {sec.duration}m</span>}
+                    {isSelfLocked ? <span className="text-[10px] text-emerald-400 font-bold">✓ Locked</span> : isLocked ? <span className="text-[10px] text-amber-400">🔒</span> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* 🚨 Section Skip & Permanent Lock Consent Modal */}
+        {pendingSkipSection && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in select-none">
+            <div className="bg-zinc-950 border border-amber-500/40 rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl space-y-6 relative overflow-hidden">
+              <div className="absolute -top-32 -right-32 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 text-2xl">
+                  ⚠️
+                </div>
+                <div>
+                  <span className="px-2.5 py-0.5 bg-amber-500/10 text-amber-400 text-[9px] font-black uppercase tracking-widest border border-amber-500/20 rounded">
+                    Permanent Action Warning
+                  </span>
+                  <h3 className="text-lg font-black text-white mt-1">
+                    Lock / Skip Section {pendingSkipSection.idx + 1}: {pendingSkipSection.sec.title}?
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                    Are you sure you want to finish or skip this exam section and proceed to Section {pendingSkipSection.idx + 2}?
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-red-950/40 border border-red-500/30 rounded-2xl p-4 space-y-2">
+                <div className="flex items-center gap-2 text-red-400 font-extrabold text-xs">
+                  <span>🚨</span> CRITICAL EXAMINATION NOTICE
+                </div>
+                <p className="text-xs text-red-200/90 leading-relaxed">
+                  Once you confirm, Section {pendingSkipSection.idx + 1} will be <strong className="text-red-300">PERMANENTLY LOCKED</strong>. You will <strong className="text-white">NOT be able to return, view, or modify any problems in this section</strong> for the remainder of the assessment.
+                </p>
+              </div>
+
+              <label className="flex items-start gap-3 p-3.5 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition">
+                <input
+                  type="checkbox"
+                  checked={skipConsentAgreed}
+                  onChange={e => setSkipConsentAgreed(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded accent-amber-500 cursor-pointer shrink-0"
+                />
+                <span className="text-xs text-gray-300 font-medium leading-relaxed">
+                  I understand that locking/skipping Section {pendingSkipSection.idx + 1} is <strong className="text-white">PERMANENT</strong> and <strong className="text-amber-400">CANNOT BE REVERTED</strong> under any circumstances.
+                </span>
+              </label>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    setPendingSkipSection(null);
+                    setSkipConsentAgreed(false);
+                  }}
+                  className="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 font-bold text-xs rounded-xl transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={!skipConsentAgreed}
+                  onClick={() => {
+                    const secId = pendingSkipSection.sec.id;
+                    sessionStorage.setItem(`sec_locked_${contest.id}_${secId}`, '1');
+                    const nextIdx = pendingSkipSection.idx + 1;
+                    if (nextIdx < contest.sections.length) {
+                      setActiveSectionId(contest.sections[nextIdx].id);
+                      notify.toast.success(`🔒 Section ${pendingSkipSection.idx + 1} locked permanently. Switched to Section ${nextIdx + 1}!`);
+                    } else {
+                      notify.toast.success(`🔒 Final Section ${pendingSkipSection.idx + 1} locked!`);
+                    }
+                    setPendingSkipSection(null);
+                    setSkipConsentAgreed(false);
+                  }}
+                  className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-extrabold text-xs rounded-xl transition shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  🔒 Confirm Lock & Move to Next Section →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 📊 Live Overall Exam Progress Bar */}
         <div className="bg-zinc-950/70 border border-white/10 rounded-2xl p-4 shadow-xl space-y-2 backdrop-blur-md">
@@ -2608,7 +2897,7 @@ function SebProblemsListInline({
                     </button>
 
                     <button
-                      onClick={() => onProblemClick(p)}
+                      onClick={() => handleSebProblemLaunch(p)}
                       className={`px-5 py-2.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-2 shadow-lg ${
                         isSolved
                           ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
@@ -2616,6 +2905,8 @@ function SebProblemsListInline({
                           ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
                           : isAttempted
                           ? 'bg-gradient-to-r from-amber-500 to-amber-400 text-black shadow-amber-500/20 hover:from-amber-400 hover:to-amber-300'
+                          : (probType === 'vibe-code' || probType === 'ai-assisted' || p.problem?.slug === 'lcm-of-two-trees-c')
+                          ? 'bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-purple-600/30 border border-purple-400/30'
                           : 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-black shadow-emerald-500/20 hover:from-emerald-400 hover:to-emerald-300'
                       }`}
                     >
@@ -2631,6 +2922,10 @@ function SebProblemsListInline({
                         <>
                           <span>▶</span> Continue Problem
                         </>
+                      ) : (probType === 'vibe-code' || probType === 'ai-assisted' || p.problem?.slug === 'lcm-of-two-trees-c') ? (
+                        <>
+                          <span>🤖</span> Solve with AI Assistant
+                        </>
                       ) : (
                         <>
                           <span>🚀</span> Solve Problem
@@ -2644,6 +2939,21 @@ function SebProblemsListInline({
           </div>
         )}
       </div>
+
+      {/* Embedded In-Contest AI Workspace in SEB/Overview Mode */}
+      {activeAiProblem && (
+        <InContestAiWorkspace
+          contest={contest}
+          problemItem={activeAiProblem}
+          currentSection={contest.sections?.find((s: any) => s.id === activeSectionId)}
+          onBack={() => setActiveAiProblem(null)}
+          onSubmitted={() => {
+            setActiveAiProblem(null);
+            queryClient.invalidateQueries({ queryKey: ['contest', contest.id] });
+            refetchReport?.();
+          }}
+        />
+      )}
     </>
   );
 }
@@ -2706,24 +3016,40 @@ function SebExamWizard({
     navigate(`${path}?contestId=${contest.id}&problem=${p.problem.id}`);
   };
 
+  const [isFinishing, setIsFinishing] = useState(false);
+
   const handleFinishClick = async () => {
+    if (isFinishing) return;
+    setIsFinishing(true);
+    notify.toast.info('📊 Generating final score & summary report...');
+
     try {
-      const report = await api.getMyContestReport(contest.id);
+      const report = await api.getMyContestReport(contest.id).catch(() => null);
       const problems = contest.problems || [];
       const submissions = report?.submissions || [];
       const mappedProblems = problems.map((cp: any) => {
-        const sub = submissions.find((s: any) => s.problemId === cp.problem?.id);
+        const probId = cp.problem?.id || cp.id;
+        const sub = submissions.find((s: any) => s.problemId === probId);
+        const sessionScore = Number(typeof window !== 'undefined' ? sessionStorage.getItem(`score_${contest.id}_${probId}`) || 0 : 0);
+        const subScore = sub ? Math.max(sub.score || 0, sub.points || 0) : 0;
+        const finalEarned = Math.max(subScore, sessionScore);
+
         return {
-          problemId: cp.problem?.id || cp.id,
+          problemId: probId,
           title: cp.problem?.title || `Problem ${cp.id}`,
           points: cp.points || 100,
-          earned: sub?.points || 0,
-          status: sub ? (sub.points > 0 ? 'solved' : 'attempted') : 'unattempted',
+          earned: finalEarned,
+          status: finalEarned > 0 ? 'solved' : (sub ? 'attempted' : 'unattempted'),
         };
       });
+
+      const calculatedMax = mappedProblems.reduce((a: number, p: any) => a + p.points, 0);
+      const calculatedScore = mappedProblems.reduce((a: number, p: any) => a + p.earned, 0);
+      const finalScore = Math.max(report?.participant?.score || 0, calculatedScore);
+
       setReportData({
-        score: report?.participant?.score || 0,
-        maxScore: mappedProblems.reduce((a: number, p: any) => a + p.points, 0),
+        score: finalScore,
+        maxScore: calculatedMax,
         warnings: report?.participant?.warnings || 0,
         solvedCount: mappedProblems.filter((p: any) => p.earned > 0).length,
         totalProblems: mappedProblems.length,
@@ -2734,6 +3060,8 @@ function SebExamWizard({
       setShowSummary(true);
     } catch {
       notify.toast.error('Failed to load exam summary. Try again.');
+    } finally {
+      setIsFinishing(false);
     }
   };
 

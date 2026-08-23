@@ -202,17 +202,25 @@ router.post('/create', authenticateToken, async (req: Request, res: Response): P
           }),
         },
         sections: Array.isArray(sections) && sections.length > 0 ? {
-          create: sections.map((sec: any, idx: number) => ({
-            title: sec.title || `Section ${idx + 1}`,
-            sectionType: sec.sectionType || 'CODING',
-            order: idx + 1,
-            duration: Number(sec.duration) || 0,
-            sectionLocked: sec.sectionLocked ?? true,
-            negativeMarkingEnabled: sec.negativeMarkingEnabled ?? false,
-            negativeMarkingValue: Number(sec.negativeMarkingValue) || 0.25,
-            problemIds: Array.isArray(sec.problemIds) ? sec.problemIds : [],
-            instructions: sec.instructions || null,
-          }))
+          create: sections.map((sec: any, idx: number) => {
+            const rawType = (sec.sectionType || 'CODING').toUpperCase();
+            let safeType = 'CODING';
+            if (rawType === 'QUIZ') safeType = 'QUIZ';
+            else if (rawType === 'WEB_DEV') safeType = 'WEB_DEV';
+            else safeType = 'CODING';
+
+            return {
+              title: sec.title || `Section ${idx + 1}`,
+              sectionType: safeType as any,
+              order: idx + 1,
+              duration: Number(sec.duration) || 0,
+              sectionLocked: sec.sectionLocked ?? true,
+              negativeMarkingEnabled: sec.negativeMarkingEnabled ?? false,
+              negativeMarkingValue: Number(sec.negativeMarkingValue) || 0.25,
+              problemIds: Array.isArray(sec.problemIds) ? sec.problemIds : [],
+              instructions: sec.instructions || null,
+            };
+          })
         } : undefined,
       } as any,
       include: {
@@ -451,6 +459,7 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response): Promi
       scoringMode, negativeMarkingEnabled, negativeMarkingValue,
       showLeaderboardDuringContest, freezeLeaderboardMins,
       randomizeQuestionOrder, allowMultipleMonitors, accessCode,
+      sections,
     } = req.body;
 
     const isLive = (existing as any).status === 'LIVE';
@@ -491,7 +500,42 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response): Promi
       ...(accessCode !== undefined && { accessCode: accessCode ? String(accessCode).trim().toUpperCase() : null }),
     };
 
-    const updated = await prisma.contest.update({ where: { id }, data: updateData });
+    if (Array.isArray(sections)) {
+      await prisma.contestSection.deleteMany({ where: { contestId: id } }).catch(() => {});
+      if (sections.length > 0) {
+        await prisma.contestSection.createMany({
+          data: sections.map((sec: any, idx: number) => {
+            const rawType = (sec.sectionType || 'CODING').toUpperCase();
+            let safeType = 'CODING';
+            if (rawType === 'QUIZ') safeType = 'QUIZ';
+            else if (rawType === 'WEB_DEV') safeType = 'WEB_DEV';
+            else safeType = 'CODING';
+
+            return {
+              contestId: id,
+              title: sec.title || `Section ${idx + 1}`,
+              sectionType: safeType as any,
+              order: idx + 1,
+              duration: Number(sec.duration) || 0,
+              sectionLocked: sec.sectionLocked ?? true,
+              negativeMarkingEnabled: sec.negativeMarkingEnabled ?? false,
+              negativeMarkingValue: Number(sec.negativeMarkingValue) || 0.25,
+              problemIds: Array.isArray(sec.problemIds) ? sec.problemIds : [],
+              instructions: sec.instructions || null,
+            };
+          })
+        }).catch(() => {});
+      }
+    }
+
+    const updated = await prisma.contest.update({
+      where: { id },
+      data: updateData,
+      include: {
+        sections: { orderBy: { order: 'asc' } },
+        problems: { include: { problem: true } }
+      }
+    });
 
     res.json({ success: true, contest: updated, isLive, lockedFields: isLive ? ['startTime', 'duration', 'requireSeb'] : [] });
   } catch (error: any) {

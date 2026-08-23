@@ -1218,19 +1218,7 @@ export function SqlPlaygroundPage({ embeddedInContest }: { embeddedInContest?: b
           {sqlContestProblems.length > 0 && (
             <>
               <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest shrink-0 mr-1">Contest</span>
-              <div className="flex items-center gap-1.5">
-                {sqlContestProblems.map((cp, idx) => {
-                  const isSolved = solvedProblems.has(cp.problem.id);
-                  const isCurrent = selectedProblem?.id === cp.problem.id;
-                  return (
-                    <button key={cp.problem.id} onClick={() => { const prob = problems.find(p => p.id === cp.problem.id); if (prob) selectProblem(prob); }} title={cp.problem.title}
-                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border transition-all shrink-0 ${isCurrent ? 'bg-amber-500/20 border-amber-400 text-amber-300' : isSolved ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300' : 'bg-white/5 border-white/20 text-gray-400 hover:border-white/40 hover:text-white'}`}>
-                      {isSolved && <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
-                      {String.fromCharCode(65 + idx)}
-                    </button>
-                  );
-                })}
-              </div>
+
               <div className="ml-auto flex items-center gap-2 shrink-0">
                 <span className="text-xs font-semibold text-gray-400">
                   <span className={solvedProblems.size > 0 ? 'text-emerald-400' : 'text-gray-500'}>{solvedProblems.size}</span>

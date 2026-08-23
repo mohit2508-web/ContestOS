@@ -231,9 +231,11 @@ export function PreExamInstructionsModal({ onProceed }: { onProceed: () => void 
 export function FinishExamFAB({
   contest,
   onFinish,
+  isFinishing = false,
 }: {
   contest: { startTime: string; endTime: string };
   onFinish: () => void;
+  isFinishing?: boolean;
 }) {
   const [timeLeftMs, setTimeLeftMs] = useState(0);
   const totalMs = useMemo(() => {
@@ -285,27 +287,32 @@ export function FinishExamFAB({
     >
       <button
         onClick={onFinish}
+        disabled={isFinishing}
         className={`
           relative flex items-center gap-3 px-5 py-3 rounded-full
           bg-zinc-900/80 backdrop-blur-xl border border-white/10
           text-white font-extrabold text-xs tracking-wide
           transition-all duration-300 cursor-pointer
-          hover:scale-105
+          hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed
           ${isUrgent ? 'fab-red-glow' : 'fab-cyan-glow'}
         `}
       >
-        <CircularProgress
-          value={pct}
-          size={44}
-          stroke={2.5}
-          color={ringColor}
-          bg="rgba(255,255,255,0.06)"
-        />
+        {isFinishing ? (
+          <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin shrink-0" />
+        ) : (
+          <CircularProgress
+            value={pct}
+            size={44}
+            stroke={2.5}
+            color={ringColor}
+            bg="rgba(255,255,255,0.06)"
+          />
+        )}
         <span className="ml-2 font-mono text-sm tabular-nums" style={{ color: ringColor }}>
           {timeStr}
         </span>
-        <span className="ml-1 text-[10px] font-black uppercase tracking-wider text-gray-400">
-          Finish
+        <span className="ml-1 text-[10px] font-black uppercase tracking-wider text-amber-400 font-mono">
+          {isFinishing ? '⌛ Finalizing...' : '🏁 Finish Exam'}
         </span>
       </button>
     </motion.div>

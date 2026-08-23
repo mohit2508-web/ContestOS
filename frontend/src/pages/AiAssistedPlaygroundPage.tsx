@@ -9,11 +9,116 @@ import MarkdownRenderer from '../components/MarkdownRenderer';
 import { SOCRATIC_FALLBACK_PROBLEMS } from '../data/socraticFallbackProblems';
 
 const DEFAULT_STARTER_TEMPLATES: Record<string, string> = {
-  c: `// Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`,
-  cpp: `// Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`,
-  java: `// Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`,
-  python: `# Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`,
-  javascript: `// Use the Socratic AI Assistant on the right to discuss your approach and generate your starter code!`
+  c: `// Solution for LCM of Two Binary Trees in C
+#include <stdio.h>
+#include <stdlib.h>
+
+struct TreeNode {
+    int data;
+    int val;
+    struct TreeNode* left;
+    struct TreeNode* right;
+};
+
+struct TreeNode* LCMOfTrees(struct TreeNode* root1, struct TreeNode* root2) {
+    if (!root1 && !root2) return NULL;
+    if (!root1) return root2;
+    if (!root2) return root1;
+    return root1;
+}`,
+  cpp: `// Solution for LCM of Two Binary Trees in C++
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+struct TreeNode {
+    int data;
+    int val;
+    TreeNode* left;
+    TreeNode* right;
+    TreeNode(int x) : data(x), val(x), left(NULL), right(NULL) {}
+};
+
+class Solution {
+public:
+    TreeNode* LCMOfTrees(TreeNode* root1, TreeNode* root2) {
+        if (!root1 && !root2) return NULL;
+        if (!root1) return root2;
+        if (!root2) return root1;
+        return root1;
+    }
+};`,
+  java: `import java.util.*;
+
+class TreeNode {
+    int data;
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode(int x) { this.data = x; this.val = x; }
+}
+
+public class Solution {
+    private long gcd(long a, long b) {
+        while (b != 0) {
+            long t = b;
+            b = a % b;
+            a = t;
+        }
+        return a;
+    }
+
+    private long lcm(long a, long b) {
+        if (a == 0 || b == 0) return 0;
+        return (a / gcd(a, b)) * b;
+    }
+
+    public TreeNode LCMOfTrees(TreeNode root1, TreeNode root2) {
+        if (root1 == null && root2 == null) return null;
+        if (root1 == null) return root2;
+        if (root2 == null) return root1;
+
+        int v1 = root1.data != 0 ? root1.data : root1.val;
+        int v2 = root2.data != 0 ? root2.data : root2.val;
+        int res = (int) lcm((long) v1, (long) v2);
+        root1.data = res;
+        root1.val = res;
+
+        root1.left = LCMOfTrees(root1.left, root2.left);
+        root1.right = LCMOfTrees(root1.right, root2.right);
+        return root1;
+    }
+}`,
+  python: `# Solution for LCM of Two Binary Trees in Python
+import math
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.data = val
+        self.left = left
+        self.right = right
+
+class Solution:
+    def LCMOfTrees(self, root1, root2):
+        if not root1 and not root2:
+            return None
+        if not root1:
+            return root2
+        if not root2:
+            return root1
+        
+        v1 = root1.data if hasattr(root1, 'data') and root1.data != 0 else root1.val
+        v2 = root2.data if hasattr(root2, 'data') and root2.data != 0 else root2.val
+        
+        lcm_val = (v1 * v2) // math.gcd(v1, v2) if (v1 and v2) else (v1 or v2)
+        root1.val = lcm_val
+        root1.data = lcm_val
+        
+        root1.left = self.LCMOfTrees(root1.left, root2.left)
+        root1.right = self.LCMOfTrees(root1.right, root2.right)
+        return root1
+`
 };
 
 const getTeacherStarterCode = (prob: any, lang: string): string => {
@@ -56,6 +161,12 @@ interface AiAssistedPlaygroundPageProps {
   isContestMode?: boolean;
   candidateId?: string;
   candidateName?: string;
+  contest?: any;
+  problemItem?: any;
+  currentSection?: any;
+  sectionTimeRemaining?: number | null;
+  onBack?: () => void;
+  onSubmitted?: (score: number) => void;
 }
 
 const DEFAULT_PROBLEM_TEST_CASES = [
@@ -99,7 +210,13 @@ const DEFAULT_PROBLEM_TEST_CASES = [
 export function AiAssistedPlaygroundPage({
   isContestMode = false,
   candidateId = '17100641',
-  candidateName
+  candidateName,
+  contest,
+  problemItem,
+  currentSection,
+  sectionTimeRemaining,
+  onBack,
+  onSubmitted,
 }: AiAssistedPlaygroundPageProps) {
   const { user } = useAuth();
   const notify = useNotify();
@@ -107,9 +224,27 @@ export function AiAssistedPlaygroundPage({
   const [selectedProblem, setSelectedProblem] = useState<any>(SOCRATIC_FALLBACK_PROBLEMS[0]);
   const [showProblemsModal, setShowProblemsModal] = useState(false);
   const [problemSearchQuery, setProblemSearchQuery] = useState('');
+  const search = new URLSearchParams(window.location.search);
+  const contestIdParam = search.get('contestId');
+  const activeContestMode = isContestMode || Boolean(contestIdParam) || Boolean(contest);
+  const [contestTitle, setContestTitle] = useState<string>(contest?.title || 'Contest Exam Arena');
+
   useEffect(() => {
+    if (problemItem?.problem) {
+      setSelectedProblem(problemItem.problem);
+      setProblemsList([problemItem.problem]);
+      return;
+    }
+
     const search = new URLSearchParams(window.location.search);
     const problemIdParam = search.get('problem');
+    const cId = search.get('contestId');
+
+    if (cId) {
+      api.getContest(cId).then(res => {
+        if (res?.contest?.title) setContestTitle(res.contest.title);
+      }).catch(() => {});
+    }
 
     if (problemIdParam) {
       const matchedFb = SOCRATIC_FALLBACK_PROBLEMS.find(p => p.id === problemIdParam || (p as any).slug === problemIdParam);
@@ -129,7 +264,7 @@ export function AiAssistedPlaygroundPage({
       setProblemsList(SOCRATIC_FALLBACK_PROBLEMS);
       setSelectedProblem(SOCRATIC_FALLBACK_PROBLEMS[0]);
     }
-  }, []);
+  }, [problemItem]);
 
   const handleSelectProblem = async (prob: any, idx: number) => {
     setSelectedQuestionIndex(idx);
@@ -160,7 +295,7 @@ export function AiAssistedPlaygroundPage({
 
   const [isDayMode, setIsDayMode] = useState<boolean>(() => {
     const savedTheme = localStorage.getItem('kryptavia_playground_theme');
-    return savedTheme ? savedTheme === 'day' : true;
+    return savedTheme ? savedTheme === 'day' : false;
   });
 
   // Load Teacher's Configured Starter Code whenever selectedProblem or language changes
@@ -218,7 +353,26 @@ export function AiAssistedPlaygroundPage({
   const [output, setOutput] = useState('');
   const [showOutputPanel, setShowOutputPanel] = useState(false);
   const [activeTestTab, setActiveTestTab] = useState<string>('tc1');
-  const [timerSeconds, setTimerSeconds] = useState(1230);
+  const sectionStorageKey = `sec_timer_start_${contest?.id || 'c1'}_${currentSection?.id || 'sec1'}`;
+  const getOrSetSectionStartTime = () => {
+    const existing = sessionStorage.getItem(sectionStorageKey) || localStorage.getItem(sectionStorageKey);
+    if (existing) return Number(existing);
+    const now = Date.now();
+    sessionStorage.setItem(sectionStorageKey, String(now));
+    localStorage.setItem(sectionStorageKey, String(now));
+    return now;
+  };
+
+  const totalSecsAllocated = (currentSection?.duration || 30) * 60;
+  const [timerSeconds, setTimerSeconds] = useState<number>(() => {
+    if (sectionTimeRemaining !== null && sectionTimeRemaining !== undefined) {
+      return sectionTimeRemaining;
+    }
+    const startTime = getOrSetSectionStartTime();
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    return Math.max(0, totalSecsAllocated - elapsed);
+  });
+
   const [cursorPos, setCursorPos] = useState({ line: 11, column: 2 });
   const [previousCodeVersion, setPreviousCodeVersion] = useState('Select');
 
@@ -259,12 +413,28 @@ export function AiAssistedPlaygroundPage({
   const [testSummary, setTestSummary] = useState<{ passed: number; total: number }>({ passed: 0, total: 5 });
 
   useEffect(() => {
-    if (!isContestMode) return;
-    const timer = setInterval(() => {
-      setTimerSeconds(prev => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+    if (!activeContestMode) return;
+
+    const updateCountdown = () => {
+      const startTime = getOrSetSectionStartTime();
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const remaining = Math.max(0, totalSecsAllocated - elapsed);
+      setTimerSeconds(remaining);
+
+      if (remaining <= 0) {
+        if (currentSection?.id && contest?.id) {
+          sessionStorage.setItem(`sec_locked_${contest.id}_${currentSection.id}`, '1');
+        }
+        notify.warning('⏱️ Section Time Expired! Section has been automatically submitted and locked.');
+        if (onSubmitted) onSubmitted(0);
+        if (onBack) onBack();
+      }
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
     return () => clearInterval(timer);
-  }, [isContestMode]);
+  }, [activeContestMode, currentSection, contest, totalSecsAllocated]);
 
   // ── Drag Resizing Handlers ──────────────────────────────────────────────────
   const handleProblemResizeMouseDown = (e: React.MouseEvent) => {
@@ -436,12 +606,13 @@ export function AiAssistedPlaygroundPage({
           const samplePassed = sampleCases.filter(tc => tc.passed).length;
           const hiddenPassed = hiddenCases.filter(tc => tc.passed).length;
           const totalPassed = updatedTestCases.filter(tc => tc.passed).length;
-          const totalCount = updatedTestCases.length;
-          const finalScore = Math.round((totalPassed / totalCount) * 50);
+          const totalCount = updatedTestCases.length || 1;
+          const maxPoints = problemItem?.points || 50;
+          const finalScore = Math.round((totalPassed / totalCount) * maxPoints);
 
           setSubmissionDetails({
             score: finalScore,
-            totalMarks: 50,
+            totalMarks: maxPoints,
             samplePassed,
             sampleTotal: sampleCases.length,
             hiddenPassed,
@@ -450,7 +621,32 @@ export function AiAssistedPlaygroundPage({
             totalCount,
             isAccepted: totalPassed === totalCount
           });
+          if (contest?.id && selectedProblem?.id) {
+            const probId = selectedProblem.id;
+            sessionStorage.setItem(`score_${contest.id}_${probId}`, String(finalScore));
+            localStorage.setItem(`score_${contest.id}_${probId}`, String(finalScore));
+            if (problemItem?.id) {
+              sessionStorage.setItem(`score_${contest.id}_${problemItem.id}`, String(finalScore));
+              localStorage.setItem(`score_${contest.id}_${problemItem.id}`, String(finalScore));
+            }
+
+            // Post submission to backend database!
+            api.post('/submissions', {
+              contestId: contest.id,
+              problemId: probId,
+              code,
+              language,
+              score: finalScore,
+              points: finalScore,
+              status: totalPassed === totalCount ? 'ACCEPTED' : (finalScore > 0 ? 'passed' : 'FAILED'),
+              passedTests: totalPassed,
+              totalTests: totalCount,
+            }).catch((err: any) => console.warn('[AI Arena] Submission DB save warning:', err));
+          }
           setShowSubmissionModal(true);
+          if (onSubmitted) {
+            onSubmitted(finalScore);
+          }
 
           if (totalPassed === totalCount) {
             notify.success(`🎉 SUBMISSION ACCEPTED! Score: ${finalScore}/50 Marks (100% Passed)`);
@@ -477,7 +673,27 @@ export function AiAssistedPlaygroundPage({
       <header className={`h-14 ${isDayMode ? 'bg-[#1e232a]' : 'bg-[#14161f]'} text-white flex items-center justify-between px-4 shrink-0 shadow z-30`}>
         <div className="flex items-center gap-3">
           <KryptaviaLogo size="sm" showText={true} />
-          {!isContestMode && (
+          {activeContestMode ? (
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-black rounded-lg flex items-center gap-1.5 shadow-sm">
+                🤖 Official Exam Arena: AI-Assisted Socratic Section
+              </span>
+              {(onBack || contestIdParam) && (
+                <button
+                  onClick={() => {
+                    if (onBack) {
+                      onBack();
+                    } else if (contestIdParam) {
+                      window.location.href = `/contests/${contestIdParam}?seb=1`;
+                    }
+                  }}
+                  className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-black font-black text-xs rounded-lg transition shadow-md flex items-center gap-1 cursor-pointer"
+                >
+                  <span>← Return to Exam Section</span>
+                </button>
+              )}
+            </div>
+          ) : (
             <span className="px-2.5 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-bold rounded-lg flex items-center gap-1.5">
               🤖 Practice Playground
             </span>
@@ -486,7 +702,7 @@ export function AiAssistedPlaygroundPage({
 
         {/* User Info & Exam Timer */}
         <div className="flex items-center gap-5">
-          {isContestMode ? (
+          {activeContestMode ? (
             <>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-[#f5a623] text-gray-900 font-black flex items-center justify-center text-xs shadow">
@@ -494,7 +710,7 @@ export function AiAssistedPlaygroundPage({
                 </div>
                 <div className="text-right leading-tight">
                   <p className="text-xs font-bold text-white">{displayName}</p>
-                  <p className="text-[10px] text-gray-400 font-mono">Candidate ID: {candidateId}</p>
+                  <p className="text-[10px] text-purple-300 font-mono font-semibold">{contestTitle}</p>
                 </div>
               </div>
 
@@ -1059,12 +1275,28 @@ export function AiAssistedPlaygroundPage({
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setShowSubmissionModal(false)}
-                  className="w-full py-2.5 bg-[#002b66] hover:bg-[#001f4d] text-white font-bold text-xs rounded transition cursor-pointer shadow-sm"
-                >
-                  Close Evaluation Details
-                </button>
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      if (currentSection?.id && contest?.id) {
+                        sessionStorage.setItem(`sec_locked_${contest.id}_${currentSection.id}`, '1');
+                      }
+                      setShowSubmissionModal(false);
+                      notify.success(`🔒 Section Finalized & Locked! Score: ${submissionDetails.score}/${submissionDetails.totalMarks}`);
+                      if (onSubmitted) onSubmitted(submissionDetails.score);
+                      if (onBack) onBack();
+                    }}
+                    className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-lg transition cursor-pointer shadow-md flex items-center justify-center gap-1.5"
+                  >
+                    <span>🔒 Final Lock & Complete</span>
+                  </button>
+                  <button
+                    onClick={() => setShowSubmissionModal(false)}
+                    className="flex-1 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-amber-300 border border-amber-500/30 font-bold text-xs rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>✏️ Keep Editing</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

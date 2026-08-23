@@ -1843,9 +1843,9 @@ export function ContestsPage() {
                           ? 'ring-1 ring-white/60 scale-[1.01] bg-white/10 font-black'
                           : ''
                         }`}
-                      title={`${String.fromCharCode(65 + idx)}. ${cp.problem.title} (${cp.problem.difficulty})`}
+                      title={`P${idx + 1}. ${cp.problem.title} (${cp.problem.difficulty})`}
                     >
-                      <span>{String.fromCharCode(65 + idx)}</span>
+                      <span>P{idx + 1}</span>
                       {hasBookmark && <span className="ml-1 text-[10px]">🔖</span>}
                     </button>
                   );
@@ -1972,7 +1972,7 @@ export function ContestsPage() {
                                     ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
                                     : 'bg-white/10 text-white'
                                 }`}>
-                                {isSolved ? '✓' : String.fromCharCode(65 + idx)}
+                                {isSolved ? '✓' : idx + 1}
                               </span>
                               <div className="min-w-0">
                                 <div className="text-xs font-bold truncate text-white group-hover:text-[var(--accent-green)] transition">

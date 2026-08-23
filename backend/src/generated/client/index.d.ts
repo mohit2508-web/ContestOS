@@ -228,6 +228,26 @@ export type AssistantStageEvent = $Result.DefaultSelection<Prisma.$AssistantStag
  * 
  */
 export type AssistantCodeSnapshot = $Result.DefaultSelection<Prisma.$AssistantCodeSnapshotPayload>
+/**
+ * Model CompanyVault
+ * 
+ */
+export type CompanyVault = $Result.DefaultSelection<Prisma.$CompanyVaultPayload>
+/**
+ * Model CompanyMaterial
+ * 
+ */
+export type CompanyMaterial = $Result.DefaultSelection<Prisma.$CompanyMaterialPayload>
+/**
+ * Model CompanyInterviewTranscript
+ * 
+ */
+export type CompanyInterviewTranscript = $Result.DefaultSelection<Prisma.$CompanyInterviewTranscriptPayload>
+/**
+ * Model CompanyAccessLog
+ * 
+ */
+export type CompanyAccessLog = $Result.DefaultSelection<Prisma.$CompanyAccessLogPayload>
 
 /**
  * Enums
@@ -332,7 +352,9 @@ export type OrgRequestStatus = (typeof OrgRequestStatus)[keyof typeof OrgRequest
 export const SectionType: {
   QUIZ: 'QUIZ',
   CODING: 'CODING',
-  WEB_DEV: 'WEB_DEV'
+  WEB_DEV: 'WEB_DEV',
+  VIBE_CODE: 'VIBE_CODE',
+  DEBUGGING: 'DEBUGGING'
 };
 
 export type SectionType = (typeof SectionType)[keyof typeof SectionType]
@@ -1061,6 +1083,46 @@ export class PrismaClient<
     * ```
     */
   get assistantCodeSnapshot(): Prisma.AssistantCodeSnapshotDelegate<ExtArgs>;
+
+  /**
+   * `prisma.companyVault`: Exposes CRUD operations for the **CompanyVault** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CompanyVaults
+    * const companyVaults = await prisma.companyVault.findMany()
+    * ```
+    */
+  get companyVault(): Prisma.CompanyVaultDelegate<ExtArgs>;
+
+  /**
+   * `prisma.companyMaterial`: Exposes CRUD operations for the **CompanyMaterial** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CompanyMaterials
+    * const companyMaterials = await prisma.companyMaterial.findMany()
+    * ```
+    */
+  get companyMaterial(): Prisma.CompanyMaterialDelegate<ExtArgs>;
+
+  /**
+   * `prisma.companyInterviewTranscript`: Exposes CRUD operations for the **CompanyInterviewTranscript** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CompanyInterviewTranscripts
+    * const companyInterviewTranscripts = await prisma.companyInterviewTranscript.findMany()
+    * ```
+    */
+  get companyInterviewTranscript(): Prisma.CompanyInterviewTranscriptDelegate<ExtArgs>;
+
+  /**
+   * `prisma.companyAccessLog`: Exposes CRUD operations for the **CompanyAccessLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CompanyAccessLogs
+    * const companyAccessLogs = await prisma.companyAccessLog.findMany()
+    * ```
+    */
+  get companyAccessLog(): Prisma.CompanyAccessLogDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1544,7 +1606,11 @@ export namespace Prisma {
     CapturedAnswer: 'CapturedAnswer',
     AssistantTranscript: 'AssistantTranscript',
     AssistantStageEvent: 'AssistantStageEvent',
-    AssistantCodeSnapshot: 'AssistantCodeSnapshot'
+    AssistantCodeSnapshot: 'AssistantCodeSnapshot',
+    CompanyVault: 'CompanyVault',
+    CompanyMaterial: 'CompanyMaterial',
+    CompanyInterviewTranscript: 'CompanyInterviewTranscript',
+    CompanyAccessLog: 'CompanyAccessLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1560,7 +1626,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organization" | "user" | "problem" | "problemAiCreditLog" | "testCase" | "contest" | "contestProblem" | "contestRegistration" | "submission" | "proctoringLog" | "plagiarismReport" | "teamInvitation" | "contestAssignment" | "auditLog" | "refreshToken" | "organizationRequest" | "contestSection" | "questionBank" | "quizPassage" | "quizQuestion" | "questionVersion" | "questionReviewLog" | "contestAssemblyRule" | "quizOption" | "quizAttemptQuestion" | "quizResponse" | "quizItemAnalytics" | "breakGlassAuditLog" | "guestInvite" | "gdprErasureRequest" | "contestModerationAssignment" | "notification" | "mockInterviewSession" | "interviewParticipant" | "interviewFeedback" | "interviewCodeSnapshot" | "interviewHintRequest" | "interviewExecutionResult" | "assistantSession" | "capturedAnswer" | "assistantTranscript" | "assistantStageEvent" | "assistantCodeSnapshot"
+      modelProps: "organization" | "user" | "problem" | "problemAiCreditLog" | "testCase" | "contest" | "contestProblem" | "contestRegistration" | "submission" | "proctoringLog" | "plagiarismReport" | "teamInvitation" | "contestAssignment" | "auditLog" | "refreshToken" | "organizationRequest" | "contestSection" | "questionBank" | "quizPassage" | "quizQuestion" | "questionVersion" | "questionReviewLog" | "contestAssemblyRule" | "quizOption" | "quizAttemptQuestion" | "quizResponse" | "quizItemAnalytics" | "breakGlassAuditLog" | "guestInvite" | "gdprErasureRequest" | "contestModerationAssignment" | "notification" | "mockInterviewSession" | "interviewParticipant" | "interviewFeedback" | "interviewCodeSnapshot" | "interviewHintRequest" | "interviewExecutionResult" | "assistantSession" | "capturedAnswer" | "assistantTranscript" | "assistantStageEvent" | "assistantCodeSnapshot" | "companyVault" | "companyMaterial" | "companyInterviewTranscript" | "companyAccessLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4574,6 +4640,286 @@ export namespace Prisma {
           }
         }
       }
+      CompanyVault: {
+        payload: Prisma.$CompanyVaultPayload<ExtArgs>
+        fields: Prisma.CompanyVaultFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CompanyVaultFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CompanyVaultFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload>
+          }
+          findFirst: {
+            args: Prisma.CompanyVaultFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CompanyVaultFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload>
+          }
+          findMany: {
+            args: Prisma.CompanyVaultFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload>[]
+          }
+          create: {
+            args: Prisma.CompanyVaultCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload>
+          }
+          createMany: {
+            args: Prisma.CompanyVaultCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CompanyVaultCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload>[]
+          }
+          delete: {
+            args: Prisma.CompanyVaultDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload>
+          }
+          update: {
+            args: Prisma.CompanyVaultUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload>
+          }
+          deleteMany: {
+            args: Prisma.CompanyVaultDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CompanyVaultUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CompanyVaultUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyVaultPayload>
+          }
+          aggregate: {
+            args: Prisma.CompanyVaultAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompanyVault>
+          }
+          groupBy: {
+            args: Prisma.CompanyVaultGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CompanyVaultGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CompanyVaultCountArgs<ExtArgs>
+            result: $Utils.Optional<CompanyVaultCountAggregateOutputType> | number
+          }
+        }
+      }
+      CompanyMaterial: {
+        payload: Prisma.$CompanyMaterialPayload<ExtArgs>
+        fields: Prisma.CompanyMaterialFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CompanyMaterialFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CompanyMaterialFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload>
+          }
+          findFirst: {
+            args: Prisma.CompanyMaterialFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CompanyMaterialFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload>
+          }
+          findMany: {
+            args: Prisma.CompanyMaterialFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload>[]
+          }
+          create: {
+            args: Prisma.CompanyMaterialCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload>
+          }
+          createMany: {
+            args: Prisma.CompanyMaterialCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CompanyMaterialCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload>[]
+          }
+          delete: {
+            args: Prisma.CompanyMaterialDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload>
+          }
+          update: {
+            args: Prisma.CompanyMaterialUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload>
+          }
+          deleteMany: {
+            args: Prisma.CompanyMaterialDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CompanyMaterialUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CompanyMaterialUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyMaterialPayload>
+          }
+          aggregate: {
+            args: Prisma.CompanyMaterialAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompanyMaterial>
+          }
+          groupBy: {
+            args: Prisma.CompanyMaterialGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CompanyMaterialGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CompanyMaterialCountArgs<ExtArgs>
+            result: $Utils.Optional<CompanyMaterialCountAggregateOutputType> | number
+          }
+        }
+      }
+      CompanyInterviewTranscript: {
+        payload: Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>
+        fields: Prisma.CompanyInterviewTranscriptFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CompanyInterviewTranscriptFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CompanyInterviewTranscriptFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload>
+          }
+          findFirst: {
+            args: Prisma.CompanyInterviewTranscriptFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CompanyInterviewTranscriptFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload>
+          }
+          findMany: {
+            args: Prisma.CompanyInterviewTranscriptFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload>[]
+          }
+          create: {
+            args: Prisma.CompanyInterviewTranscriptCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload>
+          }
+          createMany: {
+            args: Prisma.CompanyInterviewTranscriptCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CompanyInterviewTranscriptCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload>[]
+          }
+          delete: {
+            args: Prisma.CompanyInterviewTranscriptDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload>
+          }
+          update: {
+            args: Prisma.CompanyInterviewTranscriptUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload>
+          }
+          deleteMany: {
+            args: Prisma.CompanyInterviewTranscriptDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CompanyInterviewTranscriptUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CompanyInterviewTranscriptUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyInterviewTranscriptPayload>
+          }
+          aggregate: {
+            args: Prisma.CompanyInterviewTranscriptAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompanyInterviewTranscript>
+          }
+          groupBy: {
+            args: Prisma.CompanyInterviewTranscriptGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CompanyInterviewTranscriptGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CompanyInterviewTranscriptCountArgs<ExtArgs>
+            result: $Utils.Optional<CompanyInterviewTranscriptCountAggregateOutputType> | number
+          }
+        }
+      }
+      CompanyAccessLog: {
+        payload: Prisma.$CompanyAccessLogPayload<ExtArgs>
+        fields: Prisma.CompanyAccessLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CompanyAccessLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CompanyAccessLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload>
+          }
+          findFirst: {
+            args: Prisma.CompanyAccessLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CompanyAccessLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload>
+          }
+          findMany: {
+            args: Prisma.CompanyAccessLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload>[]
+          }
+          create: {
+            args: Prisma.CompanyAccessLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload>
+          }
+          createMany: {
+            args: Prisma.CompanyAccessLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CompanyAccessLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload>[]
+          }
+          delete: {
+            args: Prisma.CompanyAccessLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload>
+          }
+          update: {
+            args: Prisma.CompanyAccessLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.CompanyAccessLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CompanyAccessLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CompanyAccessLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyAccessLogPayload>
+          }
+          aggregate: {
+            args: Prisma.CompanyAccessLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompanyAccessLog>
+          }
+          groupBy: {
+            args: Prisma.CompanyAccessLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CompanyAccessLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CompanyAccessLogCountArgs<ExtArgs>
+            result: $Utils.Optional<CompanyAccessLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -4742,6 +5088,7 @@ export namespace Prisma {
     auditLogs: number
     questionBanks: number
     interviewSessions: number
+    companyVaults: number
   }
 
   export type OrganizationCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4752,6 +5099,7 @@ export namespace Prisma {
     auditLogs?: boolean | OrganizationCountOutputTypeCountAuditLogsArgs
     questionBanks?: boolean | OrganizationCountOutputTypeCountQuestionBanksArgs
     interviewSessions?: boolean | OrganizationCountOutputTypeCountInterviewSessionsArgs
+    companyVaults?: boolean | OrganizationCountOutputTypeCountCompanyVaultsArgs
   }
 
   // Custom InputTypes
@@ -4814,6 +5162,13 @@ export namespace Prisma {
     where?: MockInterviewSessionWhereInput
   }
 
+  /**
+   * OrganizationCountOutputType without action
+   */
+  export type OrganizationCountOutputTypeCountCompanyVaultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyVaultWhereInput
+  }
+
 
   /**
    * Count Type UserCountOutputType
@@ -4844,6 +5199,8 @@ export namespace Prisma {
     interviewParticipants: number
     assistantSessions: number
     problemAiCreditLogs: number
+    createdCompanyVaults: number
+    companyAccessLogs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4871,6 +5228,8 @@ export namespace Prisma {
     interviewParticipants?: boolean | UserCountOutputTypeCountInterviewParticipantsArgs
     assistantSessions?: boolean | UserCountOutputTypeCountAssistantSessionsArgs
     problemAiCreditLogs?: boolean | UserCountOutputTypeCountProblemAiCreditLogsArgs
+    createdCompanyVaults?: boolean | UserCountOutputTypeCountCreatedCompanyVaultsArgs
+    companyAccessLogs?: boolean | UserCountOutputTypeCountCompanyAccessLogsArgs
   }
 
   // Custom InputTypes
@@ -5050,6 +5409,20 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountProblemAiCreditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProblemAiCreditLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCreatedCompanyVaultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyVaultWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCompanyAccessLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyAccessLogWhereInput
   }
 
 
@@ -5540,6 +5913,55 @@ export namespace Prisma {
 
 
   /**
+   * Count Type CompanyVaultCountOutputType
+   */
+
+  export type CompanyVaultCountOutputType = {
+    materials: number
+    transcripts: number
+    accessLogs: number
+  }
+
+  export type CompanyVaultCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    materials?: boolean | CompanyVaultCountOutputTypeCountMaterialsArgs
+    transcripts?: boolean | CompanyVaultCountOutputTypeCountTranscriptsArgs
+    accessLogs?: boolean | CompanyVaultCountOutputTypeCountAccessLogsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CompanyVaultCountOutputType without action
+   */
+  export type CompanyVaultCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVaultCountOutputType
+     */
+    select?: CompanyVaultCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CompanyVaultCountOutputType without action
+   */
+  export type CompanyVaultCountOutputTypeCountMaterialsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyMaterialWhereInput
+  }
+
+  /**
+   * CompanyVaultCountOutputType without action
+   */
+  export type CompanyVaultCountOutputTypeCountTranscriptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyInterviewTranscriptWhereInput
+  }
+
+  /**
+   * CompanyVaultCountOutputType without action
+   */
+  export type CompanyVaultCountOutputTypeCountAccessLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyAccessLogWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -5844,6 +6266,7 @@ export namespace Prisma {
     auditLogs?: boolean | Organization$auditLogsArgs<ExtArgs>
     questionBanks?: boolean | Organization$questionBanksArgs<ExtArgs>
     interviewSessions?: boolean | Organization$interviewSessionsArgs<ExtArgs>
+    companyVaults?: boolean | Organization$companyVaultsArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organization"]>
 
@@ -5895,6 +6318,7 @@ export namespace Prisma {
     auditLogs?: boolean | Organization$auditLogsArgs<ExtArgs>
     questionBanks?: boolean | Organization$questionBanksArgs<ExtArgs>
     interviewSessions?: boolean | Organization$interviewSessionsArgs<ExtArgs>
+    companyVaults?: boolean | Organization$companyVaultsArgs<ExtArgs>
     _count?: boolean | OrganizationCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type OrganizationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -5909,6 +6333,7 @@ export namespace Prisma {
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
       questionBanks: Prisma.$QuestionBankPayload<ExtArgs>[]
       interviewSessions: Prisma.$MockInterviewSessionPayload<ExtArgs>[]
+      companyVaults: Prisma.$CompanyVaultPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6299,6 +6724,7 @@ export namespace Prisma {
     auditLogs<T extends Organization$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany"> | Null>
     questionBanks<T extends Organization$questionBanksArgs<ExtArgs> = {}>(args?: Subset<T, Organization$questionBanksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuestionBankPayload<ExtArgs>, T, "findMany"> | Null>
     interviewSessions<T extends Organization$interviewSessionsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$interviewSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MockInterviewSessionPayload<ExtArgs>, T, "findMany"> | Null>
+    companyVaults<T extends Organization$companyVaultsArgs<ExtArgs> = {}>(args?: Subset<T, Organization$companyVaultsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6799,6 +7225,26 @@ export namespace Prisma {
   }
 
   /**
+   * Organization.companyVaults
+   */
+  export type Organization$companyVaultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    where?: CompanyVaultWhereInput
+    orderBy?: CompanyVaultOrderByWithRelationInput | CompanyVaultOrderByWithRelationInput[]
+    cursor?: CompanyVaultWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyVaultScalarFieldEnum | CompanyVaultScalarFieldEnum[]
+  }
+
+  /**
    * Organization without action
    */
   export type OrganizationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7091,6 +7537,8 @@ export namespace Prisma {
     interviewParticipants?: boolean | User$interviewParticipantsArgs<ExtArgs>
     assistantSessions?: boolean | User$assistantSessionsArgs<ExtArgs>
     problemAiCreditLogs?: boolean | User$problemAiCreditLogsArgs<ExtArgs>
+    createdCompanyVaults?: boolean | User$createdCompanyVaultsArgs<ExtArgs>
+    companyAccessLogs?: boolean | User$companyAccessLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -7161,6 +7609,8 @@ export namespace Prisma {
     interviewParticipants?: boolean | User$interviewParticipantsArgs<ExtArgs>
     assistantSessions?: boolean | User$assistantSessionsArgs<ExtArgs>
     problemAiCreditLogs?: boolean | User$problemAiCreditLogsArgs<ExtArgs>
+    createdCompanyVaults?: boolean | User$createdCompanyVaultsArgs<ExtArgs>
+    companyAccessLogs?: boolean | User$companyAccessLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7197,6 +7647,8 @@ export namespace Prisma {
       interviewParticipants: Prisma.$InterviewParticipantPayload<ExtArgs>[]
       assistantSessions: Prisma.$AssistantSessionPayload<ExtArgs>[]
       problemAiCreditLogs: Prisma.$ProblemAiCreditLogPayload<ExtArgs>[]
+      createdCompanyVaults: Prisma.$CompanyVaultPayload<ExtArgs>[]
+      companyAccessLogs: Prisma.$CompanyAccessLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7605,6 +8057,8 @@ export namespace Prisma {
     interviewParticipants<T extends User$interviewParticipantsArgs<ExtArgs> = {}>(args?: Subset<T, User$interviewParticipantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InterviewParticipantPayload<ExtArgs>, T, "findMany"> | Null>
     assistantSessions<T extends User$assistantSessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$assistantSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssistantSessionPayload<ExtArgs>, T, "findMany"> | Null>
     problemAiCreditLogs<T extends User$problemAiCreditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$problemAiCreditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProblemAiCreditLogPayload<ExtArgs>, T, "findMany"> | Null>
+    createdCompanyVaults<T extends User$createdCompanyVaultsArgs<ExtArgs> = {}>(args?: Subset<T, User$createdCompanyVaultsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findMany"> | Null>
+    companyAccessLogs<T extends User$companyAccessLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$companyAccessLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8475,6 +8929,46 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ProblemAiCreditLogScalarFieldEnum | ProblemAiCreditLogScalarFieldEnum[]
+  }
+
+  /**
+   * User.createdCompanyVaults
+   */
+  export type User$createdCompanyVaultsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    where?: CompanyVaultWhereInput
+    orderBy?: CompanyVaultOrderByWithRelationInput | CompanyVaultOrderByWithRelationInput[]
+    cursor?: CompanyVaultWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyVaultScalarFieldEnum | CompanyVaultScalarFieldEnum[]
+  }
+
+  /**
+   * User.companyAccessLogs
+   */
+  export type User$companyAccessLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    where?: CompanyAccessLogWhereInput
+    orderBy?: CompanyAccessLogOrderByWithRelationInput | CompanyAccessLogOrderByWithRelationInput[]
+    cursor?: CompanyAccessLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyAccessLogScalarFieldEnum | CompanyAccessLogScalarFieldEnum[]
   }
 
   /**
@@ -51322,6 +51816,4107 @@ export namespace Prisma {
 
 
   /**
+   * Model CompanyVault
+   */
+
+  export type AggregateCompanyVault = {
+    _count: CompanyVaultCountAggregateOutputType | null
+    _min: CompanyVaultMinAggregateOutputType | null
+    _max: CompanyVaultMaxAggregateOutputType | null
+  }
+
+  export type CompanyVaultMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    slug: string | null
+    companyName: string | null
+    brandColor: string | null
+    logoUrl: string | null
+    targetCtc: string | null
+    examPattern: string | null
+    description: string | null
+    accessCode: string | null
+    accessCodePlain: string | null
+    expiresAt: Date | null
+    isLocked: boolean | null
+    organizationId: string | null
+    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CompanyVaultMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    slug: string | null
+    companyName: string | null
+    brandColor: string | null
+    logoUrl: string | null
+    targetCtc: string | null
+    examPattern: string | null
+    description: string | null
+    accessCode: string | null
+    accessCodePlain: string | null
+    expiresAt: Date | null
+    isLocked: boolean | null
+    organizationId: string | null
+    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CompanyVaultCountAggregateOutputType = {
+    id: number
+    name: number
+    slug: number
+    companyName: number
+    brandColor: number
+    logoUrl: number
+    targetCtc: number
+    examPattern: number
+    description: number
+    accessCode: number
+    accessCodePlain: number
+    expiresAt: number
+    isLocked: number
+    organizationId: number
+    createdById: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CompanyVaultMinAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    companyName?: true
+    brandColor?: true
+    logoUrl?: true
+    targetCtc?: true
+    examPattern?: true
+    description?: true
+    accessCode?: true
+    accessCodePlain?: true
+    expiresAt?: true
+    isLocked?: true
+    organizationId?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CompanyVaultMaxAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    companyName?: true
+    brandColor?: true
+    logoUrl?: true
+    targetCtc?: true
+    examPattern?: true
+    description?: true
+    accessCode?: true
+    accessCodePlain?: true
+    expiresAt?: true
+    isLocked?: true
+    organizationId?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CompanyVaultCountAggregateInputType = {
+    id?: true
+    name?: true
+    slug?: true
+    companyName?: true
+    brandColor?: true
+    logoUrl?: true
+    targetCtc?: true
+    examPattern?: true
+    description?: true
+    accessCode?: true
+    accessCodePlain?: true
+    expiresAt?: true
+    isLocked?: true
+    organizationId?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CompanyVaultAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyVault to aggregate.
+     */
+    where?: CompanyVaultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyVaults to fetch.
+     */
+    orderBy?: CompanyVaultOrderByWithRelationInput | CompanyVaultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CompanyVaultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyVaults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyVaults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CompanyVaults
+    **/
+    _count?: true | CompanyVaultCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CompanyVaultMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CompanyVaultMaxAggregateInputType
+  }
+
+  export type GetCompanyVaultAggregateType<T extends CompanyVaultAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompanyVault]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompanyVault[P]>
+      : GetScalarType<T[P], AggregateCompanyVault[P]>
+  }
+
+
+
+
+  export type CompanyVaultGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyVaultWhereInput
+    orderBy?: CompanyVaultOrderByWithAggregationInput | CompanyVaultOrderByWithAggregationInput[]
+    by: CompanyVaultScalarFieldEnum[] | CompanyVaultScalarFieldEnum
+    having?: CompanyVaultScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CompanyVaultCountAggregateInputType | true
+    _min?: CompanyVaultMinAggregateInputType
+    _max?: CompanyVaultMaxAggregateInputType
+  }
+
+  export type CompanyVaultGroupByOutputType = {
+    id: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor: string
+    logoUrl: string | null
+    targetCtc: string | null
+    examPattern: string | null
+    description: string | null
+    accessCode: string
+    accessCodePlain: string | null
+    expiresAt: Date | null
+    isLocked: boolean
+    organizationId: string | null
+    createdById: string
+    createdAt: Date
+    updatedAt: Date
+    _count: CompanyVaultCountAggregateOutputType | null
+    _min: CompanyVaultMinAggregateOutputType | null
+    _max: CompanyVaultMaxAggregateOutputType | null
+  }
+
+  type GetCompanyVaultGroupByPayload<T extends CompanyVaultGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CompanyVaultGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CompanyVaultGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CompanyVaultGroupByOutputType[P]>
+            : GetScalarType<T[P], CompanyVaultGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CompanyVaultSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    companyName?: boolean
+    brandColor?: boolean
+    logoUrl?: boolean
+    targetCtc?: boolean
+    examPattern?: boolean
+    description?: boolean
+    accessCode?: boolean
+    accessCodePlain?: boolean
+    expiresAt?: boolean
+    isLocked?: boolean
+    organizationId?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | CompanyVault$organizationArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    materials?: boolean | CompanyVault$materialsArgs<ExtArgs>
+    transcripts?: boolean | CompanyVault$transcriptsArgs<ExtArgs>
+    accessLogs?: boolean | CompanyVault$accessLogsArgs<ExtArgs>
+    _count?: boolean | CompanyVaultCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyVault"]>
+
+  export type CompanyVaultSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    companyName?: boolean
+    brandColor?: boolean
+    logoUrl?: boolean
+    targetCtc?: boolean
+    examPattern?: boolean
+    description?: boolean
+    accessCode?: boolean
+    accessCodePlain?: boolean
+    expiresAt?: boolean
+    isLocked?: boolean
+    organizationId?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    organization?: boolean | CompanyVault$organizationArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyVault"]>
+
+  export type CompanyVaultSelectScalar = {
+    id?: boolean
+    name?: boolean
+    slug?: boolean
+    companyName?: boolean
+    brandColor?: boolean
+    logoUrl?: boolean
+    targetCtc?: boolean
+    examPattern?: boolean
+    description?: boolean
+    accessCode?: boolean
+    accessCodePlain?: boolean
+    expiresAt?: boolean
+    isLocked?: boolean
+    organizationId?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CompanyVaultInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | CompanyVault$organizationArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+    materials?: boolean | CompanyVault$materialsArgs<ExtArgs>
+    transcripts?: boolean | CompanyVault$transcriptsArgs<ExtArgs>
+    accessLogs?: boolean | CompanyVault$accessLogsArgs<ExtArgs>
+    _count?: boolean | CompanyVaultCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type CompanyVaultIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    organization?: boolean | CompanyVault$organizationArgs<ExtArgs>
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $CompanyVaultPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CompanyVault"
+    objects: {
+      organization: Prisma.$OrganizationPayload<ExtArgs> | null
+      createdBy: Prisma.$UserPayload<ExtArgs>
+      materials: Prisma.$CompanyMaterialPayload<ExtArgs>[]
+      transcripts: Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>[]
+      accessLogs: Prisma.$CompanyAccessLogPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      slug: string
+      companyName: string
+      brandColor: string
+      logoUrl: string | null
+      targetCtc: string | null
+      examPattern: string | null
+      description: string | null
+      accessCode: string
+      accessCodePlain: string | null
+      expiresAt: Date | null
+      isLocked: boolean
+      organizationId: string | null
+      createdById: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["companyVault"]>
+    composites: {}
+  }
+
+  type CompanyVaultGetPayload<S extends boolean | null | undefined | CompanyVaultDefaultArgs> = $Result.GetResult<Prisma.$CompanyVaultPayload, S>
+
+  type CompanyVaultCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<CompanyVaultFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: CompanyVaultCountAggregateInputType | true
+    }
+
+  export interface CompanyVaultDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CompanyVault'], meta: { name: 'CompanyVault' } }
+    /**
+     * Find zero or one CompanyVault that matches the filter.
+     * @param {CompanyVaultFindUniqueArgs} args - Arguments to find a CompanyVault
+     * @example
+     * // Get one CompanyVault
+     * const companyVault = await prisma.companyVault.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CompanyVaultFindUniqueArgs>(args: SelectSubset<T, CompanyVaultFindUniqueArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one CompanyVault that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {CompanyVaultFindUniqueOrThrowArgs} args - Arguments to find a CompanyVault
+     * @example
+     * // Get one CompanyVault
+     * const companyVault = await prisma.companyVault.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CompanyVaultFindUniqueOrThrowArgs>(args: SelectSubset<T, CompanyVaultFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first CompanyVault that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyVaultFindFirstArgs} args - Arguments to find a CompanyVault
+     * @example
+     * // Get one CompanyVault
+     * const companyVault = await prisma.companyVault.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CompanyVaultFindFirstArgs>(args?: SelectSubset<T, CompanyVaultFindFirstArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first CompanyVault that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyVaultFindFirstOrThrowArgs} args - Arguments to find a CompanyVault
+     * @example
+     * // Get one CompanyVault
+     * const companyVault = await prisma.companyVault.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CompanyVaultFindFirstOrThrowArgs>(args?: SelectSubset<T, CompanyVaultFindFirstOrThrowArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more CompanyVaults that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyVaultFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CompanyVaults
+     * const companyVaults = await prisma.companyVault.findMany()
+     * 
+     * // Get first 10 CompanyVaults
+     * const companyVaults = await prisma.companyVault.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const companyVaultWithIdOnly = await prisma.companyVault.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CompanyVaultFindManyArgs>(args?: SelectSubset<T, CompanyVaultFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a CompanyVault.
+     * @param {CompanyVaultCreateArgs} args - Arguments to create a CompanyVault.
+     * @example
+     * // Create one CompanyVault
+     * const CompanyVault = await prisma.companyVault.create({
+     *   data: {
+     *     // ... data to create a CompanyVault
+     *   }
+     * })
+     * 
+     */
+    create<T extends CompanyVaultCreateArgs>(args: SelectSubset<T, CompanyVaultCreateArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many CompanyVaults.
+     * @param {CompanyVaultCreateManyArgs} args - Arguments to create many CompanyVaults.
+     * @example
+     * // Create many CompanyVaults
+     * const companyVault = await prisma.companyVault.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CompanyVaultCreateManyArgs>(args?: SelectSubset<T, CompanyVaultCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CompanyVaults and returns the data saved in the database.
+     * @param {CompanyVaultCreateManyAndReturnArgs} args - Arguments to create many CompanyVaults.
+     * @example
+     * // Create many CompanyVaults
+     * const companyVault = await prisma.companyVault.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CompanyVaults and only return the `id`
+     * const companyVaultWithIdOnly = await prisma.companyVault.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CompanyVaultCreateManyAndReturnArgs>(args?: SelectSubset<T, CompanyVaultCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a CompanyVault.
+     * @param {CompanyVaultDeleteArgs} args - Arguments to delete one CompanyVault.
+     * @example
+     * // Delete one CompanyVault
+     * const CompanyVault = await prisma.companyVault.delete({
+     *   where: {
+     *     // ... filter to delete one CompanyVault
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CompanyVaultDeleteArgs>(args: SelectSubset<T, CompanyVaultDeleteArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one CompanyVault.
+     * @param {CompanyVaultUpdateArgs} args - Arguments to update one CompanyVault.
+     * @example
+     * // Update one CompanyVault
+     * const companyVault = await prisma.companyVault.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CompanyVaultUpdateArgs>(args: SelectSubset<T, CompanyVaultUpdateArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more CompanyVaults.
+     * @param {CompanyVaultDeleteManyArgs} args - Arguments to filter CompanyVaults to delete.
+     * @example
+     * // Delete a few CompanyVaults
+     * const { count } = await prisma.companyVault.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CompanyVaultDeleteManyArgs>(args?: SelectSubset<T, CompanyVaultDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyVaults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyVaultUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CompanyVaults
+     * const companyVault = await prisma.companyVault.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CompanyVaultUpdateManyArgs>(args: SelectSubset<T, CompanyVaultUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CompanyVault.
+     * @param {CompanyVaultUpsertArgs} args - Arguments to update or create a CompanyVault.
+     * @example
+     * // Update or create a CompanyVault
+     * const companyVault = await prisma.companyVault.upsert({
+     *   create: {
+     *     // ... data to create a CompanyVault
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CompanyVault we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CompanyVaultUpsertArgs>(args: SelectSubset<T, CompanyVaultUpsertArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of CompanyVaults.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyVaultCountArgs} args - Arguments to filter CompanyVaults to count.
+     * @example
+     * // Count the number of CompanyVaults
+     * const count = await prisma.companyVault.count({
+     *   where: {
+     *     // ... the filter for the CompanyVaults we want to count
+     *   }
+     * })
+    **/
+    count<T extends CompanyVaultCountArgs>(
+      args?: Subset<T, CompanyVaultCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CompanyVaultCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CompanyVault.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyVaultAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CompanyVaultAggregateArgs>(args: Subset<T, CompanyVaultAggregateArgs>): Prisma.PrismaPromise<GetCompanyVaultAggregateType<T>>
+
+    /**
+     * Group by CompanyVault.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyVaultGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CompanyVaultGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CompanyVaultGroupByArgs['orderBy'] }
+        : { orderBy?: CompanyVaultGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CompanyVaultGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompanyVaultGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CompanyVault model
+   */
+  readonly fields: CompanyVaultFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CompanyVault.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CompanyVaultClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    organization<T extends CompanyVault$organizationArgs<ExtArgs> = {}>(args?: Subset<T, CompanyVault$organizationArgs<ExtArgs>>): Prisma__OrganizationClient<$Result.GetResult<Prisma.$OrganizationPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    createdBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    materials<T extends CompanyVault$materialsArgs<ExtArgs> = {}>(args?: Subset<T, CompanyVault$materialsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "findMany"> | Null>
+    transcripts<T extends CompanyVault$transcriptsArgs<ExtArgs> = {}>(args?: Subset<T, CompanyVault$transcriptsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "findMany"> | Null>
+    accessLogs<T extends CompanyVault$accessLogsArgs<ExtArgs> = {}>(args?: Subset<T, CompanyVault$accessLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "findMany"> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CompanyVault model
+   */ 
+  interface CompanyVaultFieldRefs {
+    readonly id: FieldRef<"CompanyVault", 'String'>
+    readonly name: FieldRef<"CompanyVault", 'String'>
+    readonly slug: FieldRef<"CompanyVault", 'String'>
+    readonly companyName: FieldRef<"CompanyVault", 'String'>
+    readonly brandColor: FieldRef<"CompanyVault", 'String'>
+    readonly logoUrl: FieldRef<"CompanyVault", 'String'>
+    readonly targetCtc: FieldRef<"CompanyVault", 'String'>
+    readonly examPattern: FieldRef<"CompanyVault", 'String'>
+    readonly description: FieldRef<"CompanyVault", 'String'>
+    readonly accessCode: FieldRef<"CompanyVault", 'String'>
+    readonly accessCodePlain: FieldRef<"CompanyVault", 'String'>
+    readonly expiresAt: FieldRef<"CompanyVault", 'DateTime'>
+    readonly isLocked: FieldRef<"CompanyVault", 'Boolean'>
+    readonly organizationId: FieldRef<"CompanyVault", 'String'>
+    readonly createdById: FieldRef<"CompanyVault", 'String'>
+    readonly createdAt: FieldRef<"CompanyVault", 'DateTime'>
+    readonly updatedAt: FieldRef<"CompanyVault", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CompanyVault findUnique
+   */
+  export type CompanyVaultFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyVault to fetch.
+     */
+    where: CompanyVaultWhereUniqueInput
+  }
+
+  /**
+   * CompanyVault findUniqueOrThrow
+   */
+  export type CompanyVaultFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyVault to fetch.
+     */
+    where: CompanyVaultWhereUniqueInput
+  }
+
+  /**
+   * CompanyVault findFirst
+   */
+  export type CompanyVaultFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyVault to fetch.
+     */
+    where?: CompanyVaultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyVaults to fetch.
+     */
+    orderBy?: CompanyVaultOrderByWithRelationInput | CompanyVaultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyVaults.
+     */
+    cursor?: CompanyVaultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyVaults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyVaults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyVaults.
+     */
+    distinct?: CompanyVaultScalarFieldEnum | CompanyVaultScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyVault findFirstOrThrow
+   */
+  export type CompanyVaultFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyVault to fetch.
+     */
+    where?: CompanyVaultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyVaults to fetch.
+     */
+    orderBy?: CompanyVaultOrderByWithRelationInput | CompanyVaultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyVaults.
+     */
+    cursor?: CompanyVaultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyVaults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyVaults.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyVaults.
+     */
+    distinct?: CompanyVaultScalarFieldEnum | CompanyVaultScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyVault findMany
+   */
+  export type CompanyVaultFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyVaults to fetch.
+     */
+    where?: CompanyVaultWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyVaults to fetch.
+     */
+    orderBy?: CompanyVaultOrderByWithRelationInput | CompanyVaultOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CompanyVaults.
+     */
+    cursor?: CompanyVaultWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyVaults from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyVaults.
+     */
+    skip?: number
+    distinct?: CompanyVaultScalarFieldEnum | CompanyVaultScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyVault create
+   */
+  export type CompanyVaultCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CompanyVault.
+     */
+    data: XOR<CompanyVaultCreateInput, CompanyVaultUncheckedCreateInput>
+  }
+
+  /**
+   * CompanyVault createMany
+   */
+  export type CompanyVaultCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CompanyVaults.
+     */
+    data: CompanyVaultCreateManyInput | CompanyVaultCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CompanyVault createManyAndReturn
+   */
+  export type CompanyVaultCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many CompanyVaults.
+     */
+    data: CompanyVaultCreateManyInput | CompanyVaultCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CompanyVault update
+   */
+  export type CompanyVaultUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CompanyVault.
+     */
+    data: XOR<CompanyVaultUpdateInput, CompanyVaultUncheckedUpdateInput>
+    /**
+     * Choose, which CompanyVault to update.
+     */
+    where: CompanyVaultWhereUniqueInput
+  }
+
+  /**
+   * CompanyVault updateMany
+   */
+  export type CompanyVaultUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CompanyVaults.
+     */
+    data: XOR<CompanyVaultUpdateManyMutationInput, CompanyVaultUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyVaults to update
+     */
+    where?: CompanyVaultWhereInput
+  }
+
+  /**
+   * CompanyVault upsert
+   */
+  export type CompanyVaultUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CompanyVault to update in case it exists.
+     */
+    where: CompanyVaultWhereUniqueInput
+    /**
+     * In case the CompanyVault found by the `where` argument doesn't exist, create a new CompanyVault with this data.
+     */
+    create: XOR<CompanyVaultCreateInput, CompanyVaultUncheckedCreateInput>
+    /**
+     * In case the CompanyVault was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CompanyVaultUpdateInput, CompanyVaultUncheckedUpdateInput>
+  }
+
+  /**
+   * CompanyVault delete
+   */
+  export type CompanyVaultDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+    /**
+     * Filter which CompanyVault to delete.
+     */
+    where: CompanyVaultWhereUniqueInput
+  }
+
+  /**
+   * CompanyVault deleteMany
+   */
+  export type CompanyVaultDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyVaults to delete
+     */
+    where?: CompanyVaultWhereInput
+  }
+
+  /**
+   * CompanyVault.organization
+   */
+  export type CompanyVault$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Organization
+     */
+    select?: OrganizationSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: OrganizationInclude<ExtArgs> | null
+    where?: OrganizationWhereInput
+  }
+
+  /**
+   * CompanyVault.materials
+   */
+  export type CompanyVault$materialsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    where?: CompanyMaterialWhereInput
+    orderBy?: CompanyMaterialOrderByWithRelationInput | CompanyMaterialOrderByWithRelationInput[]
+    cursor?: CompanyMaterialWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyMaterialScalarFieldEnum | CompanyMaterialScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyVault.transcripts
+   */
+  export type CompanyVault$transcriptsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    where?: CompanyInterviewTranscriptWhereInput
+    orderBy?: CompanyInterviewTranscriptOrderByWithRelationInput | CompanyInterviewTranscriptOrderByWithRelationInput[]
+    cursor?: CompanyInterviewTranscriptWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyInterviewTranscriptScalarFieldEnum | CompanyInterviewTranscriptScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyVault.accessLogs
+   */
+  export type CompanyVault$accessLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    where?: CompanyAccessLogWhereInput
+    orderBy?: CompanyAccessLogOrderByWithRelationInput | CompanyAccessLogOrderByWithRelationInput[]
+    cursor?: CompanyAccessLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CompanyAccessLogScalarFieldEnum | CompanyAccessLogScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyVault without action
+   */
+  export type CompanyVaultDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyVault
+     */
+    select?: CompanyVaultSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyVaultInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CompanyMaterial
+   */
+
+  export type AggregateCompanyMaterial = {
+    _count: CompanyMaterialCountAggregateOutputType | null
+    _avg: CompanyMaterialAvgAggregateOutputType | null
+    _sum: CompanyMaterialSumAggregateOutputType | null
+    _min: CompanyMaterialMinAggregateOutputType | null
+    _max: CompanyMaterialMaxAggregateOutputType | null
+  }
+
+  export type CompanyMaterialAvgAggregateOutputType = {
+    order: number | null
+  }
+
+  export type CompanyMaterialSumAggregateOutputType = {
+    order: number | null
+  }
+
+  export type CompanyMaterialMinAggregateOutputType = {
+    id: string | null
+    vaultId: string | null
+    title: string | null
+    materialType: string | null
+    contentUrl: string | null
+    order: number | null
+    createdAt: Date | null
+  }
+
+  export type CompanyMaterialMaxAggregateOutputType = {
+    id: string | null
+    vaultId: string | null
+    title: string | null
+    materialType: string | null
+    contentUrl: string | null
+    order: number | null
+    createdAt: Date | null
+  }
+
+  export type CompanyMaterialCountAggregateOutputType = {
+    id: number
+    vaultId: number
+    title: number
+    materialType: number
+    contentUrl: number
+    dataJson: number
+    order: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CompanyMaterialAvgAggregateInputType = {
+    order?: true
+  }
+
+  export type CompanyMaterialSumAggregateInputType = {
+    order?: true
+  }
+
+  export type CompanyMaterialMinAggregateInputType = {
+    id?: true
+    vaultId?: true
+    title?: true
+    materialType?: true
+    contentUrl?: true
+    order?: true
+    createdAt?: true
+  }
+
+  export type CompanyMaterialMaxAggregateInputType = {
+    id?: true
+    vaultId?: true
+    title?: true
+    materialType?: true
+    contentUrl?: true
+    order?: true
+    createdAt?: true
+  }
+
+  export type CompanyMaterialCountAggregateInputType = {
+    id?: true
+    vaultId?: true
+    title?: true
+    materialType?: true
+    contentUrl?: true
+    dataJson?: true
+    order?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CompanyMaterialAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyMaterial to aggregate.
+     */
+    where?: CompanyMaterialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyMaterials to fetch.
+     */
+    orderBy?: CompanyMaterialOrderByWithRelationInput | CompanyMaterialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CompanyMaterialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyMaterials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyMaterials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CompanyMaterials
+    **/
+    _count?: true | CompanyMaterialCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CompanyMaterialAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CompanyMaterialSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CompanyMaterialMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CompanyMaterialMaxAggregateInputType
+  }
+
+  export type GetCompanyMaterialAggregateType<T extends CompanyMaterialAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompanyMaterial]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompanyMaterial[P]>
+      : GetScalarType<T[P], AggregateCompanyMaterial[P]>
+  }
+
+
+
+
+  export type CompanyMaterialGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyMaterialWhereInput
+    orderBy?: CompanyMaterialOrderByWithAggregationInput | CompanyMaterialOrderByWithAggregationInput[]
+    by: CompanyMaterialScalarFieldEnum[] | CompanyMaterialScalarFieldEnum
+    having?: CompanyMaterialScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CompanyMaterialCountAggregateInputType | true
+    _avg?: CompanyMaterialAvgAggregateInputType
+    _sum?: CompanyMaterialSumAggregateInputType
+    _min?: CompanyMaterialMinAggregateInputType
+    _max?: CompanyMaterialMaxAggregateInputType
+  }
+
+  export type CompanyMaterialGroupByOutputType = {
+    id: string
+    vaultId: string
+    title: string
+    materialType: string
+    contentUrl: string | null
+    dataJson: JsonValue | null
+    order: number
+    createdAt: Date
+    _count: CompanyMaterialCountAggregateOutputType | null
+    _avg: CompanyMaterialAvgAggregateOutputType | null
+    _sum: CompanyMaterialSumAggregateOutputType | null
+    _min: CompanyMaterialMinAggregateOutputType | null
+    _max: CompanyMaterialMaxAggregateOutputType | null
+  }
+
+  type GetCompanyMaterialGroupByPayload<T extends CompanyMaterialGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CompanyMaterialGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CompanyMaterialGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CompanyMaterialGroupByOutputType[P]>
+            : GetScalarType<T[P], CompanyMaterialGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CompanyMaterialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vaultId?: boolean
+    title?: boolean
+    materialType?: boolean
+    contentUrl?: boolean
+    dataJson?: boolean
+    order?: boolean
+    createdAt?: boolean
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyMaterial"]>
+
+  export type CompanyMaterialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vaultId?: boolean
+    title?: boolean
+    materialType?: boolean
+    contentUrl?: boolean
+    dataJson?: boolean
+    order?: boolean
+    createdAt?: boolean
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyMaterial"]>
+
+  export type CompanyMaterialSelectScalar = {
+    id?: boolean
+    vaultId?: boolean
+    title?: boolean
+    materialType?: boolean
+    contentUrl?: boolean
+    dataJson?: boolean
+    order?: boolean
+    createdAt?: boolean
+  }
+
+  export type CompanyMaterialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+  }
+  export type CompanyMaterialIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+  }
+
+  export type $CompanyMaterialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CompanyMaterial"
+    objects: {
+      vault: Prisma.$CompanyVaultPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      vaultId: string
+      title: string
+      materialType: string
+      contentUrl: string | null
+      dataJson: Prisma.JsonValue | null
+      order: number
+      createdAt: Date
+    }, ExtArgs["result"]["companyMaterial"]>
+    composites: {}
+  }
+
+  type CompanyMaterialGetPayload<S extends boolean | null | undefined | CompanyMaterialDefaultArgs> = $Result.GetResult<Prisma.$CompanyMaterialPayload, S>
+
+  type CompanyMaterialCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<CompanyMaterialFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: CompanyMaterialCountAggregateInputType | true
+    }
+
+  export interface CompanyMaterialDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CompanyMaterial'], meta: { name: 'CompanyMaterial' } }
+    /**
+     * Find zero or one CompanyMaterial that matches the filter.
+     * @param {CompanyMaterialFindUniqueArgs} args - Arguments to find a CompanyMaterial
+     * @example
+     * // Get one CompanyMaterial
+     * const companyMaterial = await prisma.companyMaterial.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CompanyMaterialFindUniqueArgs>(args: SelectSubset<T, CompanyMaterialFindUniqueArgs<ExtArgs>>): Prisma__CompanyMaterialClient<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one CompanyMaterial that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {CompanyMaterialFindUniqueOrThrowArgs} args - Arguments to find a CompanyMaterial
+     * @example
+     * // Get one CompanyMaterial
+     * const companyMaterial = await prisma.companyMaterial.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CompanyMaterialFindUniqueOrThrowArgs>(args: SelectSubset<T, CompanyMaterialFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CompanyMaterialClient<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first CompanyMaterial that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyMaterialFindFirstArgs} args - Arguments to find a CompanyMaterial
+     * @example
+     * // Get one CompanyMaterial
+     * const companyMaterial = await prisma.companyMaterial.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CompanyMaterialFindFirstArgs>(args?: SelectSubset<T, CompanyMaterialFindFirstArgs<ExtArgs>>): Prisma__CompanyMaterialClient<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first CompanyMaterial that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyMaterialFindFirstOrThrowArgs} args - Arguments to find a CompanyMaterial
+     * @example
+     * // Get one CompanyMaterial
+     * const companyMaterial = await prisma.companyMaterial.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CompanyMaterialFindFirstOrThrowArgs>(args?: SelectSubset<T, CompanyMaterialFindFirstOrThrowArgs<ExtArgs>>): Prisma__CompanyMaterialClient<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more CompanyMaterials that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyMaterialFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CompanyMaterials
+     * const companyMaterials = await prisma.companyMaterial.findMany()
+     * 
+     * // Get first 10 CompanyMaterials
+     * const companyMaterials = await prisma.companyMaterial.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const companyMaterialWithIdOnly = await prisma.companyMaterial.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CompanyMaterialFindManyArgs>(args?: SelectSubset<T, CompanyMaterialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a CompanyMaterial.
+     * @param {CompanyMaterialCreateArgs} args - Arguments to create a CompanyMaterial.
+     * @example
+     * // Create one CompanyMaterial
+     * const CompanyMaterial = await prisma.companyMaterial.create({
+     *   data: {
+     *     // ... data to create a CompanyMaterial
+     *   }
+     * })
+     * 
+     */
+    create<T extends CompanyMaterialCreateArgs>(args: SelectSubset<T, CompanyMaterialCreateArgs<ExtArgs>>): Prisma__CompanyMaterialClient<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many CompanyMaterials.
+     * @param {CompanyMaterialCreateManyArgs} args - Arguments to create many CompanyMaterials.
+     * @example
+     * // Create many CompanyMaterials
+     * const companyMaterial = await prisma.companyMaterial.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CompanyMaterialCreateManyArgs>(args?: SelectSubset<T, CompanyMaterialCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CompanyMaterials and returns the data saved in the database.
+     * @param {CompanyMaterialCreateManyAndReturnArgs} args - Arguments to create many CompanyMaterials.
+     * @example
+     * // Create many CompanyMaterials
+     * const companyMaterial = await prisma.companyMaterial.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CompanyMaterials and only return the `id`
+     * const companyMaterialWithIdOnly = await prisma.companyMaterial.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CompanyMaterialCreateManyAndReturnArgs>(args?: SelectSubset<T, CompanyMaterialCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a CompanyMaterial.
+     * @param {CompanyMaterialDeleteArgs} args - Arguments to delete one CompanyMaterial.
+     * @example
+     * // Delete one CompanyMaterial
+     * const CompanyMaterial = await prisma.companyMaterial.delete({
+     *   where: {
+     *     // ... filter to delete one CompanyMaterial
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CompanyMaterialDeleteArgs>(args: SelectSubset<T, CompanyMaterialDeleteArgs<ExtArgs>>): Prisma__CompanyMaterialClient<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one CompanyMaterial.
+     * @param {CompanyMaterialUpdateArgs} args - Arguments to update one CompanyMaterial.
+     * @example
+     * // Update one CompanyMaterial
+     * const companyMaterial = await prisma.companyMaterial.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CompanyMaterialUpdateArgs>(args: SelectSubset<T, CompanyMaterialUpdateArgs<ExtArgs>>): Prisma__CompanyMaterialClient<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more CompanyMaterials.
+     * @param {CompanyMaterialDeleteManyArgs} args - Arguments to filter CompanyMaterials to delete.
+     * @example
+     * // Delete a few CompanyMaterials
+     * const { count } = await prisma.companyMaterial.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CompanyMaterialDeleteManyArgs>(args?: SelectSubset<T, CompanyMaterialDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyMaterials.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyMaterialUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CompanyMaterials
+     * const companyMaterial = await prisma.companyMaterial.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CompanyMaterialUpdateManyArgs>(args: SelectSubset<T, CompanyMaterialUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CompanyMaterial.
+     * @param {CompanyMaterialUpsertArgs} args - Arguments to update or create a CompanyMaterial.
+     * @example
+     * // Update or create a CompanyMaterial
+     * const companyMaterial = await prisma.companyMaterial.upsert({
+     *   create: {
+     *     // ... data to create a CompanyMaterial
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CompanyMaterial we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CompanyMaterialUpsertArgs>(args: SelectSubset<T, CompanyMaterialUpsertArgs<ExtArgs>>): Prisma__CompanyMaterialClient<$Result.GetResult<Prisma.$CompanyMaterialPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of CompanyMaterials.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyMaterialCountArgs} args - Arguments to filter CompanyMaterials to count.
+     * @example
+     * // Count the number of CompanyMaterials
+     * const count = await prisma.companyMaterial.count({
+     *   where: {
+     *     // ... the filter for the CompanyMaterials we want to count
+     *   }
+     * })
+    **/
+    count<T extends CompanyMaterialCountArgs>(
+      args?: Subset<T, CompanyMaterialCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CompanyMaterialCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CompanyMaterial.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyMaterialAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CompanyMaterialAggregateArgs>(args: Subset<T, CompanyMaterialAggregateArgs>): Prisma.PrismaPromise<GetCompanyMaterialAggregateType<T>>
+
+    /**
+     * Group by CompanyMaterial.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyMaterialGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CompanyMaterialGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CompanyMaterialGroupByArgs['orderBy'] }
+        : { orderBy?: CompanyMaterialGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CompanyMaterialGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompanyMaterialGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CompanyMaterial model
+   */
+  readonly fields: CompanyMaterialFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CompanyMaterial.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CompanyMaterialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    vault<T extends CompanyVaultDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyVaultDefaultArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CompanyMaterial model
+   */ 
+  interface CompanyMaterialFieldRefs {
+    readonly id: FieldRef<"CompanyMaterial", 'String'>
+    readonly vaultId: FieldRef<"CompanyMaterial", 'String'>
+    readonly title: FieldRef<"CompanyMaterial", 'String'>
+    readonly materialType: FieldRef<"CompanyMaterial", 'String'>
+    readonly contentUrl: FieldRef<"CompanyMaterial", 'String'>
+    readonly dataJson: FieldRef<"CompanyMaterial", 'Json'>
+    readonly order: FieldRef<"CompanyMaterial", 'Int'>
+    readonly createdAt: FieldRef<"CompanyMaterial", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CompanyMaterial findUnique
+   */
+  export type CompanyMaterialFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyMaterial to fetch.
+     */
+    where: CompanyMaterialWhereUniqueInput
+  }
+
+  /**
+   * CompanyMaterial findUniqueOrThrow
+   */
+  export type CompanyMaterialFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyMaterial to fetch.
+     */
+    where: CompanyMaterialWhereUniqueInput
+  }
+
+  /**
+   * CompanyMaterial findFirst
+   */
+  export type CompanyMaterialFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyMaterial to fetch.
+     */
+    where?: CompanyMaterialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyMaterials to fetch.
+     */
+    orderBy?: CompanyMaterialOrderByWithRelationInput | CompanyMaterialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyMaterials.
+     */
+    cursor?: CompanyMaterialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyMaterials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyMaterials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyMaterials.
+     */
+    distinct?: CompanyMaterialScalarFieldEnum | CompanyMaterialScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyMaterial findFirstOrThrow
+   */
+  export type CompanyMaterialFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyMaterial to fetch.
+     */
+    where?: CompanyMaterialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyMaterials to fetch.
+     */
+    orderBy?: CompanyMaterialOrderByWithRelationInput | CompanyMaterialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyMaterials.
+     */
+    cursor?: CompanyMaterialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyMaterials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyMaterials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyMaterials.
+     */
+    distinct?: CompanyMaterialScalarFieldEnum | CompanyMaterialScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyMaterial findMany
+   */
+  export type CompanyMaterialFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyMaterials to fetch.
+     */
+    where?: CompanyMaterialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyMaterials to fetch.
+     */
+    orderBy?: CompanyMaterialOrderByWithRelationInput | CompanyMaterialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CompanyMaterials.
+     */
+    cursor?: CompanyMaterialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyMaterials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyMaterials.
+     */
+    skip?: number
+    distinct?: CompanyMaterialScalarFieldEnum | CompanyMaterialScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyMaterial create
+   */
+  export type CompanyMaterialCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CompanyMaterial.
+     */
+    data: XOR<CompanyMaterialCreateInput, CompanyMaterialUncheckedCreateInput>
+  }
+
+  /**
+   * CompanyMaterial createMany
+   */
+  export type CompanyMaterialCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CompanyMaterials.
+     */
+    data: CompanyMaterialCreateManyInput | CompanyMaterialCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CompanyMaterial createManyAndReturn
+   */
+  export type CompanyMaterialCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many CompanyMaterials.
+     */
+    data: CompanyMaterialCreateManyInput | CompanyMaterialCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CompanyMaterial update
+   */
+  export type CompanyMaterialUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CompanyMaterial.
+     */
+    data: XOR<CompanyMaterialUpdateInput, CompanyMaterialUncheckedUpdateInput>
+    /**
+     * Choose, which CompanyMaterial to update.
+     */
+    where: CompanyMaterialWhereUniqueInput
+  }
+
+  /**
+   * CompanyMaterial updateMany
+   */
+  export type CompanyMaterialUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CompanyMaterials.
+     */
+    data: XOR<CompanyMaterialUpdateManyMutationInput, CompanyMaterialUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyMaterials to update
+     */
+    where?: CompanyMaterialWhereInput
+  }
+
+  /**
+   * CompanyMaterial upsert
+   */
+  export type CompanyMaterialUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CompanyMaterial to update in case it exists.
+     */
+    where: CompanyMaterialWhereUniqueInput
+    /**
+     * In case the CompanyMaterial found by the `where` argument doesn't exist, create a new CompanyMaterial with this data.
+     */
+    create: XOR<CompanyMaterialCreateInput, CompanyMaterialUncheckedCreateInput>
+    /**
+     * In case the CompanyMaterial was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CompanyMaterialUpdateInput, CompanyMaterialUncheckedUpdateInput>
+  }
+
+  /**
+   * CompanyMaterial delete
+   */
+  export type CompanyMaterialDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+    /**
+     * Filter which CompanyMaterial to delete.
+     */
+    where: CompanyMaterialWhereUniqueInput
+  }
+
+  /**
+   * CompanyMaterial deleteMany
+   */
+  export type CompanyMaterialDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyMaterials to delete
+     */
+    where?: CompanyMaterialWhereInput
+  }
+
+  /**
+   * CompanyMaterial without action
+   */
+  export type CompanyMaterialDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyMaterial
+     */
+    select?: CompanyMaterialSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyMaterialInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CompanyInterviewTranscript
+   */
+
+  export type AggregateCompanyInterviewTranscript = {
+    _count: CompanyInterviewTranscriptCountAggregateOutputType | null
+    _avg: CompanyInterviewTranscriptAvgAggregateOutputType | null
+    _sum: CompanyInterviewTranscriptSumAggregateOutputType | null
+    _min: CompanyInterviewTranscriptMinAggregateOutputType | null
+    _max: CompanyInterviewTranscriptMaxAggregateOutputType | null
+  }
+
+  export type CompanyInterviewTranscriptAvgAggregateOutputType = {
+    upvotes: number | null
+  }
+
+  export type CompanyInterviewTranscriptSumAggregateOutputType = {
+    upvotes: number | null
+  }
+
+  export type CompanyInterviewTranscriptMinAggregateOutputType = {
+    id: string | null
+    vaultId: string | null
+    roleTitle: string | null
+    location: string | null
+    experience: string | null
+    difficulty: string | null
+    upvotes: number | null
+    createdAt: Date | null
+  }
+
+  export type CompanyInterviewTranscriptMaxAggregateOutputType = {
+    id: string | null
+    vaultId: string | null
+    roleTitle: string | null
+    location: string | null
+    experience: string | null
+    difficulty: string | null
+    upvotes: number | null
+    createdAt: Date | null
+  }
+
+  export type CompanyInterviewTranscriptCountAggregateOutputType = {
+    id: number
+    vaultId: number
+    roleTitle: number
+    location: number
+    experience: number
+    difficulty: number
+    upvotes: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CompanyInterviewTranscriptAvgAggregateInputType = {
+    upvotes?: true
+  }
+
+  export type CompanyInterviewTranscriptSumAggregateInputType = {
+    upvotes?: true
+  }
+
+  export type CompanyInterviewTranscriptMinAggregateInputType = {
+    id?: true
+    vaultId?: true
+    roleTitle?: true
+    location?: true
+    experience?: true
+    difficulty?: true
+    upvotes?: true
+    createdAt?: true
+  }
+
+  export type CompanyInterviewTranscriptMaxAggregateInputType = {
+    id?: true
+    vaultId?: true
+    roleTitle?: true
+    location?: true
+    experience?: true
+    difficulty?: true
+    upvotes?: true
+    createdAt?: true
+  }
+
+  export type CompanyInterviewTranscriptCountAggregateInputType = {
+    id?: true
+    vaultId?: true
+    roleTitle?: true
+    location?: true
+    experience?: true
+    difficulty?: true
+    upvotes?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CompanyInterviewTranscriptAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyInterviewTranscript to aggregate.
+     */
+    where?: CompanyInterviewTranscriptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyInterviewTranscripts to fetch.
+     */
+    orderBy?: CompanyInterviewTranscriptOrderByWithRelationInput | CompanyInterviewTranscriptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CompanyInterviewTranscriptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyInterviewTranscripts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyInterviewTranscripts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CompanyInterviewTranscripts
+    **/
+    _count?: true | CompanyInterviewTranscriptCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CompanyInterviewTranscriptAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CompanyInterviewTranscriptSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CompanyInterviewTranscriptMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CompanyInterviewTranscriptMaxAggregateInputType
+  }
+
+  export type GetCompanyInterviewTranscriptAggregateType<T extends CompanyInterviewTranscriptAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompanyInterviewTranscript]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompanyInterviewTranscript[P]>
+      : GetScalarType<T[P], AggregateCompanyInterviewTranscript[P]>
+  }
+
+
+
+
+  export type CompanyInterviewTranscriptGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyInterviewTranscriptWhereInput
+    orderBy?: CompanyInterviewTranscriptOrderByWithAggregationInput | CompanyInterviewTranscriptOrderByWithAggregationInput[]
+    by: CompanyInterviewTranscriptScalarFieldEnum[] | CompanyInterviewTranscriptScalarFieldEnum
+    having?: CompanyInterviewTranscriptScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CompanyInterviewTranscriptCountAggregateInputType | true
+    _avg?: CompanyInterviewTranscriptAvgAggregateInputType
+    _sum?: CompanyInterviewTranscriptSumAggregateInputType
+    _min?: CompanyInterviewTranscriptMinAggregateInputType
+    _max?: CompanyInterviewTranscriptMaxAggregateInputType
+  }
+
+  export type CompanyInterviewTranscriptGroupByOutputType = {
+    id: string
+    vaultId: string
+    roleTitle: string
+    location: string | null
+    experience: string
+    difficulty: string
+    upvotes: number
+    createdAt: Date
+    _count: CompanyInterviewTranscriptCountAggregateOutputType | null
+    _avg: CompanyInterviewTranscriptAvgAggregateOutputType | null
+    _sum: CompanyInterviewTranscriptSumAggregateOutputType | null
+    _min: CompanyInterviewTranscriptMinAggregateOutputType | null
+    _max: CompanyInterviewTranscriptMaxAggregateOutputType | null
+  }
+
+  type GetCompanyInterviewTranscriptGroupByPayload<T extends CompanyInterviewTranscriptGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CompanyInterviewTranscriptGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CompanyInterviewTranscriptGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CompanyInterviewTranscriptGroupByOutputType[P]>
+            : GetScalarType<T[P], CompanyInterviewTranscriptGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CompanyInterviewTranscriptSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vaultId?: boolean
+    roleTitle?: boolean
+    location?: boolean
+    experience?: boolean
+    difficulty?: boolean
+    upvotes?: boolean
+    createdAt?: boolean
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyInterviewTranscript"]>
+
+  export type CompanyInterviewTranscriptSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vaultId?: boolean
+    roleTitle?: boolean
+    location?: boolean
+    experience?: boolean
+    difficulty?: boolean
+    upvotes?: boolean
+    createdAt?: boolean
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyInterviewTranscript"]>
+
+  export type CompanyInterviewTranscriptSelectScalar = {
+    id?: boolean
+    vaultId?: boolean
+    roleTitle?: boolean
+    location?: boolean
+    experience?: boolean
+    difficulty?: boolean
+    upvotes?: boolean
+    createdAt?: boolean
+  }
+
+  export type CompanyInterviewTranscriptInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+  }
+  export type CompanyInterviewTranscriptIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+  }
+
+  export type $CompanyInterviewTranscriptPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CompanyInterviewTranscript"
+    objects: {
+      vault: Prisma.$CompanyVaultPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      vaultId: string
+      roleTitle: string
+      location: string | null
+      experience: string
+      difficulty: string
+      upvotes: number
+      createdAt: Date
+    }, ExtArgs["result"]["companyInterviewTranscript"]>
+    composites: {}
+  }
+
+  type CompanyInterviewTranscriptGetPayload<S extends boolean | null | undefined | CompanyInterviewTranscriptDefaultArgs> = $Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload, S>
+
+  type CompanyInterviewTranscriptCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<CompanyInterviewTranscriptFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: CompanyInterviewTranscriptCountAggregateInputType | true
+    }
+
+  export interface CompanyInterviewTranscriptDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CompanyInterviewTranscript'], meta: { name: 'CompanyInterviewTranscript' } }
+    /**
+     * Find zero or one CompanyInterviewTranscript that matches the filter.
+     * @param {CompanyInterviewTranscriptFindUniqueArgs} args - Arguments to find a CompanyInterviewTranscript
+     * @example
+     * // Get one CompanyInterviewTranscript
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CompanyInterviewTranscriptFindUniqueArgs>(args: SelectSubset<T, CompanyInterviewTranscriptFindUniqueArgs<ExtArgs>>): Prisma__CompanyInterviewTranscriptClient<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one CompanyInterviewTranscript that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {CompanyInterviewTranscriptFindUniqueOrThrowArgs} args - Arguments to find a CompanyInterviewTranscript
+     * @example
+     * // Get one CompanyInterviewTranscript
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CompanyInterviewTranscriptFindUniqueOrThrowArgs>(args: SelectSubset<T, CompanyInterviewTranscriptFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CompanyInterviewTranscriptClient<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first CompanyInterviewTranscript that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInterviewTranscriptFindFirstArgs} args - Arguments to find a CompanyInterviewTranscript
+     * @example
+     * // Get one CompanyInterviewTranscript
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CompanyInterviewTranscriptFindFirstArgs>(args?: SelectSubset<T, CompanyInterviewTranscriptFindFirstArgs<ExtArgs>>): Prisma__CompanyInterviewTranscriptClient<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first CompanyInterviewTranscript that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInterviewTranscriptFindFirstOrThrowArgs} args - Arguments to find a CompanyInterviewTranscript
+     * @example
+     * // Get one CompanyInterviewTranscript
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CompanyInterviewTranscriptFindFirstOrThrowArgs>(args?: SelectSubset<T, CompanyInterviewTranscriptFindFirstOrThrowArgs<ExtArgs>>): Prisma__CompanyInterviewTranscriptClient<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more CompanyInterviewTranscripts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInterviewTranscriptFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CompanyInterviewTranscripts
+     * const companyInterviewTranscripts = await prisma.companyInterviewTranscript.findMany()
+     * 
+     * // Get first 10 CompanyInterviewTranscripts
+     * const companyInterviewTranscripts = await prisma.companyInterviewTranscript.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const companyInterviewTranscriptWithIdOnly = await prisma.companyInterviewTranscript.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CompanyInterviewTranscriptFindManyArgs>(args?: SelectSubset<T, CompanyInterviewTranscriptFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a CompanyInterviewTranscript.
+     * @param {CompanyInterviewTranscriptCreateArgs} args - Arguments to create a CompanyInterviewTranscript.
+     * @example
+     * // Create one CompanyInterviewTranscript
+     * const CompanyInterviewTranscript = await prisma.companyInterviewTranscript.create({
+     *   data: {
+     *     // ... data to create a CompanyInterviewTranscript
+     *   }
+     * })
+     * 
+     */
+    create<T extends CompanyInterviewTranscriptCreateArgs>(args: SelectSubset<T, CompanyInterviewTranscriptCreateArgs<ExtArgs>>): Prisma__CompanyInterviewTranscriptClient<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many CompanyInterviewTranscripts.
+     * @param {CompanyInterviewTranscriptCreateManyArgs} args - Arguments to create many CompanyInterviewTranscripts.
+     * @example
+     * // Create many CompanyInterviewTranscripts
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CompanyInterviewTranscriptCreateManyArgs>(args?: SelectSubset<T, CompanyInterviewTranscriptCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CompanyInterviewTranscripts and returns the data saved in the database.
+     * @param {CompanyInterviewTranscriptCreateManyAndReturnArgs} args - Arguments to create many CompanyInterviewTranscripts.
+     * @example
+     * // Create many CompanyInterviewTranscripts
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CompanyInterviewTranscripts and only return the `id`
+     * const companyInterviewTranscriptWithIdOnly = await prisma.companyInterviewTranscript.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CompanyInterviewTranscriptCreateManyAndReturnArgs>(args?: SelectSubset<T, CompanyInterviewTranscriptCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a CompanyInterviewTranscript.
+     * @param {CompanyInterviewTranscriptDeleteArgs} args - Arguments to delete one CompanyInterviewTranscript.
+     * @example
+     * // Delete one CompanyInterviewTranscript
+     * const CompanyInterviewTranscript = await prisma.companyInterviewTranscript.delete({
+     *   where: {
+     *     // ... filter to delete one CompanyInterviewTranscript
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CompanyInterviewTranscriptDeleteArgs>(args: SelectSubset<T, CompanyInterviewTranscriptDeleteArgs<ExtArgs>>): Prisma__CompanyInterviewTranscriptClient<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one CompanyInterviewTranscript.
+     * @param {CompanyInterviewTranscriptUpdateArgs} args - Arguments to update one CompanyInterviewTranscript.
+     * @example
+     * // Update one CompanyInterviewTranscript
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CompanyInterviewTranscriptUpdateArgs>(args: SelectSubset<T, CompanyInterviewTranscriptUpdateArgs<ExtArgs>>): Prisma__CompanyInterviewTranscriptClient<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more CompanyInterviewTranscripts.
+     * @param {CompanyInterviewTranscriptDeleteManyArgs} args - Arguments to filter CompanyInterviewTranscripts to delete.
+     * @example
+     * // Delete a few CompanyInterviewTranscripts
+     * const { count } = await prisma.companyInterviewTranscript.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CompanyInterviewTranscriptDeleteManyArgs>(args?: SelectSubset<T, CompanyInterviewTranscriptDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyInterviewTranscripts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInterviewTranscriptUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CompanyInterviewTranscripts
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CompanyInterviewTranscriptUpdateManyArgs>(args: SelectSubset<T, CompanyInterviewTranscriptUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CompanyInterviewTranscript.
+     * @param {CompanyInterviewTranscriptUpsertArgs} args - Arguments to update or create a CompanyInterviewTranscript.
+     * @example
+     * // Update or create a CompanyInterviewTranscript
+     * const companyInterviewTranscript = await prisma.companyInterviewTranscript.upsert({
+     *   create: {
+     *     // ... data to create a CompanyInterviewTranscript
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CompanyInterviewTranscript we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CompanyInterviewTranscriptUpsertArgs>(args: SelectSubset<T, CompanyInterviewTranscriptUpsertArgs<ExtArgs>>): Prisma__CompanyInterviewTranscriptClient<$Result.GetResult<Prisma.$CompanyInterviewTranscriptPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of CompanyInterviewTranscripts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInterviewTranscriptCountArgs} args - Arguments to filter CompanyInterviewTranscripts to count.
+     * @example
+     * // Count the number of CompanyInterviewTranscripts
+     * const count = await prisma.companyInterviewTranscript.count({
+     *   where: {
+     *     // ... the filter for the CompanyInterviewTranscripts we want to count
+     *   }
+     * })
+    **/
+    count<T extends CompanyInterviewTranscriptCountArgs>(
+      args?: Subset<T, CompanyInterviewTranscriptCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CompanyInterviewTranscriptCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CompanyInterviewTranscript.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInterviewTranscriptAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CompanyInterviewTranscriptAggregateArgs>(args: Subset<T, CompanyInterviewTranscriptAggregateArgs>): Prisma.PrismaPromise<GetCompanyInterviewTranscriptAggregateType<T>>
+
+    /**
+     * Group by CompanyInterviewTranscript.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyInterviewTranscriptGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CompanyInterviewTranscriptGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CompanyInterviewTranscriptGroupByArgs['orderBy'] }
+        : { orderBy?: CompanyInterviewTranscriptGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CompanyInterviewTranscriptGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompanyInterviewTranscriptGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CompanyInterviewTranscript model
+   */
+  readonly fields: CompanyInterviewTranscriptFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CompanyInterviewTranscript.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CompanyInterviewTranscriptClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    vault<T extends CompanyVaultDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyVaultDefaultArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CompanyInterviewTranscript model
+   */ 
+  interface CompanyInterviewTranscriptFieldRefs {
+    readonly id: FieldRef<"CompanyInterviewTranscript", 'String'>
+    readonly vaultId: FieldRef<"CompanyInterviewTranscript", 'String'>
+    readonly roleTitle: FieldRef<"CompanyInterviewTranscript", 'String'>
+    readonly location: FieldRef<"CompanyInterviewTranscript", 'String'>
+    readonly experience: FieldRef<"CompanyInterviewTranscript", 'String'>
+    readonly difficulty: FieldRef<"CompanyInterviewTranscript", 'String'>
+    readonly upvotes: FieldRef<"CompanyInterviewTranscript", 'Int'>
+    readonly createdAt: FieldRef<"CompanyInterviewTranscript", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CompanyInterviewTranscript findUnique
+   */
+  export type CompanyInterviewTranscriptFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInterviewTranscript to fetch.
+     */
+    where: CompanyInterviewTranscriptWhereUniqueInput
+  }
+
+  /**
+   * CompanyInterviewTranscript findUniqueOrThrow
+   */
+  export type CompanyInterviewTranscriptFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInterviewTranscript to fetch.
+     */
+    where: CompanyInterviewTranscriptWhereUniqueInput
+  }
+
+  /**
+   * CompanyInterviewTranscript findFirst
+   */
+  export type CompanyInterviewTranscriptFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInterviewTranscript to fetch.
+     */
+    where?: CompanyInterviewTranscriptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyInterviewTranscripts to fetch.
+     */
+    orderBy?: CompanyInterviewTranscriptOrderByWithRelationInput | CompanyInterviewTranscriptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyInterviewTranscripts.
+     */
+    cursor?: CompanyInterviewTranscriptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyInterviewTranscripts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyInterviewTranscripts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyInterviewTranscripts.
+     */
+    distinct?: CompanyInterviewTranscriptScalarFieldEnum | CompanyInterviewTranscriptScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyInterviewTranscript findFirstOrThrow
+   */
+  export type CompanyInterviewTranscriptFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInterviewTranscript to fetch.
+     */
+    where?: CompanyInterviewTranscriptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyInterviewTranscripts to fetch.
+     */
+    orderBy?: CompanyInterviewTranscriptOrderByWithRelationInput | CompanyInterviewTranscriptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyInterviewTranscripts.
+     */
+    cursor?: CompanyInterviewTranscriptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyInterviewTranscripts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyInterviewTranscripts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyInterviewTranscripts.
+     */
+    distinct?: CompanyInterviewTranscriptScalarFieldEnum | CompanyInterviewTranscriptScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyInterviewTranscript findMany
+   */
+  export type CompanyInterviewTranscriptFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyInterviewTranscripts to fetch.
+     */
+    where?: CompanyInterviewTranscriptWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyInterviewTranscripts to fetch.
+     */
+    orderBy?: CompanyInterviewTranscriptOrderByWithRelationInput | CompanyInterviewTranscriptOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CompanyInterviewTranscripts.
+     */
+    cursor?: CompanyInterviewTranscriptWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyInterviewTranscripts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyInterviewTranscripts.
+     */
+    skip?: number
+    distinct?: CompanyInterviewTranscriptScalarFieldEnum | CompanyInterviewTranscriptScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyInterviewTranscript create
+   */
+  export type CompanyInterviewTranscriptCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CompanyInterviewTranscript.
+     */
+    data: XOR<CompanyInterviewTranscriptCreateInput, CompanyInterviewTranscriptUncheckedCreateInput>
+  }
+
+  /**
+   * CompanyInterviewTranscript createMany
+   */
+  export type CompanyInterviewTranscriptCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CompanyInterviewTranscripts.
+     */
+    data: CompanyInterviewTranscriptCreateManyInput | CompanyInterviewTranscriptCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CompanyInterviewTranscript createManyAndReturn
+   */
+  export type CompanyInterviewTranscriptCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many CompanyInterviewTranscripts.
+     */
+    data: CompanyInterviewTranscriptCreateManyInput | CompanyInterviewTranscriptCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CompanyInterviewTranscript update
+   */
+  export type CompanyInterviewTranscriptUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CompanyInterviewTranscript.
+     */
+    data: XOR<CompanyInterviewTranscriptUpdateInput, CompanyInterviewTranscriptUncheckedUpdateInput>
+    /**
+     * Choose, which CompanyInterviewTranscript to update.
+     */
+    where: CompanyInterviewTranscriptWhereUniqueInput
+  }
+
+  /**
+   * CompanyInterviewTranscript updateMany
+   */
+  export type CompanyInterviewTranscriptUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CompanyInterviewTranscripts.
+     */
+    data: XOR<CompanyInterviewTranscriptUpdateManyMutationInput, CompanyInterviewTranscriptUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyInterviewTranscripts to update
+     */
+    where?: CompanyInterviewTranscriptWhereInput
+  }
+
+  /**
+   * CompanyInterviewTranscript upsert
+   */
+  export type CompanyInterviewTranscriptUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CompanyInterviewTranscript to update in case it exists.
+     */
+    where: CompanyInterviewTranscriptWhereUniqueInput
+    /**
+     * In case the CompanyInterviewTranscript found by the `where` argument doesn't exist, create a new CompanyInterviewTranscript with this data.
+     */
+    create: XOR<CompanyInterviewTranscriptCreateInput, CompanyInterviewTranscriptUncheckedCreateInput>
+    /**
+     * In case the CompanyInterviewTranscript was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CompanyInterviewTranscriptUpdateInput, CompanyInterviewTranscriptUncheckedUpdateInput>
+  }
+
+  /**
+   * CompanyInterviewTranscript delete
+   */
+  export type CompanyInterviewTranscriptDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+    /**
+     * Filter which CompanyInterviewTranscript to delete.
+     */
+    where: CompanyInterviewTranscriptWhereUniqueInput
+  }
+
+  /**
+   * CompanyInterviewTranscript deleteMany
+   */
+  export type CompanyInterviewTranscriptDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyInterviewTranscripts to delete
+     */
+    where?: CompanyInterviewTranscriptWhereInput
+  }
+
+  /**
+   * CompanyInterviewTranscript without action
+   */
+  export type CompanyInterviewTranscriptDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyInterviewTranscript
+     */
+    select?: CompanyInterviewTranscriptSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInterviewTranscriptInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CompanyAccessLog
+   */
+
+  export type AggregateCompanyAccessLog = {
+    _count: CompanyAccessLogCountAggregateOutputType | null
+    _min: CompanyAccessLogMinAggregateOutputType | null
+    _max: CompanyAccessLogMaxAggregateOutputType | null
+  }
+
+  export type CompanyAccessLogMinAggregateOutputType = {
+    id: string | null
+    vaultId: string | null
+    userId: string | null
+    unlockedAt: Date | null
+  }
+
+  export type CompanyAccessLogMaxAggregateOutputType = {
+    id: string | null
+    vaultId: string | null
+    userId: string | null
+    unlockedAt: Date | null
+  }
+
+  export type CompanyAccessLogCountAggregateOutputType = {
+    id: number
+    vaultId: number
+    userId: number
+    unlockedAt: number
+    _all: number
+  }
+
+
+  export type CompanyAccessLogMinAggregateInputType = {
+    id?: true
+    vaultId?: true
+    userId?: true
+    unlockedAt?: true
+  }
+
+  export type CompanyAccessLogMaxAggregateInputType = {
+    id?: true
+    vaultId?: true
+    userId?: true
+    unlockedAt?: true
+  }
+
+  export type CompanyAccessLogCountAggregateInputType = {
+    id?: true
+    vaultId?: true
+    userId?: true
+    unlockedAt?: true
+    _all?: true
+  }
+
+  export type CompanyAccessLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyAccessLog to aggregate.
+     */
+    where?: CompanyAccessLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyAccessLogs to fetch.
+     */
+    orderBy?: CompanyAccessLogOrderByWithRelationInput | CompanyAccessLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CompanyAccessLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyAccessLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyAccessLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CompanyAccessLogs
+    **/
+    _count?: true | CompanyAccessLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CompanyAccessLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CompanyAccessLogMaxAggregateInputType
+  }
+
+  export type GetCompanyAccessLogAggregateType<T extends CompanyAccessLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompanyAccessLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompanyAccessLog[P]>
+      : GetScalarType<T[P], AggregateCompanyAccessLog[P]>
+  }
+
+
+
+
+  export type CompanyAccessLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyAccessLogWhereInput
+    orderBy?: CompanyAccessLogOrderByWithAggregationInput | CompanyAccessLogOrderByWithAggregationInput[]
+    by: CompanyAccessLogScalarFieldEnum[] | CompanyAccessLogScalarFieldEnum
+    having?: CompanyAccessLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CompanyAccessLogCountAggregateInputType | true
+    _min?: CompanyAccessLogMinAggregateInputType
+    _max?: CompanyAccessLogMaxAggregateInputType
+  }
+
+  export type CompanyAccessLogGroupByOutputType = {
+    id: string
+    vaultId: string
+    userId: string
+    unlockedAt: Date
+    _count: CompanyAccessLogCountAggregateOutputType | null
+    _min: CompanyAccessLogMinAggregateOutputType | null
+    _max: CompanyAccessLogMaxAggregateOutputType | null
+  }
+
+  type GetCompanyAccessLogGroupByPayload<T extends CompanyAccessLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CompanyAccessLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CompanyAccessLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CompanyAccessLogGroupByOutputType[P]>
+            : GetScalarType<T[P], CompanyAccessLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CompanyAccessLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vaultId?: boolean
+    userId?: boolean
+    unlockedAt?: boolean
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyAccessLog"]>
+
+  export type CompanyAccessLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    vaultId?: boolean
+    userId?: boolean
+    unlockedAt?: boolean
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["companyAccessLog"]>
+
+  export type CompanyAccessLogSelectScalar = {
+    id?: boolean
+    vaultId?: boolean
+    userId?: boolean
+    unlockedAt?: boolean
+  }
+
+  export type CompanyAccessLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type CompanyAccessLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    vault?: boolean | CompanyVaultDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $CompanyAccessLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CompanyAccessLog"
+    objects: {
+      vault: Prisma.$CompanyVaultPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      vaultId: string
+      userId: string
+      unlockedAt: Date
+    }, ExtArgs["result"]["companyAccessLog"]>
+    composites: {}
+  }
+
+  type CompanyAccessLogGetPayload<S extends boolean | null | undefined | CompanyAccessLogDefaultArgs> = $Result.GetResult<Prisma.$CompanyAccessLogPayload, S>
+
+  type CompanyAccessLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<CompanyAccessLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: CompanyAccessLogCountAggregateInputType | true
+    }
+
+  export interface CompanyAccessLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CompanyAccessLog'], meta: { name: 'CompanyAccessLog' } }
+    /**
+     * Find zero or one CompanyAccessLog that matches the filter.
+     * @param {CompanyAccessLogFindUniqueArgs} args - Arguments to find a CompanyAccessLog
+     * @example
+     * // Get one CompanyAccessLog
+     * const companyAccessLog = await prisma.companyAccessLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CompanyAccessLogFindUniqueArgs>(args: SelectSubset<T, CompanyAccessLogFindUniqueArgs<ExtArgs>>): Prisma__CompanyAccessLogClient<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one CompanyAccessLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {CompanyAccessLogFindUniqueOrThrowArgs} args - Arguments to find a CompanyAccessLog
+     * @example
+     * // Get one CompanyAccessLog
+     * const companyAccessLog = await prisma.companyAccessLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CompanyAccessLogFindUniqueOrThrowArgs>(args: SelectSubset<T, CompanyAccessLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CompanyAccessLogClient<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first CompanyAccessLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyAccessLogFindFirstArgs} args - Arguments to find a CompanyAccessLog
+     * @example
+     * // Get one CompanyAccessLog
+     * const companyAccessLog = await prisma.companyAccessLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CompanyAccessLogFindFirstArgs>(args?: SelectSubset<T, CompanyAccessLogFindFirstArgs<ExtArgs>>): Prisma__CompanyAccessLogClient<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first CompanyAccessLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyAccessLogFindFirstOrThrowArgs} args - Arguments to find a CompanyAccessLog
+     * @example
+     * // Get one CompanyAccessLog
+     * const companyAccessLog = await prisma.companyAccessLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CompanyAccessLogFindFirstOrThrowArgs>(args?: SelectSubset<T, CompanyAccessLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__CompanyAccessLogClient<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more CompanyAccessLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyAccessLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CompanyAccessLogs
+     * const companyAccessLogs = await prisma.companyAccessLog.findMany()
+     * 
+     * // Get first 10 CompanyAccessLogs
+     * const companyAccessLogs = await prisma.companyAccessLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const companyAccessLogWithIdOnly = await prisma.companyAccessLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CompanyAccessLogFindManyArgs>(args?: SelectSubset<T, CompanyAccessLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a CompanyAccessLog.
+     * @param {CompanyAccessLogCreateArgs} args - Arguments to create a CompanyAccessLog.
+     * @example
+     * // Create one CompanyAccessLog
+     * const CompanyAccessLog = await prisma.companyAccessLog.create({
+     *   data: {
+     *     // ... data to create a CompanyAccessLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends CompanyAccessLogCreateArgs>(args: SelectSubset<T, CompanyAccessLogCreateArgs<ExtArgs>>): Prisma__CompanyAccessLogClient<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many CompanyAccessLogs.
+     * @param {CompanyAccessLogCreateManyArgs} args - Arguments to create many CompanyAccessLogs.
+     * @example
+     * // Create many CompanyAccessLogs
+     * const companyAccessLog = await prisma.companyAccessLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CompanyAccessLogCreateManyArgs>(args?: SelectSubset<T, CompanyAccessLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CompanyAccessLogs and returns the data saved in the database.
+     * @param {CompanyAccessLogCreateManyAndReturnArgs} args - Arguments to create many CompanyAccessLogs.
+     * @example
+     * // Create many CompanyAccessLogs
+     * const companyAccessLog = await prisma.companyAccessLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CompanyAccessLogs and only return the `id`
+     * const companyAccessLogWithIdOnly = await prisma.companyAccessLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CompanyAccessLogCreateManyAndReturnArgs>(args?: SelectSubset<T, CompanyAccessLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a CompanyAccessLog.
+     * @param {CompanyAccessLogDeleteArgs} args - Arguments to delete one CompanyAccessLog.
+     * @example
+     * // Delete one CompanyAccessLog
+     * const CompanyAccessLog = await prisma.companyAccessLog.delete({
+     *   where: {
+     *     // ... filter to delete one CompanyAccessLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CompanyAccessLogDeleteArgs>(args: SelectSubset<T, CompanyAccessLogDeleteArgs<ExtArgs>>): Prisma__CompanyAccessLogClient<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one CompanyAccessLog.
+     * @param {CompanyAccessLogUpdateArgs} args - Arguments to update one CompanyAccessLog.
+     * @example
+     * // Update one CompanyAccessLog
+     * const companyAccessLog = await prisma.companyAccessLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CompanyAccessLogUpdateArgs>(args: SelectSubset<T, CompanyAccessLogUpdateArgs<ExtArgs>>): Prisma__CompanyAccessLogClient<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more CompanyAccessLogs.
+     * @param {CompanyAccessLogDeleteManyArgs} args - Arguments to filter CompanyAccessLogs to delete.
+     * @example
+     * // Delete a few CompanyAccessLogs
+     * const { count } = await prisma.companyAccessLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CompanyAccessLogDeleteManyArgs>(args?: SelectSubset<T, CompanyAccessLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyAccessLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyAccessLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CompanyAccessLogs
+     * const companyAccessLog = await prisma.companyAccessLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CompanyAccessLogUpdateManyArgs>(args: SelectSubset<T, CompanyAccessLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CompanyAccessLog.
+     * @param {CompanyAccessLogUpsertArgs} args - Arguments to update or create a CompanyAccessLog.
+     * @example
+     * // Update or create a CompanyAccessLog
+     * const companyAccessLog = await prisma.companyAccessLog.upsert({
+     *   create: {
+     *     // ... data to create a CompanyAccessLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CompanyAccessLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CompanyAccessLogUpsertArgs>(args: SelectSubset<T, CompanyAccessLogUpsertArgs<ExtArgs>>): Prisma__CompanyAccessLogClient<$Result.GetResult<Prisma.$CompanyAccessLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of CompanyAccessLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyAccessLogCountArgs} args - Arguments to filter CompanyAccessLogs to count.
+     * @example
+     * // Count the number of CompanyAccessLogs
+     * const count = await prisma.companyAccessLog.count({
+     *   where: {
+     *     // ... the filter for the CompanyAccessLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends CompanyAccessLogCountArgs>(
+      args?: Subset<T, CompanyAccessLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CompanyAccessLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CompanyAccessLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyAccessLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CompanyAccessLogAggregateArgs>(args: Subset<T, CompanyAccessLogAggregateArgs>): Prisma.PrismaPromise<GetCompanyAccessLogAggregateType<T>>
+
+    /**
+     * Group by CompanyAccessLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyAccessLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CompanyAccessLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CompanyAccessLogGroupByArgs['orderBy'] }
+        : { orderBy?: CompanyAccessLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CompanyAccessLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompanyAccessLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CompanyAccessLog model
+   */
+  readonly fields: CompanyAccessLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CompanyAccessLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CompanyAccessLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    vault<T extends CompanyVaultDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CompanyVaultDefaultArgs<ExtArgs>>): Prisma__CompanyVaultClient<$Result.GetResult<Prisma.$CompanyVaultPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CompanyAccessLog model
+   */ 
+  interface CompanyAccessLogFieldRefs {
+    readonly id: FieldRef<"CompanyAccessLog", 'String'>
+    readonly vaultId: FieldRef<"CompanyAccessLog", 'String'>
+    readonly userId: FieldRef<"CompanyAccessLog", 'String'>
+    readonly unlockedAt: FieldRef<"CompanyAccessLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CompanyAccessLog findUnique
+   */
+  export type CompanyAccessLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyAccessLog to fetch.
+     */
+    where: CompanyAccessLogWhereUniqueInput
+  }
+
+  /**
+   * CompanyAccessLog findUniqueOrThrow
+   */
+  export type CompanyAccessLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyAccessLog to fetch.
+     */
+    where: CompanyAccessLogWhereUniqueInput
+  }
+
+  /**
+   * CompanyAccessLog findFirst
+   */
+  export type CompanyAccessLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyAccessLog to fetch.
+     */
+    where?: CompanyAccessLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyAccessLogs to fetch.
+     */
+    orderBy?: CompanyAccessLogOrderByWithRelationInput | CompanyAccessLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyAccessLogs.
+     */
+    cursor?: CompanyAccessLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyAccessLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyAccessLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyAccessLogs.
+     */
+    distinct?: CompanyAccessLogScalarFieldEnum | CompanyAccessLogScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyAccessLog findFirstOrThrow
+   */
+  export type CompanyAccessLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyAccessLog to fetch.
+     */
+    where?: CompanyAccessLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyAccessLogs to fetch.
+     */
+    orderBy?: CompanyAccessLogOrderByWithRelationInput | CompanyAccessLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyAccessLogs.
+     */
+    cursor?: CompanyAccessLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyAccessLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyAccessLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyAccessLogs.
+     */
+    distinct?: CompanyAccessLogScalarFieldEnum | CompanyAccessLogScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyAccessLog findMany
+   */
+  export type CompanyAccessLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CompanyAccessLogs to fetch.
+     */
+    where?: CompanyAccessLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyAccessLogs to fetch.
+     */
+    orderBy?: CompanyAccessLogOrderByWithRelationInput | CompanyAccessLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CompanyAccessLogs.
+     */
+    cursor?: CompanyAccessLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyAccessLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyAccessLogs.
+     */
+    skip?: number
+    distinct?: CompanyAccessLogScalarFieldEnum | CompanyAccessLogScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyAccessLog create
+   */
+  export type CompanyAccessLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CompanyAccessLog.
+     */
+    data: XOR<CompanyAccessLogCreateInput, CompanyAccessLogUncheckedCreateInput>
+  }
+
+  /**
+   * CompanyAccessLog createMany
+   */
+  export type CompanyAccessLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CompanyAccessLogs.
+     */
+    data: CompanyAccessLogCreateManyInput | CompanyAccessLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CompanyAccessLog createManyAndReturn
+   */
+  export type CompanyAccessLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many CompanyAccessLogs.
+     */
+    data: CompanyAccessLogCreateManyInput | CompanyAccessLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CompanyAccessLog update
+   */
+  export type CompanyAccessLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CompanyAccessLog.
+     */
+    data: XOR<CompanyAccessLogUpdateInput, CompanyAccessLogUncheckedUpdateInput>
+    /**
+     * Choose, which CompanyAccessLog to update.
+     */
+    where: CompanyAccessLogWhereUniqueInput
+  }
+
+  /**
+   * CompanyAccessLog updateMany
+   */
+  export type CompanyAccessLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CompanyAccessLogs.
+     */
+    data: XOR<CompanyAccessLogUpdateManyMutationInput, CompanyAccessLogUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyAccessLogs to update
+     */
+    where?: CompanyAccessLogWhereInput
+  }
+
+  /**
+   * CompanyAccessLog upsert
+   */
+  export type CompanyAccessLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CompanyAccessLog to update in case it exists.
+     */
+    where: CompanyAccessLogWhereUniqueInput
+    /**
+     * In case the CompanyAccessLog found by the `where` argument doesn't exist, create a new CompanyAccessLog with this data.
+     */
+    create: XOR<CompanyAccessLogCreateInput, CompanyAccessLogUncheckedCreateInput>
+    /**
+     * In case the CompanyAccessLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CompanyAccessLogUpdateInput, CompanyAccessLogUncheckedUpdateInput>
+  }
+
+  /**
+   * CompanyAccessLog delete
+   */
+  export type CompanyAccessLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+    /**
+     * Filter which CompanyAccessLog to delete.
+     */
+    where: CompanyAccessLogWhereUniqueInput
+  }
+
+  /**
+   * CompanyAccessLog deleteMany
+   */
+  export type CompanyAccessLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyAccessLogs to delete
+     */
+    where?: CompanyAccessLogWhereInput
+  }
+
+  /**
+   * CompanyAccessLog without action
+   */
+  export type CompanyAccessLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyAccessLog
+     */
+    select?: CompanyAccessLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyAccessLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -52048,6 +56643,67 @@ export namespace Prisma {
   export type AssistantCodeSnapshotScalarFieldEnum = (typeof AssistantCodeSnapshotScalarFieldEnum)[keyof typeof AssistantCodeSnapshotScalarFieldEnum]
 
 
+  export const CompanyVaultScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    slug: 'slug',
+    companyName: 'companyName',
+    brandColor: 'brandColor',
+    logoUrl: 'logoUrl',
+    targetCtc: 'targetCtc',
+    examPattern: 'examPattern',
+    description: 'description',
+    accessCode: 'accessCode',
+    accessCodePlain: 'accessCodePlain',
+    expiresAt: 'expiresAt',
+    isLocked: 'isLocked',
+    organizationId: 'organizationId',
+    createdById: 'createdById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CompanyVaultScalarFieldEnum = (typeof CompanyVaultScalarFieldEnum)[keyof typeof CompanyVaultScalarFieldEnum]
+
+
+  export const CompanyMaterialScalarFieldEnum: {
+    id: 'id',
+    vaultId: 'vaultId',
+    title: 'title',
+    materialType: 'materialType',
+    contentUrl: 'contentUrl',
+    dataJson: 'dataJson',
+    order: 'order',
+    createdAt: 'createdAt'
+  };
+
+  export type CompanyMaterialScalarFieldEnum = (typeof CompanyMaterialScalarFieldEnum)[keyof typeof CompanyMaterialScalarFieldEnum]
+
+
+  export const CompanyInterviewTranscriptScalarFieldEnum: {
+    id: 'id',
+    vaultId: 'vaultId',
+    roleTitle: 'roleTitle',
+    location: 'location',
+    experience: 'experience',
+    difficulty: 'difficulty',
+    upvotes: 'upvotes',
+    createdAt: 'createdAt'
+  };
+
+  export type CompanyInterviewTranscriptScalarFieldEnum = (typeof CompanyInterviewTranscriptScalarFieldEnum)[keyof typeof CompanyInterviewTranscriptScalarFieldEnum]
+
+
+  export const CompanyAccessLogScalarFieldEnum: {
+    id: 'id',
+    vaultId: 'vaultId',
+    userId: 'userId',
+    unlockedAt: 'unlockedAt'
+  };
+
+  export type CompanyAccessLogScalarFieldEnum = (typeof CompanyAccessLogScalarFieldEnum)[keyof typeof CompanyAccessLogScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -52468,6 +57124,7 @@ export namespace Prisma {
     auditLogs?: AuditLogListRelationFilter
     questionBanks?: QuestionBankListRelationFilter
     interviewSessions?: MockInterviewSessionListRelationFilter
+    companyVaults?: CompanyVaultListRelationFilter
   }
 
   export type OrganizationOrderByWithRelationInput = {
@@ -52495,6 +57152,7 @@ export namespace Prisma {
     auditLogs?: AuditLogOrderByRelationAggregateInput
     questionBanks?: QuestionBankOrderByRelationAggregateInput
     interviewSessions?: MockInterviewSessionOrderByRelationAggregateInput
+    companyVaults?: CompanyVaultOrderByRelationAggregateInput
   }
 
   export type OrganizationWhereUniqueInput = Prisma.AtLeast<{
@@ -52525,6 +57183,7 @@ export namespace Prisma {
     auditLogs?: AuditLogListRelationFilter
     questionBanks?: QuestionBankListRelationFilter
     interviewSessions?: MockInterviewSessionListRelationFilter
+    companyVaults?: CompanyVaultListRelationFilter
   }, "id" | "slug" | "domain">
 
   export type OrganizationOrderByWithAggregationInput = {
@@ -52621,6 +57280,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantListRelationFilter
     assistantSessions?: AssistantSessionListRelationFilter
     problemAiCreditLogs?: ProblemAiCreditLogListRelationFilter
+    createdCompanyVaults?: CompanyVaultListRelationFilter
+    companyAccessLogs?: CompanyAccessLogListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -52666,6 +57327,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantOrderByRelationAggregateInput
     assistantSessions?: AssistantSessionOrderByRelationAggregateInput
     problemAiCreditLogs?: ProblemAiCreditLogOrderByRelationAggregateInput
+    createdCompanyVaults?: CompanyVaultOrderByRelationAggregateInput
+    companyAccessLogs?: CompanyAccessLogOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -52714,6 +57377,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantListRelationFilter
     assistantSessions?: AssistantSessionListRelationFilter
     problemAiCreditLogs?: ProblemAiCreditLogListRelationFilter
+    createdCompanyVaults?: CompanyVaultListRelationFilter
+    companyAccessLogs?: CompanyAccessLogListRelationFilter
   }, "id" | "email" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -56337,6 +61002,331 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"AssistantCodeSnapshot"> | Date | string
   }
 
+  export type CompanyVaultWhereInput = {
+    AND?: CompanyVaultWhereInput | CompanyVaultWhereInput[]
+    OR?: CompanyVaultWhereInput[]
+    NOT?: CompanyVaultWhereInput | CompanyVaultWhereInput[]
+    id?: StringFilter<"CompanyVault"> | string
+    name?: StringFilter<"CompanyVault"> | string
+    slug?: StringFilter<"CompanyVault"> | string
+    companyName?: StringFilter<"CompanyVault"> | string
+    brandColor?: StringFilter<"CompanyVault"> | string
+    logoUrl?: StringNullableFilter<"CompanyVault"> | string | null
+    targetCtc?: StringNullableFilter<"CompanyVault"> | string | null
+    examPattern?: StringNullableFilter<"CompanyVault"> | string | null
+    description?: StringNullableFilter<"CompanyVault"> | string | null
+    accessCode?: StringFilter<"CompanyVault"> | string
+    accessCodePlain?: StringNullableFilter<"CompanyVault"> | string | null
+    expiresAt?: DateTimeNullableFilter<"CompanyVault"> | Date | string | null
+    isLocked?: BoolFilter<"CompanyVault"> | boolean
+    organizationId?: StringNullableFilter<"CompanyVault"> | string | null
+    createdById?: StringFilter<"CompanyVault"> | string
+    createdAt?: DateTimeFilter<"CompanyVault"> | Date | string
+    updatedAt?: DateTimeFilter<"CompanyVault"> | Date | string
+    organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
+    createdBy?: XOR<UserRelationFilter, UserWhereInput>
+    materials?: CompanyMaterialListRelationFilter
+    transcripts?: CompanyInterviewTranscriptListRelationFilter
+    accessLogs?: CompanyAccessLogListRelationFilter
+  }
+
+  export type CompanyVaultOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    companyName?: SortOrder
+    brandColor?: SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    targetCtc?: SortOrderInput | SortOrder
+    examPattern?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    isLocked?: SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    organization?: OrganizationOrderByWithRelationInput
+    createdBy?: UserOrderByWithRelationInput
+    materials?: CompanyMaterialOrderByRelationAggregateInput
+    transcripts?: CompanyInterviewTranscriptOrderByRelationAggregateInput
+    accessLogs?: CompanyAccessLogOrderByRelationAggregateInput
+  }
+
+  export type CompanyVaultWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    slug?: string
+    AND?: CompanyVaultWhereInput | CompanyVaultWhereInput[]
+    OR?: CompanyVaultWhereInput[]
+    NOT?: CompanyVaultWhereInput | CompanyVaultWhereInput[]
+    name?: StringFilter<"CompanyVault"> | string
+    companyName?: StringFilter<"CompanyVault"> | string
+    brandColor?: StringFilter<"CompanyVault"> | string
+    logoUrl?: StringNullableFilter<"CompanyVault"> | string | null
+    targetCtc?: StringNullableFilter<"CompanyVault"> | string | null
+    examPattern?: StringNullableFilter<"CompanyVault"> | string | null
+    description?: StringNullableFilter<"CompanyVault"> | string | null
+    accessCode?: StringFilter<"CompanyVault"> | string
+    accessCodePlain?: StringNullableFilter<"CompanyVault"> | string | null
+    expiresAt?: DateTimeNullableFilter<"CompanyVault"> | Date | string | null
+    isLocked?: BoolFilter<"CompanyVault"> | boolean
+    organizationId?: StringNullableFilter<"CompanyVault"> | string | null
+    createdById?: StringFilter<"CompanyVault"> | string
+    createdAt?: DateTimeFilter<"CompanyVault"> | Date | string
+    updatedAt?: DateTimeFilter<"CompanyVault"> | Date | string
+    organization?: XOR<OrganizationNullableRelationFilter, OrganizationWhereInput> | null
+    createdBy?: XOR<UserRelationFilter, UserWhereInput>
+    materials?: CompanyMaterialListRelationFilter
+    transcripts?: CompanyInterviewTranscriptListRelationFilter
+    accessLogs?: CompanyAccessLogListRelationFilter
+  }, "id" | "slug">
+
+  export type CompanyVaultOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    companyName?: SortOrder
+    brandColor?: SortOrder
+    logoUrl?: SortOrderInput | SortOrder
+    targetCtc?: SortOrderInput | SortOrder
+    examPattern?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    isLocked?: SortOrder
+    organizationId?: SortOrderInput | SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CompanyVaultCountOrderByAggregateInput
+    _max?: CompanyVaultMaxOrderByAggregateInput
+    _min?: CompanyVaultMinOrderByAggregateInput
+  }
+
+  export type CompanyVaultScalarWhereWithAggregatesInput = {
+    AND?: CompanyVaultScalarWhereWithAggregatesInput | CompanyVaultScalarWhereWithAggregatesInput[]
+    OR?: CompanyVaultScalarWhereWithAggregatesInput[]
+    NOT?: CompanyVaultScalarWhereWithAggregatesInput | CompanyVaultScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CompanyVault"> | string
+    name?: StringWithAggregatesFilter<"CompanyVault"> | string
+    slug?: StringWithAggregatesFilter<"CompanyVault"> | string
+    companyName?: StringWithAggregatesFilter<"CompanyVault"> | string
+    brandColor?: StringWithAggregatesFilter<"CompanyVault"> | string
+    logoUrl?: StringNullableWithAggregatesFilter<"CompanyVault"> | string | null
+    targetCtc?: StringNullableWithAggregatesFilter<"CompanyVault"> | string | null
+    examPattern?: StringNullableWithAggregatesFilter<"CompanyVault"> | string | null
+    description?: StringNullableWithAggregatesFilter<"CompanyVault"> | string | null
+    accessCode?: StringWithAggregatesFilter<"CompanyVault"> | string
+    accessCodePlain?: StringNullableWithAggregatesFilter<"CompanyVault"> | string | null
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"CompanyVault"> | Date | string | null
+    isLocked?: BoolWithAggregatesFilter<"CompanyVault"> | boolean
+    organizationId?: StringNullableWithAggregatesFilter<"CompanyVault"> | string | null
+    createdById?: StringWithAggregatesFilter<"CompanyVault"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"CompanyVault"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CompanyVault"> | Date | string
+  }
+
+  export type CompanyMaterialWhereInput = {
+    AND?: CompanyMaterialWhereInput | CompanyMaterialWhereInput[]
+    OR?: CompanyMaterialWhereInput[]
+    NOT?: CompanyMaterialWhereInput | CompanyMaterialWhereInput[]
+    id?: StringFilter<"CompanyMaterial"> | string
+    vaultId?: StringFilter<"CompanyMaterial"> | string
+    title?: StringFilter<"CompanyMaterial"> | string
+    materialType?: StringFilter<"CompanyMaterial"> | string
+    contentUrl?: StringNullableFilter<"CompanyMaterial"> | string | null
+    dataJson?: JsonNullableFilter<"CompanyMaterial">
+    order?: IntFilter<"CompanyMaterial"> | number
+    createdAt?: DateTimeFilter<"CompanyMaterial"> | Date | string
+    vault?: XOR<CompanyVaultRelationFilter, CompanyVaultWhereInput>
+  }
+
+  export type CompanyMaterialOrderByWithRelationInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    title?: SortOrder
+    materialType?: SortOrder
+    contentUrl?: SortOrderInput | SortOrder
+    dataJson?: SortOrderInput | SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+    vault?: CompanyVaultOrderByWithRelationInput
+  }
+
+  export type CompanyMaterialWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CompanyMaterialWhereInput | CompanyMaterialWhereInput[]
+    OR?: CompanyMaterialWhereInput[]
+    NOT?: CompanyMaterialWhereInput | CompanyMaterialWhereInput[]
+    vaultId?: StringFilter<"CompanyMaterial"> | string
+    title?: StringFilter<"CompanyMaterial"> | string
+    materialType?: StringFilter<"CompanyMaterial"> | string
+    contentUrl?: StringNullableFilter<"CompanyMaterial"> | string | null
+    dataJson?: JsonNullableFilter<"CompanyMaterial">
+    order?: IntFilter<"CompanyMaterial"> | number
+    createdAt?: DateTimeFilter<"CompanyMaterial"> | Date | string
+    vault?: XOR<CompanyVaultRelationFilter, CompanyVaultWhereInput>
+  }, "id">
+
+  export type CompanyMaterialOrderByWithAggregationInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    title?: SortOrder
+    materialType?: SortOrder
+    contentUrl?: SortOrderInput | SortOrder
+    dataJson?: SortOrderInput | SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+    _count?: CompanyMaterialCountOrderByAggregateInput
+    _avg?: CompanyMaterialAvgOrderByAggregateInput
+    _max?: CompanyMaterialMaxOrderByAggregateInput
+    _min?: CompanyMaterialMinOrderByAggregateInput
+    _sum?: CompanyMaterialSumOrderByAggregateInput
+  }
+
+  export type CompanyMaterialScalarWhereWithAggregatesInput = {
+    AND?: CompanyMaterialScalarWhereWithAggregatesInput | CompanyMaterialScalarWhereWithAggregatesInput[]
+    OR?: CompanyMaterialScalarWhereWithAggregatesInput[]
+    NOT?: CompanyMaterialScalarWhereWithAggregatesInput | CompanyMaterialScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CompanyMaterial"> | string
+    vaultId?: StringWithAggregatesFilter<"CompanyMaterial"> | string
+    title?: StringWithAggregatesFilter<"CompanyMaterial"> | string
+    materialType?: StringWithAggregatesFilter<"CompanyMaterial"> | string
+    contentUrl?: StringNullableWithAggregatesFilter<"CompanyMaterial"> | string | null
+    dataJson?: JsonNullableWithAggregatesFilter<"CompanyMaterial">
+    order?: IntWithAggregatesFilter<"CompanyMaterial"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"CompanyMaterial"> | Date | string
+  }
+
+  export type CompanyInterviewTranscriptWhereInput = {
+    AND?: CompanyInterviewTranscriptWhereInput | CompanyInterviewTranscriptWhereInput[]
+    OR?: CompanyInterviewTranscriptWhereInput[]
+    NOT?: CompanyInterviewTranscriptWhereInput | CompanyInterviewTranscriptWhereInput[]
+    id?: StringFilter<"CompanyInterviewTranscript"> | string
+    vaultId?: StringFilter<"CompanyInterviewTranscript"> | string
+    roleTitle?: StringFilter<"CompanyInterviewTranscript"> | string
+    location?: StringNullableFilter<"CompanyInterviewTranscript"> | string | null
+    experience?: StringFilter<"CompanyInterviewTranscript"> | string
+    difficulty?: StringFilter<"CompanyInterviewTranscript"> | string
+    upvotes?: IntFilter<"CompanyInterviewTranscript"> | number
+    createdAt?: DateTimeFilter<"CompanyInterviewTranscript"> | Date | string
+    vault?: XOR<CompanyVaultRelationFilter, CompanyVaultWhereInput>
+  }
+
+  export type CompanyInterviewTranscriptOrderByWithRelationInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    roleTitle?: SortOrder
+    location?: SortOrderInput | SortOrder
+    experience?: SortOrder
+    difficulty?: SortOrder
+    upvotes?: SortOrder
+    createdAt?: SortOrder
+    vault?: CompanyVaultOrderByWithRelationInput
+  }
+
+  export type CompanyInterviewTranscriptWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CompanyInterviewTranscriptWhereInput | CompanyInterviewTranscriptWhereInput[]
+    OR?: CompanyInterviewTranscriptWhereInput[]
+    NOT?: CompanyInterviewTranscriptWhereInput | CompanyInterviewTranscriptWhereInput[]
+    vaultId?: StringFilter<"CompanyInterviewTranscript"> | string
+    roleTitle?: StringFilter<"CompanyInterviewTranscript"> | string
+    location?: StringNullableFilter<"CompanyInterviewTranscript"> | string | null
+    experience?: StringFilter<"CompanyInterviewTranscript"> | string
+    difficulty?: StringFilter<"CompanyInterviewTranscript"> | string
+    upvotes?: IntFilter<"CompanyInterviewTranscript"> | number
+    createdAt?: DateTimeFilter<"CompanyInterviewTranscript"> | Date | string
+    vault?: XOR<CompanyVaultRelationFilter, CompanyVaultWhereInput>
+  }, "id">
+
+  export type CompanyInterviewTranscriptOrderByWithAggregationInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    roleTitle?: SortOrder
+    location?: SortOrderInput | SortOrder
+    experience?: SortOrder
+    difficulty?: SortOrder
+    upvotes?: SortOrder
+    createdAt?: SortOrder
+    _count?: CompanyInterviewTranscriptCountOrderByAggregateInput
+    _avg?: CompanyInterviewTranscriptAvgOrderByAggregateInput
+    _max?: CompanyInterviewTranscriptMaxOrderByAggregateInput
+    _min?: CompanyInterviewTranscriptMinOrderByAggregateInput
+    _sum?: CompanyInterviewTranscriptSumOrderByAggregateInput
+  }
+
+  export type CompanyInterviewTranscriptScalarWhereWithAggregatesInput = {
+    AND?: CompanyInterviewTranscriptScalarWhereWithAggregatesInput | CompanyInterviewTranscriptScalarWhereWithAggregatesInput[]
+    OR?: CompanyInterviewTranscriptScalarWhereWithAggregatesInput[]
+    NOT?: CompanyInterviewTranscriptScalarWhereWithAggregatesInput | CompanyInterviewTranscriptScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CompanyInterviewTranscript"> | string
+    vaultId?: StringWithAggregatesFilter<"CompanyInterviewTranscript"> | string
+    roleTitle?: StringWithAggregatesFilter<"CompanyInterviewTranscript"> | string
+    location?: StringNullableWithAggregatesFilter<"CompanyInterviewTranscript"> | string | null
+    experience?: StringWithAggregatesFilter<"CompanyInterviewTranscript"> | string
+    difficulty?: StringWithAggregatesFilter<"CompanyInterviewTranscript"> | string
+    upvotes?: IntWithAggregatesFilter<"CompanyInterviewTranscript"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"CompanyInterviewTranscript"> | Date | string
+  }
+
+  export type CompanyAccessLogWhereInput = {
+    AND?: CompanyAccessLogWhereInput | CompanyAccessLogWhereInput[]
+    OR?: CompanyAccessLogWhereInput[]
+    NOT?: CompanyAccessLogWhereInput | CompanyAccessLogWhereInput[]
+    id?: StringFilter<"CompanyAccessLog"> | string
+    vaultId?: StringFilter<"CompanyAccessLog"> | string
+    userId?: StringFilter<"CompanyAccessLog"> | string
+    unlockedAt?: DateTimeFilter<"CompanyAccessLog"> | Date | string
+    vault?: XOR<CompanyVaultRelationFilter, CompanyVaultWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }
+
+  export type CompanyAccessLogOrderByWithRelationInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    userId?: SortOrder
+    unlockedAt?: SortOrder
+    vault?: CompanyVaultOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type CompanyAccessLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    vaultId_userId?: CompanyAccessLogVaultIdUserIdCompoundUniqueInput
+    AND?: CompanyAccessLogWhereInput | CompanyAccessLogWhereInput[]
+    OR?: CompanyAccessLogWhereInput[]
+    NOT?: CompanyAccessLogWhereInput | CompanyAccessLogWhereInput[]
+    vaultId?: StringFilter<"CompanyAccessLog"> | string
+    userId?: StringFilter<"CompanyAccessLog"> | string
+    unlockedAt?: DateTimeFilter<"CompanyAccessLog"> | Date | string
+    vault?: XOR<CompanyVaultRelationFilter, CompanyVaultWhereInput>
+    user?: XOR<UserRelationFilter, UserWhereInput>
+  }, "id" | "vaultId_userId">
+
+  export type CompanyAccessLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    userId?: SortOrder
+    unlockedAt?: SortOrder
+    _count?: CompanyAccessLogCountOrderByAggregateInput
+    _max?: CompanyAccessLogMaxOrderByAggregateInput
+    _min?: CompanyAccessLogMinOrderByAggregateInput
+  }
+
+  export type CompanyAccessLogScalarWhereWithAggregatesInput = {
+    AND?: CompanyAccessLogScalarWhereWithAggregatesInput | CompanyAccessLogScalarWhereWithAggregatesInput[]
+    OR?: CompanyAccessLogScalarWhereWithAggregatesInput[]
+    NOT?: CompanyAccessLogScalarWhereWithAggregatesInput | CompanyAccessLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CompanyAccessLog"> | string
+    vaultId?: StringWithAggregatesFilter<"CompanyAccessLog"> | string
+    userId?: StringWithAggregatesFilter<"CompanyAccessLog"> | string
+    unlockedAt?: DateTimeWithAggregatesFilter<"CompanyAccessLog"> | Date | string
+  }
+
   export type OrganizationCreateInput = {
     id?: string
     name: string
@@ -56362,6 +61352,7 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateInput = {
@@ -56389,6 +61380,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUpdateInput = {
@@ -56416,6 +61408,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateInput = {
@@ -56443,6 +61436,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationCreateManyInput = {
@@ -56546,6 +61540,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -56589,6 +61585,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -56632,6 +61630,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -56675,6 +61675,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -60644,6 +65646,355 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CompanyVaultCreateInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutCompanyVaultsInput
+    createdBy: UserCreateNestedOneWithoutCreatedCompanyVaultsInput
+    materials?: CompanyMaterialCreateNestedManyWithoutVaultInput
+    transcripts?: CompanyInterviewTranscriptCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultUncheckedCreateInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    organizationId?: string | null
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    materials?: CompanyMaterialUncheckedCreateNestedManyWithoutVaultInput
+    transcripts?: CompanyInterviewTranscriptUncheckedCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutCompanyVaultsNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedCompanyVaultsNestedInput
+    materials?: CompanyMaterialUpdateManyWithoutVaultNestedInput
+    transcripts?: CompanyInterviewTranscriptUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    materials?: CompanyMaterialUncheckedUpdateManyWithoutVaultNestedInput
+    transcripts?: CompanyInterviewTranscriptUncheckedUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultCreateManyInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    organizationId?: string | null
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CompanyVaultUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyVaultUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyMaterialCreateInput = {
+    id?: string
+    title: string
+    materialType: string
+    contentUrl?: string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: number
+    createdAt?: Date | string
+    vault: CompanyVaultCreateNestedOneWithoutMaterialsInput
+  }
+
+  export type CompanyMaterialUncheckedCreateInput = {
+    id?: string
+    vaultId: string
+    title: string
+    materialType: string
+    contentUrl?: string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyMaterialUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    materialType?: StringFieldUpdateOperationsInput | string
+    contentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vault?: CompanyVaultUpdateOneRequiredWithoutMaterialsNestedInput
+  }
+
+  export type CompanyMaterialUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vaultId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    materialType?: StringFieldUpdateOperationsInput | string
+    contentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyMaterialCreateManyInput = {
+    id?: string
+    vaultId: string
+    title: string
+    materialType: string
+    contentUrl?: string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyMaterialUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    materialType?: StringFieldUpdateOperationsInput | string
+    contentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyMaterialUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vaultId?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    materialType?: StringFieldUpdateOperationsInput | string
+    contentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInterviewTranscriptCreateInput = {
+    id?: string
+    roleTitle: string
+    location?: string | null
+    experience: string
+    difficulty?: string
+    upvotes?: number
+    createdAt?: Date | string
+    vault: CompanyVaultCreateNestedOneWithoutTranscriptsInput
+  }
+
+  export type CompanyInterviewTranscriptUncheckedCreateInput = {
+    id?: string
+    vaultId: string
+    roleTitle: string
+    location?: string | null
+    experience: string
+    difficulty?: string
+    upvotes?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyInterviewTranscriptUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roleTitle?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    experience?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vault?: CompanyVaultUpdateOneRequiredWithoutTranscriptsNestedInput
+  }
+
+  export type CompanyInterviewTranscriptUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vaultId?: StringFieldUpdateOperationsInput | string
+    roleTitle?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    experience?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInterviewTranscriptCreateManyInput = {
+    id?: string
+    vaultId: string
+    roleTitle: string
+    location?: string | null
+    experience: string
+    difficulty?: string
+    upvotes?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyInterviewTranscriptUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roleTitle?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    experience?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInterviewTranscriptUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vaultId?: StringFieldUpdateOperationsInput | string
+    roleTitle?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    experience?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyAccessLogCreateInput = {
+    id?: string
+    unlockedAt?: Date | string
+    vault: CompanyVaultCreateNestedOneWithoutAccessLogsInput
+    user: UserCreateNestedOneWithoutCompanyAccessLogsInput
+  }
+
+  export type CompanyAccessLogUncheckedCreateInput = {
+    id?: string
+    vaultId: string
+    userId: string
+    unlockedAt?: Date | string
+  }
+
+  export type CompanyAccessLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vault?: CompanyVaultUpdateOneRequiredWithoutAccessLogsNestedInput
+    user?: UserUpdateOneRequiredWithoutCompanyAccessLogsNestedInput
+  }
+
+  export type CompanyAccessLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vaultId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyAccessLogCreateManyInput = {
+    id?: string
+    vaultId: string
+    userId: string
+    unlockedAt?: Date | string
+  }
+
+  export type CompanyAccessLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyAccessLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vaultId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -60775,6 +66126,12 @@ export namespace Prisma {
     none?: MockInterviewSessionWhereInput
   }
 
+  export type CompanyVaultListRelationFilter = {
+    every?: CompanyVaultWhereInput
+    some?: CompanyVaultWhereInput
+    none?: CompanyVaultWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -60805,6 +66162,10 @@ export namespace Prisma {
   }
 
   export type MockInterviewSessionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CompanyVaultOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -61116,6 +66477,12 @@ export namespace Prisma {
     none?: ProblemAiCreditLogWhereInput
   }
 
+  export type CompanyAccessLogListRelationFilter = {
+    every?: CompanyAccessLogWhereInput
+    some?: CompanyAccessLogWhereInput
+    none?: CompanyAccessLogWhereInput
+  }
+
   export type ContestRegistrationOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -61173,6 +66540,10 @@ export namespace Prisma {
   }
 
   export type ProblemAiCreditLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CompanyAccessLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -63795,6 +69166,197 @@ export namespace Prisma {
     version?: SortOrder
   }
 
+  export type CompanyMaterialListRelationFilter = {
+    every?: CompanyMaterialWhereInput
+    some?: CompanyMaterialWhereInput
+    none?: CompanyMaterialWhereInput
+  }
+
+  export type CompanyInterviewTranscriptListRelationFilter = {
+    every?: CompanyInterviewTranscriptWhereInput
+    some?: CompanyInterviewTranscriptWhereInput
+    none?: CompanyInterviewTranscriptWhereInput
+  }
+
+  export type CompanyMaterialOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CompanyInterviewTranscriptOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CompanyVaultCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    companyName?: SortOrder
+    brandColor?: SortOrder
+    logoUrl?: SortOrder
+    targetCtc?: SortOrder
+    examPattern?: SortOrder
+    description?: SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrder
+    expiresAt?: SortOrder
+    isLocked?: SortOrder
+    organizationId?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CompanyVaultMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    companyName?: SortOrder
+    brandColor?: SortOrder
+    logoUrl?: SortOrder
+    targetCtc?: SortOrder
+    examPattern?: SortOrder
+    description?: SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrder
+    expiresAt?: SortOrder
+    isLocked?: SortOrder
+    organizationId?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CompanyVaultMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    slug?: SortOrder
+    companyName?: SortOrder
+    brandColor?: SortOrder
+    logoUrl?: SortOrder
+    targetCtc?: SortOrder
+    examPattern?: SortOrder
+    description?: SortOrder
+    accessCode?: SortOrder
+    accessCodePlain?: SortOrder
+    expiresAt?: SortOrder
+    isLocked?: SortOrder
+    organizationId?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CompanyVaultRelationFilter = {
+    is?: CompanyVaultWhereInput
+    isNot?: CompanyVaultWhereInput
+  }
+
+  export type CompanyMaterialCountOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    title?: SortOrder
+    materialType?: SortOrder
+    contentUrl?: SortOrder
+    dataJson?: SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyMaterialAvgOrderByAggregateInput = {
+    order?: SortOrder
+  }
+
+  export type CompanyMaterialMaxOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    title?: SortOrder
+    materialType?: SortOrder
+    contentUrl?: SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyMaterialMinOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    title?: SortOrder
+    materialType?: SortOrder
+    contentUrl?: SortOrder
+    order?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyMaterialSumOrderByAggregateInput = {
+    order?: SortOrder
+  }
+
+  export type CompanyInterviewTranscriptCountOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    roleTitle?: SortOrder
+    location?: SortOrder
+    experience?: SortOrder
+    difficulty?: SortOrder
+    upvotes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyInterviewTranscriptAvgOrderByAggregateInput = {
+    upvotes?: SortOrder
+  }
+
+  export type CompanyInterviewTranscriptMaxOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    roleTitle?: SortOrder
+    location?: SortOrder
+    experience?: SortOrder
+    difficulty?: SortOrder
+    upvotes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyInterviewTranscriptMinOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    roleTitle?: SortOrder
+    location?: SortOrder
+    experience?: SortOrder
+    difficulty?: SortOrder
+    upvotes?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CompanyInterviewTranscriptSumOrderByAggregateInput = {
+    upvotes?: SortOrder
+  }
+
+  export type CompanyAccessLogVaultIdUserIdCompoundUniqueInput = {
+    vaultId: string
+    userId: string
+  }
+
+  export type CompanyAccessLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    userId?: SortOrder
+    unlockedAt?: SortOrder
+  }
+
+  export type CompanyAccessLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    userId?: SortOrder
+    unlockedAt?: SortOrder
+  }
+
+  export type CompanyAccessLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    vaultId?: SortOrder
+    userId?: SortOrder
+    unlockedAt?: SortOrder
+  }
+
   export type UserCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -63844,6 +69406,13 @@ export namespace Prisma {
     connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
   }
 
+  export type CompanyVaultCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<CompanyVaultCreateWithoutOrganizationInput, CompanyVaultUncheckedCreateWithoutOrganizationInput> | CompanyVaultCreateWithoutOrganizationInput[] | CompanyVaultUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutOrganizationInput | CompanyVaultCreateOrConnectWithoutOrganizationInput[]
+    createMany?: CompanyVaultCreateManyOrganizationInputEnvelope
+    connect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutOrganizationInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -63891,6 +69460,13 @@ export namespace Prisma {
     connectOrCreate?: MockInterviewSessionCreateOrConnectWithoutOrganizationInput | MockInterviewSessionCreateOrConnectWithoutOrganizationInput[]
     createMany?: MockInterviewSessionCreateManyOrganizationInputEnvelope
     connect?: MockInterviewSessionWhereUniqueInput | MockInterviewSessionWhereUniqueInput[]
+  }
+
+  export type CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput = {
+    create?: XOR<CompanyVaultCreateWithoutOrganizationInput, CompanyVaultUncheckedCreateWithoutOrganizationInput> | CompanyVaultCreateWithoutOrganizationInput[] | CompanyVaultUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutOrganizationInput | CompanyVaultCreateOrConnectWithoutOrganizationInput[]
+    createMany?: CompanyVaultCreateManyOrganizationInputEnvelope
+    connect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -64023,6 +69599,20 @@ export namespace Prisma {
     deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
   }
 
+  export type CompanyVaultUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<CompanyVaultCreateWithoutOrganizationInput, CompanyVaultUncheckedCreateWithoutOrganizationInput> | CompanyVaultCreateWithoutOrganizationInput[] | CompanyVaultUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutOrganizationInput | CompanyVaultCreateOrConnectWithoutOrganizationInput[]
+    upsert?: CompanyVaultUpsertWithWhereUniqueWithoutOrganizationInput | CompanyVaultUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: CompanyVaultCreateManyOrganizationInputEnvelope
+    set?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    disconnect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    delete?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    connect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    update?: CompanyVaultUpdateWithWhereUniqueWithoutOrganizationInput | CompanyVaultUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: CompanyVaultUpdateManyWithWhereWithoutOrganizationInput | CompanyVaultUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: CompanyVaultScalarWhereInput | CompanyVaultScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutOrganizationNestedInput = {
     create?: XOR<UserCreateWithoutOrganizationInput, UserUncheckedCreateWithoutOrganizationInput> | UserCreateWithoutOrganizationInput[] | UserUncheckedCreateWithoutOrganizationInput[]
     connectOrCreate?: UserCreateOrConnectWithoutOrganizationInput | UserCreateOrConnectWithoutOrganizationInput[]
@@ -64119,6 +69709,20 @@ export namespace Prisma {
     update?: MockInterviewSessionUpdateWithWhereUniqueWithoutOrganizationInput | MockInterviewSessionUpdateWithWhereUniqueWithoutOrganizationInput[]
     updateMany?: MockInterviewSessionUpdateManyWithWhereWithoutOrganizationInput | MockInterviewSessionUpdateManyWithWhereWithoutOrganizationInput[]
     deleteMany?: MockInterviewSessionScalarWhereInput | MockInterviewSessionScalarWhereInput[]
+  }
+
+  export type CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput = {
+    create?: XOR<CompanyVaultCreateWithoutOrganizationInput, CompanyVaultUncheckedCreateWithoutOrganizationInput> | CompanyVaultCreateWithoutOrganizationInput[] | CompanyVaultUncheckedCreateWithoutOrganizationInput[]
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutOrganizationInput | CompanyVaultCreateOrConnectWithoutOrganizationInput[]
+    upsert?: CompanyVaultUpsertWithWhereUniqueWithoutOrganizationInput | CompanyVaultUpsertWithWhereUniqueWithoutOrganizationInput[]
+    createMany?: CompanyVaultCreateManyOrganizationInputEnvelope
+    set?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    disconnect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    delete?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    connect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    update?: CompanyVaultUpdateWithWhereUniqueWithoutOrganizationInput | CompanyVaultUpdateWithWhereUniqueWithoutOrganizationInput[]
+    updateMany?: CompanyVaultUpdateManyWithWhereWithoutOrganizationInput | CompanyVaultUpdateManyWithWhereWithoutOrganizationInput[]
+    deleteMany?: CompanyVaultScalarWhereInput | CompanyVaultScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutInvitedUsersInput = {
@@ -64301,6 +69905,20 @@ export namespace Prisma {
     connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
   }
 
+  export type CompanyVaultCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<CompanyVaultCreateWithoutCreatedByInput, CompanyVaultUncheckedCreateWithoutCreatedByInput> | CompanyVaultCreateWithoutCreatedByInput[] | CompanyVaultUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutCreatedByInput | CompanyVaultCreateOrConnectWithoutCreatedByInput[]
+    createMany?: CompanyVaultCreateManyCreatedByInputEnvelope
+    connect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+  }
+
+  export type CompanyAccessLogCreateNestedManyWithoutUserInput = {
+    create?: XOR<CompanyAccessLogCreateWithoutUserInput, CompanyAccessLogUncheckedCreateWithoutUserInput> | CompanyAccessLogCreateWithoutUserInput[] | CompanyAccessLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CompanyAccessLogCreateOrConnectWithoutUserInput | CompanyAccessLogCreateOrConnectWithoutUserInput[]
+    createMany?: CompanyAccessLogCreateManyUserInputEnvelope
+    connect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+  }
+
   export type ContestUncheckedCreateNestedManyWithoutCreatedByInput = {
     create?: XOR<ContestCreateWithoutCreatedByInput, ContestUncheckedCreateWithoutCreatedByInput> | ContestCreateWithoutCreatedByInput[] | ContestUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: ContestCreateOrConnectWithoutCreatedByInput | ContestCreateOrConnectWithoutCreatedByInput[]
@@ -64467,6 +70085,20 @@ export namespace Prisma {
     connectOrCreate?: ProblemAiCreditLogCreateOrConnectWithoutUserInput | ProblemAiCreditLogCreateOrConnectWithoutUserInput[]
     createMany?: ProblemAiCreditLogCreateManyUserInputEnvelope
     connect?: ProblemAiCreditLogWhereUniqueInput | ProblemAiCreditLogWhereUniqueInput[]
+  }
+
+  export type CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput = {
+    create?: XOR<CompanyVaultCreateWithoutCreatedByInput, CompanyVaultUncheckedCreateWithoutCreatedByInput> | CompanyVaultCreateWithoutCreatedByInput[] | CompanyVaultUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutCreatedByInput | CompanyVaultCreateOrConnectWithoutCreatedByInput[]
+    createMany?: CompanyVaultCreateManyCreatedByInputEnvelope
+    connect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+  }
+
+  export type CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<CompanyAccessLogCreateWithoutUserInput, CompanyAccessLogUncheckedCreateWithoutUserInput> | CompanyAccessLogCreateWithoutUserInput[] | CompanyAccessLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CompanyAccessLogCreateOrConnectWithoutUserInput | CompanyAccessLogCreateOrConnectWithoutUserInput[]
+    createMany?: CompanyAccessLogCreateManyUserInputEnvelope
+    connect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
   }
 
   export type EnumRoleFieldUpdateOperationsInput = {
@@ -64837,6 +70469,34 @@ export namespace Prisma {
     deleteMany?: ProblemAiCreditLogScalarWhereInput | ProblemAiCreditLogScalarWhereInput[]
   }
 
+  export type CompanyVaultUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<CompanyVaultCreateWithoutCreatedByInput, CompanyVaultUncheckedCreateWithoutCreatedByInput> | CompanyVaultCreateWithoutCreatedByInput[] | CompanyVaultUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutCreatedByInput | CompanyVaultCreateOrConnectWithoutCreatedByInput[]
+    upsert?: CompanyVaultUpsertWithWhereUniqueWithoutCreatedByInput | CompanyVaultUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: CompanyVaultCreateManyCreatedByInputEnvelope
+    set?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    disconnect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    delete?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    connect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    update?: CompanyVaultUpdateWithWhereUniqueWithoutCreatedByInput | CompanyVaultUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: CompanyVaultUpdateManyWithWhereWithoutCreatedByInput | CompanyVaultUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: CompanyVaultScalarWhereInput | CompanyVaultScalarWhereInput[]
+  }
+
+  export type CompanyAccessLogUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CompanyAccessLogCreateWithoutUserInput, CompanyAccessLogUncheckedCreateWithoutUserInput> | CompanyAccessLogCreateWithoutUserInput[] | CompanyAccessLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CompanyAccessLogCreateOrConnectWithoutUserInput | CompanyAccessLogCreateOrConnectWithoutUserInput[]
+    upsert?: CompanyAccessLogUpsertWithWhereUniqueWithoutUserInput | CompanyAccessLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CompanyAccessLogCreateManyUserInputEnvelope
+    set?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    disconnect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    delete?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    connect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    update?: CompanyAccessLogUpdateWithWhereUniqueWithoutUserInput | CompanyAccessLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CompanyAccessLogUpdateManyWithWhereWithoutUserInput | CompanyAccessLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CompanyAccessLogScalarWhereInput | CompanyAccessLogScalarWhereInput[]
+  }
+
   export type ContestUncheckedUpdateManyWithoutCreatedByNestedInput = {
     create?: XOR<ContestCreateWithoutCreatedByInput, ContestUncheckedCreateWithoutCreatedByInput> | ContestCreateWithoutCreatedByInput[] | ContestUncheckedCreateWithoutCreatedByInput[]
     connectOrCreate?: ContestCreateOrConnectWithoutCreatedByInput | ContestCreateOrConnectWithoutCreatedByInput[]
@@ -65171,6 +70831,34 @@ export namespace Prisma {
     update?: ProblemAiCreditLogUpdateWithWhereUniqueWithoutUserInput | ProblemAiCreditLogUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: ProblemAiCreditLogUpdateManyWithWhereWithoutUserInput | ProblemAiCreditLogUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: ProblemAiCreditLogScalarWhereInput | ProblemAiCreditLogScalarWhereInput[]
+  }
+
+  export type CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput = {
+    create?: XOR<CompanyVaultCreateWithoutCreatedByInput, CompanyVaultUncheckedCreateWithoutCreatedByInput> | CompanyVaultCreateWithoutCreatedByInput[] | CompanyVaultUncheckedCreateWithoutCreatedByInput[]
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutCreatedByInput | CompanyVaultCreateOrConnectWithoutCreatedByInput[]
+    upsert?: CompanyVaultUpsertWithWhereUniqueWithoutCreatedByInput | CompanyVaultUpsertWithWhereUniqueWithoutCreatedByInput[]
+    createMany?: CompanyVaultCreateManyCreatedByInputEnvelope
+    set?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    disconnect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    delete?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    connect?: CompanyVaultWhereUniqueInput | CompanyVaultWhereUniqueInput[]
+    update?: CompanyVaultUpdateWithWhereUniqueWithoutCreatedByInput | CompanyVaultUpdateWithWhereUniqueWithoutCreatedByInput[]
+    updateMany?: CompanyVaultUpdateManyWithWhereWithoutCreatedByInput | CompanyVaultUpdateManyWithWhereWithoutCreatedByInput[]
+    deleteMany?: CompanyVaultScalarWhereInput | CompanyVaultScalarWhereInput[]
+  }
+
+  export type CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<CompanyAccessLogCreateWithoutUserInput, CompanyAccessLogUncheckedCreateWithoutUserInput> | CompanyAccessLogCreateWithoutUserInput[] | CompanyAccessLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: CompanyAccessLogCreateOrConnectWithoutUserInput | CompanyAccessLogCreateOrConnectWithoutUserInput[]
+    upsert?: CompanyAccessLogUpsertWithWhereUniqueWithoutUserInput | CompanyAccessLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: CompanyAccessLogCreateManyUserInputEnvelope
+    set?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    disconnect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    delete?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    connect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    update?: CompanyAccessLogUpdateWithWhereUniqueWithoutUserInput | CompanyAccessLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: CompanyAccessLogUpdateManyWithWhereWithoutUserInput | CompanyAccessLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: CompanyAccessLogScalarWhereInput | CompanyAccessLogScalarWhereInput[]
   }
 
   export type OrganizationCreateNestedOneWithoutProblemsInput = {
@@ -67652,6 +73340,218 @@ export namespace Prisma {
     update?: XOR<XOR<AssistantSessionUpdateToOneWithWhereWithoutCodeSnapshotsInput, AssistantSessionUpdateWithoutCodeSnapshotsInput>, AssistantSessionUncheckedUpdateWithoutCodeSnapshotsInput>
   }
 
+  export type OrganizationCreateNestedOneWithoutCompanyVaultsInput = {
+    create?: XOR<OrganizationCreateWithoutCompanyVaultsInput, OrganizationUncheckedCreateWithoutCompanyVaultsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutCompanyVaultsInput
+    connect?: OrganizationWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCreatedCompanyVaultsInput = {
+    create?: XOR<UserCreateWithoutCreatedCompanyVaultsInput, UserUncheckedCreateWithoutCreatedCompanyVaultsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCreatedCompanyVaultsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CompanyMaterialCreateNestedManyWithoutVaultInput = {
+    create?: XOR<CompanyMaterialCreateWithoutVaultInput, CompanyMaterialUncheckedCreateWithoutVaultInput> | CompanyMaterialCreateWithoutVaultInput[] | CompanyMaterialUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyMaterialCreateOrConnectWithoutVaultInput | CompanyMaterialCreateOrConnectWithoutVaultInput[]
+    createMany?: CompanyMaterialCreateManyVaultInputEnvelope
+    connect?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+  }
+
+  export type CompanyInterviewTranscriptCreateNestedManyWithoutVaultInput = {
+    create?: XOR<CompanyInterviewTranscriptCreateWithoutVaultInput, CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput> | CompanyInterviewTranscriptCreateWithoutVaultInput[] | CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput | CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput[]
+    createMany?: CompanyInterviewTranscriptCreateManyVaultInputEnvelope
+    connect?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+  }
+
+  export type CompanyAccessLogCreateNestedManyWithoutVaultInput = {
+    create?: XOR<CompanyAccessLogCreateWithoutVaultInput, CompanyAccessLogUncheckedCreateWithoutVaultInput> | CompanyAccessLogCreateWithoutVaultInput[] | CompanyAccessLogUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyAccessLogCreateOrConnectWithoutVaultInput | CompanyAccessLogCreateOrConnectWithoutVaultInput[]
+    createMany?: CompanyAccessLogCreateManyVaultInputEnvelope
+    connect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+  }
+
+  export type CompanyMaterialUncheckedCreateNestedManyWithoutVaultInput = {
+    create?: XOR<CompanyMaterialCreateWithoutVaultInput, CompanyMaterialUncheckedCreateWithoutVaultInput> | CompanyMaterialCreateWithoutVaultInput[] | CompanyMaterialUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyMaterialCreateOrConnectWithoutVaultInput | CompanyMaterialCreateOrConnectWithoutVaultInput[]
+    createMany?: CompanyMaterialCreateManyVaultInputEnvelope
+    connect?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+  }
+
+  export type CompanyInterviewTranscriptUncheckedCreateNestedManyWithoutVaultInput = {
+    create?: XOR<CompanyInterviewTranscriptCreateWithoutVaultInput, CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput> | CompanyInterviewTranscriptCreateWithoutVaultInput[] | CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput | CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput[]
+    createMany?: CompanyInterviewTranscriptCreateManyVaultInputEnvelope
+    connect?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+  }
+
+  export type CompanyAccessLogUncheckedCreateNestedManyWithoutVaultInput = {
+    create?: XOR<CompanyAccessLogCreateWithoutVaultInput, CompanyAccessLogUncheckedCreateWithoutVaultInput> | CompanyAccessLogCreateWithoutVaultInput[] | CompanyAccessLogUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyAccessLogCreateOrConnectWithoutVaultInput | CompanyAccessLogCreateOrConnectWithoutVaultInput[]
+    createMany?: CompanyAccessLogCreateManyVaultInputEnvelope
+    connect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+  }
+
+  export type OrganizationUpdateOneWithoutCompanyVaultsNestedInput = {
+    create?: XOR<OrganizationCreateWithoutCompanyVaultsInput, OrganizationUncheckedCreateWithoutCompanyVaultsInput>
+    connectOrCreate?: OrganizationCreateOrConnectWithoutCompanyVaultsInput
+    upsert?: OrganizationUpsertWithoutCompanyVaultsInput
+    disconnect?: OrganizationWhereInput | boolean
+    delete?: OrganizationWhereInput | boolean
+    connect?: OrganizationWhereUniqueInput
+    update?: XOR<XOR<OrganizationUpdateToOneWithWhereWithoutCompanyVaultsInput, OrganizationUpdateWithoutCompanyVaultsInput>, OrganizationUncheckedUpdateWithoutCompanyVaultsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutCreatedCompanyVaultsNestedInput = {
+    create?: XOR<UserCreateWithoutCreatedCompanyVaultsInput, UserUncheckedCreateWithoutCreatedCompanyVaultsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCreatedCompanyVaultsInput
+    upsert?: UserUpsertWithoutCreatedCompanyVaultsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCreatedCompanyVaultsInput, UserUpdateWithoutCreatedCompanyVaultsInput>, UserUncheckedUpdateWithoutCreatedCompanyVaultsInput>
+  }
+
+  export type CompanyMaterialUpdateManyWithoutVaultNestedInput = {
+    create?: XOR<CompanyMaterialCreateWithoutVaultInput, CompanyMaterialUncheckedCreateWithoutVaultInput> | CompanyMaterialCreateWithoutVaultInput[] | CompanyMaterialUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyMaterialCreateOrConnectWithoutVaultInput | CompanyMaterialCreateOrConnectWithoutVaultInput[]
+    upsert?: CompanyMaterialUpsertWithWhereUniqueWithoutVaultInput | CompanyMaterialUpsertWithWhereUniqueWithoutVaultInput[]
+    createMany?: CompanyMaterialCreateManyVaultInputEnvelope
+    set?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+    disconnect?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+    delete?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+    connect?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+    update?: CompanyMaterialUpdateWithWhereUniqueWithoutVaultInput | CompanyMaterialUpdateWithWhereUniqueWithoutVaultInput[]
+    updateMany?: CompanyMaterialUpdateManyWithWhereWithoutVaultInput | CompanyMaterialUpdateManyWithWhereWithoutVaultInput[]
+    deleteMany?: CompanyMaterialScalarWhereInput | CompanyMaterialScalarWhereInput[]
+  }
+
+  export type CompanyInterviewTranscriptUpdateManyWithoutVaultNestedInput = {
+    create?: XOR<CompanyInterviewTranscriptCreateWithoutVaultInput, CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput> | CompanyInterviewTranscriptCreateWithoutVaultInput[] | CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput | CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput[]
+    upsert?: CompanyInterviewTranscriptUpsertWithWhereUniqueWithoutVaultInput | CompanyInterviewTranscriptUpsertWithWhereUniqueWithoutVaultInput[]
+    createMany?: CompanyInterviewTranscriptCreateManyVaultInputEnvelope
+    set?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+    disconnect?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+    delete?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+    connect?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+    update?: CompanyInterviewTranscriptUpdateWithWhereUniqueWithoutVaultInput | CompanyInterviewTranscriptUpdateWithWhereUniqueWithoutVaultInput[]
+    updateMany?: CompanyInterviewTranscriptUpdateManyWithWhereWithoutVaultInput | CompanyInterviewTranscriptUpdateManyWithWhereWithoutVaultInput[]
+    deleteMany?: CompanyInterviewTranscriptScalarWhereInput | CompanyInterviewTranscriptScalarWhereInput[]
+  }
+
+  export type CompanyAccessLogUpdateManyWithoutVaultNestedInput = {
+    create?: XOR<CompanyAccessLogCreateWithoutVaultInput, CompanyAccessLogUncheckedCreateWithoutVaultInput> | CompanyAccessLogCreateWithoutVaultInput[] | CompanyAccessLogUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyAccessLogCreateOrConnectWithoutVaultInput | CompanyAccessLogCreateOrConnectWithoutVaultInput[]
+    upsert?: CompanyAccessLogUpsertWithWhereUniqueWithoutVaultInput | CompanyAccessLogUpsertWithWhereUniqueWithoutVaultInput[]
+    createMany?: CompanyAccessLogCreateManyVaultInputEnvelope
+    set?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    disconnect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    delete?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    connect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    update?: CompanyAccessLogUpdateWithWhereUniqueWithoutVaultInput | CompanyAccessLogUpdateWithWhereUniqueWithoutVaultInput[]
+    updateMany?: CompanyAccessLogUpdateManyWithWhereWithoutVaultInput | CompanyAccessLogUpdateManyWithWhereWithoutVaultInput[]
+    deleteMany?: CompanyAccessLogScalarWhereInput | CompanyAccessLogScalarWhereInput[]
+  }
+
+  export type CompanyMaterialUncheckedUpdateManyWithoutVaultNestedInput = {
+    create?: XOR<CompanyMaterialCreateWithoutVaultInput, CompanyMaterialUncheckedCreateWithoutVaultInput> | CompanyMaterialCreateWithoutVaultInput[] | CompanyMaterialUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyMaterialCreateOrConnectWithoutVaultInput | CompanyMaterialCreateOrConnectWithoutVaultInput[]
+    upsert?: CompanyMaterialUpsertWithWhereUniqueWithoutVaultInput | CompanyMaterialUpsertWithWhereUniqueWithoutVaultInput[]
+    createMany?: CompanyMaterialCreateManyVaultInputEnvelope
+    set?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+    disconnect?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+    delete?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+    connect?: CompanyMaterialWhereUniqueInput | CompanyMaterialWhereUniqueInput[]
+    update?: CompanyMaterialUpdateWithWhereUniqueWithoutVaultInput | CompanyMaterialUpdateWithWhereUniqueWithoutVaultInput[]
+    updateMany?: CompanyMaterialUpdateManyWithWhereWithoutVaultInput | CompanyMaterialUpdateManyWithWhereWithoutVaultInput[]
+    deleteMany?: CompanyMaterialScalarWhereInput | CompanyMaterialScalarWhereInput[]
+  }
+
+  export type CompanyInterviewTranscriptUncheckedUpdateManyWithoutVaultNestedInput = {
+    create?: XOR<CompanyInterviewTranscriptCreateWithoutVaultInput, CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput> | CompanyInterviewTranscriptCreateWithoutVaultInput[] | CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput | CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput[]
+    upsert?: CompanyInterviewTranscriptUpsertWithWhereUniqueWithoutVaultInput | CompanyInterviewTranscriptUpsertWithWhereUniqueWithoutVaultInput[]
+    createMany?: CompanyInterviewTranscriptCreateManyVaultInputEnvelope
+    set?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+    disconnect?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+    delete?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+    connect?: CompanyInterviewTranscriptWhereUniqueInput | CompanyInterviewTranscriptWhereUniqueInput[]
+    update?: CompanyInterviewTranscriptUpdateWithWhereUniqueWithoutVaultInput | CompanyInterviewTranscriptUpdateWithWhereUniqueWithoutVaultInput[]
+    updateMany?: CompanyInterviewTranscriptUpdateManyWithWhereWithoutVaultInput | CompanyInterviewTranscriptUpdateManyWithWhereWithoutVaultInput[]
+    deleteMany?: CompanyInterviewTranscriptScalarWhereInput | CompanyInterviewTranscriptScalarWhereInput[]
+  }
+
+  export type CompanyAccessLogUncheckedUpdateManyWithoutVaultNestedInput = {
+    create?: XOR<CompanyAccessLogCreateWithoutVaultInput, CompanyAccessLogUncheckedCreateWithoutVaultInput> | CompanyAccessLogCreateWithoutVaultInput[] | CompanyAccessLogUncheckedCreateWithoutVaultInput[]
+    connectOrCreate?: CompanyAccessLogCreateOrConnectWithoutVaultInput | CompanyAccessLogCreateOrConnectWithoutVaultInput[]
+    upsert?: CompanyAccessLogUpsertWithWhereUniqueWithoutVaultInput | CompanyAccessLogUpsertWithWhereUniqueWithoutVaultInput[]
+    createMany?: CompanyAccessLogCreateManyVaultInputEnvelope
+    set?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    disconnect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    delete?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    connect?: CompanyAccessLogWhereUniqueInput | CompanyAccessLogWhereUniqueInput[]
+    update?: CompanyAccessLogUpdateWithWhereUniqueWithoutVaultInput | CompanyAccessLogUpdateWithWhereUniqueWithoutVaultInput[]
+    updateMany?: CompanyAccessLogUpdateManyWithWhereWithoutVaultInput | CompanyAccessLogUpdateManyWithWhereWithoutVaultInput[]
+    deleteMany?: CompanyAccessLogScalarWhereInput | CompanyAccessLogScalarWhereInput[]
+  }
+
+  export type CompanyVaultCreateNestedOneWithoutMaterialsInput = {
+    create?: XOR<CompanyVaultCreateWithoutMaterialsInput, CompanyVaultUncheckedCreateWithoutMaterialsInput>
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutMaterialsInput
+    connect?: CompanyVaultWhereUniqueInput
+  }
+
+  export type CompanyVaultUpdateOneRequiredWithoutMaterialsNestedInput = {
+    create?: XOR<CompanyVaultCreateWithoutMaterialsInput, CompanyVaultUncheckedCreateWithoutMaterialsInput>
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutMaterialsInput
+    upsert?: CompanyVaultUpsertWithoutMaterialsInput
+    connect?: CompanyVaultWhereUniqueInput
+    update?: XOR<XOR<CompanyVaultUpdateToOneWithWhereWithoutMaterialsInput, CompanyVaultUpdateWithoutMaterialsInput>, CompanyVaultUncheckedUpdateWithoutMaterialsInput>
+  }
+
+  export type CompanyVaultCreateNestedOneWithoutTranscriptsInput = {
+    create?: XOR<CompanyVaultCreateWithoutTranscriptsInput, CompanyVaultUncheckedCreateWithoutTranscriptsInput>
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutTranscriptsInput
+    connect?: CompanyVaultWhereUniqueInput
+  }
+
+  export type CompanyVaultUpdateOneRequiredWithoutTranscriptsNestedInput = {
+    create?: XOR<CompanyVaultCreateWithoutTranscriptsInput, CompanyVaultUncheckedCreateWithoutTranscriptsInput>
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutTranscriptsInput
+    upsert?: CompanyVaultUpsertWithoutTranscriptsInput
+    connect?: CompanyVaultWhereUniqueInput
+    update?: XOR<XOR<CompanyVaultUpdateToOneWithWhereWithoutTranscriptsInput, CompanyVaultUpdateWithoutTranscriptsInput>, CompanyVaultUncheckedUpdateWithoutTranscriptsInput>
+  }
+
+  export type CompanyVaultCreateNestedOneWithoutAccessLogsInput = {
+    create?: XOR<CompanyVaultCreateWithoutAccessLogsInput, CompanyVaultUncheckedCreateWithoutAccessLogsInput>
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutAccessLogsInput
+    connect?: CompanyVaultWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCompanyAccessLogsInput = {
+    create?: XOR<UserCreateWithoutCompanyAccessLogsInput, UserUncheckedCreateWithoutCompanyAccessLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCompanyAccessLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type CompanyVaultUpdateOneRequiredWithoutAccessLogsNestedInput = {
+    create?: XOR<CompanyVaultCreateWithoutAccessLogsInput, CompanyVaultUncheckedCreateWithoutAccessLogsInput>
+    connectOrCreate?: CompanyVaultCreateOrConnectWithoutAccessLogsInput
+    upsert?: CompanyVaultUpsertWithoutAccessLogsInput
+    connect?: CompanyVaultWhereUniqueInput
+    update?: XOR<XOR<CompanyVaultUpdateToOneWithWhereWithoutAccessLogsInput, CompanyVaultUpdateWithoutAccessLogsInput>, CompanyVaultUncheckedUpdateWithoutAccessLogsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutCompanyAccessLogsNestedInput = {
+    create?: XOR<UserCreateWithoutCompanyAccessLogsInput, UserUncheckedCreateWithoutCompanyAccessLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCompanyAccessLogsInput
+    upsert?: UserUpsertWithoutCompanyAccessLogsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCompanyAccessLogsInput, UserUpdateWithoutCompanyAccessLogsInput>, UserUncheckedUpdateWithoutCompanyAccessLogsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -68301,6 +74201,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutOrganizationInput = {
@@ -68343,6 +74245,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutOrganizationInput = {
@@ -68687,6 +74591,60 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CompanyVaultCreateWithoutOrganizationInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdBy: UserCreateNestedOneWithoutCreatedCompanyVaultsInput
+    materials?: CompanyMaterialCreateNestedManyWithoutVaultInput
+    transcripts?: CompanyInterviewTranscriptCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultUncheckedCreateWithoutOrganizationInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    materials?: CompanyMaterialUncheckedCreateNestedManyWithoutVaultInput
+    transcripts?: CompanyInterviewTranscriptUncheckedCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultCreateOrConnectWithoutOrganizationInput = {
+    where: CompanyVaultWhereUniqueInput
+    create: XOR<CompanyVaultCreateWithoutOrganizationInput, CompanyVaultUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type CompanyVaultCreateManyOrganizationInputEnvelope = {
+    data: CompanyVaultCreateManyOrganizationInput | CompanyVaultCreateManyOrganizationInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithWhereUniqueWithoutOrganizationInput = {
     where: UserWhereUniqueInput
     update: XOR<UserUpdateWithoutOrganizationInput, UserUncheckedUpdateWithoutOrganizationInput>
@@ -68960,6 +74918,45 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"MockInterviewSession"> | Date | string
   }
 
+  export type CompanyVaultUpsertWithWhereUniqueWithoutOrganizationInput = {
+    where: CompanyVaultWhereUniqueInput
+    update: XOR<CompanyVaultUpdateWithoutOrganizationInput, CompanyVaultUncheckedUpdateWithoutOrganizationInput>
+    create: XOR<CompanyVaultCreateWithoutOrganizationInput, CompanyVaultUncheckedCreateWithoutOrganizationInput>
+  }
+
+  export type CompanyVaultUpdateWithWhereUniqueWithoutOrganizationInput = {
+    where: CompanyVaultWhereUniqueInput
+    data: XOR<CompanyVaultUpdateWithoutOrganizationInput, CompanyVaultUncheckedUpdateWithoutOrganizationInput>
+  }
+
+  export type CompanyVaultUpdateManyWithWhereWithoutOrganizationInput = {
+    where: CompanyVaultScalarWhereInput
+    data: XOR<CompanyVaultUpdateManyMutationInput, CompanyVaultUncheckedUpdateManyWithoutOrganizationInput>
+  }
+
+  export type CompanyVaultScalarWhereInput = {
+    AND?: CompanyVaultScalarWhereInput | CompanyVaultScalarWhereInput[]
+    OR?: CompanyVaultScalarWhereInput[]
+    NOT?: CompanyVaultScalarWhereInput | CompanyVaultScalarWhereInput[]
+    id?: StringFilter<"CompanyVault"> | string
+    name?: StringFilter<"CompanyVault"> | string
+    slug?: StringFilter<"CompanyVault"> | string
+    companyName?: StringFilter<"CompanyVault"> | string
+    brandColor?: StringFilter<"CompanyVault"> | string
+    logoUrl?: StringNullableFilter<"CompanyVault"> | string | null
+    targetCtc?: StringNullableFilter<"CompanyVault"> | string | null
+    examPattern?: StringNullableFilter<"CompanyVault"> | string | null
+    description?: StringNullableFilter<"CompanyVault"> | string | null
+    accessCode?: StringFilter<"CompanyVault"> | string
+    accessCodePlain?: StringNullableFilter<"CompanyVault"> | string | null
+    expiresAt?: DateTimeNullableFilter<"CompanyVault"> | Date | string | null
+    isLocked?: BoolFilter<"CompanyVault"> | boolean
+    organizationId?: StringNullableFilter<"CompanyVault"> | string | null
+    createdById?: StringFilter<"CompanyVault"> | string
+    createdAt?: DateTimeFilter<"CompanyVault"> | Date | string
+    updatedAt?: DateTimeFilter<"CompanyVault"> | Date | string
+  }
+
   export type UserCreateWithoutInvitedUsersInput = {
     id?: string
     email: string
@@ -69000,6 +74997,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInvitedUsersInput = {
@@ -69042,6 +75041,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInvitedUsersInput = {
@@ -69073,6 +75074,7 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutUsersInput = {
@@ -69099,6 +75101,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutUsersInput = {
@@ -69408,6 +75411,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInvitedByInput = {
@@ -69450,6 +75455,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInvitedByInput = {
@@ -70180,6 +76187,82 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CompanyVaultCreateWithoutCreatedByInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutCompanyVaultsInput
+    materials?: CompanyMaterialCreateNestedManyWithoutVaultInput
+    transcripts?: CompanyInterviewTranscriptCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultUncheckedCreateWithoutCreatedByInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    organizationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    materials?: CompanyMaterialUncheckedCreateNestedManyWithoutVaultInput
+    transcripts?: CompanyInterviewTranscriptUncheckedCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultCreateOrConnectWithoutCreatedByInput = {
+    where: CompanyVaultWhereUniqueInput
+    create: XOR<CompanyVaultCreateWithoutCreatedByInput, CompanyVaultUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type CompanyVaultCreateManyCreatedByInputEnvelope = {
+    data: CompanyVaultCreateManyCreatedByInput | CompanyVaultCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyAccessLogCreateWithoutUserInput = {
+    id?: string
+    unlockedAt?: Date | string
+    vault: CompanyVaultCreateNestedOneWithoutAccessLogsInput
+  }
+
+  export type CompanyAccessLogUncheckedCreateWithoutUserInput = {
+    id?: string
+    vaultId: string
+    unlockedAt?: Date | string
+  }
+
+  export type CompanyAccessLogCreateOrConnectWithoutUserInput = {
+    where: CompanyAccessLogWhereUniqueInput
+    create: XOR<CompanyAccessLogCreateWithoutUserInput, CompanyAccessLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type CompanyAccessLogCreateManyUserInputEnvelope = {
+    data: CompanyAccessLogCreateManyUserInput | CompanyAccessLogCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutInvitedUsersInput = {
     update: XOR<UserUpdateWithoutInvitedUsersInput, UserUncheckedUpdateWithoutInvitedUsersInput>
     create: XOR<UserCreateWithoutInvitedUsersInput, UserUncheckedCreateWithoutInvitedUsersInput>
@@ -70231,6 +76314,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvitedUsersInput = {
@@ -70273,6 +76358,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationUpsertWithoutUsersInput = {
@@ -70310,6 +76397,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutUsersInput = {
@@ -70336,6 +76424,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type ContestUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -70970,6 +77059,48 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ProblemAiCreditLog"> | Date | string
   }
 
+  export type CompanyVaultUpsertWithWhereUniqueWithoutCreatedByInput = {
+    where: CompanyVaultWhereUniqueInput
+    update: XOR<CompanyVaultUpdateWithoutCreatedByInput, CompanyVaultUncheckedUpdateWithoutCreatedByInput>
+    create: XOR<CompanyVaultCreateWithoutCreatedByInput, CompanyVaultUncheckedCreateWithoutCreatedByInput>
+  }
+
+  export type CompanyVaultUpdateWithWhereUniqueWithoutCreatedByInput = {
+    where: CompanyVaultWhereUniqueInput
+    data: XOR<CompanyVaultUpdateWithoutCreatedByInput, CompanyVaultUncheckedUpdateWithoutCreatedByInput>
+  }
+
+  export type CompanyVaultUpdateManyWithWhereWithoutCreatedByInput = {
+    where: CompanyVaultScalarWhereInput
+    data: XOR<CompanyVaultUpdateManyMutationInput, CompanyVaultUncheckedUpdateManyWithoutCreatedByInput>
+  }
+
+  export type CompanyAccessLogUpsertWithWhereUniqueWithoutUserInput = {
+    where: CompanyAccessLogWhereUniqueInput
+    update: XOR<CompanyAccessLogUpdateWithoutUserInput, CompanyAccessLogUncheckedUpdateWithoutUserInput>
+    create: XOR<CompanyAccessLogCreateWithoutUserInput, CompanyAccessLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type CompanyAccessLogUpdateWithWhereUniqueWithoutUserInput = {
+    where: CompanyAccessLogWhereUniqueInput
+    data: XOR<CompanyAccessLogUpdateWithoutUserInput, CompanyAccessLogUncheckedUpdateWithoutUserInput>
+  }
+
+  export type CompanyAccessLogUpdateManyWithWhereWithoutUserInput = {
+    where: CompanyAccessLogScalarWhereInput
+    data: XOR<CompanyAccessLogUpdateManyMutationInput, CompanyAccessLogUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type CompanyAccessLogScalarWhereInput = {
+    AND?: CompanyAccessLogScalarWhereInput | CompanyAccessLogScalarWhereInput[]
+    OR?: CompanyAccessLogScalarWhereInput[]
+    NOT?: CompanyAccessLogScalarWhereInput | CompanyAccessLogScalarWhereInput[]
+    id?: StringFilter<"CompanyAccessLog"> | string
+    vaultId?: StringFilter<"CompanyAccessLog"> | string
+    userId?: StringFilter<"CompanyAccessLog"> | string
+    unlockedAt?: DateTimeFilter<"CompanyAccessLog"> | Date | string
+  }
+
   export type OrganizationCreateWithoutProblemsInput = {
     id?: string
     name: string
@@ -70994,6 +77125,7 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutProblemsInput = {
@@ -71020,6 +77152,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutProblemsInput = {
@@ -71067,6 +77200,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedProblemsInput = {
@@ -71109,6 +77244,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedProblemsInput = {
@@ -71351,6 +77488,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutProblemsInput = {
@@ -71377,6 +77515,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutCreatedProblemsInput = {
@@ -71430,6 +77569,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedProblemsInput = {
@@ -71472,6 +77613,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProblemAiCreditLogUpsertWithWhereUniqueWithoutProblemInput = {
@@ -71676,6 +77819,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProblemAiCreditLogsInput = {
@@ -71718,6 +77863,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProblemAiCreditLogsInput = {
@@ -71839,6 +77986,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProblemAiCreditLogsInput = {
@@ -71881,6 +78030,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProblemCreateWithoutTestCasesInput = {
@@ -72027,6 +78178,7 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutContestsInput = {
@@ -72053,6 +78205,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutContestsInput = {
@@ -72100,6 +78253,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreatedContestsInput = {
@@ -72142,6 +78297,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreatedContestsInput = {
@@ -72496,6 +78653,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutContestsInput = {
@@ -72522,6 +78680,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutCreatedContestsInput = {
@@ -72575,6 +78734,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedContestsInput = {
@@ -72617,6 +78778,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestProblemUpsertWithWhereUniqueWithoutContestInput = {
@@ -73275,6 +79438,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRegistrationsInput = {
@@ -73317,6 +79482,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRegistrationsInput = {
@@ -73476,6 +79643,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRegistrationsInput = {
@@ -73518,6 +79687,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutSubmissionsInput = {
@@ -73712,6 +79883,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubmissionsInput = {
@@ -73754,6 +79927,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubmissionsInput = {
@@ -73801,6 +79976,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutScoredSubmissionsInput = {
@@ -73843,6 +80020,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutScoredSubmissionsInput = {
@@ -74065,6 +80244,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubmissionsInput = {
@@ -74107,6 +80288,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutScoredSubmissionsInput = {
@@ -74160,6 +80343,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutScoredSubmissionsInput = {
@@ -74202,6 +80387,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutProctoringLogsInput = {
@@ -74339,6 +80526,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProctoringLogsInput = {
@@ -74381,6 +80570,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProctoringLogsInput = {
@@ -74540,6 +80731,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProctoringLogsInput = {
@@ -74582,6 +80775,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutPlagiarismReportsInput = {
@@ -74804,6 +80999,7 @@ export namespace Prisma {
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutInvitationsInput = {
@@ -74830,6 +81026,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutInvitationsInput = {
@@ -74877,6 +81074,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentInvitationsInput = {
@@ -74919,6 +81118,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentInvitationsInput = {
@@ -74961,6 +81162,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutInvitationsInput = {
@@ -74987,6 +81189,7 @@ export namespace Prisma {
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserUpsertWithoutSentInvitationsInput = {
@@ -75040,6 +81243,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentInvitationsInput = {
@@ -75082,6 +81287,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutAssignmentsInput = {
@@ -75219,6 +81426,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutContestAssignmentsInput = {
@@ -75261,6 +81470,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutContestAssignmentsInput = {
@@ -75308,6 +81519,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssignedContestsInput = {
@@ -75350,6 +81563,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssignedContestsInput = {
@@ -75509,6 +81724,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutContestAssignmentsInput = {
@@ -75551,6 +81768,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutAssignedContestsInput = {
@@ -75604,6 +81823,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedContestsInput = {
@@ -75646,6 +81867,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -75688,6 +81911,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -75730,6 +81955,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -75761,6 +81988,7 @@ export namespace Prisma {
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutAuditLogsInput = {
@@ -75787,6 +82015,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutAuditLogsInput = {
@@ -75845,6 +82074,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -75887,6 +82118,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type OrganizationUpsertWithoutAuditLogsInput = {
@@ -75924,6 +82157,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutAuditLogsInput = {
@@ -75950,6 +82184,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -75992,6 +82227,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -76034,6 +82271,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -76092,6 +82331,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -76134,6 +82375,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutReviewedRequestsInput = {
@@ -76176,6 +82419,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReviewedRequestsInput = {
@@ -76218,6 +82463,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReviewedRequestsInput = {
@@ -76276,6 +82523,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReviewedRequestsInput = {
@@ -76318,6 +82567,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutSectionsInput = {
@@ -76771,6 +83022,7 @@ export namespace Prisma {
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutQuestionBanksInput = {
@@ -76797,6 +83049,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutQuestionBanksInput = {
@@ -76905,6 +83158,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutQuestionBanksInput = {
@@ -76931,6 +83185,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type QuizQuestionUpsertWithWhereUniqueWithoutBankInput = {
@@ -77821,6 +84076,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuestionReviewsInput = {
@@ -77863,6 +84120,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuestionReviewsInput = {
@@ -77988,6 +84247,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuestionReviewsInput = {
@@ -78030,6 +84291,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestSectionCreateWithoutAssemblyRulesInput = {
@@ -78292,6 +84555,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuizAttemptQuestionsInput = {
@@ -78334,6 +84599,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuizAttemptQuestionsInput = {
@@ -78602,6 +84869,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuizAttemptQuestionsInput = {
@@ -78644,6 +84913,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestUpsertWithoutQuizAttemptQuestionsInput = {
@@ -78899,6 +85170,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuizResponsesInput = {
@@ -78941,6 +85214,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuizResponsesInput = {
@@ -79034,6 +85309,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuizResponsesInput = {
@@ -79076,6 +85353,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type QuizQuestionCreateWithoutAnalyticsInput = {
@@ -79246,6 +85525,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBreakGlassLogsInput = {
@@ -79288,6 +85569,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBreakGlassLogsInput = {
@@ -79346,6 +85629,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBreakGlassLogsInput = {
@@ -79388,6 +85673,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ContestCreateWithoutGuestInvitesInput = {
@@ -79721,6 +86008,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutModeratorAssignmentsInput = {
@@ -79763,6 +86052,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutModeratorAssignmentsInput = {
@@ -79922,6 +86213,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutModeratorAssignmentsInput = {
@@ -79964,6 +86257,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -80006,6 +86301,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -80048,6 +86345,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -80106,6 +86405,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -80148,6 +86449,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutInterviewerSessionsInput = {
@@ -80190,6 +86493,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInterviewerSessionsInput = {
@@ -80232,6 +86537,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInterviewerSessionsInput = {
@@ -80279,6 +86586,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCandidateSessionsInput = {
@@ -80321,6 +86630,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCandidateSessionsInput = {
@@ -80409,6 +86720,7 @@ export namespace Prisma {
     invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationUncheckedCreateWithoutInterviewSessionsInput = {
@@ -80435,6 +86747,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
     questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+    companyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutOrganizationInput
   }
 
   export type OrganizationCreateOrConnectWithoutInterviewSessionsInput = {
@@ -80630,6 +86943,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInterviewerSessionsInput = {
@@ -80672,6 +86987,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutCandidateSessionsInput = {
@@ -80725,6 +87042,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCandidateSessionsInput = {
@@ -80767,6 +87086,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ProblemUpsertWithoutInterviewSessionsInput = {
@@ -80867,6 +87188,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUpdateManyWithoutOrganizationNestedInput
   }
 
   export type OrganizationUncheckedUpdateWithoutInterviewSessionsInput = {
@@ -80893,6 +87215,7 @@ export namespace Prisma {
     invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
     questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+    companyVaults?: CompanyVaultUncheckedUpdateManyWithoutOrganizationNestedInput
   }
 
   export type InterviewFeedbackUpsertWithoutSessionInput = {
@@ -81142,6 +87465,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutInterviewParticipantsInput = {
@@ -81184,6 +87509,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutInterviewParticipantsInput = {
@@ -81317,6 +87644,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInterviewParticipantsInput = {
@@ -81359,6 +87688,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MockInterviewSessionCreateWithoutFeedbackInput = {
@@ -81977,6 +88308,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssistantSessionsInput = {
@@ -82019,6 +88352,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
     interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssistantSessionsInput = {
@@ -82182,6 +88517,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssistantSessionsInput = {
@@ -82224,6 +88561,8 @@ export namespace Prisma {
     candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CapturedAnswerUpsertWithoutSessionInput = {
@@ -82642,6 +88981,984 @@ export namespace Prisma {
     stageEvents?: AssistantStageEventUncheckedUpdateManyWithoutSessionNestedInput
   }
 
+  export type OrganizationCreateWithoutCompanyVaultsInput = {
+    id?: string
+    name: string
+    slug: string
+    logoUrl?: string | null
+    domain?: string | null
+    status?: $Enums.OrgStatus
+    subscriptionTier?: $Enums.SubscriptionTier
+    featureFlags?: NullableJsonNullValueInput | InputJsonValue
+    maxContests?: number
+    maxUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    samlEnabled?: boolean
+    samlDomain?: string | null
+    samlIdpEntityId?: string | null
+    samlIdpSsoUrl?: string | null
+    samlIdpCert?: string | null
+    users?: UserCreateNestedManyWithoutOrganizationInput
+    contests?: ContestCreateNestedManyWithoutOrganizationInput
+    problems?: ProblemCreateNestedManyWithoutOrganizationInput
+    invitations?: TeamInvitationCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogCreateNestedManyWithoutOrganizationInput
+    questionBanks?: QuestionBankCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationUncheckedCreateWithoutCompanyVaultsInput = {
+    id?: string
+    name: string
+    slug: string
+    logoUrl?: string | null
+    domain?: string | null
+    status?: $Enums.OrgStatus
+    subscriptionTier?: $Enums.SubscriptionTier
+    featureFlags?: NullableJsonNullValueInput | InputJsonValue
+    maxContests?: number
+    maxUsers?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    samlEnabled?: boolean
+    samlDomain?: string | null
+    samlIdpEntityId?: string | null
+    samlIdpSsoUrl?: string | null
+    samlIdpCert?: string | null
+    users?: UserUncheckedCreateNestedManyWithoutOrganizationInput
+    contests?: ContestUncheckedCreateNestedManyWithoutOrganizationInput
+    problems?: ProblemUncheckedCreateNestedManyWithoutOrganizationInput
+    invitations?: TeamInvitationUncheckedCreateNestedManyWithoutOrganizationInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutOrganizationInput
+    questionBanks?: QuestionBankUncheckedCreateNestedManyWithoutOrganizationInput
+    interviewSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutOrganizationInput
+  }
+
+  export type OrganizationCreateOrConnectWithoutCompanyVaultsInput = {
+    where: OrganizationWhereUniqueInput
+    create: XOR<OrganizationCreateWithoutCompanyVaultsInput, OrganizationUncheckedCreateWithoutCompanyVaultsInput>
+  }
+
+  export type UserCreateWithoutCreatedCompanyVaultsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
+    organization?: OrganizationCreateNestedOneWithoutUsersInput
+    createdContests?: ContestCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationCreateNestedManyWithoutUserInput
+    submissions?: SubmissionCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogCreateNestedManyWithoutUserInput
+    invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    companyAccessLogs?: CompanyAccessLogCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutCreatedCompanyVaultsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    invitedById?: string | null
+    organizationId?: string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdContests?: ContestUncheckedCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemUncheckedCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationUncheckedCreateNestedManyWithoutUserInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogUncheckedCreateNestedManyWithoutUserInput
+    invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionUncheckedCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestUncheckedCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseUncheckedCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    companyAccessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutCreatedCompanyVaultsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCreatedCompanyVaultsInput, UserUncheckedCreateWithoutCreatedCompanyVaultsInput>
+  }
+
+  export type CompanyMaterialCreateWithoutVaultInput = {
+    id?: string
+    title: string
+    materialType: string
+    contentUrl?: string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyMaterialUncheckedCreateWithoutVaultInput = {
+    id?: string
+    title: string
+    materialType: string
+    contentUrl?: string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyMaterialCreateOrConnectWithoutVaultInput = {
+    where: CompanyMaterialWhereUniqueInput
+    create: XOR<CompanyMaterialCreateWithoutVaultInput, CompanyMaterialUncheckedCreateWithoutVaultInput>
+  }
+
+  export type CompanyMaterialCreateManyVaultInputEnvelope = {
+    data: CompanyMaterialCreateManyVaultInput | CompanyMaterialCreateManyVaultInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyInterviewTranscriptCreateWithoutVaultInput = {
+    id?: string
+    roleTitle: string
+    location?: string | null
+    experience: string
+    difficulty?: string
+    upvotes?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput = {
+    id?: string
+    roleTitle: string
+    location?: string | null
+    experience: string
+    difficulty?: string
+    upvotes?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyInterviewTranscriptCreateOrConnectWithoutVaultInput = {
+    where: CompanyInterviewTranscriptWhereUniqueInput
+    create: XOR<CompanyInterviewTranscriptCreateWithoutVaultInput, CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput>
+  }
+
+  export type CompanyInterviewTranscriptCreateManyVaultInputEnvelope = {
+    data: CompanyInterviewTranscriptCreateManyVaultInput | CompanyInterviewTranscriptCreateManyVaultInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CompanyAccessLogCreateWithoutVaultInput = {
+    id?: string
+    unlockedAt?: Date | string
+    user: UserCreateNestedOneWithoutCompanyAccessLogsInput
+  }
+
+  export type CompanyAccessLogUncheckedCreateWithoutVaultInput = {
+    id?: string
+    userId: string
+    unlockedAt?: Date | string
+  }
+
+  export type CompanyAccessLogCreateOrConnectWithoutVaultInput = {
+    where: CompanyAccessLogWhereUniqueInput
+    create: XOR<CompanyAccessLogCreateWithoutVaultInput, CompanyAccessLogUncheckedCreateWithoutVaultInput>
+  }
+
+  export type CompanyAccessLogCreateManyVaultInputEnvelope = {
+    data: CompanyAccessLogCreateManyVaultInput | CompanyAccessLogCreateManyVaultInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type OrganizationUpsertWithoutCompanyVaultsInput = {
+    update: XOR<OrganizationUpdateWithoutCompanyVaultsInput, OrganizationUncheckedUpdateWithoutCompanyVaultsInput>
+    create: XOR<OrganizationCreateWithoutCompanyVaultsInput, OrganizationUncheckedCreateWithoutCompanyVaultsInput>
+    where?: OrganizationWhereInput
+  }
+
+  export type OrganizationUpdateToOneWithWhereWithoutCompanyVaultsInput = {
+    where?: OrganizationWhereInput
+    data: XOR<OrganizationUpdateWithoutCompanyVaultsInput, OrganizationUncheckedUpdateWithoutCompanyVaultsInput>
+  }
+
+  export type OrganizationUpdateWithoutCompanyVaultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumOrgStatusFieldUpdateOperationsInput | $Enums.OrgStatus
+    subscriptionTier?: EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+    featureFlags?: NullableJsonNullValueInput | InputJsonValue
+    maxContests?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    samlEnabled?: BoolFieldUpdateOperationsInput | boolean
+    samlDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpEntityId?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpSsoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpCert?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUpdateManyWithoutOrganizationNestedInput
+    contests?: ContestUpdateManyWithoutOrganizationNestedInput
+    problems?: ProblemUpdateManyWithoutOrganizationNestedInput
+    invitations?: TeamInvitationUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutOrganizationNestedInput
+    questionBanks?: QuestionBankUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type OrganizationUncheckedUpdateWithoutCompanyVaultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumOrgStatusFieldUpdateOperationsInput | $Enums.OrgStatus
+    subscriptionTier?: EnumSubscriptionTierFieldUpdateOperationsInput | $Enums.SubscriptionTier
+    featureFlags?: NullableJsonNullValueInput | InputJsonValue
+    maxContests?: IntFieldUpdateOperationsInput | number
+    maxUsers?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    samlEnabled?: BoolFieldUpdateOperationsInput | boolean
+    samlDomain?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpEntityId?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpSsoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    samlIdpCert?: NullableStringFieldUpdateOperationsInput | string | null
+    users?: UserUncheckedUpdateManyWithoutOrganizationNestedInput
+    contests?: ContestUncheckedUpdateManyWithoutOrganizationNestedInput
+    problems?: ProblemUncheckedUpdateManyWithoutOrganizationNestedInput
+    invitations?: TeamInvitationUncheckedUpdateManyWithoutOrganizationNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutOrganizationNestedInput
+    questionBanks?: QuestionBankUncheckedUpdateManyWithoutOrganizationNestedInput
+    interviewSessions?: MockInterviewSessionUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type UserUpsertWithoutCreatedCompanyVaultsInput = {
+    update: XOR<UserUpdateWithoutCreatedCompanyVaultsInput, UserUncheckedUpdateWithoutCreatedCompanyVaultsInput>
+    create: XOR<UserCreateWithoutCreatedCompanyVaultsInput, UserUncheckedCreateWithoutCreatedCompanyVaultsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCreatedCompanyVaultsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCreatedCompanyVaultsInput, UserUncheckedUpdateWithoutCreatedCompanyVaultsInput>
+  }
+
+  export type UserUpdateWithoutCreatedCompanyVaultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
+    organization?: OrganizationUpdateOneWithoutUsersNestedInput
+    createdContests?: ContestUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCreatedCompanyVaultsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdContests?: ContestUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUncheckedUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUncheckedUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUncheckedUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUncheckedUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUncheckedUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type CompanyMaterialUpsertWithWhereUniqueWithoutVaultInput = {
+    where: CompanyMaterialWhereUniqueInput
+    update: XOR<CompanyMaterialUpdateWithoutVaultInput, CompanyMaterialUncheckedUpdateWithoutVaultInput>
+    create: XOR<CompanyMaterialCreateWithoutVaultInput, CompanyMaterialUncheckedCreateWithoutVaultInput>
+  }
+
+  export type CompanyMaterialUpdateWithWhereUniqueWithoutVaultInput = {
+    where: CompanyMaterialWhereUniqueInput
+    data: XOR<CompanyMaterialUpdateWithoutVaultInput, CompanyMaterialUncheckedUpdateWithoutVaultInput>
+  }
+
+  export type CompanyMaterialUpdateManyWithWhereWithoutVaultInput = {
+    where: CompanyMaterialScalarWhereInput
+    data: XOR<CompanyMaterialUpdateManyMutationInput, CompanyMaterialUncheckedUpdateManyWithoutVaultInput>
+  }
+
+  export type CompanyMaterialScalarWhereInput = {
+    AND?: CompanyMaterialScalarWhereInput | CompanyMaterialScalarWhereInput[]
+    OR?: CompanyMaterialScalarWhereInput[]
+    NOT?: CompanyMaterialScalarWhereInput | CompanyMaterialScalarWhereInput[]
+    id?: StringFilter<"CompanyMaterial"> | string
+    vaultId?: StringFilter<"CompanyMaterial"> | string
+    title?: StringFilter<"CompanyMaterial"> | string
+    materialType?: StringFilter<"CompanyMaterial"> | string
+    contentUrl?: StringNullableFilter<"CompanyMaterial"> | string | null
+    dataJson?: JsonNullableFilter<"CompanyMaterial">
+    order?: IntFilter<"CompanyMaterial"> | number
+    createdAt?: DateTimeFilter<"CompanyMaterial"> | Date | string
+  }
+
+  export type CompanyInterviewTranscriptUpsertWithWhereUniqueWithoutVaultInput = {
+    where: CompanyInterviewTranscriptWhereUniqueInput
+    update: XOR<CompanyInterviewTranscriptUpdateWithoutVaultInput, CompanyInterviewTranscriptUncheckedUpdateWithoutVaultInput>
+    create: XOR<CompanyInterviewTranscriptCreateWithoutVaultInput, CompanyInterviewTranscriptUncheckedCreateWithoutVaultInput>
+  }
+
+  export type CompanyInterviewTranscriptUpdateWithWhereUniqueWithoutVaultInput = {
+    where: CompanyInterviewTranscriptWhereUniqueInput
+    data: XOR<CompanyInterviewTranscriptUpdateWithoutVaultInput, CompanyInterviewTranscriptUncheckedUpdateWithoutVaultInput>
+  }
+
+  export type CompanyInterviewTranscriptUpdateManyWithWhereWithoutVaultInput = {
+    where: CompanyInterviewTranscriptScalarWhereInput
+    data: XOR<CompanyInterviewTranscriptUpdateManyMutationInput, CompanyInterviewTranscriptUncheckedUpdateManyWithoutVaultInput>
+  }
+
+  export type CompanyInterviewTranscriptScalarWhereInput = {
+    AND?: CompanyInterviewTranscriptScalarWhereInput | CompanyInterviewTranscriptScalarWhereInput[]
+    OR?: CompanyInterviewTranscriptScalarWhereInput[]
+    NOT?: CompanyInterviewTranscriptScalarWhereInput | CompanyInterviewTranscriptScalarWhereInput[]
+    id?: StringFilter<"CompanyInterviewTranscript"> | string
+    vaultId?: StringFilter<"CompanyInterviewTranscript"> | string
+    roleTitle?: StringFilter<"CompanyInterviewTranscript"> | string
+    location?: StringNullableFilter<"CompanyInterviewTranscript"> | string | null
+    experience?: StringFilter<"CompanyInterviewTranscript"> | string
+    difficulty?: StringFilter<"CompanyInterviewTranscript"> | string
+    upvotes?: IntFilter<"CompanyInterviewTranscript"> | number
+    createdAt?: DateTimeFilter<"CompanyInterviewTranscript"> | Date | string
+  }
+
+  export type CompanyAccessLogUpsertWithWhereUniqueWithoutVaultInput = {
+    where: CompanyAccessLogWhereUniqueInput
+    update: XOR<CompanyAccessLogUpdateWithoutVaultInput, CompanyAccessLogUncheckedUpdateWithoutVaultInput>
+    create: XOR<CompanyAccessLogCreateWithoutVaultInput, CompanyAccessLogUncheckedCreateWithoutVaultInput>
+  }
+
+  export type CompanyAccessLogUpdateWithWhereUniqueWithoutVaultInput = {
+    where: CompanyAccessLogWhereUniqueInput
+    data: XOR<CompanyAccessLogUpdateWithoutVaultInput, CompanyAccessLogUncheckedUpdateWithoutVaultInput>
+  }
+
+  export type CompanyAccessLogUpdateManyWithWhereWithoutVaultInput = {
+    where: CompanyAccessLogScalarWhereInput
+    data: XOR<CompanyAccessLogUpdateManyMutationInput, CompanyAccessLogUncheckedUpdateManyWithoutVaultInput>
+  }
+
+  export type CompanyVaultCreateWithoutMaterialsInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutCompanyVaultsInput
+    createdBy: UserCreateNestedOneWithoutCreatedCompanyVaultsInput
+    transcripts?: CompanyInterviewTranscriptCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultUncheckedCreateWithoutMaterialsInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    organizationId?: string | null
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    transcripts?: CompanyInterviewTranscriptUncheckedCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultCreateOrConnectWithoutMaterialsInput = {
+    where: CompanyVaultWhereUniqueInput
+    create: XOR<CompanyVaultCreateWithoutMaterialsInput, CompanyVaultUncheckedCreateWithoutMaterialsInput>
+  }
+
+  export type CompanyVaultUpsertWithoutMaterialsInput = {
+    update: XOR<CompanyVaultUpdateWithoutMaterialsInput, CompanyVaultUncheckedUpdateWithoutMaterialsInput>
+    create: XOR<CompanyVaultCreateWithoutMaterialsInput, CompanyVaultUncheckedCreateWithoutMaterialsInput>
+    where?: CompanyVaultWhereInput
+  }
+
+  export type CompanyVaultUpdateToOneWithWhereWithoutMaterialsInput = {
+    where?: CompanyVaultWhereInput
+    data: XOR<CompanyVaultUpdateWithoutMaterialsInput, CompanyVaultUncheckedUpdateWithoutMaterialsInput>
+  }
+
+  export type CompanyVaultUpdateWithoutMaterialsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutCompanyVaultsNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedCompanyVaultsNestedInput
+    transcripts?: CompanyInterviewTranscriptUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultUncheckedUpdateWithoutMaterialsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    transcripts?: CompanyInterviewTranscriptUncheckedUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultCreateWithoutTranscriptsInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutCompanyVaultsInput
+    createdBy: UserCreateNestedOneWithoutCreatedCompanyVaultsInput
+    materials?: CompanyMaterialCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultUncheckedCreateWithoutTranscriptsInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    organizationId?: string | null
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    materials?: CompanyMaterialUncheckedCreateNestedManyWithoutVaultInput
+    accessLogs?: CompanyAccessLogUncheckedCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultCreateOrConnectWithoutTranscriptsInput = {
+    where: CompanyVaultWhereUniqueInput
+    create: XOR<CompanyVaultCreateWithoutTranscriptsInput, CompanyVaultUncheckedCreateWithoutTranscriptsInput>
+  }
+
+  export type CompanyVaultUpsertWithoutTranscriptsInput = {
+    update: XOR<CompanyVaultUpdateWithoutTranscriptsInput, CompanyVaultUncheckedUpdateWithoutTranscriptsInput>
+    create: XOR<CompanyVaultCreateWithoutTranscriptsInput, CompanyVaultUncheckedCreateWithoutTranscriptsInput>
+    where?: CompanyVaultWhereInput
+  }
+
+  export type CompanyVaultUpdateToOneWithWhereWithoutTranscriptsInput = {
+    where?: CompanyVaultWhereInput
+    data: XOR<CompanyVaultUpdateWithoutTranscriptsInput, CompanyVaultUncheckedUpdateWithoutTranscriptsInput>
+  }
+
+  export type CompanyVaultUpdateWithoutTranscriptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutCompanyVaultsNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedCompanyVaultsNestedInput
+    materials?: CompanyMaterialUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultUncheckedUpdateWithoutTranscriptsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    materials?: CompanyMaterialUncheckedUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultCreateWithoutAccessLogsInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    organization?: OrganizationCreateNestedOneWithoutCompanyVaultsInput
+    createdBy: UserCreateNestedOneWithoutCreatedCompanyVaultsInput
+    materials?: CompanyMaterialCreateNestedManyWithoutVaultInput
+    transcripts?: CompanyInterviewTranscriptCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultUncheckedCreateWithoutAccessLogsInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    organizationId?: string | null
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    materials?: CompanyMaterialUncheckedCreateNestedManyWithoutVaultInput
+    transcripts?: CompanyInterviewTranscriptUncheckedCreateNestedManyWithoutVaultInput
+  }
+
+  export type CompanyVaultCreateOrConnectWithoutAccessLogsInput = {
+    where: CompanyVaultWhereUniqueInput
+    create: XOR<CompanyVaultCreateWithoutAccessLogsInput, CompanyVaultUncheckedCreateWithoutAccessLogsInput>
+  }
+
+  export type UserCreateWithoutCompanyAccessLogsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    invitedBy?: UserCreateNestedOneWithoutInvitedUsersInput
+    organization?: OrganizationCreateNestedOneWithoutUsersInput
+    createdContests?: ContestCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationCreateNestedManyWithoutUserInput
+    submissions?: SubmissionCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogCreateNestedManyWithoutUserInput
+    invitedUsers?: UserCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutCompanyAccessLogsInput = {
+    id?: string
+    email: string
+    password: string
+    name: string
+    username?: string | null
+    phone?: string | null
+    role?: $Enums.Role
+    status?: $Enums.UserStatus
+    lastLoginAt?: Date | string | null
+    invitedById?: string | null
+    organizationId?: string | null
+    ssoProvider?: string | null
+    ssoId?: string | null
+    avatarUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdContests?: ContestUncheckedCreateNestedManyWithoutCreatedByInput
+    createdProblems?: ProblemUncheckedCreateNestedManyWithoutCreatedByInput
+    registrations?: ContestRegistrationUncheckedCreateNestedManyWithoutUserInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
+    proctoringLogs?: ProctoringLogUncheckedCreateNestedManyWithoutUserInput
+    invitedUsers?: UserUncheckedCreateNestedManyWithoutInvitedByInput
+    sentInvitations?: TeamInvitationUncheckedCreateNestedManyWithoutInvitedByInput
+    contestAssignments?: ContestAssignmentUncheckedCreateNestedManyWithoutUserInput
+    assignedContests?: ContestAssignmentUncheckedCreateNestedManyWithoutAssignedByInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    scoredSubmissions?: SubmissionUncheckedCreateNestedManyWithoutEvaluatedByInput
+    reviewedRequests?: OrganizationRequestUncheckedCreateNestedManyWithoutReviewedByInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedCreateNestedManyWithoutUserInput
+    quizResponses?: QuizResponseUncheckedCreateNestedManyWithoutUserInput
+    questionReviews?: QuestionReviewLogUncheckedCreateNestedManyWithoutReviewerInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedCreateNestedManyWithoutSuperAdminInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedCreateNestedManyWithoutModeratorInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    interviewerSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutInterviewerInput
+    candidateSessions?: MockInterviewSessionUncheckedCreateNestedManyWithoutCandidateInput
+    interviewParticipants?: InterviewParticipantUncheckedCreateNestedManyWithoutUserInput
+    assistantSessions?: AssistantSessionUncheckedCreateNestedManyWithoutUserInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedCreateNestedManyWithoutUserInput
+    createdCompanyVaults?: CompanyVaultUncheckedCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutCompanyAccessLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCompanyAccessLogsInput, UserUncheckedCreateWithoutCompanyAccessLogsInput>
+  }
+
+  export type CompanyVaultUpsertWithoutAccessLogsInput = {
+    update: XOR<CompanyVaultUpdateWithoutAccessLogsInput, CompanyVaultUncheckedUpdateWithoutAccessLogsInput>
+    create: XOR<CompanyVaultCreateWithoutAccessLogsInput, CompanyVaultUncheckedCreateWithoutAccessLogsInput>
+    where?: CompanyVaultWhereInput
+  }
+
+  export type CompanyVaultUpdateToOneWithWhereWithoutAccessLogsInput = {
+    where?: CompanyVaultWhereInput
+    data: XOR<CompanyVaultUpdateWithoutAccessLogsInput, CompanyVaultUncheckedUpdateWithoutAccessLogsInput>
+  }
+
+  export type CompanyVaultUpdateWithoutAccessLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutCompanyVaultsNestedInput
+    createdBy?: UserUpdateOneRequiredWithoutCreatedCompanyVaultsNestedInput
+    materials?: CompanyMaterialUpdateManyWithoutVaultNestedInput
+    transcripts?: CompanyInterviewTranscriptUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultUncheckedUpdateWithoutAccessLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    materials?: CompanyMaterialUncheckedUpdateManyWithoutVaultNestedInput
+    transcripts?: CompanyInterviewTranscriptUncheckedUpdateManyWithoutVaultNestedInput
+  }
+
+  export type UserUpsertWithoutCompanyAccessLogsInput = {
+    update: XOR<UserUpdateWithoutCompanyAccessLogsInput, UserUncheckedUpdateWithoutCompanyAccessLogsInput>
+    create: XOR<UserCreateWithoutCompanyAccessLogsInput, UserUncheckedCreateWithoutCompanyAccessLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCompanyAccessLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCompanyAccessLogsInput, UserUncheckedUpdateWithoutCompanyAccessLogsInput>
+  }
+
+  export type UserUpdateWithoutCompanyAccessLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    invitedBy?: UserUpdateOneWithoutInvitedUsersNestedInput
+    organization?: OrganizationUpdateOneWithoutUsersNestedInput
+    createdContests?: ContestUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCompanyAccessLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    invitedById?: NullableStringFieldUpdateOperationsInput | string | null
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoProvider?: NullableStringFieldUpdateOperationsInput | string | null
+    ssoId?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdContests?: ContestUncheckedUpdateManyWithoutCreatedByNestedInput
+    createdProblems?: ProblemUncheckedUpdateManyWithoutCreatedByNestedInput
+    registrations?: ContestRegistrationUncheckedUpdateManyWithoutUserNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
+    proctoringLogs?: ProctoringLogUncheckedUpdateManyWithoutUserNestedInput
+    invitedUsers?: UserUncheckedUpdateManyWithoutInvitedByNestedInput
+    sentInvitations?: TeamInvitationUncheckedUpdateManyWithoutInvitedByNestedInput
+    contestAssignments?: ContestAssignmentUncheckedUpdateManyWithoutUserNestedInput
+    assignedContests?: ContestAssignmentUncheckedUpdateManyWithoutAssignedByNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    scoredSubmissions?: SubmissionUncheckedUpdateManyWithoutEvaluatedByNestedInput
+    reviewedRequests?: OrganizationRequestUncheckedUpdateManyWithoutReviewedByNestedInput
+    quizAttemptQuestions?: QuizAttemptQuestionUncheckedUpdateManyWithoutUserNestedInput
+    quizResponses?: QuizResponseUncheckedUpdateManyWithoutUserNestedInput
+    questionReviews?: QuestionReviewLogUncheckedUpdateManyWithoutReviewerNestedInput
+    breakGlassLogs?: BreakGlassAuditLogUncheckedUpdateManyWithoutSuperAdminNestedInput
+    moderatorAssignments?: ContestModerationAssignmentUncheckedUpdateManyWithoutModeratorNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    interviewerSessions?: MockInterviewSessionUncheckedUpdateManyWithoutInterviewerNestedInput
+    candidateSessions?: MockInterviewSessionUncheckedUpdateManyWithoutCandidateNestedInput
+    interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
+    assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
+    problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+  }
+
   export type UserCreateManyOrganizationInput = {
     id?: string
     email: string
@@ -82775,6 +90092,25 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type CompanyVaultCreateManyOrganizationInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    createdById: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UserUpdateWithoutOrganizationInput = {
     id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
@@ -82815,6 +90151,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOrganizationInput = {
@@ -82857,6 +90195,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutOrganizationInput = {
@@ -83264,6 +90604,69 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CompanyVaultUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: UserUpdateOneRequiredWithoutCreatedCompanyVaultsNestedInput
+    materials?: CompanyMaterialUpdateManyWithoutVaultNestedInput
+    transcripts?: CompanyInterviewTranscriptUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultUncheckedUpdateWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    materials?: CompanyMaterialUncheckedUpdateManyWithoutVaultNestedInput
+    transcripts?: CompanyInterviewTranscriptUncheckedUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultUncheckedUpdateManyWithoutOrganizationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdById?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ContestCreateManyCreatedByInput = {
     id?: string
     title: string
@@ -83627,6 +91030,31 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type CompanyVaultCreateManyCreatedByInput = {
+    id?: string
+    name: string
+    slug: string
+    companyName: string
+    brandColor?: string
+    logoUrl?: string | null
+    targetCtc?: string | null
+    examPattern?: string | null
+    description?: string | null
+    accessCode: string
+    accessCodePlain?: string | null
+    expiresAt?: Date | string | null
+    isLocked?: boolean
+    organizationId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CompanyAccessLogCreateManyUserInput = {
+    id?: string
+    vaultId: string
+    unlockedAt?: Date | string
+  }
+
   export type ContestUpdateWithoutCreatedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
@@ -83970,6 +91398,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutInvitedByInput = {
@@ -84012,6 +91442,8 @@ export namespace Prisma {
     interviewParticipants?: InterviewParticipantUncheckedUpdateManyWithoutUserNestedInput
     assistantSessions?: AssistantSessionUncheckedUpdateManyWithoutUserNestedInput
     problemAiCreditLogs?: ProblemAiCreditLogUncheckedUpdateManyWithoutUserNestedInput
+    createdCompanyVaults?: CompanyVaultUncheckedUpdateManyWithoutCreatedByNestedInput
+    companyAccessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutInvitedByInput = {
@@ -84822,6 +92254,87 @@ export namespace Prisma {
     creditsDeducted?: IntFieldUpdateOperationsInput | number
     creditsRemaining?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyVaultUpdateWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    organization?: OrganizationUpdateOneWithoutCompanyVaultsNestedInput
+    materials?: CompanyMaterialUpdateManyWithoutVaultNestedInput
+    transcripts?: CompanyInterviewTranscriptUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultUncheckedUpdateWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    materials?: CompanyMaterialUncheckedUpdateManyWithoutVaultNestedInput
+    transcripts?: CompanyInterviewTranscriptUncheckedUpdateManyWithoutVaultNestedInput
+    accessLogs?: CompanyAccessLogUncheckedUpdateManyWithoutVaultNestedInput
+  }
+
+  export type CompanyVaultUncheckedUpdateManyWithoutCreatedByInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    companyName?: StringFieldUpdateOperationsInput | string
+    brandColor?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    targetCtc?: NullableStringFieldUpdateOperationsInput | string | null
+    examPattern?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    accessCode?: StringFieldUpdateOperationsInput | string
+    accessCodePlain?: NullableStringFieldUpdateOperationsInput | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    isLocked?: BoolFieldUpdateOperationsInput | boolean
+    organizationId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyAccessLogUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    vault?: CompanyVaultUpdateOneRequiredWithoutAccessLogsNestedInput
+  }
+
+  export type CompanyAccessLogUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vaultId?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyAccessLogUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    vaultId?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProblemAiCreditLogCreateManyProblemInput = {
@@ -86404,6 +93917,110 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CompanyMaterialCreateManyVaultInput = {
+    id?: string
+    title: string
+    materialType: string
+    contentUrl?: string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyInterviewTranscriptCreateManyVaultInput = {
+    id?: string
+    roleTitle: string
+    location?: string | null
+    experience: string
+    difficulty?: string
+    upvotes?: number
+    createdAt?: Date | string
+  }
+
+  export type CompanyAccessLogCreateManyVaultInput = {
+    id?: string
+    userId: string
+    unlockedAt?: Date | string
+  }
+
+  export type CompanyMaterialUpdateWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    materialType?: StringFieldUpdateOperationsInput | string
+    contentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyMaterialUncheckedUpdateWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    materialType?: StringFieldUpdateOperationsInput | string
+    contentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyMaterialUncheckedUpdateManyWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    materialType?: StringFieldUpdateOperationsInput | string
+    contentUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    dataJson?: NullableJsonNullValueInput | InputJsonValue
+    order?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInterviewTranscriptUpdateWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roleTitle?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    experience?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInterviewTranscriptUncheckedUpdateWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roleTitle?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    experience?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyInterviewTranscriptUncheckedUpdateManyWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roleTitle?: StringFieldUpdateOperationsInput | string
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    experience?: StringFieldUpdateOperationsInput | string
+    difficulty?: StringFieldUpdateOperationsInput | string
+    upvotes?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyAccessLogUpdateWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutCompanyAccessLogsNestedInput
+  }
+
+  export type CompanyAccessLogUncheckedUpdateWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyAccessLogUncheckedUpdateManyWithoutVaultInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    unlockedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
 
 
   /**
@@ -86453,6 +94070,10 @@ export namespace Prisma {
      * @deprecated Use AssistantSessionCountOutputTypeDefaultArgs instead
      */
     export type AssistantSessionCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AssistantSessionCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use CompanyVaultCountOutputTypeDefaultArgs instead
+     */
+    export type CompanyVaultCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CompanyVaultCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use OrganizationDefaultArgs instead
      */
@@ -86625,6 +94246,22 @@ export namespace Prisma {
      * @deprecated Use AssistantCodeSnapshotDefaultArgs instead
      */
     export type AssistantCodeSnapshotArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AssistantCodeSnapshotDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use CompanyVaultDefaultArgs instead
+     */
+    export type CompanyVaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CompanyVaultDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use CompanyMaterialDefaultArgs instead
+     */
+    export type CompanyMaterialArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CompanyMaterialDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use CompanyInterviewTranscriptDefaultArgs instead
+     */
+    export type CompanyInterviewTranscriptArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CompanyInterviewTranscriptDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use CompanyAccessLogDefaultArgs instead
+     */
+    export type CompanyAccessLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CompanyAccessLogDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

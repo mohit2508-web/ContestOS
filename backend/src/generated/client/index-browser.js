@@ -706,6 +706,55 @@ exports.Prisma.AssistantCodeSnapshotScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.CompanyVaultScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  companyName: 'companyName',
+  brandColor: 'brandColor',
+  logoUrl: 'logoUrl',
+  targetCtc: 'targetCtc',
+  examPattern: 'examPattern',
+  description: 'description',
+  accessCode: 'accessCode',
+  accessCodePlain: 'accessCodePlain',
+  expiresAt: 'expiresAt',
+  isLocked: 'isLocked',
+  organizationId: 'organizationId',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CompanyMaterialScalarFieldEnum = {
+  id: 'id',
+  vaultId: 'vaultId',
+  title: 'title',
+  materialType: 'materialType',
+  contentUrl: 'contentUrl',
+  dataJson: 'dataJson',
+  order: 'order',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompanyInterviewTranscriptScalarFieldEnum = {
+  id: 'id',
+  vaultId: 'vaultId',
+  roleTitle: 'roleTitle',
+  location: 'location',
+  experience: 'experience',
+  difficulty: 'difficulty',
+  upvotes: 'upvotes',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompanyAccessLogScalarFieldEnum = {
+  id: 'id',
+  vaultId: 'vaultId',
+  userId: 'userId',
+  unlockedAt: 'unlockedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -807,7 +856,9 @@ exports.OrgRequestStatus = exports.$Enums.OrgRequestStatus = {
 exports.SectionType = exports.$Enums.SectionType = {
   QUIZ: 'QUIZ',
   CODING: 'CODING',
-  WEB_DEV: 'WEB_DEV'
+  WEB_DEV: 'WEB_DEV',
+  VIBE_CODE: 'VIBE_CODE',
+  DEBUGGING: 'DEBUGGING'
 };
 
 exports.BankScope = exports.$Enums.BankScope = {
@@ -920,7 +971,11 @@ exports.Prisma.ModelName = {
   CapturedAnswer: 'CapturedAnswer',
   AssistantTranscript: 'AssistantTranscript',
   AssistantStageEvent: 'AssistantStageEvent',
-  AssistantCodeSnapshot: 'AssistantCodeSnapshot'
+  AssistantCodeSnapshot: 'AssistantCodeSnapshot',
+  CompanyVault: 'CompanyVault',
+  CompanyMaterial: 'CompanyMaterial',
+  CompanyInterviewTranscript: 'CompanyInterviewTranscript',
+  CompanyAccessLog: 'CompanyAccessLog'
 };
 
 /**

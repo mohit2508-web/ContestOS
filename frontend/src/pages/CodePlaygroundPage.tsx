@@ -288,7 +288,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     else if (langVal === 'sql') ext = 'sql';
     else if (langVal === 'html') ext = 'html';
     else if (langVal === 'css') ext = 'css';
-    
+
     const uri = monacoRef.current.Uri.parse(`file:///${problemId}_${langVal}.${ext}`);
     let model = monacoRef.current.editor.getModel(uri);
     if (!model) {
@@ -473,9 +473,9 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     let validSavedCode: string | null = null;
     if (savedCode) {
       const isGenericDefault = (savedCode.trim() === (DEFAULT_CODE[language] || "").trim()) ||
-                               (savedCode.trim() === (DEFAULT_CODE.java || "").trim()) ||
-                               (savedCode.includes("class Solution") && savedCode.includes("public void solve()")) ||
-                               (savedCode.includes("def solve(") && savedCode.includes("Write your solution here"));
+        (savedCode.trim() === (DEFAULT_CODE.java || "").trim()) ||
+        (savedCode.includes("class Solution") && savedCode.includes("public void solve()")) ||
+        (savedCode.includes("def solve(") && savedCode.includes("Write your solution here"));
       if (isCodeValidForLang(savedCode, language) && !isGenericDefault) {
         validSavedCode = savedCode;
       } else {
@@ -534,23 +534,21 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
   const hasLoadedInitialProblemRef = useRef(false);
 
   useEffect(() => {
-    if (hasLoadedInitialProblemRef.current) return;
-
     const params = new URLSearchParams(window.location.search);
     const problemId = params.get('problem');
     const urlLanguage = params.get('language');
     const cid = params.get('contestId');
     const savedProblemId = localStorage.getItem('code_playground_selected_problem');
 
-    if (urlLanguage) {
+    if (urlLanguage && language !== urlLanguage) {
       setLanguage(urlLanguage);
     }
 
     const targetProblemId = problemId || (cid && contestProblems.length > 0 ? contestProblems[0].problem?.id : savedProblemId);
 
-    if (targetProblemId) {
+    if (targetProblemId && (!selectedProblem || selectedProblem.id !== targetProblemId)) {
+      if (hasLoadedInitialProblemRef.current && selectedProblem) return;
       hasLoadedInitialProblemRef.current = true;
-      // Fetch complete problem details from backend
       const fetchTargetProblem = async () => {
         try {
           const res = await api.getProblem(targetProblemId);
@@ -576,11 +574,14 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
         }
       };
       fetchTargetProblem();
+    } else if (!selectedProblem && contestProblems.length > 0) {
+      hasLoadedInitialProblemRef.current = true;
+      selectProblem(contestProblems[0].problem as any);
     } else if (!selectedProblem && problems.length > 0) {
       hasLoadedInitialProblemRef.current = true;
       selectProblem(problems[0]);
     }
-  }, [contestProblems]);
+  }, [contestProblems, problems]);
 
   useEffect(() => {
     localStorage.setItem('code_playground_fontSize', editorFontSize.toString());
@@ -1035,323 +1036,331 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
       return;
     }
 
-      if (selectedProblem?.id) {
-        try {
-          if (contestId) {
-            // Check if already solved — prevent reattempt
-            if (solvedProblems.has(selectedProblem.id)) {
-              setContestSubmitToast({
-                status: 'info',
-                message: `✅ Problem already solved! Move to the next problem.`
-              });
-              setTimeout(() => setContestSubmitToast(null), 3000);
-              return;
-            }
+    if (selectedProblem?.id) {
+      try {
+        if (contestId) {
+          // Check if already solved — prevent reattempt
+          if (solvedProblems.has(selectedProblem.id)) {
+            setContestSubmitToast({
+              status: 'info',
+              message: `✅ Problem already solved! Move to the next problem.`
+            });
+            setTimeout(() => setContestSubmitToast(null), 3000);
+            return;
+          }
 
-            const res = await api.submitContestCode(contestId, {
-              problemId: selectedProblem.id,
-              code,
-              language
+          const res = await api.submitContestCode(contestId, {
+            problemId: selectedProblem.id,
+            code,
+            language
+          });
+
+          // Set test results and summary from backend response
+          const totalPassed = res.passedTests;
+          const totalTests = res.totalTests;
+          const isAllPassed = res.passed;
+
+          // Generate dummy results showing only pass/fail status
+          const results = Array.from({ length: totalTests }, (_, i) => ({
+            testCase: i + 1,
+            passed: i < totalPassed,
+            input: "[Hidden]",
+            expectedOutput: "[Hidden]",
+            actualOutput: "[Hidden]",
+            executionTime: 0
+          }));
+
+          setTestResults(results);
+          setTestSummary({ passed: totalPassed, failed: totalTests - totalPassed, total: totalTests });
+          setSubmitStatus(isAllPassed ? 'success' : 'partial');
+
+          // Update score from response
+          if (res.currentScore !== undefined) {
+            setContestScore(res.currentScore);
+            sessionStorage.setItem(`contestScore_${contestId}`, String(res.currentScore));
+            const maxProbPoints = selectedProblem.points || 100;
+            const probPoints = res.submission?.score ?? res.pointsEarned ?? Math.round((totalPassed / Math.max(1, totalTests)) * maxProbPoints);
+            sessionStorage.setItem(`score_${contestId}_${selectedProblem.id}`, String(probPoints));
+            localStorage.setItem(`score_${contestId}_${selectedProblem.id}`, String(probPoints));
+            if (selectedProblem.contestProblemId) {
+              sessionStorage.setItem(`score_${contestId}_${selectedProblem.contestProblemId}`, String(probPoints));
+              localStorage.setItem(`score_${contestId}_${selectedProblem.contestProblemId}`, String(probPoints));
+            }
+          }
+
+          if (isAllPassed) {
+            setContestSubmitToast({
+              status: 'success',
+              message: `✅ All test cases passed! Score: ${res.currentScore ?? contestScore}`
+            });
+            setTimeout(() => setContestSubmitToast(null), 3000);
+            // Show Final Lock modal instead of auto-navigating
+            setPendingLockProblem({
+              id: selectedProblem.id,
+              title: selectedProblem.title,
+              score: res.currentScore ?? 0
+            });
+            setShowFinalLockModal(true);
+          } else {
+            // Partial pass — record submission, stay on problem, allow retry
+            setContestSubmitToast({
+              status: 'info',
+              message: `📝 ${totalPassed}/${totalTests} test cases passed. Keep trying! (Score: ${res.currentScore ?? contestScore})`
+            });
+            setTimeout(() => setContestSubmitToast(null), 5000);
+          }
+        } else {
+          // Use standard browser fetch for SSE streaming
+          const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken') || '';
+          const rawApiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
+          const apiUrl = rawApiUrl.replace(/\/api$/, '');
+
+          // Generate dummy pending results to show immediately
+          const totalTests = validTestCases.length;
+          const initialResults = Array.from({ length: totalTests }, (_, i) => ({
+            testCase: i + 1,
+            passed: false,
+            input: "Pending...",
+            expectedOutput: "Pending...",
+            actualOutput: "Pending...",
+            executionTime: 0
+          }));
+
+          let currentResults = [...initialResults];
+          let finalDoneSummary: { passed: number; failed: number; total: number } | null = null;
+
+          setTestResults([...currentResults]);
+          setTestSummary({ passed: 0, failed: 0, total: totalTests });
+
+          try {
+            const res = await fetch(`${apiUrl}/api/submissions?stream=true`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                problemId: selectedProblem.id,
+                code,
+                language
+              })
             });
 
-            // Set test results and summary from backend response
-            const totalPassed = res.passedTests;
-            const totalTests = res.totalTests;
-            const isAllPassed = res.passed;
-
-            // Generate dummy results showing only pass/fail status
-            const results = Array.from({ length: totalTests }, (_, i) => ({
-              testCase: i + 1,
-              passed: i < totalPassed,
-              input: "[Hidden]",
-              expectedOutput: "[Hidden]",
-              actualOutput: "[Hidden]",
-              executionTime: 0
-            }));
-
-            setTestResults(results);
-            setTestSummary({ passed: totalPassed, failed: totalTests - totalPassed, total: totalTests });
-            setSubmitStatus(isAllPassed ? 'success' : 'partial');
-
-            // Update score from response
-            if (res.currentScore !== undefined) {
-              setContestScore(res.currentScore);
-              sessionStorage.setItem(`contestScore_${contestId}`, String(res.currentScore));
+            if (!res.ok) {
+              throw new Error("Failed to start submission stream");
             }
 
-            if (isAllPassed) {
-              setContestSubmitToast({
-                status: 'success',
-                message: `✅ All test cases passed! Score: ${res.currentScore ?? contestScore}`
-              });
-              setTimeout(() => setContestSubmitToast(null), 3000);
-              // Show Final Lock modal instead of auto-navigating
-              setPendingLockProblem({
-                id: selectedProblem.id,
-                title: selectedProblem.title,
-                score: res.currentScore ?? 0
-              });
-              setShowFinalLockModal(true);
-            } else {
-              // Partial pass — record submission, stay on problem, allow retry
-              setContestSubmitToast({
-                status: 'info',
-                message: `📝 ${totalPassed}/${totalTests} test cases passed. Keep trying! (Score: ${res.currentScore ?? contestScore})`
-              });
-              setTimeout(() => setContestSubmitToast(null), 5000);
-            }
-          } else {
-            // Use standard browser fetch for SSE streaming
-            const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken') || '';
-            const rawApiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
-            const apiUrl = rawApiUrl.replace(/\/api$/, '');
-            
-            // Generate dummy pending results to show immediately
-            const totalTests = validTestCases.length;
-            const initialResults = Array.from({ length: totalTests }, (_, i) => ({
-              testCase: i + 1,
-              passed: false,
-              input: "Pending...",
-              expectedOutput: "Pending...",
-              actualOutput: "Pending...",
-              executionTime: 0
-            }));
-            
-            let currentResults = [...initialResults];
-            let finalDoneSummary: { passed: number; failed: number; total: number } | null = null;
-            
-            setTestResults([...currentResults]);
-            setTestSummary({ passed: 0, failed: 0, total: totalTests });
+            const reader = res.body?.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let lastRender = Date.now();
 
-            try {
-              const res = await fetch(`${apiUrl}/api/submissions?stream=true`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                  problemId: selectedProblem.id,
-                  code,
-                  language
-                })
-              });
+            if (reader) {
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-              if (!res.ok) {
-                throw new Error("Failed to start submission stream");
-              }
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n\n');
+                buffer = lines.pop() || '';
 
-              const reader = res.body?.getReader();
-              const decoder = new TextDecoder();
-              let buffer = '';
-              let lastRender = Date.now();
+                let shouldRender = false;
 
-              if (reader) {
-                while (true) {
-                  const { done, value } = await reader.read();
-                  if (done) break;
-                  
-                  buffer += decoder.decode(value, { stream: true });
-                  const lines = buffer.split('\n\n');
-                  buffer = lines.pop() || '';
-                  
-                  let shouldRender = false;
-                  
-                  for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                      try {
-                        const data = JSON.parse(line.slice(6));
-                        if (data.type === 'progress') {
-                          const tcResult = data.result;
-                          currentResults[tcResult.testCase - 1] = tcResult;
-                          shouldRender = true;
-                        } else if (data.type === 'done') {
-                          finalDoneSummary = {
-                            passed: data.summary.passed,
-                            failed: data.summary.failed,
-                            total: data.summary.total
-                          };
-                          setTestSummary(finalDoneSummary);
-                          setSubmitStatus(data.status === 'passed' ? 'success' : 'partial');
-                          
-                          if (data.status === 'passed') {
-                            try {
-                              const streakRes = await api.post("/user/streak/update");
-                              setStreak(streakRes.currentStreak ?? 0);
-                            } catch (e) {
-                              console.error("Failed to update streak:", e);
-                            }
+                for (const line of lines) {
+                  if (line.startsWith('data: ')) {
+                    try {
+                      const data = JSON.parse(line.slice(6));
+                      if (data.type === 'progress') {
+                        const tcResult = data.result;
+                        currentResults[tcResult.testCase - 1] = tcResult;
+                        shouldRender = true;
+                      } else if (data.type === 'done') {
+                        finalDoneSummary = {
+                          passed: data.summary.passed,
+                          failed: data.summary.failed,
+                          total: data.summary.total
+                        };
+                        setTestSummary(finalDoneSummary);
+                        setSubmitStatus(data.status === 'passed' ? 'success' : 'partial');
+
+                        if (data.status === 'passed') {
+                          try {
+                            const streakRes = await api.post("/user/streak/update");
+                            setStreak(streakRes.currentStreak ?? 0);
+                          } catch (e) {
+                            console.error("Failed to update streak:", e);
                           }
-                          
-                          await fetchSubmissions();
-                          await loadProblemStatuses();
-                          setActiveTab("submissions");
-                          shouldRender = true;
-                        } else if (data.type === 'error') {
-                          console.error("Stream error:", data.error);
-                          setSubmitStatus('error');
                         }
-                      } catch (e) {
-                        console.error("Failed to parse SSE data", e);
+
+                        await fetchSubmissions();
+                        await loadProblemStatuses();
+                        setActiveTab("submissions");
+                        shouldRender = true;
+                      } else if (data.type === 'error') {
+                        console.error("Stream error:", data.error);
+                        setSubmitStatus('error');
                       }
+                    } catch (e) {
+                      console.error("Failed to parse SSE data", e);
                     }
                   }
-                  
-                  // Throttle re-renders to every 100ms
-                  if (shouldRender && Date.now() - lastRender > 100) {
-                    setTestResults([...currentResults]);
-                    if (finalDoneSummary) {
-                      setTestSummary(finalDoneSummary);
-                    } else {
-                      const curPassed = currentResults.filter(r => r?.passed).length;
-                      const curTotal = Math.max(currentResults.length, totalTests);
-                      setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
-                    }
-                    lastRender = Date.now();
+                }
+
+                // Throttle re-renders to every 100ms
+                if (shouldRender && Date.now() - lastRender > 100) {
+                  setTestResults([...currentResults]);
+                  if (finalDoneSummary) {
+                    setTestSummary(finalDoneSummary);
+                  } else {
+                    const curPassed = currentResults.filter(r => r?.passed).length;
+                    const curTotal = Math.max(currentResults.length, totalTests);
+                    setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
                   }
-                }
-                // Final render flush
-                setTestResults([...currentResults]);
-                if (finalDoneSummary) {
-                  setTestSummary(finalDoneSummary);
-                } else {
-                  const curPassed = currentResults.filter(r => r?.passed).length;
-                  const curTotal = Math.max(currentResults.length, totalTests);
-                  setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
+                  lastRender = Date.now();
                 }
               }
-            } finally {
-              setIsSubmitting(false);
-            }
-          }
-        } catch (serverErr) {
-          console.error("Server save failed:", serverErr);
-          setSubmitStatus('error');
-        } finally {
-          setIsSubmitting(false);
-        }
-        return;
-      }
-
-      // If not a registered database problem, run custom testcases on the generic executor
-      try {
-        const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken') || '';
-        const rawApiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
-        const apiUrl = rawApiUrl.replace(/\/api$/, '');
-        
-        const totalTests = validTestCases.length;
-        const initialResults = Array.from({ length: totalTests }, (_, i) => ({
-          testCase: i + 1,
-          passed: false,
-          input: "Pending...",
-          expectedOutput: "Pending...",
-          actualOutput: "Pending...",
-          executionTime: 0
-        }));
-        
-        let currentResults = [...initialResults];
-        let finalDoneSummary: { passed: number; failed: number; total: number } | null = null;
-        
-        setTestResults([...currentResults]);
-        setTestSummary({ passed: 0, failed: 0, total: totalTests });
-
-        const res = await fetch(`${apiUrl}/api/code/run-tests?stream=true`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            language,
-            code,
-            testCases: validTestCases,
-            problemId: selectedProblem?.id
-          })
-        });
-
-        if (!res.ok) {
-          throw new Error("Failed to start run-tests stream");
-        }
-
-        const reader = res.body?.getReader();
-        if (!reader) throw new Error("Failed to get response reader");
-        const decoder = new TextDecoder();
-        let buffer = '';
-        let lastRender = Date.now();
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n\n');
-          buffer = lines.pop() || '';
-          
-          let shouldRender = false;
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6));
-                if (data.type === 'progress') {
-                  const tcResult = data.result;
-                  currentResults[tcResult.testCase - 1] = tcResult;
-                  shouldRender = true;
-                } else if (data.type === 'done') {
-                  finalDoneSummary = {
-                    passed: data.summary.passed,
-                    failed: data.summary.failed,
-                    total: data.summary.total
-                  };
-                  setTestSummary(finalDoneSummary);
-                  setSubmitStatus(data.summary.passed === data.summary.total ? 'success' : 'partial');
-                  shouldRender = true;
-                } else if (data.type === 'error') {
-                  console.error("Stream error:", data.error);
-                  setSubmitStatus('error');
-                }
-              } catch (e) {
-                console.error("Failed to parse SSE data", e);
+              // Final render flush
+              setTestResults([...currentResults]);
+              if (finalDoneSummary) {
+                setTestSummary(finalDoneSummary);
+              } else {
+                const curPassed = currentResults.filter(r => r?.passed).length;
+                const curTotal = Math.max(currentResults.length, totalTests);
+                setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
               }
             }
-          }
-          
-          if (shouldRender && Date.now() - lastRender > 100) {
-            setTestResults([...currentResults]);
-            if (finalDoneSummary) {
-              setTestSummary(finalDoneSummary);
-            } else {
-              const curPassed = currentResults.filter(r => r?.passed).length;
-              const curTotal = Math.max(currentResults.length, totalTests);
-              setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
-            }
-            lastRender = Date.now();
+          } finally {
+            setIsSubmitting(false);
           }
         }
-        // Final render flush
-        setTestResults([...currentResults]);
-        if (finalDoneSummary) {
-          setTestSummary(finalDoneSummary);
-        } else {
-          const curPassed = currentResults.filter(r => r?.passed).length;
-          const curTotal = Math.max(currentResults.length, totalTests);
-          setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
-        }
-      } catch (err) {
-        setTestResults([{
-          testCase: 1,
-          passed: false,
-          input: "",
-          expectedOutput: "",
-          actualOutput: "",
-          executionTime: 0,
-          error: "Failed to submit"
-        }]);
-        setTestSummary({ passed: 0, failed: 1, total: 1 });
+      } catch (serverErr) {
+        console.error("Server save failed:", serverErr);
         setSubmitStatus('error');
       } finally {
         setIsSubmitting(false);
       }
+      return;
+    }
+
+    // If not a registered database problem, run custom testcases on the generic executor
+    try {
+      const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken') || '';
+      const rawApiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
+      const apiUrl = rawApiUrl.replace(/\/api$/, '');
+
+      const totalTests = validTestCases.length;
+      const initialResults = Array.from({ length: totalTests }, (_, i) => ({
+        testCase: i + 1,
+        passed: false,
+        input: "Pending...",
+        expectedOutput: "Pending...",
+        actualOutput: "Pending...",
+        executionTime: 0
+      }));
+
+      let currentResults = [...initialResults];
+      let finalDoneSummary: { passed: number; failed: number; total: number } | null = null;
+
+      setTestResults([...currentResults]);
+      setTestSummary({ passed: 0, failed: 0, total: totalTests });
+
+      const res = await fetch(`${apiUrl}/api/code/run-tests?stream=true`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          language,
+          code,
+          testCases: validTestCases,
+          problemId: selectedProblem?.id
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to start run-tests stream");
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("Failed to get response reader");
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let lastRender = Date.now();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || '';
+
+        let shouldRender = false;
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === 'progress') {
+                const tcResult = data.result;
+                currentResults[tcResult.testCase - 1] = tcResult;
+                shouldRender = true;
+              } else if (data.type === 'done') {
+                finalDoneSummary = {
+                  passed: data.summary.passed,
+                  failed: data.summary.failed,
+                  total: data.summary.total
+                };
+                setTestSummary(finalDoneSummary);
+                setSubmitStatus(data.summary.passed === data.summary.total ? 'success' : 'partial');
+                shouldRender = true;
+              } else if (data.type === 'error') {
+                console.error("Stream error:", data.error);
+                setSubmitStatus('error');
+              }
+            } catch (e) {
+              console.error("Failed to parse SSE data", e);
+            }
+          }
+        }
+
+        if (shouldRender && Date.now() - lastRender > 100) {
+          setTestResults([...currentResults]);
+          if (finalDoneSummary) {
+            setTestSummary(finalDoneSummary);
+          } else {
+            const curPassed = currentResults.filter(r => r?.passed).length;
+            const curTotal = Math.max(currentResults.length, totalTests);
+            setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
+          }
+          lastRender = Date.now();
+        }
+      }
+      // Final render flush
+      setTestResults([...currentResults]);
+      if (finalDoneSummary) {
+        setTestSummary(finalDoneSummary);
+      } else {
+        const curPassed = currentResults.filter(r => r?.passed).length;
+        const curTotal = Math.max(currentResults.length, totalTests);
+        setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
+      }
+    } catch (err) {
+      setTestResults([{
+        testCase: 1,
+        passed: false,
+        input: "",
+        expectedOutput: "",
+        actualOutput: "",
+        executionTime: 0,
+        error: "Failed to submit"
+      }]);
+      setTestSummary({ passed: 0, failed: 1, total: 1 });
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const formatCode = async () => {
@@ -1527,64 +1536,41 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
       {contestId && codeContestProblems.length > 0 && (
         <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-950 border-b border-white/10 flex-shrink-0 overflow-x-auto">
           <button
-              onClick={() => navigate(`/contests/${contestId}`)}
-              className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all shrink-0"
-              title="Back to Contest"
+            onClick={() => navigate(`/contests/${contestId}?seb=1`)}
+            className="flex items-center gap-1 px-2 py-1 text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all shrink-0"
+            title="Back to Contest"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest shrink-0 mr-1">Contest</span>
+
+          {codeContestProblems.length > 1 ? (
+            <select
+              value={selectedProblem?.id || ''}
+              onChange={async (e) => {
+                const targetId = e.target.value;
+                const found = codeContestProblems.find(cp => cp.problem?.id === targetId);
+                if (found) {
+                  selectProblem(found.problem as any);
+                }
+              }}
+              className="bg-black/80 border border-amber-500/40 text-amber-300 font-bold text-xs rounded-xl px-3 py-1 cursor-pointer focus:outline-none focus:border-amber-400 shrink-0"
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </button>
-           <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest shrink-0 mr-1">Contest</span>
-          <div className="flex items-center gap-1.5">
-            {codeContestProblems.map((cp, idx) => {
-              const isSolved = solvedProblems.has(cp.problem.id);
-              const isCurrent = selectedProblem?.id === cp.problem.id;
-              return (
-                <button
-                  key={cp.problem.id}
-                  onClick={async () => {
-                    if (isSolved) {
-                      setContestSubmitToast({
-                        status: 'info',
-                        message: `🔒 Problem "${cp.problem.title}" is solved and locked!`
-                      });
-                      setTimeout(() => setContestSubmitToast(null), 3000);
-                      return;
-                    }
-                    const prob = problems.find(p => p.id === cp.problem.id);
-                    if (prob) {
-                      selectProblem(prob);
-                    } else {
-                      try {
-                        const res = await api.getProblem(cp.problem.id);
-                        const fetched = res.problem || res;
-                        if (fetched) {
-                          setProblems(prev => prev.some(p => p.id === fetched.id) ? prev : [fetched, ...prev]);
-                          selectProblem(fetched);
-                        }
-                      } catch (e) { console.error(e); }
-                    }
-                  }}
-                  title={`${cp.problem.title}${isSolved ? ' (Solved)' : ''}`}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border transition-all shrink-0 ${isCurrent
-                      ? 'bg-amber-500/20 border-amber-400 text-amber-300'
-                      : isSolved
-                        ? 'bg-green-500/20 border-green-400 text-green-300 cursor-not-allowed'
-                        : 'bg-white/5 border-white/20 text-gray-400 hover:border-white/40 hover:text-white'
-                    }`}
-                >
-                  {isSolved ? (
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : null}
-                  {String.fromCharCode(65 + idx)}
-                </button>
-              );
-            })}
-          </div>
+              {codeContestProblems.map((cp, idx) => (
+                <option key={cp.problem.id} value={cp.problem.id} className="bg-zinc-900 text-white">
+                  Problem {idx + 1}: {cp.problem.title} ({cp.points || 100} pts) {solvedProblems.has(cp.problem.id) ? '✓ Solved' : ''}
+                </option>
+              ))}
+            </select>
+          ) : selectedProblem ? (
+            <span className="text-xs font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-xl border border-amber-500/30 shrink-0 max-w-xs truncate">
+              {selectedProblem.title}
+            </span>
+          ) : null}
+
           <div className="ml-auto flex items-center gap-3 shrink-0">
             {/* Score display */}
             {contestScore > 0 && (
@@ -1701,8 +1687,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                   key={tab}
                   onClick={() => setLeftTab(tab)}
                   className={`px-4 py-2.5 text-[13px] font-bold border-b-2 transition-colors capitalize ${leftTab === tab
-                      ? "border-[var(--accent-blue)] text-[var(--accent-blue)]"
-                      : "border-transparent text-gray-400 hover:text-white"
+                    ? "border-[var(--accent-blue)] text-[var(--accent-blue)]"
+                    : "border-transparent text-gray-400 hover:text-white"
                     }`}
                 >
                   {tab === "problems" ? "All Problems" : tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -1719,9 +1705,9 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                   <>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className={`text-xs px-2 py-0.5 rounded ${selectedProblem.difficulty === "Easy" ? "bg-green-500/20 text-green-400" :
-                          selectedProblem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
-                            selectedProblem.difficulty === "Hard" ? "bg-red-500/20 text-red-400" :
-                              "bg-green-500/20 text-green-400"
+                        selectedProblem.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-400" :
+                          selectedProblem.difficulty === "Hard" ? "bg-red-500/20 text-red-400" :
+                            "bg-green-500/20 text-green-400"
                         }`}>
                         {selectedProblem.difficulty}
                       </span>
@@ -1911,10 +1897,10 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                           {/* Status dot */}
                           <div
                             className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${status === "solved"
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : status === "attempted"
-                                  ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                                  : "bg-white/5 border border-white/10"
+                              ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                              : status === "attempted"
+                                ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                                : "bg-white/5 border border-white/10"
                               }`}
                           >
                             {status === "solved" ? "✓" : status === "attempted" ? "~" : ""}
@@ -1928,10 +1914,10 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                           {/* Difficulty */}
                           <span
                             className={`text-[11px] font-bold w-16 text-right ${problem.difficulty === "Easy"
-                                ? "text-green-400"
-                                : problem.difficulty === "Medium"
-                                  ? "text-yellow-400"
-                                  : "text-red-400"
+                              ? "text-green-400"
+                              : problem.difficulty === "Medium"
+                                ? "text-yellow-400"
+                                : "text-red-400"
                               }`}
                           >
                             {problem.difficulty}
@@ -2190,8 +2176,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                 onClick={submitCode}
                 disabled={isRunning || isSubmitting || (contestId ? solvedProblems.has(selectedProblem?.id || '') : false)}
                 className={`px-4 py-1.5 rounded-lg transition-all flex items-center gap-2 text-sm disabled:opacity-50 font-bold ${contestId && selectedProblem?.id && solvedProblems.has(selectedProblem.id)
-                    ? 'bg-green-500/20 text-green-400 cursor-not-allowed'
-                    : 'bg-[var(--accent-blue)] hover:bg-blue-500 text-white'
+                  ? 'bg-green-500/20 text-green-400 cursor-not-allowed'
+                  : 'bg-[var(--accent-blue)] hover:bg-blue-500 text-white'
                   }`}
               >
                 {contestId && selectedProblem?.id && solvedProblems.has(selectedProblem.id) ? (
@@ -2338,15 +2324,15 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                   <button
                     onClick={() => setActiveTab("tests")}
                     className={`px-3 py-1 text-sm font-medium transition-all ${activeTab === "tests"
-                        ? "text-white border-b-2 border-[var(--accent-green)]"
-                        : "text-gray-400 hover:text-white"
+                      ? "text-white border-b-2 border-[var(--accent-green)]"
+                      : "text-gray-400 hover:text-white"
                       }`}
                   >
                     Testcase
                     {testSummary && (
                       <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${testSummary.passed === testSummary.total
-                          ? "bg-green-500/20 text-green-400"
-                          : "bg-red-500/20 text-red-400"
+                        ? "bg-green-500/20 text-green-400"
+                        : "bg-red-500/20 text-red-400"
                         }`}>
                         {testSummary.passed}/{testSummary.total}
                       </span>
@@ -2355,8 +2341,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                   <button
                     onClick={() => setActiveTab("output")}
                     className={`px-3 py-1 text-sm font-medium transition-all ${activeTab === "output"
-                        ? "text-white border-b-2 border-[var(--accent-green)]"
-                        : "text-gray-400 hover:text-white"
+                      ? "text-white border-b-2 border-[var(--accent-green)]"
+                      : "text-gray-400 hover:text-white"
                       }`}
                   >
                     Test Result
@@ -2365,8 +2351,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                     <button
                       onClick={() => setActiveTab("custom")}
                       className={`px-3 py-1 text-sm font-medium transition-all ${activeTab === "custom"
-                          ? "text-white border-b-2 border-[var(--accent-green)]"
-                          : "text-gray-400 hover:text-white"
+                        ? "text-white border-b-2 border-[var(--accent-green)]"
+                        : "text-gray-400 hover:text-white"
                         }`}
                     >
                       Custom Input
@@ -2376,8 +2362,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                     <button
                       onClick={() => setActiveTab("submissions")}
                       className={`px-3 py-1 text-sm font-medium transition-all ${activeTab === "submissions"
-                          ? "text-white border-b-2 border-[var(--accent-green)]"
-                          : "text-gray-400 hover:text-white"
+                        ? "text-white border-b-2 border-[var(--accent-green)]"
+                        : "text-gray-400 hover:text-white"
                         }`}
                     >
                       Submissions
@@ -2396,8 +2382,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                         setBottomPanelHeight(40);
                       }}
                       className={`px-3 py-1 text-sm font-medium transition-all ${activeTab === "editorial"
-                          ? "text-white border-b-2 border-[var(--accent-green)]"
-                          : "text-gray-400 hover:text-white"
+                        ? "text-white border-b-2 border-[var(--accent-green)]"
+                        : "text-gray-400 hover:text-white"
                         }`}
                     >
                       Editorial
@@ -2435,12 +2421,12 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                       <div className={`flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1a1f2e] border border-white/5`}>
                         {submitStatus === 'running' && testSummary ? (
                           <>
-                            <ProgressRing 
-                              radius={36} 
-                              stroke={5} 
-                              progress={(testSummary.passed / testSummary.total) * 100} 
-                              total={testSummary.total} 
-                              passed={testSummary.passed} 
+                            <ProgressRing
+                              radius={36}
+                              stroke={5}
+                              progress={(testSummary.passed / testSummary.total) * 100}
+                              total={testSummary.total}
+                              passed={testSummary.passed}
                             />
                             <div className="flex flex-col justify-center">
                               <span className="text-sm font-medium text-blue-400 flex items-center gap-2">
@@ -2455,12 +2441,12 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                           </>
                         ) : (
                           <>
-                            <ProgressRing 
-                              radius={36} 
-                              stroke={5} 
-                              progress={(testSummary.passed / testSummary.total) * 100} 
-                              total={testSummary.total} 
-                              passed={testSummary.passed} 
+                            <ProgressRing
+                              radius={36}
+                              stroke={5}
+                              progress={(testSummary.passed / testSummary.total) * 100}
+                              total={testSummary.total}
+                              passed={testSummary.passed}
                             />
                             <div className="flex flex-col justify-center">
                               {testSummary.passed === testSummary.total ? (
@@ -2485,8 +2471,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                             <div
                               key={idx}
                               className={`rounded-lg border ${result?.passed
-                                  ? "bg-green-500/5 border-green-500/20"
-                                  : "bg-red-500/5 border-red-500/20"
+                                ? "bg-green-500/5 border-green-500/20"
+                                : "bg-red-500/5 border-red-500/20"
                                 }`}
                             >
                               <div className="flex items-center justify-between px-3 py-2 border-b border-white/5">
@@ -2494,8 +2480,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                                   {result?.isHidden ? `Hidden ${idx + 1}` : `Case ${idx + 1}`}
                                 </span>
                                 <span className={`text-xs px-2 py-0.5 rounded ${result?.passed
-                                    ? "bg-green-500/20 text-green-400"
-                                    : "bg-red-500/20 text-red-400"
+                                  ? "bg-green-500/20 text-green-400"
+                                  : "bg-red-500/20 text-red-400"
                                   }`}>
                                   {result?.passed ? "Passed" : "Failed"}
                                 </span>
@@ -2636,8 +2622,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                                     setTagInput('');
                                   }}
                                   className={`flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer transition-all text-xs ${selectedSubmission?.id === sub.id
-                                      ? 'bg-white/10'
-                                      : 'hover:bg-white/5'
+                                    ? 'bg-white/10'
+                                    : 'hover:bg-white/5'
                                     }`}
                                 >
                                   <span className={`w-16 shrink-0 text-left font-medium ${sub.status === 'Accepted' ? 'text-green-400' : 'text-red-400'
@@ -2907,10 +2893,10 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
       {/* Contest submission toast notification */}
       {contestSubmitToast && (
         <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999] px-6 py-3 rounded-xl shadow-2xl border flex items-center gap-3 text-sm font-semibold ${contestSubmitToast.status === 'success'
-            ? 'bg-green-500/20 border-green-500 text-green-300'
-            : contestSubmitToast.status === 'info'
-              ? 'bg-blue-500/20 border-blue-500 text-blue-300'
-              : 'bg-red-500/20 border-red-500 text-red-300'
+          ? 'bg-green-500/20 border-green-500 text-green-300'
+          : contestSubmitToast.status === 'info'
+            ? 'bg-blue-500/20 border-blue-500 text-blue-300'
+            : 'bg-red-500/20 border-red-500 text-red-300'
           }`}>
           {contestSubmitToast.status === 'success' ? (
             <svg className="w-5 h-5 text-green-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2955,7 +2941,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
           setShowFinalLockModal(false);
           setPendingLockProblem(null);
           notify.toast.success(`🔒 Problem "${pendingLockProblem.title}" locked & submitted!`);
-          navigate(`/contests/${contestId}`);
+          navigate(`/contests/${contestId}?seb=1`);
         }}
         onCancel={() => {
           setShowFinalLockModal(false);

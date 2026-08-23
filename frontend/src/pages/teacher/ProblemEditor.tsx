@@ -1272,14 +1272,15 @@ export function TeacherProblemEditorPage() {
           <p className="text-sm text-gray-500 mb-4">
             Select which playground environment students will use for this problem.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {(['code', 'vibe-code', 'sql', 'web-dev'] as const).map(type => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {(['code', 'vibe-code', 'debugging', 'sql', 'web-dev'] as const).map(type => (
               <button
                 key={type}
                 type="button"
                 onClick={() => {
                   setProblemType(type);
                   if (type === 'sql') setCategory('SQL');
+                  if (type === 'debugging') setCategory('Debugging');
                 }}
                 className={`p-4 rounded-lg border text-left transition-all ${
                   problemType === type
@@ -1288,14 +1289,17 @@ export function TeacherProblemEditorPage() {
                 }`}
               >
                 <span className="flex items-center justify-between text-white font-medium mb-1">
-                  {type === 'code' ? 'Code' : type === 'vibe-code' ? 'Vibe AI Code 🤖' : type === 'sql' ? 'SQL' : 'Web Dev'}
+                  {type === 'code' ? 'Code' : type === 'vibe-code' ? 'Vibe AI Code 🤖' : type === 'debugging' ? 'Debugging 🐞' : type === 'sql' ? 'SQL' : 'Web Dev'}
                   {type === 'vibe-code' && <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded font-bold">AON Mode</span>}
+                  {type === 'debugging' && <span className="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">Bug Fix</span>}
                 </span>
                 <span className="text-xs text-gray-500 block leading-tight">
                   {type === 'code' 
                     ? 'Java, C++, Python, JS, C' 
                     : type === 'vibe-code' 
                     ? 'AON Socratic Gated AI Assistant Assessment'
+                    : type === 'debugging'
+                    ? 'Fix buggy code & pass test cases'
                     : type === 'sql' 
                     ? 'SQL queries with schema' 
                     : 'HTML, CSS, JavaScript'}

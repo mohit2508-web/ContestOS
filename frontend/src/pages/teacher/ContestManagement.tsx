@@ -1418,6 +1418,8 @@ export function ContestManagementPage() {
                               >
                                 <option value="QUIZ">General Quiz / Aptitude</option>
                                 <option value="CODING">Coding / Algorithm</option>
+                                <option value="VIBE_CODE">🤖 AI-Assisted Socratic Coding</option>
+                                <option value="DEBUGGING">🐞 Code Debugging / Bug Fixes</option>
                                 <option value="WEB_DEV">Web Dev / SQL</option>
                               </select>
                             </div>
@@ -1529,6 +1531,8 @@ export function ContestManagementPage() {
                       value={problemFilterType} onChange={e => setProblemFilterType(e.target.value)}>
                       <option value="all">All Types</option>
                       <option value="code">Coding</option>
+                      <option value="vibe-code">AI-Assisted (Vibe-Code)</option>
+                      <option value="debugging">Debugging</option>
                       <option value="web-dev">Web Dev</option>
                       <option value="sql">SQL</option>
                     </select>

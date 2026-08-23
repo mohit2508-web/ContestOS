@@ -1487,6 +1487,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
   };
 
   const CornerIDBadge = () => {
+    const [isOpen, setIsOpen] = useState(false);
     const isSEB = navigator.userAgent.includes('SEB') || navigator.userAgent.includes('SafeExamBrowser') || new URLSearchParams(window.location.search).get('seb') === '1';
     if (flags.requireSeb && !isSEB) return null;
     if (!hasRegistered) return null;
@@ -1501,65 +1502,91 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
     const finalRollNo = (user as any)?.enrollmentNumber || tempRollNo || 'N/A';
 
     return (
-      <div className="fixed bottom-4 right-4 z-50 pointer-events-auto bg-zinc-950/90 border border-green-500/30 rounded-xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur max-w-sm">
-        {/* Registration photo with pulsing live check indicator */}
-        <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-green-500/20 bg-zinc-900 flex-shrink-0">
-          {flags.enableProctoring && proctoringStream ? (
-            <video 
-              ref={(el) => {
-                if (el && el.srcObject !== proctoringStream) {
-                  el.srcObject = proctoringStream;
-                }
-              }}
-              autoPlay 
-              playsInline 
-              muted 
-              className="w-full h-full object-cover scale-x-[-1]" 
-            />
-          ) : finalPhoto ? (
-            <img src={finalPhoto} alt="Candidate Profile" className="w-full h-full object-cover scale-x-[-1]" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-zinc-500">
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+      <div className="fixed bottom-4 left-4 z-[99999] pointer-events-auto flex flex-col items-start gap-2">
+        {/* Expanded Camera Preview Popover Card */}
+        {isOpen && (
+          <div className="bg-zinc-950/95 border border-green-500/40 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur max-w-xs animate-in fade-in slide-in-from-bottom-2">
+            <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-green-500/30 bg-zinc-900 flex-shrink-0">
+              {flags.enableProctoring && proctoringStream ? (
+                <video 
+                  ref={(el) => {
+                    if (el && el.srcObject !== proctoringStream) {
+                      el.srcObject = proctoringStream;
+                    }
+                  }}
+                  autoPlay 
+                  playsInline 
+                  muted 
+                  className="w-full h-full object-cover scale-x-[-1]" 
+                />
+              ) : finalPhoto ? (
+                <img src={finalPhoto} alt="Candidate Profile" className="w-full h-full object-cover scale-x-[-1]" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              )}
+              <div className="absolute top-1 right-1 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </div>
             </div>
-          )}
-          {/* Pulsing indicator */}
-          <div className="absolute top-0.5 right-0.5 flex h-2 w-2">
+
+            <div className="flex flex-col min-w-0 pr-1 text-left">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[9px] text-green-400 font-black tracking-wider uppercase">👁️ Live Proctoring Active</span>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-gray-400 hover:text-white text-xs font-bold px-1 rounded cursor-pointer"
+                  title="Collapse Preview"
+                >
+                  ✕
+                </button>
+              </div>
+              <span className="text-xs font-bold text-white truncate block">{(user as any)?.fullName || user?.name || 'Candidate'}</span>
+              <span className="text-[10px] font-medium text-zinc-400 truncate block">Roll No: {finalRollNo}</span>
+              <div className="mt-1 flex flex-wrap gap-1">
+                {keyboardLockActive ? (
+                  <span className="inline-flex items-center px-1 py-0.5 rounded text-[8px] font-extrabold bg-green-500/20 text-green-400 border border-green-500/20 uppercase tracking-wider">
+                    🛡️ Enhanced Lock
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-1 py-0.5 rounded text-[8px] font-extrabold bg-zinc-800 text-zinc-400 border border-zinc-700 uppercase tracking-wider">
+                    ⚠️ Std Detection
+                  </span>
+                )}
+                <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wider ${
+                  _warnings >= (flags.maxWarnings || 3) - 1
+                    ? 'bg-red-500/20 text-red-400 border border-red-500/20'
+                    : _warnings > 0
+                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/20'
+                      : 'bg-green-500/20 text-green-400 border border-green-500/20'
+                }`}>
+                  ⚠️ Warnings: {_warnings}/{flags.maxWarnings || 3}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Floating Collapsible Eye Button Pill */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`px-3 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-xl border backdrop-blur ${
+            isOpen
+              ? 'bg-green-500/20 text-green-300 border-green-500/40 shadow-green-500/10'
+              : 'bg-zinc-900/90 text-green-400 border-green-500/30 hover:bg-zinc-800 hover:border-green-500/50'
+          }`}
+          title={isOpen ? "Click to collapse camera preview" : "Click to expand live camera & proctoring preview"}
+        >
+          <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-          </div>
-        </div>
-
-        {/* Student identification text info */}
-        <div className="flex flex-col min-w-0 pr-1 text-left">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[9px] text-green-400 font-bold tracking-wider uppercase">Live Feed Active</span>
-          </div>
-          <span className="text-xs font-bold text-white truncate block">{(user as any)?.fullName || user?.name || 'Candidate'}</span>
-          <span className="text-[10px] font-medium text-zinc-400 truncate block">Roll No: {finalRollNo}</span>
-          <div className="mt-1 flex flex-wrap gap-1">
-            {keyboardLockActive ? (
-              <span className="inline-flex items-center px-1 py-0.5 rounded text-[8px] font-extrabold bg-green-500/20 text-green-400 border border-green-500/20 uppercase tracking-wider">
-                🛡️ Enhanced Lock
-              </span>
-            ) : (
-              <span className="inline-flex items-center px-1 py-0.5 rounded text-[8px] font-extrabold bg-zinc-800 text-zinc-400 border border-zinc-700 uppercase tracking-wider">
-                ⚠️ Std Detection
-              </span>
-            )}
-            <span className={`inline-flex items-center px-1 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-wider ${
-              _warnings >= (flags.maxWarnings || 3) - 1
-                ? 'bg-red-500/20 text-red-400 border border-red-500/20'
-                : _warnings > 0
-                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/20'
-                  : 'bg-green-500/20 text-green-400 border border-green-500/20'
-            }`}>
-              ⚠️ Warnings: {_warnings}/{flags.maxWarnings || 3}
-            </span>
-          </div>
-        </div>
+          </span>
+          <span>👁️ Live Feed {isOpen ? '(Active)' : '(Click to View)'}</span>
+        </button>
       </div>
     );
   };
