@@ -218,6 +218,17 @@ export function AiAssistedPlaygroundPage({
   onBack,
   onSubmitted,
 }: AiAssistedPlaygroundPageProps) {
+  const { user } = useAuth();
+  const notify = useNotify();
+  const [problemsList, setProblemsList] = useState<any[]>(SOCRATIC_FALLBACK_PROBLEMS);
+  const [selectedProblem, setSelectedProblem] = useState<any>(SOCRATIC_FALLBACK_PROBLEMS[0]);
+  const [showProblemsModal, setShowProblemsModal] = useState(false);
+  const [problemSearchQuery, setProblemSearchQuery] = useState('');
+  const search = new URLSearchParams(window.location.search);
+  const contestIdParam = search.get('contestId');
+  const activeContestMode = isContestMode || Boolean(contestIdParam) || Boolean(contest);
+  const [contestTitle, setContestTitle] = useState<string>(contest?.title || 'Contest Exam Arena');
+
   if (!isContestMode && !contest) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -274,16 +285,6 @@ export function AiAssistedPlaygroundPage({
       </div>
     );
   }
-  const { user } = useAuth();
-  const notify = useNotify();
-  const [problemsList, setProblemsList] = useState<any[]>(SOCRATIC_FALLBACK_PROBLEMS);
-  const [selectedProblem, setSelectedProblem] = useState<any>(SOCRATIC_FALLBACK_PROBLEMS[0]);
-  const [showProblemsModal, setShowProblemsModal] = useState(false);
-  const [problemSearchQuery, setProblemSearchQuery] = useState('');
-  const search = new URLSearchParams(window.location.search);
-  const contestIdParam = search.get('contestId');
-  const activeContestMode = isContestMode || Boolean(contestIdParam) || Boolean(contest);
-  const [contestTitle, setContestTitle] = useState<string>(contest?.title || 'Contest Exam Arena');
 
   useEffect(() => {
     if (problemItem?.problem) {

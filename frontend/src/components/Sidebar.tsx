@@ -201,6 +201,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [showCapgeminiRestrictedModal, setShowCapgeminiRestrictedModal] = useState(false);
 
   useEffect(() => {
     if (location.pathname.startsWith('/playground')) {
@@ -239,8 +240,6 @@ export function Sidebar({ children }: { children: ReactNode }) {
     const currentTab = params.get('tab');
     return !currentTab || currentTab === 'overview';
   };
-
-  const [showCapgeminiRestrictedModal, setShowCapgeminiRestrictedModal] = useState(false);
 
   return (
     <div className="flex h-screen bg-black overflow-hidden relative">
