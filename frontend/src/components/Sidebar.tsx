@@ -240,6 +240,8 @@ export function Sidebar({ children }: { children: ReactNode }) {
     return !currentTab || currentTab === 'overview';
   };
 
+  const [showCapgeminiRestrictedModal, setShowCapgeminiRestrictedModal] = useState(false);
+
   return (
     <div className="flex h-screen bg-black overflow-hidden relative">
       {/* Mobile Header Bar */}
@@ -322,6 +324,31 @@ export function Sidebar({ children }: { children: ReactNode }) {
               <div className="space-y-0.5">
                 {section.items.map((item) => {
                   const active = isActive(item.path);
+                  const isAiAssistedItem = item.path === '/playground/ai-assisted';
+
+                  if (isAiAssistedItem) {
+                    return (
+                      <button
+                        key={item.path}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowCapgeminiRestrictedModal(true);
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-gray-400 hover:bg-purple-950/40 hover:text-purple-300 border border-transparent hover:border-purple-500/30 cursor-pointer group"
+                      >
+                        <Icon d={item.icon} />
+                        {!isCollapsed && (
+                          <span className="truncate flex items-center justify-between w-full">
+                            <span>{item.label}</span>
+                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              🔒 Restricted
+                            </span>
+                          </span>
+                        )}
+                      </button>
+                    );
+                  }
+
                   return (
                     <NavLink
                       key={item.path}
@@ -375,6 +402,65 @@ export function Sidebar({ children }: { children: ReactNode }) {
           </div>
         </div>
       </aside>
+
+      {/* Capgemini Exclusive Restricted Modal */}
+      {showCapgeminiRestrictedModal && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/85 backdrop-blur-2xl animate-fade-in">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-black border border-purple-500/40 p-8 shadow-[0_0_50px_rgba(168,85,247,0.3)] text-white text-center space-y-6">
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-cyan-500/20 border border-purple-400/40 text-purple-300 text-xs font-black uppercase tracking-widest shadow-lg">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+              <span>✨ CAPGEMINI EXCLUSIVE ASSESSMENT FEATURE</span>
+            </div>
+
+            <div className="space-y-3 relative z-10">
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 p-0.5 shadow-xl shadow-purple-500/30 flex items-center justify-center">
+                <div className="w-full h-full bg-zinc-950 rounded-[22px] flex items-center justify-center text-4xl">
+                  🔒
+                </div>
+              </div>
+              <h2 className="text-2xl font-black tracking-tight text-white">
+                AI-Assisted Coding Access Restricted
+              </h2>
+              <p className="text-xs text-purple-300/80 font-mono font-bold">
+                Exclusive Capgemini Assessment Module
+              </p>
+            </div>
+
+            <div className="bg-zinc-900/80 border border-white/10 rounded-2xl p-5 text-left space-y-3 relative z-10">
+              <h4 className="text-xs font-extrabold text-amber-400 flex items-center gap-2 uppercase tracking-wider">
+                <span>⛔ Practice Arena Entry Blocked</span>
+              </h4>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                The <strong className="text-purple-300">AI-Assisted Socratic Coding Arena</strong> is disabled in general practice mode. It evaluates real-time architectural thinking, algorithmic debugging, and interactive Socratic dialogue.
+              </p>
+              <div className="p-3 bg-purple-950/40 border border-purple-500/30 rounded-xl text-[11px] text-purple-200 font-medium">
+                💡 <strong>Notice:</strong> This feature is unlocked <strong>EXCLUSIVELY</strong> during the <span className="text-amber-300 font-bold">Exclusive Capgemini Assessment Drive - Based on New Format</span> contest environment!
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 relative z-10">
+              <button
+                onClick={() => setShowCapgeminiRestrictedModal(false)}
+                className="flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 text-gray-300 font-bold text-xs rounded-xl border border-white/10 transition cursor-pointer"
+              >
+                ✖ Close Notice
+              </button>
+              <button
+                onClick={() => {
+                  setShowCapgeminiRestrictedModal(false);
+                  navigate('/contests');
+                }}
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-black text-xs rounded-xl shadow-lg shadow-purple-600/30 transition cursor-pointer"
+              >
+                🚀 Enter Capgemini Contest →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 overflow-y-auto bg-black text-white relative">

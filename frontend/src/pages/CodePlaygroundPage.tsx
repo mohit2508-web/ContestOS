@@ -1082,9 +1082,10 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
             const probPoints = res.submission?.score ?? res.pointsEarned ?? Math.round((totalPassed / Math.max(1, totalTests)) * maxProbPoints);
             sessionStorage.setItem(`score_${contestId}_${selectedProblem.id}`, String(probPoints));
             localStorage.setItem(`score_${contestId}_${selectedProblem.id}`, String(probPoints));
-            if (selectedProblem.contestProblemId) {
-              sessionStorage.setItem(`score_${contestId}_${selectedProblem.contestProblemId}`, String(probPoints));
-              localStorage.setItem(`score_${contestId}_${selectedProblem.contestProblemId}`, String(probPoints));
+            const cpId = (selectedProblem as any).contestProblemId || (selectedProblem as any).cpId;
+            if (cpId) {
+              sessionStorage.setItem(`score_${contestId}_${cpId}`, String(probPoints));
+              localStorage.setItem(`score_${contestId}_${cpId}`, String(probPoints));
             }
           }
 

@@ -218,6 +218,62 @@ export function AiAssistedPlaygroundPage({
   onBack,
   onSubmitted,
 }: AiAssistedPlaygroundPageProps) {
+  if (!isContestMode && !contest) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-black border border-purple-500/40 p-8 shadow-[0_0_50px_rgba(168,85,247,0.3)] text-white text-center space-y-6">
+          <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-cyan-500/20 border border-purple-400/40 text-purple-300 text-xs font-black uppercase tracking-widest shadow-lg">
+            <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+            <span>✨ CAPGEMINI EXCLUSIVE ASSESSMENT FEATURE</span>
+          </div>
+
+          <div className="space-y-3 relative z-10">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 p-0.5 shadow-xl shadow-purple-500/30 flex items-center justify-center">
+              <div className="w-full h-full bg-zinc-950 rounded-[22px] flex items-center justify-center text-4xl">
+                🔒
+              </div>
+            </div>
+            <h2 className="text-2xl font-black tracking-tight text-white">
+              AI-Assisted Coding Access Restricted
+            </h2>
+            <p className="text-xs text-purple-300/80 font-mono font-bold">
+              Exclusive Capgemini Assessment Module
+            </p>
+          </div>
+
+          <div className="bg-zinc-900/80 border border-white/10 rounded-2xl p-5 text-left space-y-3 relative z-10">
+            <h4 className="text-xs font-extrabold text-amber-400 flex items-center gap-2 uppercase tracking-wider">
+              <span>⛔ Practice Arena Entry Blocked</span>
+            </h4>
+            <p className="text-xs text-gray-300 leading-relaxed">
+              The <strong className="text-purple-300">AI-Assisted Socratic Coding Arena</strong> is disabled in general practice mode. It evaluates real-time architectural thinking, algorithmic debugging, and interactive Socratic dialogue.
+            </p>
+            <div className="p-3 bg-purple-950/40 border border-purple-500/30 rounded-xl text-[11px] text-purple-200 font-medium">
+              💡 <strong>Notice:</strong> This feature is unlocked <strong>EXCLUSIVELY</strong> during the <span className="text-amber-300 font-bold">Exclusive Capgemini Assessment Drive - Based on New Format</span> contest environment!
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-2 relative z-10">
+            <button
+              onClick={() => window.location.href = '/playground'}
+              className="flex-1 py-3 px-4 bg-white/5 hover:bg-white/10 text-gray-300 font-bold text-xs rounded-xl border border-white/10 transition cursor-pointer"
+            >
+              ← Back to Code Playground
+            </button>
+            <button
+              onClick={() => window.location.href = '/contests'}
+              className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white font-black text-xs rounded-xl shadow-lg shadow-purple-600/30 transition cursor-pointer"
+            >
+              🚀 Enter Capgemini Contest →
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const { user } = useAuth();
   const notify = useNotify();
   const [problemsList, setProblemsList] = useState<any[]>(SOCRATIC_FALLBACK_PROBLEMS);

@@ -332,6 +332,20 @@ export function ParticipantDashboard() {
 
   const filteredContests = contests.filter((c) => {
     if (search && !c.title.toLowerCase().includes(search.toLowerCase())) return false;
+
+    const titleLower = (c.title || '').toLowerCase();
+    // Exclude unwanted test / demo / draft / system testing contests
+    if (
+      titleLower.includes('demo') ||
+      titleLower.includes('mock drive') ||
+      titleLower.includes('cognizant test') ||
+      titleLower.includes('capegemini contest') ||
+      titleLower.includes('system testing') ||
+      titleLower.includes('exculsive capegemini')
+    ) {
+      return false;
+    }
+
     return true;
   });
 
