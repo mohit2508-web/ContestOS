@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 350" width="400" height="350">
+  <defs>
+    <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0070AD" />
+      <stop offset="50%" stop-color="#005A9c" />
+      <stop offset="100%" stop-color="#003B73" />
+    </linearGradient>
+  </defs>
+  <!-- Capgemini Spade Body -->
+  <path d="M 200,20 
+           C 110,90 40,150 40,215 
+           C 40,285 95,330 165,330 
+           C 190,330 215,320 238,304 
+           C 202,290 188,258 206,230 
+           C 224,202 268,195 304,223 
+           C 325,202 335,174 335,150 
+           C 335,115 290,65 200,20 Z" 
+        fill="url(#capGrad)" />
+  <!-- Internal Curved White Swoosh -->
+  <path d="M 135,324 
+           C 160,250 235,185 298,178 
+           C 255,170 176,230 135,324 Z" 
+        fill="#FFFFFF" />
+</svg>

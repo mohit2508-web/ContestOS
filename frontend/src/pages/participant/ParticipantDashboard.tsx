@@ -116,17 +116,118 @@ function ContestCard({
   const isRegistered = !!registration;
   const isCapgemini = contest.title.toLowerCase().includes('capgemini');
 
-  return (
-    <div className={`relative overflow-hidden rounded-2xl p-5 md:p-6 flex flex-col justify-between transition-all group shadow-xl ${
-      isCapgemini
-        ? 'bg-gradient-to-b from-zinc-950 via-zinc-900 to-black border-2 border-purple-500/60 hover:border-purple-400 shadow-[0_0_35px_rgba(168,85,247,0.3)]'
-        : 'bg-zinc-950 border border-white/10 hover:border-emerald-500/30'
-    }`}>
-      {isCapgemini && (
-        <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-l from-purple-600 to-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-bl-xl shadow-md">
-          ✨ CAPGEMINI EXCLUSIVE ASSESSMENT
+  if (isCapgemini) {
+    return (
+      <div className="md:col-span-2 relative overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-950 via-zinc-900 to-black border-2 border-purple-500/60 hover:border-purple-400 p-6 md:p-8 shadow-[0_0_50px_rgba(168,85,247,0.25)] transition-all duration-300 group">
+        {/* Ambient Glows */}
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-purple-600/25 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Large Capgemini Watermark Logo Background Accent */}
+        <div className="absolute -right-6 -bottom-6 opacity-15 pointer-events-none transform group-hover:scale-110 group-hover:opacity-25 transition-all duration-500">
+          <img src="/capgemini_logo.svg" alt="Capgemini Logo" className="w-64 h-64 md:w-80 md:h-80 object-contain filter drop-shadow-[0_0_30px_rgba(0,112,173,0.5)]" />
         </div>
-      )}
+
+        <div className="relative z-10 space-y-5">
+          {/* Top Header Badge & Logo */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 p-0.5 shadow-lg shadow-blue-500/30 flex items-center justify-center shrink-0">
+                <div className="w-full h-full bg-zinc-950 rounded-[14px] flex items-center justify-center p-2">
+                  <img src="/capgemini_logo.svg" alt="Capgemini Ace" className="w-full h-full object-contain" />
+                </div>
+              </div>
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-400/40 text-purple-300 text-[10px] font-black uppercase tracking-widest">
+                  <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
+                  <span>🔥 MEGA RECRUITMENT ASSESSMENT DRIVE</span>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <StatusBadge status={status} />
+                  <DifficultyBadge level={contest.difficulty} />
+                </div>
+              </div>
+            </div>
+
+            {contest.organization && (
+              <span className="text-xs text-amber-400 font-mono font-bold bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-xl">
+                {contest.organization.name}
+              </span>
+            )}
+          </div>
+
+          {/* Title & Description */}
+          <div className="space-y-1.5">
+            <h3 className="text-xl md:text-3xl font-black text-white group-hover:text-purple-300 transition-colors tracking-tight">
+              {contest.title}
+            </h3>
+            {contest.description && (
+              <p className="text-xs md:text-sm text-gray-300 max-w-3xl leading-relaxed">
+                {contest.description}
+              </p>
+            )}
+          </div>
+
+          {/* Module Badges */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="px-3 py-1 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-bold flex items-center gap-1.5">
+              <span>🤖 AI-Assisted Socratic</span>
+            </span>
+            <span className="px-3 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5">
+              <span>🐞 Algorithmic Debugging</span>
+            </span>
+            <span className="px-3 py-1 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-bold flex items-center gap-1.5">
+              <span>⚡ DSA Core Challenges</span>
+            </span>
+          </div>
+
+          {/* Bottom Stats & Actions */}
+          <div className="pt-3 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="grid grid-cols-3 gap-4 text-xs font-mono text-gray-300">
+              <div>
+                <span className="text-gray-500 block text-[9px] uppercase font-bold">Duration</span>
+                <span className="text-white font-bold text-sm">{contest.duration} mins</span>
+              </div>
+              <div>
+                <span className="text-gray-500 block text-[9px] uppercase font-bold">Problems</span>
+                <span className="text-white font-bold text-sm">{contest._count?.problems || 3}</span>
+              </div>
+              <div>
+                <span className="text-gray-500 block text-[9px] uppercase font-bold">Candidates</span>
+                <span className="text-white font-bold text-sm">{contest._count?.participants || 0}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 justify-between sm:justify-end">
+              <span className="text-xs text-amber-400 font-mono font-bold">
+                Starts: {new Date(contest.startTime).toLocaleDateString()}
+              </span>
+
+              {isRegistered ? (
+                <button
+                  onClick={() => onEnter(contest.id)}
+                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white text-xs font-black rounded-xl transition cursor-pointer shadow-lg shadow-purple-600/30"
+                >
+                  {status === 'live' ? 'Enter Exam ⚡' : 'View Details'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => onJoin(contest.id)}
+                  disabled={joining === contest.id || status === 'ended'}
+                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white text-xs font-black rounded-xl transition cursor-pointer shadow-lg shadow-purple-600/30 disabled:opacity-40"
+                >
+                  {joining === contest.id ? 'Registering...' : status === 'ended' ? 'Drive Ended' : 'Register 🎯'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-zinc-950 border border-white/10 rounded-2xl p-5 md:p-6 flex flex-col justify-between hover:border-emerald-500/30 transition-all group shadow-xl">
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
@@ -141,9 +242,7 @@ function ContestCard({
         </div>
 
         <div>
-          <h3 className={`text-lg font-extrabold transition-colors ${
-            isCapgemini ? 'text-purple-300 group-hover:text-purple-200 font-black' : 'text-white group-hover:text-emerald-400'
-          }`}>
+          <h3 className="text-lg font-extrabold text-white group-hover:text-emerald-400 transition-colors">
             {contest.title}
           </h3>
           {contest.description && (
