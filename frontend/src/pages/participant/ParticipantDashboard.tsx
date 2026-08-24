@@ -114,9 +114,19 @@ function ContestCard({
 }) {
   const status = getStatus(contest.startTime, contest.endTime);
   const isRegistered = !!registration;
+  const isCapgemini = contest.title.toLowerCase().includes('capgemini');
 
   return (
-    <div className="bg-zinc-950 border border-white/10 rounded-2xl p-5 md:p-6 flex flex-col justify-between hover:border-emerald-500/30 transition-all group shadow-xl">
+    <div className={`relative overflow-hidden rounded-2xl p-5 md:p-6 flex flex-col justify-between transition-all group shadow-xl ${
+      isCapgemini
+        ? 'bg-gradient-to-b from-zinc-950 via-zinc-900 to-black border-2 border-purple-500/60 hover:border-purple-400 shadow-[0_0_35px_rgba(168,85,247,0.3)]'
+        : 'bg-zinc-950 border border-white/10 hover:border-emerald-500/30'
+    }`}>
+      {isCapgemini && (
+        <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-l from-purple-600 to-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-bl-xl shadow-md">
+          ✨ CAPGEMINI EXCLUSIVE ASSESSMENT
+        </div>
+      )}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
@@ -131,7 +141,9 @@ function ContestCard({
         </div>
 
         <div>
-          <h3 className="text-lg font-extrabold text-white group-hover:text-emerald-400 transition-colors">
+          <h3 className={`text-lg font-extrabold transition-colors ${
+            isCapgemini ? 'text-purple-300 group-hover:text-purple-200 font-black' : 'text-white group-hover:text-emerald-400'
+          }`}>
             {contest.title}
           </h3>
           {contest.description && (
@@ -335,6 +347,12 @@ export function ParticipantDashboard() {
     if (search && !c.title.toLowerCase().includes(search.toLowerCase())) return false;
 
     const titleLower = (c.title || '').toLowerCase();
+
+    // Always allow official Capgemini Exclusive Mock Test
+    if (titleLower.includes('capgemini exclusive mock test')) {
+      return true;
+    }
+
     // Exclude unwanted test / demo / draft / system testing contests
     if (
       titleLower.includes('demo') ||

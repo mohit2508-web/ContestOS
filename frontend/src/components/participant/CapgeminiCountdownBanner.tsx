@@ -151,8 +151,8 @@ export function CapgeminiCountdownBanner({
             </div>
           </div>
 
-          {/* Title & Description */}
-          <div className="space-y-2">
+          {/* Title & Detailed Description */}
+          <div className="space-y-3">
             <h2 className="text-2xl md:text-4xl font-black tracking-tight text-white leading-tight">
               Capgemini Exclusive Mock Test{' '}
               <span className="bg-gradient-to-r from-purple-400 via-amber-400 to-cyan-300 bg-clip-text text-transparent">
@@ -160,8 +160,29 @@ export function CapgeminiCountdownBanner({
               </span>
             </h2>
             <p className="text-xs md:text-sm text-gray-300 max-w-3xl leading-relaxed">
-              An industry-aligned recruitment mock assessment designed to simulate real-world hiring evaluations and strengthen core technical problem-solving capabilities.
+              An industry-aligned recruitment mock assessment engineered to mirror official Capgemini campus hiring evaluations, testing real-world architectural thinking, algorithmic debugging, and coding precision.
             </p>
+
+            {/* Rich Detailed Student Information Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs">
+              <div className="bg-zinc-950/80 border border-purple-500/30 p-3.5 rounded-2xl space-y-1">
+                <span className="text-[10px] font-black text-purple-400 uppercase tracking-wider block font-mono">Module 1 · Socratic AI</span>
+                <p className="font-bold text-white text-xs">🤖 AI-Assisted Questioning</p>
+                <p className="text-[11px] text-gray-400 leading-snug">Interactive architectural dialogue & AI-driven design thinking evaluation.</p>
+              </div>
+
+              <div className="bg-zinc-950/80 border border-amber-500/30 p-3.5 rounded-2xl space-y-1">
+                <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider block font-mono">Module 2 · Code Repair</span>
+                <p className="font-bold text-white text-xs">🐞 Algorithmic Debugging</p>
+                <p className="text-[11px] text-gray-400 leading-snug">Locate, analyze, and repair hidden bugs and logic flaws in broken codebases.</p>
+              </div>
+
+              <div className="bg-zinc-950/80 border border-cyan-500/30 p-3.5 rounded-2xl space-y-1">
+                <span className="text-[10px] font-black text-cyan-400 uppercase tracking-wider block font-mono">Module 3 · DSA Core</span>
+                <p className="font-bold text-white text-xs">⚡ Data Structures & Algorithms</p>
+                <p className="text-[11px] text-gray-400 leading-snug">Solve core algorithmic problems evaluated across automated testcase suites.</p>
+              </div>
+            </div>
           </div>
 
           {/* Challenge Pillars Badges */}
