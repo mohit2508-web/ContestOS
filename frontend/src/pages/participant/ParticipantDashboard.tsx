@@ -98,6 +98,44 @@ function DifficultyBadge({ level }: { level: string }) {
     </span>
   );
 }
+function FormattedDescription({ text }: { text: string }) {
+  if (!text) return null;
+
+  // Extract clean lead paragraph before any emojis or headers
+  const cleanLeadText = text
+    .split(/📌|🛡️|TEST BREAKDOWN|PROCTORING|•/)[0]
+    .replace(/^🚀\s*/, '')
+    .trim();
+
+  const hasStructuredMarkers = text.includes('📌') || text.includes('🛡️') || text.includes('MODULES') || text.includes('PROCTORING');
+
+  if (!hasStructuredMarkers) {
+    return (
+      <p className="text-xs md:text-sm text-gray-300 leading-relaxed whitespace-pre-line">
+        {text}
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-2 text-xs md:text-sm text-gray-300 leading-relaxed">
+      <p className="text-gray-200 font-medium">
+        {cleanLeadText || 'Official Capgemini recruitment-style assessment engineered to evaluate industry readiness across core technical domains.'}
+      </p>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+        <div className="p-2.5 bg-purple-950/30 border border-purple-500/25 rounded-xl space-y-1">
+          <span className="text-[10px] font-black text-purple-400 uppercase tracking-wider block font-mono">🎯 Evaluation Pillars</span>
+          <p className="text-purple-200 text-[11px] leading-snug">🤖 AI Questioning • 🐞 Code Debugging • ⚡ DSA Algorithms</p>
+        </div>
+        <div className="p-2.5 bg-amber-950/30 border border-amber-500/25 rounded-xl space-y-1">
+          <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider block font-mono">🛡️ Security & Proctoring</span>
+          <p className="text-amber-200 text-[11px] leading-snug">Strict SEB Lockdown • AI Eye Tracking • Partial Credit Scoring</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ContestCard({
   contest,
@@ -162,9 +200,7 @@ function ContestCard({
               {contest.title}
             </h3>
             {contest.description && (
-              <p className="text-xs md:text-sm text-gray-300 max-w-3xl leading-relaxed">
-                {contest.description}
-              </p>
+              <FormattedDescription text={contest.description} />
             )}
           </div>
 
@@ -246,9 +282,7 @@ function ContestCard({
             {contest.title}
           </h3>
           {contest.description && (
-            <p className="text-xs text-gray-400 line-clamp-2 mt-1">
-              {contest.description}
-            </p>
+            <FormattedDescription text={contest.description} />
           )}
         </div>
 
