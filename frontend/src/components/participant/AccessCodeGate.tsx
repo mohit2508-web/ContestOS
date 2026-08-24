@@ -70,7 +70,7 @@ export function AccessCodeGate({
 
   const handleChange = (index: number, raw: string) => {
     if (status === 'checking' || status === 'locked' || status === 'success') return;
-    const value = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(-1);
+    const value = raw.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(-1);
     setDigits((prev) => {
       const next = [...prev];
       next[index] = value;
@@ -86,7 +86,7 @@ export function AccessCodeGate({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
     e.preventDefault();
-    const text = e.clipboardData.getData('text').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const text = e.clipboardData.getData('text').toUpperCase().replace(/[^A-Z0-9-]/g, '');
     if (!text) return;
     const next = Array(codeLength).fill('');
     for (let i = 0; i < Math.min(text.length, codeLength); i++) next[i] = text[i];

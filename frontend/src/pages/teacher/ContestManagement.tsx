@@ -1202,8 +1202,8 @@ export function ContestManagementPage() {
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. 4X9K7Q (leave blank for no code)"
-                    maxLength={10}
+                    placeholder="e.g. KRYPT-CAPG (leave blank for no code)"
+                    maxLength={25}
                     className="w-full bg-black border border-amber-500/30 rounded-lg px-4 py-2 text-sm text-amber-300 font-mono font-bold tracking-wider focus:border-amber-400 outline-none uppercase placeholder-zinc-600"
                     value={formData.accessCode}
                     onChange={e => setFormData({...formData, accessCode: e.target.value.toUpperCase()})}
