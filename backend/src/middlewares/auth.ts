@@ -26,7 +26,7 @@ declare global {
 
 export function generateAccessToken(payload: AuthPayload): string {
   if (!JWT_SECRET) throw new Error("JWT_SECRET not configured");
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 }
 
 export function generateRefreshToken(payload: { userId: string }): string {

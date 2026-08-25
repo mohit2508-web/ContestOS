@@ -49,20 +49,25 @@ apiAxios.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = localStorage.getItem('refreshToken') || localStorage.getItem('accessToken');
+      const isExamRoute = typeof window !== 'undefined' && window.location.pathname.includes('/contests');
+
       if (!refreshToken) {
         isRefreshing = false;
-        window.location.href = '/login';
+        if (!isExamRoute) {
+          window.location.href = '/login';
+        }
         return Promise.reject(error);
       }
 
       try {
         const { data } = await axios.post(`${API_BASE_URL}/api/auth/refresh`, { refreshToken });
         const newToken = data.accessToken;
-        const newRefreshToken = data.refreshToken;
+        const newRefreshToken = data.refreshToken || refreshToken;
 
         // Update memory token
         accessTokenMemorySetter(newToken);
+        localStorage.setItem('accessToken', newToken);
         localStorage.setItem('refreshToken', newRefreshToken);
 
         processQueue(null, newToken);
@@ -71,9 +76,11 @@ apiAxios.interceptors.response.use(
         return apiAxios(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        if (!isExamRoute) {
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

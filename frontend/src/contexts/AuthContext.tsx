@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback((accessToken: string, refreshToken: string, userData: User) => {
     accessTokenMemory = accessToken;
     localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('refreshToken', refreshToken || accessToken);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   }, []);
