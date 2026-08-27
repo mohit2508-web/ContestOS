@@ -24,7 +24,7 @@ router.get('/list', authenticateToken, async (req: Request, res: Response): Prom
           ],
         };
       } else {
-        // Staff member (PROCTOR, EVALUATOR, etc.): ONLY see assigned drives or drives created by them!
+        // Staff member (PROCTOR, EVALUATOR): ONLY see explicitly assigned drives or drives created by them!
         whereClause = {
           OR: [
             { assignments: { some: { userId } } },
