@@ -352,9 +352,7 @@ export type OrgRequestStatus = (typeof OrgRequestStatus)[keyof typeof OrgRequest
 export const SectionType: {
   QUIZ: 'QUIZ',
   CODING: 'CODING',
-  WEB_DEV: 'WEB_DEV',
-  VIBE_CODE: 'VIBE_CODE',
-  DEBUGGING: 'DEBUGGING'
+  WEB_DEV: 'WEB_DEV'
 };
 
 export type SectionType = (typeof SectionType)[keyof typeof SectionType]

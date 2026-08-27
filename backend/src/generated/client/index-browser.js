@@ -856,9 +856,7 @@ exports.OrgRequestStatus = exports.$Enums.OrgRequestStatus = {
 exports.SectionType = exports.$Enums.SectionType = {
   QUIZ: 'QUIZ',
   CODING: 'CODING',
-  WEB_DEV: 'WEB_DEV',
-  VIBE_CODE: 'VIBE_CODE',
-  DEBUGGING: 'DEBUGGING'
+  WEB_DEV: 'WEB_DEV'
 };
 
 exports.BankScope = exports.$Enums.BankScope = {
