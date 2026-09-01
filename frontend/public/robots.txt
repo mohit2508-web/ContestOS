@@ -4,4 +4,4 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /org-admin/
 
-Sitemap: https://kryptavia.com/sitemap.xml
+Sitemap: https://os.kryptavia.in/sitemap.xml
