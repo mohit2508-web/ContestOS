@@ -1139,25 +1139,6 @@ export function OverviewTab() {
         </div>
       )}
 
-      {/* ── Quiz & MCQ Round Launch Card ── */}
-      {effectivelyJoined && isLive && (
-        <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-lg shadow-cyan-500/10">
-          <div className="flex items-center gap-4">
-            <span className="text-3xl">🧠</span>
-            <div>
-              <p className="text-sm font-black text-cyan-300">Aptitude & Technical MCQ Quiz Round</p>
-              <p className="text-xs text-slate-400">Timed section with encrypted questions, scratchpad canvas, and server-synced timer.</p>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate(`/playground/quiz?contestId=${contest.id}`)}
-            className="px-5 py-2.5 bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-extrabold text-xs rounded-xl transition shrink-0 cursor-pointer shadow-lg shadow-cyan-500/20"
-          >
-            Start Quiz Round →
-          </button>
-        </div>
-      )}
-
       {/* ── Dev: SEB Simulation Mode Button (DEV-ONLY — hidden in production build) ── */}
       {import.meta.env.DEV && effectivelyJoined && isLive && contest.requireSeb && !isSebBrowser && (
         <div className="bg-zinc-900/30 border border-yellow-500/20 rounded-2xl p-4 flex items-center justify-between gap-4">
