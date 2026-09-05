@@ -47,7 +47,127 @@ export function ContestManagementPage() {
   
   // Modals state
   const [showCreate, setShowCreate] = useState(false);
+  const [editingContestId, setEditingContestId] = useState<string | null>(null);
   const [selectedContest, setSelectedContest] = useState<Contest | null>(null);
+
+  const formatDateTimeLocal = (dateStr?: string) => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const openCreateModal = () => {
+    setEditingContestId(null);
+    setProblemScores({});
+    setEnableSections(false);
+    setFormData({
+      title: '', 
+      description: '', 
+      accessCode: '',
+      startTime: '', 
+      endTime: '', 
+      duration: 120, 
+      difficulty: 'Medium',
+      isPublic: false, 
+      requireFullscreen: true, 
+      preventTabSwitch: true, 
+      disableCopyPaste: true, 
+      enableProctoring: false,
+      requireSeb: false,
+      allowMultipleMonitors: false,
+      pasteMode: 'LOG_ONLY',
+      faceCheckEnabled: false,
+      voiceCheckEnabled: false,
+      randomizeQuestionOrder: true,
+      snapshotIntervalSeconds: 45,
+      maxWarnings: 3,
+      problemIds: [],
+      scoringMode: 'PARTIAL',
+      negativeMarkingEnabled: false,
+      negativeMarkingValue: 0.25,
+      showLeaderboardDuringContest: true,
+      freezeLeaderboardMins: 0,
+    });
+    setShowCreate(true);
+  };
+
+  const openEditContest = async (contest: any) => {
+    setEditingContestId(contest.id);
+    let fullContest = contest;
+    try {
+      const res = await api.getManagerContest(contest.id);
+      if (res && res.contest) {
+        fullContest = res.contest;
+      }
+    } catch (e) {
+      console.warn('Could not fetch full manager contest details:', e);
+    }
+
+    let initialProblemIds: string[] = [];
+    let initialScores: Record<string, number> = {};
+    if (fullContest.problems && Array.isArray(fullContest.problems)) {
+      initialProblemIds = fullContest.problems.map((p: any) => p.problemId || p.problem?.id || p.id);
+      fullContest.problems.forEach((p: any) => {
+        const pId = p.problemId || p.problem?.id || p.id;
+        if (pId) {
+          initialScores[pId] = p.points || 100;
+        }
+      });
+    }
+
+    setProblemScores(initialScores);
+    if (fullContest.sections && Array.isArray(fullContest.sections) && fullContest.sections.length > 0) {
+      setEnableSections(true);
+      setSections(fullContest.sections);
+    } else {
+      setEnableSections(false);
+    }
+
+    setFormData({
+      title: fullContest.title || '',
+      description: fullContest.description || '',
+      accessCode: fullContest.accessCode || '',
+      startTime: formatDateTimeLocal(fullContest.startTime),
+      endTime: formatDateTimeLocal(fullContest.endTime),
+      duration: fullContest.duration || 120,
+      difficulty: fullContest.difficulty || 'Medium',
+      isPublic: fullContest.isPublic ?? false,
+      requireFullscreen: fullContest.requireFullscreen ?? true,
+      preventTabSwitch: fullContest.preventTabSwitch ?? true,
+      disableCopyPaste: fullContest.disableCopyPaste ?? true,
+      enableProctoring: fullContest.enableProctoring ?? false,
+      requireSeb: fullContest.requireSeb ?? false,
+      allowMultipleMonitors: fullContest.allowMultipleMonitors ?? false,
+      pasteMode: fullContest.pasteMode || 'LOG_ONLY',
+      faceCheckEnabled: fullContest.faceCheckEnabled ?? false,
+      voiceCheckEnabled: fullContest.voiceCheckEnabled ?? false,
+      randomizeQuestionOrder: fullContest.randomizeQuestionOrder ?? true,
+      snapshotIntervalSeconds: fullContest.snapshotIntervalSeconds || 45,
+      maxWarnings: fullContest.maxWarnings || 3,
+      problemIds: initialProblemIds,
+      scoringMode: fullContest.scoringMode || 'PARTIAL',
+      negativeMarkingEnabled: fullContest.negativeMarkingEnabled ?? false,
+      negativeMarkingValue: fullContest.negativeMarkingValue || 0.25,
+      showLeaderboardDuringContest: fullContest.showLeaderboardDuringContest ?? true,
+      freezeLeaderboardMins: fullContest.freezeLeaderboardMins || 0,
+    });
+    setShowCreate(true);
+  };
+
+  const handleDeleteContest = async (contestId: string, contestTitle: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete contest "${contestTitle}"? This cannot be undone.`)) {
+      return;
+    }
+    try {
+      await api.deleteManagerContest(contestId);
+      notify.toast.success('Contest deleted successfully');
+      loadContests();
+    } catch (err: any) {
+      notify.toast.error(err.response?.data?.error || 'Failed to delete contest');
+    }
+  };
   
   // Create form state
   const [formData, setFormData] = useState({
@@ -887,12 +1007,20 @@ export function ContestManagementPage() {
     e.preventDefault();
     setCreating(true);
     try {
-      await api.createManagerContest({
+      const payload = {
         ...formData,
         problemScores,
         sections: enableSections ? sections : [],
-      });
+      };
+      if (editingContestId) {
+        await api.updateManagerContest(editingContestId, payload);
+        notify.toast.success('Contest updated successfully!');
+      } else {
+        await api.createManagerContest(payload);
+        notify.toast.success('Contest created successfully!');
+      }
       setShowCreate(false);
+      setEditingContestId(null);
       loadContests();
       setProblemScores({});
       setEnableSections(false);
@@ -925,7 +1053,7 @@ export function ContestManagementPage() {
         freezeLeaderboardMins: 0,
       });
     } catch (err: any) {
-      notify.toast.error(err.response?.data?.error || 'Failed to create contest');
+      notify.toast.error(err.response?.data?.error || (editingContestId ? 'Failed to update contest' : 'Failed to create contest'));
     } finally {
       setCreating(false);
     }
@@ -1050,7 +1178,7 @@ export function ContestManagementPage() {
           <p className="text-gray-400 mt-1">Create and monitor secure exams and contests.</p>
         </div>
         <button 
-          onClick={() => setShowCreate(true)}
+          onClick={openCreateModal}
           className="px-5 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-black font-black rounded-xl shadow-lg shadow-emerald-500/20 transition-all transform active:scale-95 flex items-center gap-2"
         >
           <span>+</span> Create Contest
@@ -1064,7 +1192,7 @@ export function ContestManagementPage() {
       ) : contests.length === 0 ? (
         <EmptyState
           variant="contest"
-          onAction={() => setShowCreate(true)}
+          onAction={openCreateModal}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1114,12 +1242,27 @@ export function ContestManagementPage() {
                   {c.requireSeb && <span className="text-[10px] px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md font-bold">🔒 SEB</span>}
                 </div>
 
-                <button 
-                  onClick={() => openMonitor(c)}
-                  className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2"
-                >
-                  <span>📊</span> Monitor &amp; Manage
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => openEditContest(c)}
+                    className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold rounded-xl transition-all border border-white/10 flex items-center justify-center gap-1.5"
+                  >
+                    <span>✏️</span> Edit
+                  </button>
+                  <button 
+                    onClick={() => openMonitor(c)}
+                    className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-1.5"
+                  >
+                    <span>📊</span> Monitor
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteContest(c.id, c.title)}
+                    className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl transition-all border border-red-500/20 flex items-center justify-center"
+                    title="Delete Contest"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -1132,10 +1275,10 @@ export function ContestManagementPage() {
           <div className="bg-[var(--bg-card)] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-white/10 flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-bold">Create Contest</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Configure scoring, marks, security & proctoring in one place</p>
+                <h2 className="text-xl font-bold">{editingContestId ? 'Edit Contest' : 'Create Contest'}</h2>
+                <p className="text-xs text-gray-500 mt-0.5">{editingContestId ? 'Update scoring, security & contest details' : 'Configure scoring, marks, security & proctoring in one place'}</p>
               </div>
-              <button onClick={() => setShowCreate(false)} className="text-gray-500 hover:text-white p-1 rounded-lg hover:bg-white/10 transition">✕</button>
+              <button onClick={() => { setShowCreate(false); setEditingContestId(null); }} className="text-gray-500 hover:text-white p-1 rounded-lg hover:bg-white/10 transition">✕</button>
             </div>
             <form onSubmit={handleCreate} className="p-6 space-y-6">
               {/* ── Basic Info ── */}
@@ -1775,7 +1918,7 @@ export function ContestManagementPage() {
               </div>
 
               <button disabled={creating} type="submit" className="w-full py-3.5 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-black font-black text-base rounded-xl transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50">
-                {creating ? 'Creating...' : 'Create Secure Contest'}
+                {creating ? (editingContestId ? 'Updating...' : 'Creating...') : (editingContestId ? 'Save Changes' : 'Create Secure Contest')}
               </button>
             </form>
           </div>

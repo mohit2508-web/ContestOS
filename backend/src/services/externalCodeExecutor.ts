@@ -208,8 +208,8 @@ export class ExternalCodeExecutor {
       }
 
       if (run && (run.code !== 0 || (run.stderr && run.stderr.includes('chmod')))) {
-        const runErr = (compile && (compile.stderr || compile.output)) 
-          ? (compile.stderr || compile.output) 
+        const runErr = (compile && (compile.stderr || compile.output))
+          ? (compile.stderr || compile.output)
           : (run.stderr || run.output || `Exit code: ${run.code}`);
         return {
           success: false,
@@ -251,8 +251,8 @@ export class ExternalCodeExecutor {
           }
 
           if (run && (run.code !== 0 || (run.stderr && run.stderr.includes('chmod')))) {
-            const runErr = (compile && (compile.stderr || compile.output)) 
-              ? (compile.stderr || compile.output) 
+            const runErr = (compile && (compile.stderr || compile.output))
+              ? (compile.stderr || compile.output)
               : (run.stderr || run.output || `Exit code: ${run.code}`);
             return {
               success: false,
@@ -278,8 +278,8 @@ export class ExternalCodeExecutor {
         success: false,
         output: "",
         stderr: msg,
-        error: msg.includes("runtime is unknown") || error.response?.status === 400 
-          ? `Piston runtime unavailable: ${msg}` 
+        error: msg.includes("runtime is unknown") || error.response?.status === 400
+          ? `Piston runtime unavailable: ${msg}`
           : error.response?.status === 401 ? "Piston API Key Required" : "Piston API error",
         executionTime: Date.now() - startTime,
       };
@@ -318,7 +318,7 @@ export class ExternalCodeExecutor {
         memory_limit: request.memoryLimit || 128000,
         compile_timeout: Math.floor((request.timeLimit || 10000) / 1000),
         run_timeout: Math.floor((request.timeLimit || 5000) / 1000),
-      }, { 
+      }, {
         headers,
         params: { base64_encoded: false, wait: true }
       });
@@ -332,7 +332,7 @@ export class ExternalCodeExecutor {
         while (attempts < maxAttempts) {
           const statusResponse = await axios.get(`${JUDGE0_API_URL}/submissions/${token}`, { headers });
           result = statusResponse.data;
-          
+
           if (result.status && result.status.id > 2) {
             break;
           }
@@ -415,7 +415,7 @@ export class ExternalCodeExecutor {
       });
 
       const data = response.data;
-      
+
       if (data.error) {
         return {
           success: false,
@@ -445,9 +445,9 @@ export class ExternalCodeExecutor {
   }
 
   async runTestCases(
-    code: string, 
-    language: string, 
-    testCases: TestCase[], 
+    code: string,
+    language: string,
+    testCases: TestCase[],
     timeLimit?: number,
     onProgress?: (result: TestResult) => void
   ): Promise<{
@@ -519,7 +519,7 @@ export class ExternalCodeExecutor {
 
     for (let i = 0; i < testCases.length; i++) {
       const testCase = testCases[i];
-      
+
       const wrappedCode = wrapperGenerator.generateWrapper(
         code,
         language,

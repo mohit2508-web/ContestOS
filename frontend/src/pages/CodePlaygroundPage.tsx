@@ -64,10 +64,14 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
             snapshotIntervalSeconds: res.contest.snapshotIntervalSeconds ?? 45,
             maxWarnings: res.contest.maxWarnings ?? 3
           });
-          // Store the contest problems (only coding type for this playground)
+          // Store the contest problems (coding & debugging types for this playground)
           if (res.contest?.problems) {
             const codeProblems = res.contest.problems.filter((cp: any) =>
-              !cp.problem.problemType || cp.problem.problemType === 'code'
+              !cp.problem.problemType ||
+              cp.problem.problemType === 'code' ||
+              cp.problem.problemType === 'debugging' ||
+              cp.problem.problemType === 'vibe-code' ||
+              cp.problem.problemType === 'algorithm'
             );
             setContestProblems(codeProblems);
           }
@@ -360,7 +364,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
         if (cRes?.contest?.problems?.length > 0) {
           const contestProbs = cRes.contest.problems
             .map((cp: any) => ({ ...cp.problem, points: cp.points || 100 }))
-            .filter((p: any) => p && (!p.problemType || p.problemType === 'code' || p.problemType === 'algorithm'));
+            .filter((p: any) => p && (!p.problemType || p.problemType === 'code' || p.problemType === 'debugging' || p.problemType === 'vibe-code' || p.problemType === 'algorithm'));
           if (contestProbs.length > 0) {
             setProblems(contestProbs);
             setIsLoadingProblems(false);
@@ -375,7 +379,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
       const response = await api.get(`/problems?${params}`);
       const newProblems = (response.problems || []).filter((p: any) => {
         const pt = p.problemType?.toLowerCase() || 'code';
-        return pt === 'code' || pt === 'algorithm' || pt === 'algorithmic' || pt === '';
+        return pt === 'code' || pt === 'debugging' || pt === 'vibe-code' || pt === 'algorithm' || pt === 'algorithmic' || pt === '';
       });
       const total = response.total || 0;
       setTotalProblems(total);

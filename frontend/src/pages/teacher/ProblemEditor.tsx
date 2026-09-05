@@ -766,12 +766,23 @@ export function TeacherProblemEditorPage() {
   };
 
   const handleVerify = useCallback(async (overrideLang?: string) => {
-    const langToUse = (overrideLang || verifyLanguage || 'cpp') as 'cpp' | 'java' | 'python';
+    let langToUse = (overrideLang || refSolLang || verifyLanguage || 'java') as 'cpp' | 'java' | 'python';
+    
+    // Auto-select language that has code entered if current selection is empty
+    if (!overrideLang && (!referenceSolutions[langToUse] || !referenceSolutions[langToUse].trim())) {
+      const activeLang = (['java', 'cpp', 'python'] as const).find(l => referenceSolutions[l] && referenceSolutions[l].trim());
+      if (activeLang) langToUse = activeLang;
+    }
+
+    setVerifyLanguage(langToUse);
+    setRefSolLang(langToUse);
+
     const codeToTest = referenceSolutions[langToUse] || '';
 
     if (!codeToTest || !codeToTest.trim()) {
       notify.toast.error(`Please enter a Reference Solution for ${langToUse.toUpperCase()} in the ${langToUse.toUpperCase()} tab first.`);
       setVerifying(false);
+      setShowVerifyModal(true);
       return;
     }
     if (testCases.length === 0 || !testCases[0].input.trim()) {
@@ -802,7 +813,7 @@ export function TeacherProblemEditorPage() {
     } finally {
       setVerifying(false);
     }
-  }, [referenceSolution, testCases, verifyLanguage, driverCode, id]);
+  }, [referenceSolutions, testCases, verifyLanguage, refSolLang, driverCode, id]);
 
 
 
@@ -2081,8 +2092,7 @@ export function TeacherProblemEditorPage() {
                       setRefSolLang(newLang);
                       handleVerify(newLang);
                     }}
-                    disabled={verifying}
-                    className="px-3 py-1.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-[var(--accent-blue)]"
+                    className="px-3 py-1.5 bg-[var(--bg-primary)] border border-white/10 rounded-lg text-white font-mono text-sm focus:outline-none focus:border-[var(--accent-blue)] cursor-pointer"
                   >
                     {['cpp', 'java', 'python'].map(lang => (
                       <option key={lang} value={lang} className="bg-[#1a1a2e] text-white">{lang}</option>

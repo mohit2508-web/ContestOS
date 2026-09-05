@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middlewares/auth';
+import { requireRole } from '../middlewares/rbac';
 import crypto from 'crypto';
 
 const router = Router();
@@ -541,6 +542,40 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response): Promi
   } catch (error: any) {
     console.error('Update contest error:', error);
     res.status(500).json({ error: error.message || 'Failed to update contest' });
+  }
+});
+
+// DELETE /api/contests/manager/:id — Delete contest from database
+router.delete('/:id', authenticateToken, requireRole('super_admin', 'org_admin', 'org_member'), async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const user = req.user!;
+
+    const contest = await prisma.contest.findUnique({ where: { id } });
+    if (!contest) {
+      res.status(404).json({ error: 'Contest not found' });
+      return;
+    }
+
+    if (user.hierarchyLevel !== 1 && contest.createdById !== user.userId) {
+      if (contest.organizationId !== user.organizationId) {
+        res.status(403).json({ error: 'Permission denied: Cannot delete this contest' });
+        return;
+      }
+    }
+
+    await prisma.contestProblem.deleteMany({ where: { contestId: id } }).catch(() => {});
+    await prisma.contestRegistration.deleteMany({ where: { contestId: id } }).catch(() => {});
+    await prisma.submission.deleteMany({ where: { contestId: id } }).catch(() => {});
+    await prisma.proctoringLog.deleteMany({ where: { contestId: id } }).catch(() => {});
+    await prisma.contestAssignment.deleteMany({ where: { contestId: id } }).catch(() => {});
+    await prisma.contestSection.deleteMany({ where: { contestId: id } }).catch(() => {});
+
+    await prisma.contest.delete({ where: { id } });
+    res.json({ success: true, message: 'Contest deleted successfully' });
+  } catch (error: any) {
+    console.error('Delete contest error:', error);
+    res.status(500).json({ error: 'Failed to delete contest' });
   }
 });
 

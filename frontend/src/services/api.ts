@@ -266,6 +266,7 @@ export const api = {
   },
   createManagerContest: (data: any) => apiAxios.post('/contests/manager/create', data).then((res) => res.data),
   updateManagerContest: (id: string, data: any) => apiAxios.put(`/contests/manager/${id}`, data).then((res) => res.data),
+  deleteManagerContest: (id: string) => apiAxios.delete(`/contests/manager/${id}`).then((res) => res.data),
   verifyAccessCode: (id: string, accessCode: string) =>
     apiAxios.post(`/contests/manager/${id}/verify-access-code`, { accessCode }).then((res) => res.data),
 

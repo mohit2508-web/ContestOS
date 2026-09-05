@@ -106,9 +106,11 @@ router.get('/', optionalAuth, async (req: Request, res: Response): Promise<void>
       } else if (t === 'web' || t === 'web-dev' || t === 'web_dev') {
         problemTypeFilter = { problemType: { in: ['web', 'web-dev'] } };
       } else if (t === 'code') {
-        problemTypeFilter = { problemType: { in: ['code', 'algorithm', 'algorithmic', 'vibe-code'] } };
+        problemTypeFilter = { problemType: { in: ['code', 'algorithm', 'algorithmic', 'vibe-code', 'debugging'] } };
       } else if (t === 'vibe-code' || t === 'vibe' || t === 'socratic') {
         problemTypeFilter = { problemType: { in: ['vibe-code', 'vibe', 'socratic'] } };
+      } else if (t === 'debugging' || t === 'bug-fix') {
+        problemTypeFilter = { problemType: { in: ['debugging', 'bug-fix'] } };
       }
     }
 
