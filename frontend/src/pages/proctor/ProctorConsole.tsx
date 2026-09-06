@@ -403,6 +403,7 @@ export const ProctorConsolePage: React.FC = () => {
   }, []);
 
   // Socket.IO live video stream listener
+  // FIX: When in ALL_COMBINED mode, join each individual contest room (not 'ALL_COMBINED' which never receives frames)
   useEffect(() => {
     const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
     const socket = io(`${BACKEND_URL}/quiz-timer`, {
@@ -410,7 +411,14 @@ export const ProctorConsolePage: React.FC = () => {
     });
 
     socket.on('connect', () => {
-      socket.emit('proctor:join_room', { contestId: selectedContestId });
+      if (selectedContestId === 'ALL_COMBINED') {
+        // Join ALL individual assigned contest rooms so we receive frames from all concurrent drives
+        assignedContests.forEach((c) => {
+          if (c.id) socket.emit('proctor:join_room', { contestId: c.id });
+        });
+      } else {
+        socket.emit('proctor:join_room', { contestId: selectedContestId });
+      }
     });
 
     socket.on('proctor:candidate_frame', (data: { userId: string; frameBase64: string }) => {
@@ -430,7 +438,7 @@ export const ProctorConsolePage: React.FC = () => {
       setLiveScreenFrames(prev => ({ ...prev, [data.userId]: src }));
     });
 
-    // Listen for candidate ping heartbeats
+    // Listen for candidate ping heartbeats — records real socket presence
     socket.on('proctor:candidate_ping', (data: { userId: string; contestId: string; latencyMs?: number; lastHeartbeat?: number }) => {
       setPingTelemetry(prev => ({
         ...prev,
@@ -441,12 +449,12 @@ export const ProctorConsolePage: React.FC = () => {
       }));
     });
 
-    // FIX #3: Listen for real-time SEB entry events
+    // Listen for real-time SEB entry events
     socket.on('proctor:seb_entry', (data: { userId: string; contestId: string }) => {
       setSebEntryCounts(prev => ({ ...prev, [data.userId]: (prev[data.userId] || 0) + 1 }));
     });
 
-    // FIX #8: Listen for candidate status changes (resume/disqualify) → instant cache invalidation
+    // Listen for candidate status changes (resume/disqualify) → instant cache invalidation
     socket.on('proctor:candidate_status_change', (data: { userId: string; contestId: string; newStatus: string }) => {
       console.log(`[ProctorConsole] Status change: ${data.userId} → ${data.newStatus}`);
       queryClient.invalidateQueries({ queryKey: ['proctorLogs'] });
@@ -456,7 +464,8 @@ export const ProctorConsolePage: React.FC = () => {
     return () => {
       socket.disconnect();
     };
-  }, [selectedContestId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedContestId, assignedContests.map(c => c.id).join(',')]);
 
   const reportSha256Hash = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
 
@@ -564,11 +573,11 @@ export const ProctorConsolePage: React.FC = () => {
     if (candidateFilter === 'PAUSED') return c.status === 'PAUSED';
     if (candidateFilter === 'ESCALATED') return c.status === 'ESCALATED_TO_ADMIN';
     if (candidateFilter === 'DISCONNECTED') {
+      // FIX: Offline = no live frame AND no socket ping within 30s — do NOT use isCandidateActiveInExam
       const hasFrame = Boolean(liveFrames[c.userId] || liveScreenFrames[c.userId]);
       const pingData = pingTelemetry[c.userId];
       const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
-      const isCandidateActiveInExam = c.status !== 'COMPLETED' && c.status !== 'DISQUALIFIED';
-      const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 60000) || isCandidateActiveInExam;
+      const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 30000);
       return !isOnline;
     }
     return true;
@@ -890,9 +899,10 @@ export const ProctorConsolePage: React.FC = () => {
                 className={`px-2.5 py-1 rounded-lg font-bold text-[11px] ${candidateFilter === 'DISCONNECTED' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-zinc-400 hover:text-white'}`}
               >
                 Offline Feed ({contestFilteredCandidates.filter((c) => {
-                  const hasFrame = liveFrames[c.userId] || liveScreenFrames[c.userId];
+                  const hasFrame = Boolean(liveFrames[c.userId] || liveScreenFrames[c.userId]);
                   const pingData = pingTelemetry[c.userId];
-                  return !hasFrame && (!pingData || Date.now() - pingData.lastPing > 15000);
+                  const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
+                  return !hasFrame && (timeSincePing === null || timeSincePing > 30000);
                 }).length})
               </button>
             </div>
@@ -976,9 +986,9 @@ export const ProctorConsolePage: React.FC = () => {
               const hasFrame = hasLiveWebcam || hasLiveScreen;
               const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
 
-              // Candidate is online if socket frame exists, or socket ping within 60s, or candidate is actively taking exam
-              const isCandidateActiveInExam = cand.status !== 'COMPLETED' && cand.status !== 'DISQUALIFIED';
-              const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 60000) || isCandidateActiveInExam;
+              // FIX: Online ONLY if real socket signal exists: frame received OR ping within 30s.
+              // Removed isCandidateActiveInExam which caused every ACTIVE candidate to always show as ONLINE.
+              const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 30000);
               const isOffline = !isOnline;
               const isHighPing = pingData && pingData.latency > 250;
               const hasFallbackPhoto = Boolean((cand as any).registrationPhoto || (cand as any).user?.registrationPhoto);
@@ -1044,13 +1054,13 @@ export const ProctorConsolePage: React.FC = () => {
                             />
                           )}
 
-                          {/* Fallback Ambient Grid View if no photo/frame yet */}
+                          {/* Fallback Ambient Grid View if no photo/frame yet — webcam connecting */}
                           {!hasFrame && !hasFallbackPhoto && (
                             <div className="w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-black to-zinc-950 flex flex-col items-center justify-center p-3 text-center space-y-1">
-                              <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                              <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
                               </div>
-                              <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest">Active Invigilation</span>
+                              <span className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-widest">Awaiting Feed…</span>
                             </div>
                           )}
 
