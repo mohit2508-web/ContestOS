@@ -567,8 +567,7 @@ export const ProctorConsolePage: React.FC = () => {
       const hasFrame = Boolean(liveFrames[c.userId] || liveScreenFrames[c.userId]);
       const pingData = pingTelemetry[c.userId];
       const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
-      const isCandidateActive = c.status === 'ACTIVE' || c.status === 'PAUSED' || c.status === 'FLAGGED' || (c.integrityScore !== undefined && c.integrityScore > 0);
-      const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 45000) || isCandidateActive;
+      const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 30000);
       return !isOnline;
     }
     return true;
@@ -976,9 +975,8 @@ export const ProctorConsolePage: React.FC = () => {
               const hasFrame = hasLiveWebcam || hasLiveScreen;
               const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
 
-              // Candidate is online if socket frame exists, or ping within 45s, or active candidate session status
-              const isCandidateActive = cand.status === 'ACTIVE' || cand.status === 'PAUSED' || cand.status === 'FLAGGED' || (cand.integrityScore !== undefined && cand.integrityScore > 0);
-              const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 45000) || isCandidateActive;
+              // Candidate is online ONLY IF active live socket frame is streaming OR socket ping received within last 30s
+              const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 30000);
               const isOffline = !isOnline;
               const isHighPing = pingData && pingData.latency > 250;
               const hasFallbackPhoto = Boolean((cand as any).registrationPhoto || (cand as any).user?.registrationPhoto);
