@@ -30,7 +30,7 @@ interface CandidateFeed {
   email: string;
   contestId: string;
   contestTitle: string;
-  status: 'ACTIVE' | 'FLAGGED' | 'PAUSED' | 'ESCALATED_TO_ADMIN' | 'COMPLETED';
+  status: 'ACTIVE' | 'FLAGGED' | 'PAUSED' | 'ESCALATED_TO_ADMIN' | 'COMPLETED' | 'DISQUALIFIED';
   warnings: number;
   maxWarnings: number;
   tabSwitchCount: number;
@@ -567,7 +567,8 @@ export const ProctorConsolePage: React.FC = () => {
       const hasFrame = Boolean(liveFrames[c.userId] || liveScreenFrames[c.userId]);
       const pingData = pingTelemetry[c.userId];
       const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
-      const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 30000);
+      const isCandidateActiveInExam = c.status !== 'COMPLETED' && c.status !== 'DISQUALIFIED';
+      const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 60000) || isCandidateActiveInExam;
       return !isOnline;
     }
     return true;
@@ -975,8 +976,9 @@ export const ProctorConsolePage: React.FC = () => {
               const hasFrame = hasLiveWebcam || hasLiveScreen;
               const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
 
-              // Candidate is online ONLY IF active live socket frame is streaming OR socket ping received within last 30s
-              const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 30000);
+              // Candidate is online if socket frame exists, or socket ping within 60s, or candidate is actively taking exam
+              const isCandidateActiveInExam = cand.status !== 'COMPLETED' && cand.status !== 'DISQUALIFIED';
+              const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 60000) || isCandidateActiveInExam;
               const isOffline = !isOnline;
               const isHighPing = pingData && pingData.latency > 250;
               const hasFallbackPhoto = Boolean((cand as any).registrationPhoto || (cand as any).user?.registrationPhoto);
