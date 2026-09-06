@@ -564,10 +564,12 @@ export const ProctorConsolePage: React.FC = () => {
     if (candidateFilter === 'PAUSED') return c.status === 'PAUSED';
     if (candidateFilter === 'ESCALATED') return c.status === 'ESCALATED_TO_ADMIN';
     if (candidateFilter === 'DISCONNECTED') {
-      const hasFrame = liveFrames[c.userId] || liveScreenFrames[c.userId];
+      const hasFrame = Boolean(liveFrames[c.userId] || liveScreenFrames[c.userId]);
       const pingData = pingTelemetry[c.userId];
-      const isOffline = !hasFrame && (!pingData || Date.now() - pingData.lastPing > 15000);
-      return isOffline;
+      const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
+      const isCandidateActive = c.status === 'ACTIVE' || c.status === 'PAUSED' || c.status === 'FLAGGED' || (c.integrityScore !== undefined && c.integrityScore > 0);
+      const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 45000) || isCandidateActive;
+      return !isOnline;
     }
     return true;
   });
@@ -969,10 +971,18 @@ export const ProctorConsolePage: React.FC = () => {
               const isOpen = expandedCards[cand.userId] ?? (isCritical || isPaused);
 
               const pingData = pingTelemetry[cand.userId];
-              const hasFrame = liveFrames[cand.userId] || liveScreenFrames[cand.userId];
-              const timeSincePing = pingData ? Date.now() - pingData.lastPing : Infinity;
-              const isOffline = !hasFrame && timeSincePing > 15000;
+              const hasLiveWebcam = Boolean(liveFrames[cand.userId]);
+              const hasLiveScreen = Boolean(liveScreenFrames[cand.userId]);
+              const hasFrame = hasLiveWebcam || hasLiveScreen;
+              const timeSincePing = pingData ? Date.now() - pingData.lastPing : null;
+
+              // Candidate is online if socket frame exists, or ping within 45s, or active candidate session status
+              const isCandidateActive = cand.status === 'ACTIVE' || cand.status === 'PAUSED' || cand.status === 'FLAGGED' || (cand.integrityScore !== undefined && cand.integrityScore > 0);
+              const isOnline = hasFrame || (timeSincePing !== null && timeSincePing <= 45000) || isCandidateActive;
+              const isOffline = !isOnline;
               const isHighPing = pingData && pingData.latency > 250;
+              const hasFallbackPhoto = Boolean((cand as any).registrationPhoto || (cand as any).user?.registrationPhoto);
+              const fallbackPhotoUrl = (cand as any).registrationPhoto || (cand as any).user?.registrationPhoto || null;
 
               // SVG Circle parameters for 32px ring
               const ringSize = 32;
@@ -1006,7 +1016,7 @@ export const ProctorConsolePage: React.FC = () => {
                         isOffline ? 'bg-[repeating-linear-gradient(135deg,#121318,#121318_7px,#1a1c22_7px,#1a1c22_14px)] flex items-center justify-center' : 'bg-[#090a0d]'
                       }`}
                     >
-                      {!isOffline && (
+                      {isOnline && (
                         <>
                           {/* Radial Vignette & Color Grade Overlays */}
                           <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(circle_at_32%_28%,rgba(255,255,255,0.06),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(255,255,255,0.04),transparent_50%)]" />
@@ -1025,10 +1035,29 @@ export const ProctorConsolePage: React.FC = () => {
                             className={`w-full h-full object-contain group-hover/cam:scale-105 transition-transform duration-300 ${feedViewMode[cand.userId] === 'screen' && liveScreenFrames[cand.userId] ? 'block' : 'hidden'}`}
                           />
 
-                          {/* Top Left Live Tag */}
-                          <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/65 backdrop-blur-md border border-white/10 text-[9px] font-bold text-zinc-300 font-mono tracking-wider">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(57,196,149,0.8)]" />
-                            <span>LIVE</span>
+                          {/* Fallback Snapshot Photo Image if live WebSocket frame is connecting */}
+                          {!hasFrame && hasFallbackPhoto && fallbackPhotoUrl && (
+                            <img
+                              src={fallbackPhotoUrl}
+                              alt={`${cand.name} baseline snapshot`}
+                              className="w-full h-full object-cover group-hover/cam:scale-105 transition-transform duration-300 opacity-90 filter brightness-95 contrast-105"
+                            />
+                          )}
+
+                          {/* Fallback Ambient Grid View if no photo/frame yet */}
+                          {!hasFrame && !hasFallbackPhoto && (
+                            <div className="w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900 via-black to-zinc-950 flex flex-col items-center justify-center p-3 text-center space-y-1">
+                              <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                              </div>
+                              <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-widest">Active Invigilation</span>
+                            </div>
+                          )}
+
+                          {/* Top Left Live / Monitored Status Tag */}
+                          <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[9px] font-bold text-zinc-200 font-mono tracking-wider">
+                            <span className={`w-1.5 h-1.5 rounded-full ${hasFrame ? 'bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(57,196,149,0.8)]' : 'bg-amber-400 animate-pulse'}`} />
+                            <span>{hasFrame ? 'LIVE' : hasFallbackPhoto ? 'SNAPSHOT' : 'ONLINE'}</span>
                           </div>
                         </>
                       )}
@@ -1039,7 +1068,7 @@ export const ProctorConsolePage: React.FC = () => {
                           <svg className="w-3.5 h-3.5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                           </svg>
-                          <span>Camera Offline</span>
+                          <span>Session Inactive</span>
                         </div>
                       )}
 

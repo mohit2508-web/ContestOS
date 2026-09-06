@@ -85,6 +85,10 @@ export function useProctorSocket({
     socket.on('connect', () => {
       setState((s) => ({ ...s, connected: true }));
 
+      // Immediately notify backend of candidate presence
+      socket.emit('candidate:join', { contestId, userId });
+      socket.emit('candidate:ping', { contestId, userId, latencyMs: 20 });
+
       // Join the timer session room
       if (sectionId && durationMinutes > 0) {
         socket.emit('timer:join', { contestId, sectionId, userId, durationMinutes });

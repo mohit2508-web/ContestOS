@@ -115,17 +115,22 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
       // Webcam frame at 4fps
       if (now - lastCamSend > CAM_INTERVAL) {
         const v = videoRef.current || sysVideoRef.current;
-        if (v && v.readyState >= 2 && camCtx) {
-          try {
-            const t0 = performance.now();
-            camCtx.drawImage(v, 0, 0, 160, 120);
-            const elapsed = performance.now() - t0;
-            // Adaptive quality: drop to 0.15 if encode took > 30ms
-            const quality = elapsed > 30 ? 0.15 : 0.22;
-            const frameBase64 = camCanvas.toDataURL('image/jpeg', quality);
-            sendWebcamFrame(frameBase64);
-            lastCamSend = now;
-          } catch {}
+        if (v && camCtx) {
+          if (v.paused || v.ended) {
+            v.play().catch(() => {});
+          }
+          if (v.readyState >= 2 || (v.videoWidth && v.videoWidth > 0)) {
+            try {
+              const t0 = performance.now();
+              camCtx.drawImage(v, 0, 0, 160, 120);
+              const elapsed = performance.now() - t0;
+              // Adaptive quality: drop to 0.15 if encode took > 30ms
+              const quality = elapsed > 30 ? 0.15 : 0.22;
+              const frameBase64 = camCanvas.toDataURL('image/jpeg', quality);
+              sendWebcamFrame(frameBase64);
+              lastCamSend = now;
+            } catch {}
+          }
         }
       }
 
@@ -388,6 +393,7 @@ export function SecureContestWrapper({ contestId, flags, children }: Props) {
       setProctoringStream(webcamStream);
       if (videoRef.current) {
         videoRef.current.srcObject = webcamStream;
+        videoRef.current.play().catch(console.error);
       }
 
       // 2. Get screen share stream — FIX #2: SEB-aware screen capture

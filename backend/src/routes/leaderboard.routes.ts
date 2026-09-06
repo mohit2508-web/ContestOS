@@ -343,21 +343,24 @@ router.get('/contest/:contestId', async (req: Request, res: Response): Promise<v
 
         const isTerminated = p.status === 'DISQUALIFIED' || warningCount >= maxWarnings;
 
-        return {
-          rank: index + 1,
-          userId: p.userId,
-          user: {
-            id: p.user ? p.user.id : p.userId,
-            fullName: p.user && p.user.name ? p.user.name : (p.user && p.user.email ? p.user.email.split('@')[0] : 'Candidate Candidate'),
-            email: p.user && p.user.email ? p.user.email : 'candidate@kryptavia.org',
-          },
-          score: p.score || 0,
-          penalty: p.penalty || 0,
-          solvedCount: Math.floor((p.score || 0) / 100),
-          warnings: warningCount,
-          isTerminated,
-          status: isTerminated ? 'DISQUALIFIED' : p.status || 'REGISTERED',
-        };
+          return {
+            rank: index + 1,
+            userId: p.userId,
+            registrationPhoto: (p as any).registrationPhoto || null,
+            user: {
+              id: p.user ? p.user.id : p.userId,
+              fullName: p.user && p.user.name ? p.user.name : (p.user && p.user.email ? p.user.email.split('@')[0] : 'Candidate Candidate'),
+              email: p.user && p.user.email ? p.user.email : 'candidate@kryptavia.org',
+              registrationPhoto: (p as any).registrationPhoto || null,
+            },
+            score: p.score || 0,
+            penalty: p.penalty || 0,
+            solvedCount: Math.floor((p.score || 0) / 100),
+            warnings: warningCount,
+            isTerminated,
+            status: isTerminated ? 'DISQUALIFIED' : p.status || 'REGISTERED',
+            updatedAt: (p as any).updatedAt || new Date().toISOString(),
+          };
       })
     );
 
