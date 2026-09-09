@@ -1,31 +1,28 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const TOUR_KEY = 'kryptavia_dashboard_tour_v2';
+const TOUR_KEY = 'kryptavia_dashboard_tour_v3';
 
 interface TourStep {
   targetId: string;
   title: string;
   description: string;
   position: 'top' | 'bottom' | 'left' | 'right';
-  arrowSide: 'top' | 'bottom' | 'left' | 'right';
 }
 
 const STEPS: TourStep[] = [
   {
     targetId: 'tour-drives-section',
-    title: 'Active Assessment Drives',
+    title: 'Active Drives & Exam Registration',
     description:
-      'All scheduled and live exams assigned to your profile appear here. Click "Enter Assessment" when a drive window is active.',
+      'All live and upcoming exam drives appear here. Click "Register 🎯" to enroll in an assessment, or "Enter Exam ⚡" when your test window is live. You can also join private drives using "🎟️ Join by Secret Code".',
     position: 'bottom',
-    arrowSide: 'top',
   },
   {
     targetId: 'tour-scorecards-tab',
-    title: 'Performance & Scorecards',
+    title: 'View Performance & Scorecards',
     description:
-      'Access your evaluation reports, rankings, sectionwise analysis, and proctoring logs anytime from this tab.',
+      'Access your evaluation reports, rankings, sectionwise analysis, and proctoring logs anytime from this tab in the sidebar.',
     position: 'bottom',
-    arrowSide: 'top',
   },
 ];
 
@@ -41,8 +38,8 @@ function getElementRect(id: string): SpotlightRect | null {
   if (!el) return null;
   const rect = el.getBoundingClientRect();
   return {
-    top: rect.top + window.scrollY,
-    left: rect.left + window.scrollX,
+    top: rect.top,
+    left: rect.left,
     width: rect.width,
     height: rect.height,
   };
@@ -60,24 +57,19 @@ function getTooltipPosition(
   tooltipHeight: number
 ): TooltipPos {
   const pad = 14;
-  switch (position) {
-    case 'bottom':
-      return {
-        top: rect.top + rect.height + pad,
-        left: Math.max(16, Math.min(rect.left + rect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - 16)),
-      };
-    case 'top':
-      return {
-        top: rect.top - tooltipHeight - pad,
-        left: Math.max(16, Math.min(rect.left + rect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - 16)),
-      };
-    case 'right':
-      return { top: rect.top + rect.height / 2 - tooltipHeight / 2, left: rect.left + rect.width + pad };
-    case 'left':
-      return { top: rect.top + rect.height / 2 - tooltipHeight / 2, left: rect.left - tooltipWidth - pad };
-    default:
-      return { top: rect.top + rect.height + pad, left: rect.left };
+  let top = rect.top + rect.height + pad;
+  let left = Math.max(16, Math.min(rect.left + rect.width / 2 - tooltipWidth / 2, window.innerWidth - tooltipWidth - 16));
+
+  // If bottom placement overflows viewport height, flip to top position above element
+  if (top + tooltipHeight > window.innerHeight - 16) {
+    top = rect.top - tooltipHeight - pad;
   }
+
+  // Strict viewport boundaries to guarantee tooltip is never clipped
+  top = Math.max(16, Math.min(top, window.innerHeight - tooltipHeight - 16));
+  left = Math.max(16, Math.min(left, window.innerWidth - tooltipWidth - 16));
+
+  return { top, left };
 }
 
 export function DashboardTour() {
@@ -99,7 +91,7 @@ export function DashboardTour() {
     localStorage.setItem(TOUR_KEY, 'completed');
   }, []);
 
-  // On mount — trigger for first-time visitors
+  // Trigger for first-time visitors
   useEffect(() => {
     const seen = localStorage.getItem(TOUR_KEY);
     if (!seen) {
@@ -111,7 +103,7 @@ export function DashboardTour() {
     }
   }, []);
 
-  // Keyboard controls
+  // Keyboard navigation
   useEffect(() => {
     if (!active) return;
     const handler = (e: KeyboardEvent) => {
@@ -123,7 +115,7 @@ export function DashboardTour() {
     return () => window.removeEventListener('keydown', handler);
   }, [active, step]);
 
-  // Spotlight position updates
+  // Position calculation and scroll centering
   useEffect(() => {
     if (!active || step < 0) return;
 
@@ -147,16 +139,22 @@ export function DashboardTour() {
       const th = tooltipRef.current?.offsetHeight || 160;
       const pos = getTooltipPosition(paddedRect, currentStep.position, tw, th);
       setTooltipPos(pos);
+    };
 
+    // Scroll element into view smoothly on step change
+    const currentStep = STEPS[step];
+    if (currentStep) {
       const el = document.getElementById(currentStep.targetId);
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    };
+    }
 
     update();
     rafRef.current = window.requestAnimationFrame(update);
     window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
     return () => {
       window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
       window.cancelAnimationFrame(rafRef.current);
     };
   }, [active, step]);
@@ -183,38 +181,35 @@ export function DashboardTour() {
             transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease',
           }}
         >
-          {/* Header Badge */}
           <div className="flex items-center justify-between">
             <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span>Platform Overview</span>
+              <span>Candidate Portal Guide</span>
             </div>
             <button
               onClick={closeTour}
-              className="text-zinc-500 hover:text-zinc-300 text-xs transition p-1"
+              className="text-zinc-500 hover:text-zinc-300 text-xs transition p-1 cursor-pointer"
               aria-label="Close"
             >
               ✕
             </button>
           </div>
 
-          {/* Title & Description */}
           <div className="space-y-2">
             <h2 className="text-lg font-bold text-white tracking-tight">
-              Welcome to Candidate Portal
+              Welcome to Kryptavia OS
             </h2>
             <p className="text-zinc-400 text-xs leading-relaxed">
-              Take a 2-step quick tour to understand where to access live drives and view your evaluation scorecards.
+              Take a quick 2-step tour to learn how to register for live assessment drives and access your performance scorecards.
             </p>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-2 pt-1">
             <button
               onClick={startTour}
               className="flex-1 py-2.5 px-4 bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs rounded-xl transition cursor-pointer shadow-sm text-center"
             >
-              Take Tour
+              Take Quick Tour
             </button>
             <button
               onClick={closeTour}
@@ -234,7 +229,7 @@ export function DashboardTour() {
   // ─── SPOTLIGHT & TOOLTIP CARD (steps 0, 1) ──────────────────────────────────
   return (
     <>
-      {/* Dark Backdrop with Cutout */}
+      {/* Dark Backdrop with Spotlight Cutout */}
       <div
         className="fixed inset-0 z-[9990] pointer-events-none transition-opacity duration-300"
         style={{ opacity: visible ? 1 : 0 }}
@@ -261,10 +256,9 @@ export function DashboardTour() {
             <rect
               width="100%"
               height="100%"
-              fill="rgba(9, 9, 11, 0.75)"
+              fill="rgba(9, 9, 11, 0.78)"
               mask="url(#tour-spotlight-mask)"
             />
-            {/* Subtle cutout outline */}
             <rect
               x={spotlightRect.left - 1}
               y={spotlightRect.top - 1}
@@ -272,7 +266,7 @@ export function DashboardTour() {
               height={spotlightRect.height + 2}
               rx="13"
               fill="none"
-              stroke="rgba(255, 255, 255, 0.2)"
+              stroke="rgba(255, 255, 255, 0.25)"
               strokeWidth="1.5"
             />
           </svg>
@@ -281,44 +275,40 @@ export function DashboardTour() {
 
       <div className="fixed inset-0 z-[9991]" style={{ pointerEvents: 'none' }} />
 
-      {/* Tooltip Card */}
+      {/* Viewport-guaranteed Tooltip Card */}
       {spotlightRect && (
         <div
           ref={tooltipRef}
-          className="fixed z-[9999] w-80 transition-all duration-200"
+          className="fixed z-[9999] w-80 transition-all duration-150"
           style={{
             top: tooltipPos.top,
             left: tooltipPos.left,
             opacity: visible ? 1 : 0,
-            transform: visible ? 'translateY(0)' : 'translateY(4px)',
           }}
         >
-          <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 shadow-xl space-y-3">
-            {/* Header & Step counter */}
+          <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 shadow-2xl space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-mono font-medium text-zinc-400">
-                {step + 1} of {STEPS.length}
+              <span className="text-[11px] font-mono font-medium text-emerald-400">
+                Step {step + 1} of {STEPS.length}
               </span>
               <button
                 onClick={closeTour}
-                className="text-zinc-500 hover:text-zinc-300 text-xs transition"
+                className="text-zinc-500 hover:text-zinc-300 text-xs transition cursor-pointer"
               >
                 Skip
               </button>
             </div>
 
-            {/* Content */}
-            <div className="space-y-1">
-              <h3 className="font-semibold text-white text-xs">
+            <div className="space-y-1.5">
+              <h3 className="font-bold text-white text-xs">
                 {currentStep.title}
               </h3>
-              <p className="text-zinc-400 text-[11px] leading-relaxed">
+              <p className="text-zinc-300 text-[11px] leading-relaxed">
                 {currentStep.description}
               </p>
             </div>
 
-            {/* Navigation Footer */}
-            <div className="flex items-center justify-between pt-1 border-t border-zinc-900">
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-900">
               {step > 0 ? (
                 <button
                   onClick={goPrev}
@@ -331,9 +321,9 @@ export function DashboardTour() {
               )}
               <button
                 onClick={goNext}
-                className="px-3 py-1.5 bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-semibold rounded-lg transition shadow-sm cursor-pointer ml-auto"
+                className="px-3.5 py-1.5 bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold rounded-lg transition shadow-sm cursor-pointer ml-auto"
               >
-                {isLast ? 'Done' : 'Next'}
+                {isLast ? 'Got it! ✓' : 'Next →'}
               </button>
             </div>
           </div>
