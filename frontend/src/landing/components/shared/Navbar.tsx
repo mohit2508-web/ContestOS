@@ -31,15 +31,15 @@ export default function Navbar({ page, onNavigate }: Props) {
         borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : '1px solid transparent',
       }}
     >
-      {/* 🚀 Top Capgemini Assessment Announcement Bar */}
+      {/* 🚀 Top Active Assessment Announcement Bar */}
       <div className="bg-gradient-to-r from-purple-950 via-indigo-950 to-zinc-950 border-b border-purple-500/30 text-white text-[11px] font-medium py-1.5 px-4 text-center flex items-center justify-center gap-2 flex-wrap shadow-lg">
-        <span className="inline-flex items-center gap-1.5 font-extrabold text-amber-400 font-mono">
-          <span className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />
-          🚀 Capgemini Exclusive Mock Test — 25 August 2026
+        <span className="inline-flex items-center gap-1.5 font-extrabold text-emerald-400 font-mono">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          🔴 LIVE NOW — Capgemini Assessment (New Format Based)
         </span>
-        <span className="text-purple-200 hidden sm:inline">• AI Questioning, Debugging & DSA</span>
+        <span className="text-purple-200 hidden sm:inline">• AI Socratic, Debugging & DSA Core</span>
         <Link to="/contests" className="underline font-black text-cyan-300 hover:text-white transition ml-1">
-          Register Now →
+          Enter Exam →
         </Link>
       </div>
 
