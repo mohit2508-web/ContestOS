@@ -30,7 +30,7 @@ export const VibeAssistantPanel: React.FC<VibeAssistantPanelProps> = ({
   problemId = 'default',
   contestId = 'default'
 }) => {
-  const storageKey = `kryptavia_ai_tokens_${contestId}_${problemId}`;
+  const storageKey = `kryptavia_ai_tokens_v2_${contestId}_${problemId}`;
 
   const sessionId = `capgemini_sess_${problemId}`;
 
@@ -44,36 +44,26 @@ export const VibeAssistantPanel: React.FC<VibeAssistantPanelProps> = ({
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Per-Question 2,000 AI Token Credit Tracking
-  const [tokensUsed, setTokensUsed] = useState<number>(() => {
-    const saved = localStorage.getItem(storageKey);
-    return saved ? parseInt(saved, 10) : 0;
-  });
+  // Per-Session AI Token Credit Tracking — 2,000 tokens per student per session
+  const [tokensUsed, setTokensUsed] = useState<number>(0);
   const tokenBudget = 2000;
   const remainingCredits = Math.max(0, tokenBudget - tokensUsed);
 
-  // Sync token budget & session state on load / problemId change
+  // Reset tokens to 0 on every fresh load (new session per page load)
   useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-    const initialUsed = saved ? parseInt(saved, 10) : 0;
-    setTokensUsed(initialUsed);
-
+    setTokensUsed(0);
+    localStorage.removeItem(storageKey);
+    // Init session on backend — ignore token sync from old sessions
     apiAxios.post('/assistant/session/init', {
       sessionId,
       userId: 'candidate_1',
       problemId
-    }).then(res => {
-      if (res.data?.session?.tokensUsed !== undefined) {
-        const syncedUsed = Math.max(initialUsed, res.data.session.tokensUsed);
-        setTokensUsed(syncedUsed);
-        localStorage.setItem(storageKey, syncedUsed.toString());
-      }
     }).catch(() => {});
-  }, [problemId, contestId, sessionId, storageKey]);
+  }, [problemId, contestId]);
 
-  // Persist token usage on change
+  // Persist token usage in session (light tracking only)
   useEffect(() => {
-    localStorage.setItem(storageKey, tokensUsed.toString());
+    if (tokensUsed > 0) localStorage.setItem(storageKey, tokensUsed.toString());
   }, [tokensUsed, storageKey]);
   const chatEndRef = useRef<HTMLDivElement>(null);
 

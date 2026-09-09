@@ -91,7 +91,7 @@ export async function getOrCreateSession(
     creditsUsed: 0,
     creditBudget: 200,   // Per-session turn budget (each candidate gets 200 AI turns)
     tokensUsed: 0,
-    tokenBudget: 20000, // Per-session token budget
+    tokenBudget: 2000,  // Per-student token budget (2000 tokens per session)
     transcript: [],
     createdAt: new Date().toISOString(),
     welcomeSent: false,
