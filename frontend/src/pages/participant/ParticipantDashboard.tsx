@@ -6,6 +6,7 @@ import { useNotify } from '../../components/notifications';
 import { CandidateSkillCockpit } from '../../components/participant/CandidateSkillCockpit';
 import { DiagnosticPreflightModal } from '../../components/participant/DiagnosticPreflightModal';
 import { AccessCodeGate } from '../../components/participant/AccessCodeGate';
+import { DashboardTour } from '../../components/onboarding/DashboardTour';
 
 
 interface Contest {
@@ -499,6 +500,7 @@ export function ParticipantDashboard() {
 
   return (
     <div className="min-h-screen bg-black text-white p-4 md:p-8">
+      <DashboardTour />
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Organizer Alert Banner if non-student visits candidate portal */}
         {user && user.role !== 'STUDENT' && (
@@ -602,7 +604,7 @@ export function ParticipantDashboard() {
             </div>
 
             {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div id="tour-drives-section" className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {[1, 2].map((i) => (
                   <div key={i} className="h-48 bg-zinc-900/40 border border-white/5 rounded-2xl animate-pulse" />
                 ))}
@@ -620,7 +622,7 @@ export function ParticipantDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div id="tour-drives-section" className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {filteredContests.map((c) => {
                   const reg = registrations.find((r) => r.contestId === c.id);
                   return (

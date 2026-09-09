@@ -352,6 +352,7 @@ export function Sidebar({ children }: { children: ReactNode }) {
                     <NavLink
                       key={item.path}
                       to={item.path}
+                      id={item.path === '/dashboard?tab=scorecards' ? 'tour-scorecards-tab' : undefined}
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
                         active
