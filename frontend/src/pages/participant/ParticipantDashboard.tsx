@@ -153,7 +153,7 @@ function ContestCard({
 }) {
   const status = getStatus(contest.startTime, contest.endTime);
   const isRegistered = !!registration;
-  const isCapgemini = contest.title.toLowerCase().includes('capgemini');
+  const isCapgemini = contest.title.toLowerCase().includes('capgemini') && status !== 'ended';
 
   if (isCapgemini) {
     return (
@@ -250,10 +250,10 @@ function ContestCard({
               ) : (
                 <button
                   onClick={() => onJoin(contest.id)}
-                  disabled={joining === contest.id || status === 'ended'}
+                  disabled={joining === contest.id}
                   className="px-6 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white text-xs font-black rounded-xl transition cursor-pointer shadow-lg shadow-purple-600/30 disabled:opacity-40"
                 >
-                  {joining === contest.id ? 'Registering...' : status === 'ended' ? 'Drive Ended' : 'Register 🎯'}
+                  {joining === contest.id ? 'Registering...' : 'Register 🎯'}
                 </button>
               )}
             </div>
@@ -498,6 +498,9 @@ export function ParticipantDashboard() {
     return true;
   });
 
+  const activeContests = filteredContests.filter((c) => getStatus(c.startTime, c.endTime) !== 'ended');
+  const endedContests = filteredContests.filter((c) => getStatus(c.startTime, c.endTime) === 'ended');
+
   return (
     <div className="min-h-screen bg-black text-white p-4 md:p-8">
       <DashboardTour />
@@ -609,21 +612,21 @@ export function ParticipantDashboard() {
                   <div key={i} className="h-48 bg-zinc-900/40 border border-white/5 rounded-2xl animate-pulse" />
                 ))}
               </div>
-            ) : filteredContests.length === 0 ? (
-              <div className="bg-zinc-950 border border-white/10 rounded-2xl p-12 text-center space-y-3">
+            ) : activeContests.length === 0 ? (
+              <div id="tour-drives-section" className="bg-zinc-950 border border-white/10 rounded-2xl p-12 text-center space-y-3">
                 <span className="text-4xl block">🏆</span>
-                <h3 className="text-base font-bold text-white">No active exam drives scheduled right now</h3>
-                <p className="text-xs text-gray-400">Join a private exam drive using a Secret Code or check back later.</p>
+                <h3 className="text-base font-bold text-white">No live or upcoming exam drives scheduled right now</h3>
+                <p className="text-xs text-gray-400">Join a private exam drive using a Secret Code or check your scorecards for past exams.</p>
                 <button
                   onClick={() => setShowCodeModal(true)}
-                  className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-500/20 transition"
+                  className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl hover:bg-emerald-500/20 transition cursor-pointer"
                 >
                   🎟️ Enter Secret Code
                 </button>
               </div>
             ) : (
               <div id="tour-drives-section" className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {filteredContests.map((c) => {
+                {activeContests.map((c) => {
                   const reg = registrations.find((r) => r.contestId === c.id);
                   return (
                     <ContestCard
@@ -636,6 +639,32 @@ export function ParticipantDashboard() {
                     />
                   );
                 })}
+              </div>
+            )}
+
+            {/* Completed / Past Drives Section */}
+            {!loading && endedContests.length > 0 && (
+              <div className="space-y-4 pt-4 border-t border-white/10">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-bold text-gray-400 text-xs flex items-center gap-2">
+                    <span>📁</span> Completed & Past Drives ({endedContests.length})
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 opacity-75 hover:opacity-100 transition">
+                  {endedContests.map((c) => {
+                    const reg = registrations.find((r) => r.contestId === c.id);
+                    return (
+                      <ContestCard
+                        key={c.id}
+                        contest={c}
+                        registration={reg}
+                        onJoin={handleJoin}
+                        onEnter={handleEnter}
+                        joining={joiningId}
+                      />
+                    );
+                  })}
+                </div>
               </div>
             )}
 
