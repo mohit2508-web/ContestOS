@@ -1117,7 +1117,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
         } else {
           // Use standard browser fetch for SSE streaming
           const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken') || '';
-          const rawApiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
+          const rawApiUrl = (import.meta as any).env?.VITE_API_URL || '/api';
           const apiUrl = rawApiUrl.replace(/\/api$/, '');
 
           // Generate dummy pending results to show immediately
@@ -1250,7 +1250,7 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
     // If not a registered database problem, run custom testcases on the generic executor
     try {
       const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken') || '';
-      const rawApiUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
+      const rawApiUrl = (import.meta as any).env?.VITE_API_URL || '/api';
       const apiUrl = rawApiUrl.replace(/\/api$/, '');
 
       const totalTests = validTestCases.length;

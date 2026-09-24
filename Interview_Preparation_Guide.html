@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kryptavia OS - Interview Preparation Guide</title>
+<style>
+@page{size:A4;margin:18mm}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;line-height:1.6;color:#1a1a2e;background:#fff;font-size:10.5pt}
+.cover{page-break-after:always;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:90vh;text-align:center;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;padding:40px}
+.cover h1{font-size:40px;margin-bottom:8px;letter-spacing:2px}
+.cover h2{font-size:20px;font-weight:300;color:#a8a3d8;margin-bottom:25px}
+.cover .sub{font-size:14px;color:#c4c0e8;margin-bottom:40px}
+.cover .meta{font-size:12px;color:#8884b8}
+h1{font-size:22px;color:#302b63;margin:25px 0 12px;border-bottom:2px solid #302b63;padding-bottom:6px;page-break-after:avoid}
+h2{font-size:18px;color:#24243e;margin:20px 0 8px;page-break-after:avoid}
+h3{font-size:14px;color:#302b63;margin:14px 0 6px;page-break-after:avoid}
+p{margin:6px 0;text-align:justify}
+.page{page-break-before:always}
+.nobreak{page-break-inside:avoid}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:10pt}
+th{background:#302b63;color:#fff;padding:6px 8px;text-align:left;font-size:9.5pt}
+td{padding:5px 8px;border-bottom:1px solid #ddd;vertical-align:top}
+tr:nth-child(even){background:#f5f5ff}
+.box{border-left:4px solid #302b63;background:#f0f0ff;padding:10px 14px;margin:10px 0;border-radius:0 5px 5px 0}
+.warn{border-left-color:#ffc107;background:#fff3cd}
+.ok{border-left-color:#28a745;background:#d4edda}
+.qa{background:#fafafe;border:1px solid #e0e0f0;border-radius:6px;padding:12px 14px;margin:8px 0;page-break-inside:avoid}
+.qa .q{font-weight:bold;color:#302b63;margin-bottom:6px}
+.diff{display:inline-block;padding:1px 7px;border-radius:8px;font-size:8.5pt;font-weight:bold;margin-bottom:4px}
+.de{background:#d4edda;color:#155724}.dm{background:#fff3cd;color:#856404}.dh{background:#f8d7da;color:#721c24}
+ul,ol{margin:6px 0 6px 18px}
+li{margin:3px 0}
+code{background:#f0f0f5;padding:1px 5px;border-radius:3px;font-family:'Courier New',monospace;font-size:9.5pt;color:#c7254e}
+pre{background:#1a1a2e;color:#a8e6cf;padding:12px;border-radius:5px;overflow-x:auto;font-size:9pt;margin:8px 0;page-break-inside:avoid}
+pre code{background:none;color:inherit;padding:0}
+.tip{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:12px 16px;border-radius:6px;margin:8px 0;page-break-inside:avoid}
+.script{background:#1a1a2e;color:#e0e0e0;padding:14px;border-radius:6px;margin:8px 0;font-size:10pt;line-height:1.7;page-break-inside:avoid}
+.script .hl{color:#a8e6cf}.script .em{color:#ffd700;font-weight:bold}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.stat{background:#f0f0ff;padding:10px;border-radius:5px;text-align:center;border:1px solid #ddd}
+.stat .n{font-size:22px;font-weight:bold;color:#302b63}
+.stat .l{font-size:8.5pt;color:#666}
+</style>
+</head>
+<body>
+
+<div class="cover">
+<h1>KRYPTAVIA OS</h1>
+<h2>Complete Interview Preparation Guide</h2>
+<div class="sub">Project Analysis | Interview Questions | Preparation Strategy | Self-Introduction Scripts</div>
+<div class="meta">Version 1.0 | September 2026<br>React + Node.js + TypeScript + Prisma + CockroachDB + Redis</div>
+</div>
+
+<!-- ==================== PART A ==================== -->
+<h1>PART A: PROJECT OVERVIEW</h1>
+
+<h2>1. Project Summary</h2>
+<p><b>Kryptavia OS</b> is a full-stack, enterprise-grade B2B online contest and assessment platform built for universities, colleges, and companies. It replaces 5-6 separate tools (coding platform, quiz engine, proctoring software, interview scheduler, placement prep portal) with one unified SaaS product.</p>
+
+<div class="stats">
+<div class="stat"><div class="n">94</div><div class="l">Git Commits</div></div>
+<div class="stat"><div class="n">38</div><div class="l">DB Models</div></div>
+<div class="stat"><div class="n">29</div><div class="l">API Routes</div></div>
+<div class="stat"><div class="n">50+</div><div class="l">Components</div></div>
+<div class="stat"><div class="n">40+</div><div class="l">Pages</div></div>
+<div class="stat"><div class="n">20+</div><div class="l">Services</div></div>
+<div class="stat"><div class="n">12</div><div class="l">User Roles</div></div>
+<div class="stat"><div class="n">7</div><div class="l">Code Languages</div></div>
+</div>
+
+<h2>2. Complete Tech Stack</h2>
+<table>
+<tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+<tr><td rowspan="8">Backend</td><td>Node.js (ES2022)</td><td>Runtime</td></tr>
+<tr><td>Express + TypeScript</td><td>HTTP framework</td></tr>
+<tr><td>Prisma ORM v5.20</td><td>Database access (38 models)</td></tr>
+<tr><td>CockroachDB</td><td>Distributed SQL database</td></tr>
+<tr><td>Redis (ioredis)</td><td>Caching, leaderboard, rate limiting</td></tr>
+<tr><td>Socket.IO v4.8</td><td>Real-time WebSocket</td></tr>
+<tr><td>bcryptjs + JWT</td><td>Auth (12 rounds, 7d/30d tokens)</td></tr>
+<tr><td>Piston / Judge0</td><td>Multi-language code execution</td></tr>
+<tr><td rowspan="6">Frontend</td><td>React 18 + Vite</td><td>UI framework + build tool</td></tr>
+<tr><td>TypeScript + TailwindCSS</td><td>Language + dark theme styling</td></tr>
+<tr><td>Monaco Editor</td><td>VS Code-like code editor</td></tr>
+<tr><td>@tanstack/react-query</td><td>Server state management</td></tr>
+<tr><td>framer-motion</td><td>Animations</td></tr>
+<tr><td>IndexedDB API</td><td>Offline answer storage</td></tr>
+<tr><td rowspan="3">Deploy</td><td>Vercel</td><td>Frontend (SPA rewrite, 1yr cache)</td></tr>
+<tr><td>Render</td><td>Backend API (anti-sleep pinger)</td></tr>
+<tr><td>CockroachDB + Upstash</td><td>Serverless DB + Redis</td></tr>
+</table>
+
+<h2>3. Architecture Overview</h2>
+<pre><code>Clients: React SPA | Landing Page | SEB Locked Browser
+    |
+Express API Server (Port 5000)
+  Middleware: CORS -> JSON -> Auth -> RBAC -> Rate Limit -> Routes
+  29 Route Modules | 20+ Services | Socket.IO (2 namespaces)
+    |
+CockroachDB (38 models) | Redis (cache/leaderboard) | External APIs (Piston/Judge0)</code></pre>
+
+<h2>4. Database Schema (38 Models, 14 Enums)</h2>
+<table>
+<tr><th>Category</th><th>Models</th></tr>
+<tr><td>Core Platform</td><td>Organization, User, Problem, TestCase, Contest, ContestProblem, ContestRegistration, Submission</td></tr>
+<tr><td>Quiz System</td><td>ContestSection, QuestionBank, QuizQuestion, QuizPassage, QuizOption, QuizResponse, QuizItemAnalytics, QuestionReviewLog, ContestAssemblyRule</td></tr>
+<tr><td>Interview</td><td>MockInterviewSession, InterviewParticipant, InterviewFeedback, InterviewCodeSnapshot, InterviewHintRequest</td></tr>
+<tr><td>AI Assistant</td><td>AssistantSession, CapturedAnswer, AssistantTranscript, AssistantStageEvent, AssistantCodeSnapshot</td></tr>
+<tr><td>Company Vaults</td><td>CompanyVault, CompanyMaterial, CompanyInterviewTranscript, CompanyAccessLog</td></tr>
+<tr><td>Compliance</td><td>AuditLog, RefreshToken, GdprErasureRequest, BreakGlassAuditLog, Notification, OrganizationRequest</td></tr>
+</table>
+
+<h2>5. Authentication & 12-Role RBAC</h2>
+<p><b>JWT Flow:</b> Login -> bcrypt (12 rounds) -> Access Token (7d) + Refresh Token (30d) -> Queue-based refresh on 401</p>
+<table>
+<tr><th>Level</th><th>Role</th><th>Scope</th></tr>
+<tr><td>1</td><td>SUPER_ADMIN</td><td>Full platform + break-glass</td></tr>
+<tr><td>2</td><td>PLATFORM_CONTENT_AUTHOR</td><td>Platform-wide content</td></tr>
+<tr><td>3</td><td>ORG_ADMIN</td><td>Organization management</td></tr>
+<tr><td>4</td><td>PROCTOR</td><td>Live exam monitoring</td></tr>
+<tr><td>5</td><td>ORG_MEMBER</td><td>Teacher/faculty</td></tr>
+<tr><td>6</td><td>EVALUATOR</td><td>Manual grading</td></tr>
+<tr><td>7</td><td>STUDENT/CANDIDATE</td><td>Contest participation</td></tr>
+<tr><td>--</td><td>ANALYTICS_VIEWER, MODERATOR, COMPLIANCE_OFFICER, GUEST, CONTENT_AUTHOR</td><td>Specialized access</td></tr>
+</table>
+
+<h2>6. Key Features (34 Total)</h2>
+<table>
+<tr><th>#</th><th>Feature</th><th>Description</th></tr>
+<tr><td>1</td><td>Code Execution Engine</td><td>7 languages, Piston->Judge0->Local fallback, 4 scoring modes</td></tr>
+<tr><td>2</td><td>SEB Integration</td><td>Apple plist .seb config, blocks AI tools, auto-login</td></tr>
+<tr><td>3</td><td>Anti-Cheat (10 layers)</td><td>Tab detection, fullscreen, webcam, copy-paste, sync-cheat</td></tr>
+<tr><td>4</td><td>Live Leaderboard</td><td>Redis-backed, Socket.IO real-time updates</td></tr>
+<tr><td>5</td><td>Multi-Tenant SaaS</td><td>Per-org branding, SAML 2.0 SSO, subscription tiers</td></tr>
+<tr><td>6</td><td>Multi-Section Contests</td><td>QUIZ + CODING + WEB_DEV sections per contest</td></tr>
+<tr><td>7</td><td>Quiz System</td><td>7 question types, IRT analytics, passage-based, governance</td></tr>
+<tr><td>8</td><td>Socratic AI Assistant</td><td>6-stage guided coding, gate logic, 2000-token budget</td></tr>
+<tr><td>9</td><td>Mock Interviews</td><td>5-phase, Yjs collaborative IDE, 5-dimension rubric</td></tr>
+<tr><td>10</td><td>Company Vaults</td><td>Password-protected prep portals (Capgemini configured)</td></tr>
+<tr><td>11</td><td>5 Playgrounds</td><td>Code, SQL (WASM), Web Dev, Quiz, AI-Assisted</td></tr>
+<tr><td>12</td><td>GDPR Compliance</td><td>Article 15/17, SOC2 audit logs, PII erasure</td></tr>
+<tr><td>13</td><td>Offline Support</td><td>IndexedDB storage, sync on reconnect, exam continuity</td></tr>
+<tr><td>14</td><td>Resilience</td><td>Redis graceful degradation, DB retry, heartbeat, anti-sleep</td></tr>
+</table>
+
+<!-- ==================== PART B ==================== -->
+<div class="page"></div>
+<h1>PART B: INTERVIEW QUESTIONS & ANSWERS (100+ Questions)</h1>
+
+<h2>7. General / HR Questions</h2>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q1: Tell me about this project.</div>
+<p><b>A:</b> "Kryptavia OS is an enterprise-grade B2B assessment platform I built solo — a single unified platform replacing 5-6 separate tools for colleges and companies. It features real-time code execution for 7 languages, 10-layer exam proctoring, a Socratic AI coding assistant, mock interviews with collaborative IDE, and multi-tenant SaaS architecture. Built with React, TypeScript, Node.js, Prisma, CockroachDB, and Redis across 94 commits with 38 database models, 29 API routes, and 50+ frontend components."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q2: What motivated you to build this?</div>
+<p><b>A:</b> "During campus placements I saw how fragmented the tooling was — separate platforms for coding tests, quizzes, proctoring, and interviews. I wanted one unified platform covering the entire assessment lifecycle. This also let me work with advanced concepts like real-time systems, code execution engines, and exam security."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q3: What was the most challenging part?</div>
+<p><b>A:</b> "Two things: (1) The 10-layer anti-cheat stack — getting tab detection, fullscreen enforcement, webcam snapshots, and sync-cheat detection (same IP + identical answers within 500ms via in-memory sliding window) all working simultaneously without degrading exam experience. (2) The Socratic AI assistant — implementing 6-stage gate logic that rejects shallow answers while staying within a 2000-token budget."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q4: What would you do differently?</div>
+<p><b>A:</b> "(1) Add E2E tests from day one — retrofitting tests for 29 route modules is painful. (2) Use BullMQ instead of in-memory workers for quiz autosave — current approach loses data on restart. (3) Implement WebSocket connection pooling earlier for 100+ concurrent proctor connections."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q5: How long did this take?</div>
+<p><b>A:</b> "The core platform was built in approximately 5 days (August 24-29, 2026) with 94 commits. This was possible because I had a clear architecture plan upfront and leveraged existing libraries strategically."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q6: How did you manage scope as a solo developer?</div>
+<p><b>A:</b> "Priority matrix: Must-have (code execution, auth, contests), Should-have (proctoring, leaderboard, quiz), Nice-to-have (AI assistant, interviews, vaults). Built vertical slices — complete features from DB to UI — rather than horizontal layers. This allowed demoing working features early and iterating."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q7: How did you handle working with so many technologies?</div>
+<p><b>A:</b> "Each technology was chosen for a specific problem: CockroachDB for ACID transactions on contest scoring, Redis for O(log N) leaderboard ranking, Socket.IO for room-based WebSocket management, Prisma for type-safe database queries. I didn't choose trendy tools — I chose the right tool for each problem."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q8: What testing approach did you use?</div>
+<p><b>A:</b> "Unit tests for services (quiz evaluator, plagiarism detector), integration tests for API endpoints, end-to-end simulation tests (test_socratic_simulation.ts tests AI flow across 7 turns), and a TESTING_DEPLOYMENT_GUIDE.md with a 10-risk deployment matrix."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q9: What is the business value?</div>
+<p><b>A:</b> "Eliminates 5-6 separate SaaS subscriptions for colleges. Unified data enables cross-assessment analytics. Multi-tenant architecture means one deployment serves multiple organizations. Compliance with GDPR/SOC2 for enterprise clients like Capgemini."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q10: How do you handle production failures?</div>
+<p><b>A:</b> "5 resilience layers: (1) Prisma withDbRetry for CockroachDB P1001/P1002 errors. (2) Redis falls back to in-memory. (3) Code execution triple-fallback: Piston->Judge0->Local. (4) 2-minute DB heartbeat. (5) Anti-sleep self-pinger every 10 minutes."</p></div>
+
+<div class="page"></div>
+<h2>8. Technical Architecture Questions</h2>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q11: Walk me through the architecture.</div>
+<p><b>A:</b> "3-tier: <b>Presentation:</b> React SPA with 60+ routes, role-based guards, react-query for server state, Socket.IO for real-time. <b>Application:</b> Express with 29 route modules, middleware pipeline (CORS->Auth->RBAC->RateLimit), 20+ services. <b>Data:</b> CockroachDB (38 Prisma models), Redis (leaderboard/cache), external APIs (Piston/Judge0 for code execution)."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q12: Why TypeScript?</div>
+<p><b>A:</b> "With 38 DB models and 29 route modules, type safety catches bugs at compile time — wrong Prisma field names, missing required fields, incorrect middleware signatures. Prisma's generated client provides full type inference. The codebase becomes self-documenting."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q13: Why CockroachDB over MongoDB or PostgreSQL?</div>
+<p><b>A:</b> "PostgreSQL-compatible SQL with distributed capabilities: (1) ACID transactions for contest scoring. (2) Horizontal scaling for growing orgs. (3) Serverless pricing. (4) Prisma works out of the box. MongoDB rejected because the data is highly relational — contests->sections->questions->options->responses need JOINs."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q14: How does the real-time system work at scale?</div>
+<p><b>A:</b> "Socket.IO with Redis adapter. Flow: Submission evaluated -> Score to CockroachDB -> Score to Redis sorted set -> Socket.IO emits to contest room -> All clients receive update. Redis pub/sub enables multi-instance broadcasting. WebSocket binary frames for webcam snapshots. Two namespaces: /quiz-timer and /interview."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q15: What is Redis used for?</div>
+<p><b>A:</b> "4 purposes: (1) Live leaderboard — sorted sets for O(log N) ranking. (2) Rate limiting — sliding window counters. (3) Session caching — contest tokens. (4) Socket.IO adapter — pub/sub for horizontal scaling. Gracefully degrades to in-memory if unavailable."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q16: How do you optimize bundle size?</div>
+<p><b>A:</b> "Manual chunk splitting in Vite: react-vendor, monaco-editor (5MB), framer-motion as separate chunks. react-window for virtualized lists. React.lazy() for rarely-used pages. Tree-shaking via ES modules. Monaco editor lazy-loaded only when needed."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q17: How would you scale to 10K concurrent users?</div>
+<p><b>A:</b> "Self-hosted Judge0 on K8s with HPA. NGINX/Cloudflare load balancer. CockroachDB multi-region. Redis Cluster. Dedicated WebSocket servers. BullMQ for async tasks. Prometheus+Grafana monitoring. The architecture already supports horizontal scaling — main gap is self-hosted code execution."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q18: What design patterns did you use?</div>
+<p><b>A:</b> "Singleton (Prisma, Redis clients), Middleware Pipeline (Express chain), Strategy Pattern (code execution fallback chain), Observer Pattern (Socket.IO events), Worker Pattern (quiz autosave, web dev eval), Repository Pattern (Prisma as DAL)."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q19: How do you handle error propagation?</div>
+<p><b>A:</b> "3 layers: (1) Services throw typed errors. (2) Route handlers catch and map to HTTP status codes. (3) Global Express error middleware returns standardized JSON. Frontend: Axios interceptor catches 401s and queues token refresh. react-query provides automatic retry with backoff."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q20: How is the project structured?</div>
+<p><b>A:</b> "Monorepo: backend/ (Express), frontend/ (React SPA), landing-page/ (marketing). Backend: routes -> middlewares -> services -> lib. Frontend: pages/ (40+), components/ (50+), contexts/, hooks/, services/. Each domain has its own route file and services."</p></div>
+
+<div class="page"></div>
+<h2>9. Backend Deep-Dive Questions</h2>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q21: Explain the code execution engine end-to-end.</div>
+<p><b>A:</b> "Submit -> Rate limit check (10/min) -> Code size check (500KB) -> Wrapper generation (adds test harness with stdin/stdout) -> Execute via Piston API -> If fails, try Judge0 -> If fails, local mock -> Parse output -> Compare with expected using EXACT/UNORDERED/FLOAT tolerance -> Calculate partial credit -> Save Submission with status, time, memory, per-test results -> Update leaderboard."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q22: How does the quiz autosave worker work?</div>
+<p><b>A:</b> "Background process with write-through cache: Student answers are queued in memory. Worker flushes every 3 seconds, batching up to 50 responses to CockroachDB. Reduces DB load by 95%. At most 3 seconds of data lost on crash. Critical for timed exams with thousands of answers per minute."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q23: How does the Prisma heartbeat work?</div>
+<p><b>A:</b> "Single PrismaClient stored in globalThis (survives hot reloads). Heartbeat runs SELECT 1 every 2 minutes to keep CockroachDB connections alive. withDbRetry catches P1001/P1002 errors, reconnects, retries with exponential backoff. Essential for serverless environments."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q24: How does plagiarism detection work?</div>
+<p><b>A:</b> "MOSS-style analysis: Parse submissions to ASTs -> Extract token sequences (ignoring variable names) -> Calculate LCS ratio -> Cache with LRU -> Flag pairs with >70% similarity. Catches copy-paste with renamed variables and trivial transformations."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q25: How does the contest assembly engine work?</div>
+<p><b>A:</b> "Faculty defines rules ('10 EASY + 5 MEDIUM from Category X') -> Engine queries QuestionBank (PUBLISHED only) -> Fisher-Yates shuffle for randomization -> Creates ContestSection with ordered questions -> IRT calibration ensures target difficulty. Saves hours of manual contest setup."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q26: How does SQL playground validation work?</div>
+<p><b>A:</b> "Defense-in-depth: (1) node-sql-parser AST validation. (2) Only SELECT allowed (no INSERT/DELETE/DROP). (3) Subquery depth limit. (4) 10K row limit via sql.js. (5) In-memory WASM SQLite — no network, no filesystem. Prevents injection, DoS, and data exfiltration."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q27: How does web dev evaluation work?</div>
+<p><b>A:</b> "Two engines: V1 (JSDOM) for fast DOM assertions. V2 (Playwright) for real browser — can evaluate canvas, animations, responsive layouts. Both run in background worker to avoid blocking API. Falls back to JSDOM if Playwright unavailable."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q28: How do you handle environment variables?</div>
+<p><b>A:</b> ".env.example as template. .env gitignored. Key vars: DATABASE_URL, JWT_SECRET (server crashes if missing), REDIS_URL (optional), FRONTEND_URL (CORS). Postinstall hook runs prisma generate. Production via Vercel/Render dashboards."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q29: How do you map 7 programming languages?</div>
+<p><b>A:</b> "languageAdapter.ts maps names to provider-specific IDs: {cpp: {piston:'c++', judge0:54}, java: {piston:'java', judge0:62}, ...}. Each provider has different identifiers — the adapter abstracts this so the execution engine is provider-agnostic."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q30: How would you implement sandboxed code execution?</div>
+<p><b>A:</b> "Docker containers with resource limits (1 CPU, 256MB RAM, 100MB disk, no network). seccomp profiles restricting syscalls. Read-only filesystem. Non-root user. Timeout kill via docker exec --timeout. This is how Piston/Judge0 work internally."</p></div>
+
+<div class="page"></div>
+<h2>10. Authentication & Security Questions</h2>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q31: How does JWT refresh work?</div>
+<p><b>A:</b> "Access token (7d) expires -> 401 -> Axios interceptor queues failed request -> Sends refresh token (30d) to /api/auth/refresh -> Server validates, issues new access token -> Queued requests retry. Queue prevents concurrent refresh storms (10 simultaneous 401s would otherwise trigger 10 refreshes)."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q32: How does break-glass access work?</div>
+<p><b>A:</b> "Super admin calls /api/admin/break-glass with target org ID + reason -> breakGlassMiddleware validates level 1 -> Temporary cross-org token (1hr expiry) -> BreakGlassAuditLog records who/what/when/why/IP -> Admin accesses target org data -> Token expires, access revoked. Critical for enterprise compliance."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q33: How does SEB integration work?</div>
+<p><b>A:</b> "3 components: (1) Config generator creates Apple plist .seb files with whitelisted/blocked URLs (blocks ChatGPT, Google, Claude, Gemini, Copilot). (2) Auto-login via URL token parameter — AuthContext reads ?token=xxx. (3) Browser verification middleware checks SEB-specific headers."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q34: How do you prevent OWASP Top 10 vulnerabilities?</div>
+<p><b>A:</b> "10 mitigations: (1) Injection: Prisma parameterization + AST validation. (2) Auth: bcrypt 12 rounds + rate limiting. (3) Data Exposure: .env gitignored, HTTPS. (4) XXE: No XML parsing. (5) Access Control: 4 RBAC middleware. (6) Config: CORS whitelist. (7) XSS: React auto-escaping + sanitization. (8) Deserialization: TypeScript validation. (9) Vulnerabilities: npm audit. (10) Logging: Audit trails."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q35: How does rate limiting work?</div>
+<p><b>A:</b> "Redis sliding window: 10 code executions/user/min, 3 auth attempts/15min. Falls back to in-memory Map if Redis unavailable. Returns 429 with Retry-After header. Prevents abuse of external Piston/Judge0 APIs."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q36: How do you handle GDPR compliance?</div>
+<p><b>A:</b> "Three features: (1) Article 15 export — complete data dump in JSON. (2) Article 17 erasure — compliance officer reviews, PII anonymized. (3) SOC2 audit logs — CSV export of all system actions. Data minimization: webcam frames processed and discarded, not stored."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q37: How does the JWT blacklist work?</div>
+<p><b>A:</b> "On logout, JWT's jti is added to in-memory Set. authenticateToken middleware checks blacklist before processing. Limitation: in-memory doesn't survive restarts or scale across instances. Production solution: Redis SETEX with remaining TTL."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q38: How do you hash passwords?</div>
+<p><b>A:</b> "bcryptjs with 12 rounds (~250ms per hash). Chosen over SHA-256/MD5 because: deliberately slow (brute-force resistant), unique salt per hash (no rainbow tables), constant-time comparison (no timing attacks)."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q39: How do you handle CORS?</div>
+<p><b>A:</b> "FRONTEND_URL env var with comma-separated origins. Development: localhost:5173. Production: Vercel URL. Socket.IO configured separately. SEB exam URL added during contests. Express cors middleware sends Access-Control headers."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q40: How do you prevent XSS?</div>
+<p><b>A:</b> "5 layers: React auto-escaping, input sanitization (sanitize.ts), CSP headers via Vercel, HTTPOnly cookies, no dangerouslySetInnerHTML except for trusted admin-authored content."</p></div>
+
+<div class="page"></div>
+<h2>11. Frontend & React Questions</h2>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q41: How is react-query used?</div>
+<p><b>A:</b> "Server state management: automatic caching (contest data fetched once, reused), background refetching (leaderboard every 5s), optimistic updates (quiz responses), error retry with backoff, stale-while-revalidate, query invalidation (submission triggers leaderboard + stats refetch)."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q42: How does offline support work?</div>
+<p><b>A:</b> "IndexedDB via indexedDbService.ts: answers stored locally first, async synced to server. Network detector shows overlay on disconnect. On reconnect, pending answers flushed in order. Exam routes don't redirect to login on 401 — try refresh first. At most 3 seconds data loss (quiz autosave interval)."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q43: How does SecureContestWrapper work?</div>
+<p><b>A:</b> "HOC wrapping the contest experience: fullscreen enforcement (visibilitychange API), tab-switch detection, copy-paste blocking (configurable), webcam snapshots (45s intervals), proctor WebSocket connection (receives WARN/NUDGE/PAUSE/BLOCK/TERMINATE), right-click prevention."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q44: How does AuthContext work?</div>
+<p><b>A:</b> "Manages auth state: user object, login/logout functions, isAuthenticated boolean, hasRole() helper. On mount, checks localStorage token and validates with /api/auth/me. Handles URL token injection for SEB auto-login. Background refresh interval."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q45: How does the collaborative IDE work?</div>
+<p><b>A:</b> "Yjs CRDTs for conflict-free editing. Document created per interview. Socket.IO /interview namespace syncs. Both interviewer and candidate type simultaneously — Yjs auto-merges. Phase transitions save code snapshots. Hint requests with 3 levels + approval workflow."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q46: How does Monaco editor integrate?</div>
+<p><b>A:</b> "Lazy-loaded (5MB chunk). Language-specific highlighting (7 languages). Custom dark theme. Auto-save to IndexedDB. Key bindings (Ctrl+Enter submit, Ctrl+S save). Used in Code Playground, Contest coding, SQL Playground, Web Dev Playground."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q47: How do you handle theming?</div>
+<p><b>A:</b> "ThemeContext with dark/light toggle, localStorage persistence. TailwindCSS custom palette. CSS variables for colors. Default: dark mode (preferred for coding). System preference detection via prefers-color-scheme."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q48: How do you handle form validation?</div>
+<p><b>A:</b> "Two-level: Frontend uses HTML5 attributes + custom validators + controlled components. Backend validateBody.ts middleware + TypeScript interfaces + Prisma constraints. Frontend shows inline errors; backend returns 400 with details."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q49: How does the landing page work?</div>
+<p><b>A:</b> "Separate Vite project. Hash-based routing (#/company, #/college). WebGL GalaxyCanvas intro with matter-js physics. Once-seen IceBreakOverlay (localStorage). Audience-specific sections: Company (ROI, proctoring, reports), College (leaderboard, certificates, placements)."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q50: How do you handle concurrent token refresh?</div>
+<p><b>A:</b> "Axios interceptor maintains a request queue. On 401: failed request added to queue. If no refresh in progress, send refresh request. On new token: retry all queued requests. If refresh fails: logout. This prevents 10 simultaneous 401s from triggering 10 refresh calls."</p></div>
+
+<div class="page"></div>
+<h2>12. Real-Time & Socket.IO Questions</h2>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q51: How does Socket.IO integrate?</div>
+<p><b>A:</b> "Two namespaces: /quiz-timer (exam countdown, proctor broadcasts — pause/resume/warn) and /interview (collaborative editing, code execution, hints). Redis adapter for horizontal scaling. Each contest/interview is a room for targeted broadcasting."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q52: How do you handle WebSocket reconnection?</div>
+<p><b>A:</b> "Socket.IO built-in: exponential backoff (1s initial, 30s max, random jitter). Client re-joins room and re-fetches state from API on reconnect. Quiz autosave ensures answers are DB-persisted independently of WebSocket state."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q53: How does the live leaderboard work?</div>
+<p><b>A:</b> "Submission evaluated -> Score to DB -> ZADD to Redis sorted set -> Socket.IO emits 'score-update' to room -> Clients receive + react-query invalidates leaderboard. Fallback: full top-20 snapshot broadcast every 30s. Redis ZREVRANGE for O(log N) ranking."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q54: What are Socket.IO rooms?</div>
+<p><b>A:</b> "Logical client groupings. Contest room (contest:123) ensures proctor warnings only reach affected candidates. socket.join() on connection, auto-leave on disconnect. Enables targeted broadcasting without global fanout."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q55: How do you handle binary webcam data?</div>
+<p><b>A:</b> "Binary WebSocket frames: getUserMedia() -> Canvas API to JPEG blob -> Binary message (33% smaller than base64) -> Server receives and forwards to proctor -> Rendered in video grid. JPEG quality 0.6 to keep frames under 100KB. Throttled to 45s intervals."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q56: How do you prevent Socket.IO memory leaks?</div>
+<p><b>A:</b> "Auto room cleanup on empty. Max 5 connections per IP. Webcam throttled to 45s. Disconnect handler cleans up pending data. Binary frames capped at 100KB via JPEG quality reduction."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q57: SSE vs Socket.IO for notifications?</div>
+<p><b>A:</b> "SSE for notifications: simpler (unidirectional), works through proxies, auto-reconnects. Socket.IO for bidirectional: proctor actions, interview sync, leaderboard updates. Both coexist — notificationEmitter.ts bridges services to SSE stream."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q58: How would you replace Socket.IO with native WebSockets?</div>
+<p><b>A:</b> "Use 'ws' library + native WebSocket API. Implement custom reconnection, room management (Map&lt;roomId, Set&lt;ws&gt;&gt;), binary frames directly. Use Redis pub/sub for scaling. Benefits: ~40% smaller frames, no fallback polling. Cost: ~200 lines custom code."</p></div>
+
+<div class="page"></div>
+<h2>13. Proctoring & Anti-Cheat Questions</h2>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q59: Describe the 10-layer anti-cheat system.</div>
+<p><b>A:</b> "(1) SEB browser lockdown. (2) Fullscreen enforcement. (3) Tab-switch detection (visibilitychange). (4) Copy-paste blocking. (5) Webcam snapshots (45s). (6) Liveness/face detection. (7) Screen sharing capture. (8) Sync-cheat detection (same IP + identical answers within 500ms). (9) Proctor console (real-time dashboard). (10) Proctor actions (WARN/NUDGE/PAUSE/BLOCK/TERMINATE/DISQUALIFY via WebSocket)."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q60: How does sync-cheat detection work?</div>
+<p><b>A:</b> "In-memory sliding window: Map&lt;IP, Deque&lt;{answer, timestamp}&gt;&gt;. When new answer arrives: get same-IP entries within 500ms window, compare answer hashes. Match = potential sync-cheat. False positive mitigation: exclude common answers. Proctor receives real-time alert with both users' details."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q61: What are the 3 non-negotiable invariants?</div>
+<p><b>A:</b> "(1) Proctoring MUST NOT degrade exam experience — all runs in background threads. (2) Exam state MUST survive network interruptions — all state persisted to DB. (3) Proctoring data MUST be encrypted at rest and in transit — webcam frames processed and discarded, not stored."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q62: What happens when a student loses internet?</div>
+<p><b>A:</b> "IndexedDB saves answers locally. Non-intrusive 'Connection Lost' banner. On reconnect, pending answers synced. No login redirect on exam routes. Server-authoritative timer continues. Follows Invariant 2."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q63: How would you detect AI-generated answers?</div>
+<p><b>A:</b> "Keystroke dynamics (paste = sudden block vs typed = gradual), time-answer correlation (complex Q in <5s = suspicious), answer similarity (identical phrasing), SEB URL blocking, clipboard monitoring, browser fingerprinting for AI extensions."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q64: How do you handle 500+ students starting simultaneously?</div>
+<p><b>A:</b> "Server-side start timestamp queuing. Socket.IO + Redis adapter distributes WebSocket load. CockroachDB handles concurrent writes. Server-authoritative timers prevent manipulation. Quiz autosave batches responses."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q65: What is the SEB config generator?</div>
+<p><b>A:</b> "Creates Apple plist .seb files: whitelisted exam URL, blocked AI tool URLs, disabled clipboard/screen capture, embedded auto-login token, browser security keys. Downloaded by proctor, distributed to candidates before exam."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q66: How do you handle webcam privacy?</div>
+<p><b>A:</b> "No permanent storage (processed and discarded). WSS encryption. User consent before exam. Purpose limitation (proctoring only). Violation logs reference timestamps but not images. GDPR data minimization."</p></div>
+
+<div class="page"></div>
+<h2>14. AI & Advanced Features</h2>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q67: How does the Socratic AI assistant work?</div>
+<p><b>A:</b> "6-stage guided methodology: PROBLEM (explain in own words) -> DATA_STRUCTURE (identify right DS) -> APPROACH (algorithm) -> AWAITING_CODE_REQUEST (wait for explicit request) -> CODE_GEN (generate code) -> REFINEMENT (optimize). Gate logic rejects shallow answers. 2000-token budget per problem. Full transcript with stage events logged."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q68: How does IRT analytics work?</div>
+<p><b>A:</b> "Point-biserial correlation: measures question's ability to differentiate strong vs weak students. Calibrated difficulty: 1 - (correct/total). Discrimination index flags confusing questions. Dashboard shows per-Q stats: attempts, correct%, time, point-biserial, difficulty. Helps faculty improve question quality."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q69: How does the 5-phase mock interview work?</div>
+<p><b>A:</b> "UNDERSTAND (5min) -> PLAN (10min) -> CODE (25min) -> OPTIMIZE (10min) -> COMPLETED. Collaborative IDE via Yjs CRDTs. bcrypt passcodes. Code snapshots at phase boundaries. Hint requests (3 levels) with approval. 5-dimension rubric feedback (1-5) + recommendation (STRONG_HIRE to NO_HIRE)."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q70: How does the question governance work?</div>
+<p><b>A:</b> "4-eyes review: DRAFT -> UNDER_REVIEW -> APPROVED -> PUBLISHED (or REJECTED). Every transition logged in QuestionReviewLog. No single person can inject questions into exams. Critical for exam integrity."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q71: How does the 2000-token budget work?</div>
+<p><b>A:</b> "AssistantSession tracks tokensUsed. Each response counted (~4 chars = 1 token). Before generating: check tokensUsed + estimated > budget? If so, return 'budget exhausted'. Remaining shown to student. Gate logic prioritizes early stages — stuck in PROBLEM/DATA_STRUCTURE exhausts budget before CODE_GEN, incentivizing independent thinking."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q72: How do 7 quiz question types work?</div>
+<p><b>A:</b> "SINGLE_SELECT (radio), MULTI_SELECT (checkbox + partial credit), TRUE_FALSE (binary), NUMERIC (tolerance range), CODE_OUTPUT (string comparison), FILL_BLANK (acceptable answers per blank), IMAGE_PATTERN (sequence selection). All support negative marking and moderator override."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q73: What are 4 scoring modes?</div>
+<p><b>A:</b> "PARTIAL (per test case credit), BINARY (all-or-nothing), ACM (max_points - penalty, penalty = wrong_subs*20 + time_minutes), DYNAMIC (max_points * 1/solve_count). Each contest section can use different modes."</p></div>
+
+<div class="qa nobreak"><div class="diff de">EASY</div><div class="q">Q74: What is the company vault?</div>
+<p><b>A:</b> "Password-protected prep portals. Capgemini vault (code: CAPG99) has 19 AI literacy MCQs, 8 scenarios, mock tests, interview transcripts. Material types: PROBLEM, QUIZ, PDF_GUIDE, ROUND_INTEL. Access logged in CompanyAccessLog."</p></div>
+
+<div class="page"></div>
+<h2>15. System Design & Tricky Questions</h2>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q75: Current bottlenecks?</div>
+<p><b>A:</b> "(1) External code execution APIs — rate limits cap concurrent submissions. (2) In-memory quiz autosave worker — loses data on restart. (3) In-memory JWT blacklist — doesn't scale across instances. (4) Single Redis instance — single point of failure. (5) No message queue for async tasks."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q76: How do you handle data consistency?</div>
+<p><b>A:</b> "Prisma transactions for multi-model writes (e.g., creating contest + mapping problems). Redis eventual consistency for leaderboard (score may lag 1-2 seconds behind DB). Quiz autosave uses write-through cache. CockroachDB ACID for all critical operations."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q77: How would you add real-time code collaboration?</div>
+<p><b>A:</b> "Already implemented for interviews via Yjs CRDTs. For contest pair programming: (1) Create shared Yjs document per problem. (2) Socket.IO namespace /collab for sync. (3) Awareness protocol for cursor positions. (4) Both users' edits merged automatically. (5) Submission from either user counts for both."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q78: How do you handle database migrations in production?</div>
+<p><b>A:</b> "Currently prisma db push (dev-stage). Production: prisma migrate dev (create) -> test on staging -> prisma migrate deploy (apply). CockroachDB supports online schema changes for zero-downtime migrations."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q79: How would you implement caching invalidation?</div>
+<p><b>A:</b> "Redis TTL-based: contest data cached for 60s. Leaderboard updated on every submission (ZADD replaces score). react-query stale-while-revalidate on frontend. Query invalidation on mutations (submit -> invalidate submissions + leaderboard + stats). Cache-aside pattern for read-heavy data."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q80: How do you ensure code quality across 94 commits?</div>
+<p><b>A:</b> "TypeScript strict mode catches type errors. Prisma schema validates data shapes. ESLint + Prettier for code style. Project documentation (2,422 lines) as living reference. SEB_AND_PROCTORING_INVARIANTS.md for architectural invariants. TESTING_DEPLOYMENT_GUIDE.md for deployment readiness."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q81: How do you handle multi-tenancy data isolation?</div>
+<p><b>A:</b> "organizationId on all major models (User, Contest, Problem, etc.). requireOrgAccess middleware validates membership via contest lookup. Super admin can bypass via break-glass (audited). Prisma queries always filter by organizationId. No shared data between orgs without explicit access."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q82: How would you implement A/B testing for the platform?</div>
+<p><b>A:</b> "Feature flags in Organization model (JSON field). FeatureGate middleware checks flag before enabling feature. Gradual rollout: enable for specific orgs first, monitor analytics, then expand. A/B testing for UI: React component wrappers with variant selection based on user hash."</p></div>
+
+<div class="qa nobreak"><div class="diff dm">MEDIUM</div><div class="q">Q83: How do you handle internationalization?</div>
+<p><b>A:</b> "Currently English-only. For i18n: (1) Extract all strings to locale JSON files. (2) useTranslation() hook in components. (3) Backend error messages mapped to locale. (4) Date/number formatting via Intl API. (5) RTL support via TailwindCSS dir attribute."</p></div>
+
+<div class="qa nobreak"><div class="diff dh">HARD</div><div class="q">Q84: How do you monitor system health in production?</div>
+<p><b>A:</b> "Currently: /api/health endpoint (returns 'Kryptavia OS API Engine'), Prisma heartbeat, anti-sleep pinger. For production: (1) Prometheus metrics (request latency, error rates, DB connection pool). (2) Grafana dashboards. (3) Sentry for error tracking. (4) Uptime monitoring (UptimeRobot). (5) Log aggregation (Papertrail/Datadog)."</p></div>
+
+<!-- ==================== PART C ==================== -->
+<div class="page"></div>
+<h1>PART C: INTERVIEW PREPARATION STRATEGY</h1>
+
+<h2>16. 7-Day Preparation Plan</h2>
+<table>
+<tr><th>Day</th><th>Focus Area</th><th>Activities</th></tr>
+<tr><td>Day 1</td><td>Architecture & Overview</td><td>Memorize tech stack, draw architecture diagram from memory, practice 2-min project intro</td></tr>
+<tr><td>Day 2</td><td>Backend Deep-Dive</td><td>Review 29 route modules, code execution flow, Prisma schema relationships, Redis usage</td></tr>
+<tr><td>Day 3</td><td>Security & Auth</td><td>JWT flow, RBAC middleware, SEB integration, OWASP Top 10, GDPR compliance</td></tr>
+<tr><td>Day 4</td><td>Frontend & React</td><td>react-query, offline support, SecureContestWrapper, Monaco integration, bundle optimization</td></tr>
+<tr><td>Day 5</td><td>Real-Time & Advanced</td><td>Socket.IO architecture, leaderboard, proctoring system, Socratic AI, IRT analytics</td></tr>
+<tr><td>Day 6</td><td>System Design</td><td>Scaling scenarios, bottlenecks, trade-offs, database design decisions, deployment</td></tr>
+<tr><td>Day 7</td><td>Mock Interview</td><td>Practice all Q&As aloud, record yourself, time your answers (2-3 min each), refine weak areas</td></tr>
+</table>
+
+<h2>17. Key Concepts to Revise</h2>
+<table>
+<tr><th>Category</th><th>Concepts</th></tr>
+<tr><td>Database</td><td>ACID, connection pooling, Prisma singleton, migrations, CockroachDB vs PostgreSQL, Redis sorted sets</td></tr>
+<tr><td>Security</td><td>JWT (access/refresh), bcrypt salting, RBAC hierarchy, OWASP Top 10, CORS, XSS prevention, rate limiting</td></tr>
+<tr><td>Architecture</td><td>3-tier, middleware pipeline, singleton pattern, strategy pattern, observer pattern, worker pattern</td></tr>
+<tr><td>Real-Time</td><td>Socket.IO rooms/namespaces, Redis pub/sub, WebSocket binary frames, reconnection, SSE</td></tr>
+<tr><td>Frontend</td><td>react-query (cache, invalidation, optimistic updates), lazy loading, code splitting, IndexedDB, CRDTs</td></tr>
+<tr><td>DevOps</td><td>SPA rewrite, immutable caching, anti-sleep pinger, postinstall hooks, environment variables</td></tr>
+</table>
+
+<h2>18. Common Mistakes to Avoid</h2>
+<div class="warn nobreak">
+<ul>
+<li><b>Don't say "I used MongoDB":</b> It's CockroachDB (distributed SQL). Know why.</li>
+<li><b>Don't say "I used Redux":</b> It's react-query for server state + Context API for client state.</li>
+<li><b>Don't say "real-time database":</b> Redis is for caching/leaderboard. CockroachDB is the primary DB.</li>
+<li><b>Don't say "I built everything from scratch":</b> Acknowledge libraries — Prisma, Socket.IO, Monaco, Yjs.</li>
+<li><b>Don't skip the "why":</b> Always explain why you chose X over Y.</li>
+<li><b>Don't give 1-line answers:</b> Elaborate with specific implementation details.</li>
+<li><b>Don't claim perfection:</b> Mention limitations and improvements you'd make.</li>
+<li><b>Don't rush:</b> Take 5 seconds to think before answering complex questions.</li>
+</ul>
+</div>
+
+<h2>19. Numbers to Memorize</h2>
+<table>
+<tr><th>Metric</th><th>Value</th><th>Context</th></tr>
+<tr><td>Git Commits</td><td>94</td><td>5 days of development</td></tr>
+<tr><td>Database Models</td><td>38</td><td>14 enums, 1,063 lines schema</td></tr>
+<tr><td>API Route Modules</td><td>29</td><td>20+ services</td></tr>
+<tr><td>Frontend Pages</td><td>40+</td><td>60+ routes</td></tr>
+<tr><td>Frontend Components</td><td>50+</td><td>10 categories</td></tr>
+<tr><td>User Roles</td><td>12</td><td>Hierarchy: 1-7 + 5 specialized</td></tr>
+<tr><td>Code Languages</td><td>7</td><td>C++, Java, Python, JS, Go, Rust, C#</td></tr>
+<tr><td>Question Types</td><td>7</td><td>Quiz system</td></tr>
+<tr><td>Scoring Modes</td><td>4</td><td>PARTIAL, BINARY, ACM, DYNAMIC</td></tr>
+<tr><td>JWT Expiry</td><td>7d/30d</td><td>Access/Refresh tokens</td></tr>
+<tr><td>bcrypt Rounds</td><td>12</td><td>~250ms per hash</td></tr>
+<tr><td>Rate Limits</td><td>10/min, 3/15min</td><td>Code execution, Auth</td></tr>
+<tr><td>Token Budget</td><td>2000</td><td>Socratic AI per problem</td></tr>
+<tr><td>Autosave Interval</td><td>3s</td><td>50 records per batch</td></tr>
+<tr><td>Anti-Sleep Ping</td><td>10min</td><td>Render free tier keepalive</td></tr>
+</table>
+
+<!-- ==================== PART D ==================== -->
+<div class="page"></div>
+<h1>PART D: SELF-INTRODUCTION & DELIVERY SCRIPTS</h1>
+
+<h2>20. 30-Second Elevator Pitch</h2>
+<div class="script">
+"I'm a full-stack developer who built <span class="em">Kryptavia OS</span> — an <span class="hl">enterprise-grade B2B assessment platform</span> for colleges and companies. It's a single unified SaaS product that replaces 5-6 separate tools, covering everything from <span class="hl">real-time code execution</span> in 7 languages to <span class="hl">10-layer exam proctoring</span>, an <span class="hl">AI coding assistant</span>, and <span class="hl">mock interviews</span>. Built with React, TypeScript, Node.js, Prisma, and CockroachDB — <span class="em">94 commits, 38 database models, 29 API routes</span>, all in 5 days."
+</div>
+
+<h2>21. 2-Minute Detailed Introduction</h2>
+<div class="script">
+"I built <span class="em">Kryptavia OS</span>, a full-stack enterprise B2B assessment platform for colleges and companies.<br><br>
+
+<span class="hl">The Problem:</span> During campus placements, I saw colleges juggling 5-6 separate tools — HackerRank for coding, Google Forms for quizzes, ProctorU for monitoring, Zoom for interviews. Students faced fragmented experiences, and administrators had no unified analytics.<br><br>
+
+<span class="hl">My Solution:</span> A single platform covering the entire assessment lifecycle:<br>
+- <span class="hl">Contest System</span> with multi-section format (Quiz + Coding + Web Dev)<br>
+- <span class="hl">Code Execution Engine</span> supporting 7 languages with Piston/Judge0 integration<br>
+- <span class="hl">10-Layer Anti-Cheat</span> including SEB browser lockdown, tab detection, webcam proctoring, and sync-cheat detection<br>
+- <span class="hl">Socratic AI Assistant</span> that guides students through 6-stage coding methodology without giving direct answers<br>
+- <span class="hl">Mock Interviews</span> with collaborative Yjs-based IDE and structured feedback<br>
+- <span class="hl">Multi-Tenant SaaS</span> with 12-role RBAC, SAML SSO, and GDPR compliance<br><br>
+
+<span class="hl">Tech Stack:</span> React + TypeScript frontend, Node.js + Express backend, Prisma ORM, CockroachDB, Redis for leaderboard, Socket.IO for real-time updates. Deployed on Vercel (frontend) and Render (backend) with CockroachDB Serverless.<br><br>
+
+<span class="hl">Impact:</span> 38 database models, 29 API route modules, 50+ frontend components, 40+ pages — built in 5 days with 94 git commits. The platform is production-ready with offline support, rate limiting, and compliance features."
+</div>
+
+<h2>22. 5-Minute Deep-Dive Presentation</h2>
+<div class="script">
+"<span class="em">Slide 1 — Overview (30s)</span><br>
+Kryptavia OS is an enterprise B2B assessment platform. Think of it as HackerRank + ProctorU + InterviewBit in one product. Target users: colleges conducting placements and companies running hiring assessments.<br><br>
+
+"<span class="em">Slide 2 — Architecture (60s)</span><br>
+3-tier architecture: React SPA frontend with 60+ routes, Express API with 29 route modules, CockroachDB + Redis data layer. Key design decisions: <span class="hl">CockroachDB</span> for ACID compliance on contest scoring. <span class="hl">Redis</span> for O(log N) leaderboard ranking. <span class="hl">Socket.IO</span> for room-based real-time updates. <span class="hl">Prisma</span> for type-safe database access with 38 models.<br><br>
+
+"<span class="em">Slide 3 — Core Features (90s)</span><br>
+<span class="hl">Code Execution:</span> 7-language support with triple fallback (Piston -> Judge0 -> Local). 4 scoring modes. Partial credit.<br>
+<span class="hl">Exam Security:</span> 10-layer anti-cheat stack. SEB integration blocks ChatGPT/Google/Claude. Sync-cheat detection uses in-memory sliding windows to catch same-IP cheating.<br>
+<span class="hl">Quiz System:</span> 7 question types, IRT analytics for question quality, passage-based questions, contest assembly engine with Fisher-Yates sampling.<br>
+<span class="hl">AI Assistant:</span> 6-stage Socratic methodology with gate logic. Rejects shallow answers. 2000-token budget prevents unlimited assistance.<br>
+<span class="hl">Mock Interviews:</span> 5-phase structure, Yjs collaborative IDE, 5-dimension rubric scoring.<br><br>
+
+"<span class="em">Slide 4 — Technical Highlights (60s)</span><br>
+<span class="hl">Offline Support:</span> IndexedDB stores quiz answers locally, syncs on reconnect. Exam never interrupts on network loss.<br>
+<span class="hl">Resilience:</span> Redis graceful degradation, Prisma DB retry with exponential backoff, anti-sleep self-pinger for free hosting tiers.<br>
+<span class="hl">Security:</b> JWT with queue-based refresh, 12-role RBAC, break-glass emergency access with audit logging, GDPR compliance with data export and erasure.<br>
+<span class="hl">Performance:</b> Manual chunk splitting in Vite, Monaco editor lazy-loading, virtualized lists for 1000+ item tables.<br><br>
+
+"<span class="em">Slide 5 — Lessons & Improvements (30s)</span><br>
+Key lessons: Vertical slices > horizontal layers for solo development. Choosing the right database matters (CockroachDB's PostgreSQL compatibility + distributed capabilities). Resilience patterns (graceful degradation, retry with backoff) are essential for production. Would improve: E2E tests from day one, message queue for async tasks, self-hosted code execution for scale."
+</div>
+
+<h2>23. Project Walkthrough Script (Demo)</h2>
+<div class="script">
+<span class="em">Step 1:</span> "Let me show you the landing page first — notice the WebGL GalaxyCanvas intro animation with physics. The page has audience-specific sections for companies and colleges."<br><br>
+
+<span class="em">Step 2:</span> "Here's the admin dashboard. I'll log in as Super Admin. Notice the 12-role hierarchy — each role sees a different sidebar and different routes."<br><br>
+
+<span class="em">Step 3:</span> "Let me create a contest. I'll add a multi-section format — a Quiz section and a Coding section. The contest assembly engine can auto-populate from question banks."<br><br>
+
+<span class="em">Step 4:</span> "Now switching to the student view. The SecureContestWrapper activates — fullscreen enforcement, tab detection, copy-paste blocking. Here's the Monaco editor for coding questions."<br><br>
+
+<span class="em">Step 5:</span> "I'll submit a solution. Watch the leaderboard update in real-time via Socket.IO. The Redis-backed leaderboard shows instant score changes."<br><br>
+
+<span class="em">Step 6:</span> "Here's the proctor console — real-time view of all candidates, violation counts, webcam snapshots. I can send a warning to a specific candidate."<br><br>
+
+<span class="em">Step 7:</span> "The Socratic AI assistant — notice how it asks me to explain the problem before giving any hints. It rejected my shortcut attempt and redirected me to think about the approach first."
+</div>
+
+<h2>24. Follow-Up / Closing Answers</h2>
+
+<div class="qa nobreak"><div class="q">"Where do you see this going?"</div>
+<p>"Three directions: (1) Self-hosted code execution cluster for independence from external APIs. (2) Mobile app for interview practice on-the-go. (3) LMS integration — export scores to college management systems via LTI protocol."</p></div>
+
+<div class="qa nobreak"><div class="q">"What's your favorite feature?"</div>
+<p>"The Socratic AI assistant. It's the most intellectually complex — implementing gate logic that can distinguish between a student who genuinely understands the problem vs one trying to shortcut. The 6-stage methodology mirrors how good interviewers actually guide candidates."</p></div>
+
+<div class="qa nobreak"><div class="q">"Would you change the tech stack?"</div>
+<p>"For this scale, the stack is optimal. If scaling to 100K users, I'd add: BullMQ for job queues, self-hosted Judge0 on Kubernetes, and a proper monitoring stack (Prometheus + Grafana). The core architecture supports these additions without rewrites."</p></div>
+
+<div class="qa nobreak"><div class="q">"How do you handle deployment?"</div>
+<p>"Frontend on Vercel with SPA rewrite and 1-year immutable asset caching. Backend on Render with anti-sleep pinger (every 10 minutes). CockroachDB serverless for managed database. Postinstall hook runs prisma generate. Environment variables configured per environment."</p></div>
+
+<div class="qa nobreak"><div class="q">"What's the most impressive technical achievement?"</div>
+<p>"The sync-cheat detection system. It uses an in-memory sliding window to detect when two students from the same IP submit identical answers within 500ms. The algorithm handles false positive mitigation (excluding common answers) and provides real-time alerts to proctors. It's a real-time distributed systems problem solved elegantly."</p></div>
+
+<div class="tip">
+<strong>Final Tip:</strong> Always relate your answers to business impact. Don't just say "I used Redis" — say "I used Redis for the leaderboard because we needed O(log N) ranking under high concurrency, and Redis sorted sets solve this perfectly."
+</div>
+
+</body>
+</html>

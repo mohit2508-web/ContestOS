@@ -38,7 +38,7 @@ interface ProctorSocketState {
   connected: boolean;
 }
 
-const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+const BACKEND_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || window.location.origin;
 
 export function useProctorSocket({
   userId,

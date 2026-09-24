@@ -112,7 +112,7 @@ function SamlLoginModal({ onClose }: { onClose: () => void }) {
       setError('Please enter your organization domain or slug');
       return;
     }
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
     const cleanInput = domainOrSlug.trim().toLowerCase();
     const queryParam = cleanInput.includes('.') ? `domain=${encodeURIComponent(cleanInput)}` : `orgSlug=${encodeURIComponent(cleanInput)}`;
     window.location.href = `${baseUrl}/api/auth/sso/saml/login?${queryParam}`;
@@ -184,7 +184,7 @@ export function LoginPageComponent() {
   const navigate = useNavigate();
 
   const handleSocialLogin = (provider: string) => {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
     window.location.href = `${baseUrl}/api/auth/sso/${provider.toLowerCase()}`;
   };
 
