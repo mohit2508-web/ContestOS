@@ -362,16 +362,17 @@ export const api = {
     try {
       const res = await apiAxios.post(`/submissions`, { contestId, ...data });
       const evalRes = res.data?.evalResult;
-      const totalCount = evalRes?.totalCount ?? 1;
-      const passedCount = evalRes?.passedCount ?? (res.data?.submission?.status === 'ACCEPTED' ? totalCount : 0);
+      const sub = res.data?.submission;
+      const totalCount = evalRes?.totalCount ?? sub?.totalTests ?? 50;
+      const passedCount = evalRes?.passedCount ?? sub?.passedTests ?? (sub?.status === 'ACCEPTED' ? totalCount : Math.min(totalCount, sub?.score ?? 0));
       return {
-        passed: res.data?.submission?.status === 'ACCEPTED' || evalRes?.status === 'ACCEPTED',
+        passed: sub?.status === 'ACCEPTED' || evalRes?.status === 'ACCEPTED',
         passedTests: passedCount,
         totalTests: totalCount,
-        currentScore: res.data?.submission?.score ?? 0,
+        currentScore: sub?.score ?? 0,
         ...res.data,
       };
-    } catch { return { passed: false, passedTests: 0, totalTests: 1, currentScore: 0 }; }
+    } catch { return { passed: false, passedTests: 0, totalTests: 50, currentScore: 0 }; }
   },
   getContestLeaderboard: async (contestId: string) => {
     try { const res = await apiAxios.get(`/leaderboard/contest/${contestId}`); return res.data; }

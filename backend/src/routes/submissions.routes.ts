@@ -276,7 +276,11 @@ router.post('/', authenticateToken, async (req: Request, res: Response): Promise
 
     res.json({
       success: true,
-      submission: finalSubmission,
+      submission: {
+        ...finalSubmission,
+        passedTests: evalResult?.passedCount ?? (finalSubmission.status === 'ACCEPTED' ? (evalResult?.totalCount ?? 50) : finalSubmission.score),
+        totalTests: evalResult?.totalCount ?? 50,
+      },
       evalResult,
     });
   } catch (error: any) {
