@@ -1,10 +1,9 @@
 import { Router } from 'express';
-import { PrismaClient } from '../generated/client';
+import prisma from '../lib/prisma';
 import { authenticateToken } from '../middlewares/auth';
 import { notifyUser } from '../lib/notifyUser';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Helper to get io and emit proctor actions via REST (for non-socket clients)
 // Emits to BOTH room formats to ensure delivery regardless of how the client joined

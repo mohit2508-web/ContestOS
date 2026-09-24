@@ -1,6 +1,5 @@
-import { PrismaClient, QuestionReviewStatus, BankScope } from '../generated/client';
-
-const prisma = new PrismaClient();
+import { QuestionReviewStatus, BankScope } from '../generated/client';
+import prisma from '../lib/prisma';
 
 export interface AddAssemblyRuleParams {
   sectionId: string;

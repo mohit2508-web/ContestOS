@@ -1,7 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '../generated/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma';
 
 /**
  * Super Admin Break-Glass Audit Logging Middleware

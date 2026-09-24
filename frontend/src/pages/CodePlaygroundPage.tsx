@@ -1218,8 +1218,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                     setTestSummary(finalDoneSummary);
                   } else {
                     const curPassed = currentResults.filter(r => r?.passed).length;
-                    const curTotal = Math.max(currentResults.length, totalTests);
-                    setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
+                    const curTotal = Math.max(currentResults.length, curPassed, totalTests);
+                    setTestSummary({ passed: curPassed, failed: Math.max(0, curTotal - curPassed), total: curTotal });
                   }
                   lastRender = Date.now();
                 }
@@ -1230,8 +1230,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
                 setTestSummary(finalDoneSummary);
               } else {
                 const curPassed = currentResults.filter(r => r?.passed).length;
-                const curTotal = Math.max(currentResults.length, totalTests);
-                setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
+                const curTotal = Math.max(currentResults.length, curPassed, totalTests);
+                setTestSummary({ passed: curPassed, failed: Math.max(0, curTotal - curPassed), total: curTotal });
               }
             }
           } finally {
@@ -1336,8 +1336,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
             setTestSummary(finalDoneSummary);
           } else {
             const curPassed = currentResults.filter(r => r?.passed).length;
-            const curTotal = Math.max(currentResults.length, totalTests);
-            setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
+            const curTotal = Math.max(currentResults.length, curPassed, totalTests);
+            setTestSummary({ passed: curPassed, failed: Math.max(0, curTotal - curPassed), total: curTotal });
           }
           lastRender = Date.now();
         }
@@ -1348,8 +1348,8 @@ export function CodePlaygroundPage({ embeddedInContest }: { embeddedInContest?: 
         setTestSummary(finalDoneSummary);
       } else {
         const curPassed = currentResults.filter(r => r?.passed).length;
-        const curTotal = Math.max(currentResults.length, totalTests);
-        setTestSummary({ passed: curPassed, failed: curTotal - curPassed, total: curTotal });
+        const curTotal = Math.max(currentResults.length, curPassed, totalTests);
+        setTestSummary({ passed: curPassed, failed: Math.max(0, curTotal - curPassed), total: curTotal });
       }
     } catch (err) {
       setTestResults([{

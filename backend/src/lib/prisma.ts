@@ -20,9 +20,11 @@ if (!globalForPrisma.prismaKeepAliveStarted) {
     try {
       await prisma.$queryRaw`SELECT 1`;
     } catch {
-      // Ignore background heartbeat ping error
+      try {
+        await prisma.$connect();
+      } catch {}
     }
-  }, 2 * 60 * 1000); // Heartbeat ping every 2 minutes
+  }, 30 * 1000); // Heartbeat ping every 30 seconds
 }
 
 /**
@@ -39,7 +41,10 @@ export async function withDbRetry<T>(fn: () => Promise<T>, retries = 3, delayMs 
         err?.code === 'P1001' ||
         err?.code === 'P1002' ||
         err?.message?.includes("Can't reach database server") ||
-        err?.message?.includes("Timed out fetching a new connection");
+        err?.message?.includes("Timed out fetching a new connection") ||
+        err?.message?.includes("Closed") ||
+        err?.message?.includes("connection: Error") ||
+        err?.message?.includes("kind: Closed");
       if (isConnError && attempt < retries) {
         console.warn(`[Prisma DB Retry] Connection drop detected (attempt ${attempt}/${retries}). Reconnecting in ${delayMs}ms...`);
         await new Promise(r => setTimeout(r, delayMs));

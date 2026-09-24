@@ -1,6 +1,5 @@
-import { PrismaClient, QuestionReviewStatus } from '../generated/client';
-
-const prisma = new PrismaClient();
+import { QuestionReviewStatus } from '../generated/client';
+import prisma from '../lib/prisma';
 
 export class QuestionAnalyticsEngine {
   /**

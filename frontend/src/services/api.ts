@@ -361,10 +361,13 @@ export const api = {
   submitContestCode: async (contestId: string, data: any) => {
     try {
       const res = await apiAxios.post(`/submissions`, { contestId, ...data });
+      const evalRes = res.data?.evalResult;
+      const totalCount = evalRes?.totalCount ?? 1;
+      const passedCount = evalRes?.passedCount ?? (res.data?.submission?.status === 'ACCEPTED' ? totalCount : 0);
       return {
-        passed: res.data?.submission?.status === 'ACCEPTED' || res.data?.evalResult?.status === 'ACCEPTED',
-        passedTests: res.data?.evalResult?.passedCount ?? (res.data?.submission?.status === 'ACCEPTED' ? 1 : 0),
-        totalTests: res.data?.evalResult?.totalCount ?? 1,
+        passed: res.data?.submission?.status === 'ACCEPTED' || evalRes?.status === 'ACCEPTED',
+        passedTests: passedCount,
+        totalTests: totalCount,
         currentScore: res.data?.submission?.score ?? 0,
         ...res.data,
       };

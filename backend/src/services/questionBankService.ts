@@ -1,6 +1,5 @@
-import { PrismaClient, BankScope, QuestionReviewStatus } from '../generated/client';
-
-const prisma = new PrismaClient();
+import { BankScope, QuestionReviewStatus } from '../generated/client';
+import prisma from '../lib/prisma';
 
 export interface CreateBankParams {
   name: string;

@@ -108,6 +108,8 @@ const PISTON_FILENAME_MAP: Record<string, string> = {
 export class ExternalCodeExecutor {
   private useExternal: boolean = true;
   private externalProvider: "piston" = "piston";
+  private isPistonDown: boolean = false;
+  private lastPistonCheck: number = 0;
 
   constructor() {
     this.useExternal = true;
@@ -125,6 +127,47 @@ export class ExternalCodeExecutor {
         error: 'Code too large',
         executionTime: Date.now() - startTime,
       };
+    }
+
+    if (this.isPistonDown && Date.now() - this.lastPistonCheck > 60000) {
+      this.isPistonDown = false;
+    }
+
+    if (!this.isPistonDown) {
+      const pistonRes = await this.executeWithPiston(request, startTime);
+
+      const isPistonSystemError =
+        !pistonRes.success &&
+        (pistonRes.error?.includes("Piston") ||
+         pistonRes.error?.includes("socket hang up") ||
+         pistonRes.error?.includes("API error") ||
+         pistonRes.stderr?.includes("socket hang up") ||
+         pistonRes.stderr?.includes("whitelist"));
+
+      if (isPistonSystemError) {
+        this.isPistonDown = true;
+        this.lastPistonCheck = Date.now();
+        console.warn("[ExternalCodeExecutor] Piston marked DOWN. Fast routing to Judge0 API...");
+        try {
+          const judge0Res = await this.executeWithJudge0(request, startTime);
+          if (judge0Res.success || judge0Res.output || (judge0Res.stderr && !judge0Res.error?.includes("Judge0 API error"))) {
+            return judge0Res;
+          }
+        } catch (jErr: any) {
+          console.warn("[ExternalCodeExecutor] Judge0 fallback failed:", jErr.message);
+        }
+      } else {
+        return pistonRes;
+      }
+    }
+
+    try {
+      const judge0Res = await this.executeWithJudge0(request, startTime);
+      if (judge0Res.success || judge0Res.output || (judge0Res.stderr && !judge0Res.error?.includes("Judge0 API error"))) {
+        return judge0Res;
+      }
+    } catch (jErr: any) {
+      console.warn("[ExternalCodeExecutor] Direct Judge0 execution error:", jErr.message);
     }
 
     return await this.executeWithPiston(request, startTime);
@@ -191,7 +234,8 @@ export class ExternalCodeExecutor {
 
     try {
       const response = await axios.post(`${PISTON_API_URL}/execute`, payload, {
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
+        timeout: 6000,
       });
 
       const { run, compile } = response.data;
@@ -235,7 +279,7 @@ export class ExternalCodeExecutor {
         try {
           const fallbackRes = await axios.post(`https://emkc.org/api/v2/piston/execute`, payload, {
             headers: { "Content-Type": "application/json" },
-            timeout: 10000
+            timeout: 6000
           });
           const { run, compile } = fallbackRes.data;
 

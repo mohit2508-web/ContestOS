@@ -2793,58 +2793,32 @@ if (result === undefined) {
           input,
           timeLimit: timeout,
         });
-        return {
-          success: externalResult.success,
-          output: externalResult.output,
-          stderr: externalResult.stderr,
-          error: externalResult.error,
-          executionTime: externalResult.executionTime,
-          memoryUsed: externalResult.memoryUsed,
-        };
+        const isSystemError =
+          !externalResult.success &&
+          (externalResult.error?.includes("Piston") ||
+           externalResult.error?.includes("socket hang up") ||
+           externalResult.error?.includes("API error") ||
+           externalResult.stderr?.includes("socket hang up"));
+
+        if (!isSystemError) {
+          return {
+            success: externalResult.success,
+            output: externalResult.output,
+            stderr: externalResult.stderr,
+            error: externalResult.error,
+            executionTime: externalResult.executionTime,
+            memoryUsed: externalResult.memoryUsed,
+          };
+        }
+        console.warn("External execution returned system/API error, falling back to local runner...");
       } catch (extError: any) {
-        console.warn("External Piston execution error, falling back to local:", extError.message);
+        console.warn("External execution error, falling back to local:", extError.message);
       }
     }
 
     const langError = this.getLanguageErrorMessage(language);
     if (langError) {
       return { success: false, output: "", stderr: langError, error: langError, executionTime: 0 };
-    }
-
-
-
-    // Only fall back to local subprocess execution in development mode
-    if (process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== undefined) {
-      return {
-        success: false,
-        output: "",
-        stderr: "Code execution unavailable — no external executor configured",
-        error: "Configure CODE_RUNNER_URL, JUDGE0_API_URL, or PISTON_API_URL for production",
-        executionTime: Date.now() - startTime,
-      };
-    }
-
-    // ──────────────────────────────────────────────────────────
-    // External Docker execution (Piston / Judge0)
-    // ──────────────────────────────────────────────────────────
-    if (process.env.PISTON_API_URL || process.env.JUDGE0_API_URL) {
-      try {
-        const externalResult = await externalCodeExecutor.executeCode({
-          language,
-          code: processedCode,
-          input,
-          timeLimit: timeout,
-        });
-        return {
-          success: externalResult.success,
-          output: externalResult.output,
-          stderr: externalResult.stderr,
-          error: externalResult.error,
-          executionTime: externalResult.executionTime,
-        };
-      } catch (extError: any) {
-        console.warn("External Piston execution error, attempting local fallback:", extError.message);
-      }
     }
 
     const sessionDir = this.createSessionDir();
@@ -3185,9 +3159,25 @@ if (result === undefined) {
     };
 
     const tasks = chunks.map((chunk, chunkIdx) => () => executeChunk(chunk, chunkIdx));
-    const concurrencyLimit = 3;
-    const results2D = await this.parallelLimit(tasks, concurrencyLimit);
-    const flatResults = results2D.flat();
+    const concurrencyLimit = 25;
+    const results2D = await this.parallelLimit(
+      tasks,
+      concurrencyLimit,
+      (chunkRes) => chunkRes.some((tc) => !tc.passed)
+    );
+    const flatResults = results2D.filter(Boolean).flat();
+
+    for (let i = flatResults.length; i < testCases.length; i++) {
+      flatResults.push({
+        testCase: i + 1,
+        passed: false,
+        input: testCases[i].input,
+        expectedOutput: testCases[i].expectedOutput,
+        actualOutput: "",
+        executionTime: 0,
+        error: "Skipped due to previous error",
+      });
+    }
 
     for (const r of flatResults) {
       if (r.passed) passed++;
@@ -3316,17 +3306,24 @@ if (result === undefined) {
 
   private async parallelLimit<T>(
     tasks: (() => Promise<T>)[],
-    limit: number
+    limit: number,
+    shouldStopOnResult?: (res: T) => boolean
   ): Promise<T[]> {
     const results: T[] = [];
     const promises: Promise<void>[] = [];
     let index = 0;
+    let isStopped = false;
 
     const execute = async () => {
-      while (index < tasks.length) {
+      while (index < tasks.length && !isStopped) {
         const currentIndex = index++;
         const task = tasks[currentIndex];
-        results[currentIndex] = await task();
+        const res = await task();
+        results[currentIndex] = res;
+        if (shouldStopOnResult && shouldStopOnResult(res)) {
+          isStopped = true;
+          index = tasks.length;
+        }
       }
     };
 

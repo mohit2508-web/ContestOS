@@ -43,8 +43,7 @@ router.post('/questions', async (req, res) => {
 // GET /api/governance/questions/review-queue - Get questions pending review
 router.get('/questions/review-queue', async (req, res) => {
   try {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
+    const { prisma } = await import('../lib/prisma');
     const questions = await prisma.quizQuestion.findMany({
       where: {
         reviewStatus: { in: ['UNDER_REVIEW', 'DRAFT'] },
