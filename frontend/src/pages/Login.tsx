@@ -39,7 +39,7 @@ function roleToPath(role: string): string {
 
 const DEMO_ACCOUNTS = [
   { label: 'Super Admin', role: 'SUPER_ADMIN', email: 'admin@kryptavia.in', password: 'SuperAdmin2026!', color: 'from-red-500 to-red-600' },
-  { label: 'Platform Content SME', role: 'PLATFORM_CONTENT_AUTHOR', email: 'sme@kryptavia.io', password: 'Sme@123456', color: 'from-indigo-500 to-indigo-600' },
+  { label: 'Platform Content SME', role: 'PLATFORM_CONTENT_AUTHOR', email: 'sme@tieedu.in', password: 'Sme@123456', color: 'from-indigo-500 to-indigo-600' },
   { label: 'Org Admin (IIT Delhi)', role: 'ORG_ADMIN', email: 'admin@iitd.ac.in', password: 'Admin@123456', color: 'from-purple-500 to-purple-600' },
   { label: 'Org Admin (GLA Univ)', role: 'GLA_ORG_ADMIN', email: 'neeraj@gla.ac.in', password: 'GlaAdmin@123456', color: 'from-amber-600 to-yellow-600' },
   { label: 'Proctor', role: 'PROCTOR', email: 'proctor@iitd.ac.in', password: 'Proctor@123456', color: 'from-rose-500 to-rose-600' },
@@ -194,9 +194,9 @@ export function LoginPageComponent() {
     try {
       const result = await api.login(loginEmail, loginPassword);
       if (rememberMe) {
-        localStorage.setItem('kryptaviaos_remember_email', loginEmail);
+        localStorage.setItem('tieeduos_remember_email', loginEmail);
       } else {
-        localStorage.removeItem('kryptaviaos_remember_email');
+        localStorage.removeItem('tieeduos_remember_email');
       }
       login(result.accessToken, result.refreshToken, {
         id: result.user.id,

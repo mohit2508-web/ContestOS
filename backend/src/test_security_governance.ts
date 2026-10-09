@@ -29,17 +29,17 @@ async function runSecurityGovernanceTests() {
     assert(Role.PLATFORM_CONTENT_AUTHOR === 'PLATFORM_CONTENT_AUTHOR', 'Role enum contains PLATFORM_CONTENT_AUTHOR 7th role');
 
     // 2. Setup Test Author & Reviewer
-    let author = await prisma.user.findFirst({ where: { email: 'author_test@kryptavia.io' } });
+    let author = await prisma.user.findFirst({ where: { email: 'author_test@tieedu.in' } });
     if (!author) {
       author = await prisma.user.create({
-        data: { email: 'author_test@kryptavia.io', name: 'Author Setter', password: 'hash' },
+        data: { email: 'author_test@tieedu.in', name: 'Author Setter', password: 'hash' },
       });
     }
 
-    let reviewer = await prisma.user.findFirst({ where: { email: 'reviewer_test@kryptavia.io' } });
+    let reviewer = await prisma.user.findFirst({ where: { email: 'reviewer_test@tieedu.in' } });
     if (!reviewer) {
       reviewer = await prisma.user.create({
-        data: { email: 'reviewer_test@kryptavia.io', name: 'Peer Reviewer', password: 'hash' },
+        data: { email: 'reviewer_test@tieedu.in', name: 'Peer Reviewer', password: 'hash' },
       });
     }
 

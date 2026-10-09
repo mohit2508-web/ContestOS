@@ -324,7 +324,7 @@ router.get('/audit/export', authenticateToken, requireRole(...COMPLIANCE_ROLES),
     const csvContent = `# SOC 2 Type II System Audit Trail\n# Exported By: ${req.user!.email}\n# Digest: SHA256-SIGNATURE-VERIFIED\n` + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
 
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="KryptaviaOS_SOC2_AuditTrail_${Date.now()}.csv"`);
+    res.setHeader('Content-Disposition', `attachment; filename="TieEduOS_SOC2_AuditTrail_${Date.now()}.csv"`);
     res.send(csvContent);
   } catch (err) {
     console.error('Audit export error:', err);

@@ -1,7 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { portalLink } from '../lib/portal';
-import { KryptaviaLogo } from '../../components/common/KryptaviaLogo';
+import { TieEduLogo } from '../../components/common/TieEduLogo';
 
 const VALUES = [
   { icon: '⚖️', title: 'Integrity over convenience', desc: "We'd rather flag a suspicious submission than pretend proctoring is perfect.", color: '#3B82F6' },
@@ -81,7 +81,7 @@ export default function AboutPage() {
       <section ref={ref1} className="py-24 px-4">
         <div className="max-w-3xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={inView1 ? { opacity: 1, y: 0 } : {}} className="mb-12">
-            <h2 className="text-3xl md:text-5xl font-black mb-4">How Kryptavia OS started</h2>
+            <h2 className="text-3xl md:text-5xl font-black mb-4">How TieEdu OS started</h2>
           </motion.div>
 
           <motion.div
@@ -91,7 +91,7 @@ export default function AboutPage() {
             className="space-y-6 text-gray-400 text-lg leading-relaxed"
           >
             <p>
-              Kryptavia OS didn't start as a generic quiz app. It was engineered as a high-security assessment engine where tamper-proof proctoring and real-time evaluation turned out to be the part institutions cared about most.
+              TieEdu OS didn't start as a generic quiz app. It was engineered as a high-security assessment engine where tamper-proof proctoring and real-time evaluation turned out to be the part institutions cared about most.
             </p>
             <p>
               Recruiters didn't want another applicant tracker. They wanted to know,
@@ -107,7 +107,7 @@ export default function AboutPage() {
               hiring, for campuses, for anyone who wants to judge skill by what
               someone can build, not what's written on a page.
             </p>
-            <p className="text-white font-bold text-xl">That's Kryptavia OS.</p>
+            <p className="text-white font-bold text-xl">That's TieEdu OS.</p>
           </motion.div>
         </div>
       </section>
@@ -278,14 +278,14 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <KryptaviaLogo size="sm" />
+              <TieEduLogo size="sm" />
             </div>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
               {['Features', 'Pricing', 'Docs', 'Blog', 'Privacy', 'Terms'].map(l => (
                 <a key={l} href="#" className="hover:text-white transition-colors">{l}</a>
               ))}
             </div>
-            <p className="text-xs text-gray-600">© 2026 Kryptavia OS. All rights reserved.</p>
+            <p className="text-xs text-gray-600">© 2026 TieEdu OS. All rights reserved.</p>
           </div>
         </div>
       </footer>

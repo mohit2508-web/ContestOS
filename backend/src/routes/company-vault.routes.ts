@@ -100,8 +100,8 @@ async function seedDefaultCompanyVaults(createdById?: string) {
       adminUser = await prisma.user.create({
         data: {
           id: 'system-seed-user-id',
-          email: 'admin@kryptaviaos.internal',
-          name: 'Kryptavia System Administrator',
+          email: 'admin@tieeduos.internal',
+          name: 'TieEdu System Administrator',
           role: 'SUPER_ADMIN',
           password: '$2b$10$dummyPasswordHashForSystemUserSeedingOnly',
         },

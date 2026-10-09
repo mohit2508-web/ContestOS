@@ -2,7 +2,7 @@ import { evaluateWebDev, parseWebDevSpec } from './services/webDevEvaluator';
 declare const process: any;
 
 async function runIntegrationSuite() {
-  console.log('🧪 Starting Kryptavia OS WebDev Subsystem Automated Integration Suite...\n');
+  console.log('🧪 Starting TieEdu OS WebDev Subsystem Automated Integration Suite...\n');
 
   let passedTests = 0;
   let totalTests = 0;

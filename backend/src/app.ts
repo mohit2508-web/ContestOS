@@ -126,7 +126,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
-    service: 'Kryptavia OS API Engine',
+    service: 'TieEdu OS API Engine',
     timestamp: new Date().toISOString(),
   });
 });
@@ -326,7 +326,7 @@ import { seedCapgeminiLcmProblem } from './seed_capgemini_lcm_problem';
 
 // Start Server
 httpServer.listen(PORT, () => {
-  console.log(`Kryptavia OS Server running on port ${PORT}`);
+  console.log(`TieEdu OS Server running on port ${PORT}`);
   console.log(`Health Check: http://localhost:${PORT}/api/health`);
 
   seedCapgeminiLcmProblem().catch((err) => console.warn('Could not seed Capgemini LCM problem:', err));

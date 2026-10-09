@@ -5,7 +5,7 @@ import { executeSql, runSqlTestCases, extractDdlString } from './services/sqlExe
 const prisma = new PrismaClient();
 
 async function runIntegrationSuite() {
-  console.log('🧪 Starting Kryptavia OS SQL Subsystem Automated Integration Suite...\n');
+  console.log('🧪 Starting TieEdu OS SQL Subsystem Automated Integration Suite...\n');
 
   let passedTests = 0;
   let totalTests = 0;

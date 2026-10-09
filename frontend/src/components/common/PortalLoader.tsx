@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 
 // =================================================================
-// Kryptavia OS — flagship portal loader.
+// TieEdu OS — flagship portal loader.
 // Cinematic sequence built for app shell & post-login transition,
 // syncing to a 4s beat with rotating conic rings, orbiting module icons,
 // exploding/reassembling hex emblem, typewriter status, and equalizer bar.
@@ -160,7 +160,7 @@ export interface PortalLoaderProps {
   title?: string;
 }
 
-export function PortalLoader({ duration = 3500, onComplete, title = 'Kryptavia OS Portal' }: PortalLoaderProps) {
+export function PortalLoader({ duration = 3500, onComplete, title = 'TieEdu OS Portal' }: PortalLoaderProps) {
   const pct = usePercent(duration, onComplete);
   const typed = useTypewriter(MESSAGES);
   const activeIcon = useActiveIndex(4, 700);

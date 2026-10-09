@@ -835,7 +835,7 @@ router.get('/:id/seb-config', authenticateToken, async (req: Request, res: Respo
         <dict>
             <key>action</key><integer>1</integer>
             <key>active</key><true/>
-            <key>expression</key><string>kryptaviaos.vercel.app</string>
+            <key>expression</key><string>tieeduos.vercel.app</string>
             <key>regex</key><false/>
         </dict>
         <!-- ALLOW: Google Fonts (UI typography) -->

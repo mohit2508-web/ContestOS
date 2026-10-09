@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // =================================================================
-// Kryptavia OS Unified Error States System
+// TieEdu OS Unified Error States System
 // Same visual language as empty states (radial glow + eyebrow badge + vector scene)
 // so the entire platform feels like one cohesive system across all portals.
 // =================================================================

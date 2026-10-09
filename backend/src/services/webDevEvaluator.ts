@@ -1,7 +1,7 @@
 import { JSDOM, VirtualConsole } from 'jsdom';
 
 /**
- * Kryptavia OS Web Dev Playground — Server-Side Evaluation Engine
+ * TieEdu OS Web Dev Playground — Server-Side Evaluation Engine
  *
  * Safely renders candidate HTML/CSS/JS inside an isolated in-process DOM
  * (JSDOM) sandbox and asserts against the problem's test suite.
@@ -511,7 +511,7 @@ function buildDocument(html: string, css: string, js: string): string {
         fn.handleEvent({ type: type, target: target, defaultPrevented: false });
       }
     } catch(e) {
-      if (typeof console !== 'undefined') console.error('[Kryptavia OS Evaluator]', e);
+      if (typeof console !== 'undefined') console.error('[TieEdu OS Evaluator]', e);
     }
   }
 
@@ -545,7 +545,7 @@ function buildDocument(html: string, css: string, js: string): string {
     ${js}
   } catch(err) {
     if (typeof console !== 'undefined') {
-      console.error('[Kryptavia OS Evaluator] Script error: ' + (err && err.message ? err.message : String(err)));
+      console.error('[TieEdu OS Evaluator] Script error: ' + (err && err.message ? err.message : String(err)));
     }
   }
 })();

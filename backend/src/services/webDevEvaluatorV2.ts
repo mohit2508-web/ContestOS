@@ -1,5 +1,5 @@
 /**
- * Kryptavia OS Web Dev Playground — Playwright-Based Server-Side Evaluation Engine (V2)
+ * TieEdu OS Web Dev Playground — Playwright-Based Server-Side Evaluation Engine (V2)
  *
  * This is the production-grade evaluator used for "/submit" route.
  * It uses a real headless Chromium browser (Playwright) instead of JSDOM.
@@ -96,7 +96,7 @@ function buildDocument(html: string, css: string, js: string): string {
         fn.handleEvent({ type: type, target: target, defaultPrevented: false });
       }
     } catch(e) {
-      if (typeof console !== 'undefined') console.error('[Kryptavia OS]', e);
+      if (typeof console !== 'undefined') console.error('[TieEdu OS]', e);
     }
   }
 
@@ -129,7 +129,7 @@ function buildDocument(html: string, css: string, js: string): string {
   try {
     ${safeJs}
   } catch(e) {
-    if (typeof console !== 'undefined') console.error('[Kryptavia OS]', e.message);
+    if (typeof console !== 'undefined') console.error('[TieEdu OS]', e.message);
   }
 })();
 `;
@@ -139,7 +139,7 @@ function buildDocument(html: string, css: string, js: string): string {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kryptavia OS Playground</title>
+  <title>TieEdu OS Playground</title>
   <style>${safeCss}</style>
 </head>
 <body>

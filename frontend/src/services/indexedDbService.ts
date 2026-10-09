@@ -1,4 +1,4 @@
-const DB_NAME = 'KryptaviaOS_Quiz_Offline';
+const DB_NAME = 'TieEduOS_Quiz_Offline';
 const DB_VERSION = 1;
 const STORE_NAME = 'offline_answers';
 

@@ -1,7 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { portalLink } from '../lib/portal';
-import { KryptaviaLogo } from '../../components/common/KryptaviaLogo';
+import { TieEduLogo } from '../../components/common/TieEduLogo';
 
 const SECURITY_FEATURES = [
   { icon: '🔐', title: 'End-to-End Encryption', desc: 'AES-256 encryption at rest, TLS 1.3 in transit. Your data never touches unencrypted storage.', color: '#3B82F6' },
@@ -288,14 +288,14 @@ export default function SecurityPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <KryptaviaLogo size="sm" />
+              <TieEduLogo size="sm" />
             </div>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
               {['Features', 'Pricing', 'Security', 'Docs', 'Privacy', 'Terms'].map(l => (
                 <a key={l} href="#" className="hover:text-white transition-colors">{l}</a>
               ))}
             </div>
-            <p className="text-xs text-gray-600">© 2026 Kryptavia OS. All rights reserved.</p>
+            <p className="text-xs text-gray-600">© 2026 TieEdu OS. All rights reserved.</p>
           </div>
         </div>
       </footer>

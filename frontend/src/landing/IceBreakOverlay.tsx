@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { useIceBreak, CrackEvent, DetachEvent } from './useIceBreak';
 import { drawCellPath, Cell } from './lib/shatter';
 import { createWorld, addShard, step, removeExitedShards, destroy, PhysicsWorld } from './lib/physicsWorld';
-import { KryptaviaLogo } from '../components/common/KryptaviaLogo';
+import { TieEduLogo } from '../components/common/TieEduLogo';
 
 interface Props {
   onComplete: () => void;
@@ -263,7 +263,7 @@ export default function IceBreakOverlay({ onComplete, onFading }: Props) {
 
           {/* Bottom-left brand mark */}
           <div className="fixed bottom-8 left-8 z-[60] flex items-center gap-3 opacity-60">
-            <KryptaviaLogo size="sm" />
+            <TieEduLogo size="sm" />
           </div>
 
           {/* Skip button */}

@@ -834,7 +834,7 @@ export function ParticipantDashboard() {
       {gateContest && (
         <AccessCodeGate
           examTitle={gateContest.title}
-          orgLabel={gateContest.organization?.name || 'Kryptavia OS Assessment Portal'}
+          orgLabel={gateContest.organization?.name || 'TieEdu OS Assessment Portal'}
           codeLength={(gateContest as any).accessCode?.length || 8}
           onClose={() => setGateContest(null)}
           onVerify={async (code) => {

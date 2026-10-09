@@ -156,7 +156,7 @@ export function CapgeminiCountdownBanner({
             <h2 className="text-2xl md:text-4xl font-black tracking-tight text-white leading-tight">
               Capgemini Exclusive Mock Test{' '}
               <span className="bg-gradient-to-r from-purple-400 via-amber-400 to-cyan-300 bg-clip-text text-transparent">
-                — Powered by Kryptavia OS
+                — Powered by TieEdu OS
               </span>
             </h2>
             <p className="text-xs md:text-sm text-gray-300 max-w-3xl leading-relaxed">

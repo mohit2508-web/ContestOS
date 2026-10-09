@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
-interface KryptaviaContest {
+interface TieEduContest {
   id: string;
   title: string;
   description?: string;
@@ -34,7 +34,7 @@ export function ContestBoardPage() {
   const role = (user?.role || 'STUDENT').toUpperCase();
   const isStudent = role === 'STUDENT';
 
-  const [contests, setContests] = useState<KryptaviaContest[]>([]);
+  const [contests, setContests] = useState<TieEduContest[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'live' | 'upcoming' | 'ended'>('all');
   const [search, setSearch] = useState('');
@@ -119,7 +119,7 @@ export function ContestBoardPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold mb-3">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                Kryptavia OS Proctored Assessment Engine
+                TieEdu OS Proctored Assessment Engine
               </div>
               <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-2">
                 Coding <span className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent">Contests & Exams</span>
@@ -287,7 +287,7 @@ export function ContestBoardPage() {
 
                   <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
                     <span className="text-[10px] text-gray-500 font-mono">
-                      Host: {contest.organization?.name || 'Kryptavia OS Host'}
+                      Host: {contest.organization?.name || 'TieEdu OS Host'}
                     </span>
 
                     <button

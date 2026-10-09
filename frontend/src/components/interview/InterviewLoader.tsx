@@ -41,7 +41,7 @@ export const InterviewLoader: React.FC<InterviewLoaderProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-white tracking-wide">{MESSAGES[msgIndex]}</span>
               </div>
-              <p className="text-[10px] text-zinc-500 font-mono mt-0.5">Kryptavia OS Live Interview Engine • Encrypted Peer Protocol</p>
+              <p className="text-[10px] text-zinc-500 font-mono mt-0.5">TieEdu OS Live Interview Engine • Encrypted Peer Protocol</p>
             </div>
           </div>
           <div className="hidden sm:flex items-center gap-1.5">
@@ -117,7 +117,7 @@ export const InterviewLoader: React.FC<InterviewLoaderProps> = ({
         {/* Status Text */}
         <div className="max-w-md space-y-2 relative z-10">
           <h2 className="text-xl font-extrabold text-white tracking-tight flex items-center justify-center gap-2">
-            <span>Kryptavia OS</span>
+            <span>TieEdu OS</span>
             <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
               1-on-1 MOCK INTERVIEW
             </span>

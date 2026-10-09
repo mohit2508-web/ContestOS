@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { KryptaviaLogo } from '../../../components/common/KryptaviaLogo';
+import { TieEduLogo } from '../../../components/common/TieEduLogo';
 
 type NavPage = 'company' | 'college' | 'about' | 'pricing' | 'security';
 
@@ -45,7 +45,7 @@ export default function Navbar({ page, onNavigate }: Props) {
 
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <KryptaviaLogo size="sm" />
+          <TieEduLogo size="sm" />
         </div>
 
         <div className="flex items-center gap-1 bg-white/[0.05] rounded-full p-1 border border-white/[0.06]">

@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotify } from '../components/notifications';
-import { KryptaviaLogo } from '../components/common/KryptaviaLogo';
+import { TieEduLogo } from '../components/common/TieEduLogo';
 
 // Role display config
 const ROLE_CONFIG: Record<string, { label: string; emoji: string; color: string; redirect: string; description: string }> = {
@@ -96,7 +96,7 @@ export function AcceptInvitePage() {
     emoji: '✨',
     color: 'from-amber-500 to-yellow-600',
     redirect: '/org',
-    description: 'You\'ve been invited to join an organization on Kryptavia OS.',
+    description: 'You\'ve been invited to join an organization on TieEdu OS.',
   };
 
   // Check expiry warning (within 24 hours)
@@ -151,7 +151,7 @@ export function AcceptInvitePage() {
           <div className="p-8 space-y-6">
             {/* Logo */}
             <div className="flex flex-col items-center justify-center text-center">
-              <KryptaviaLogo size="md" />
+              <TieEduLogo size="md" />
               <p className="text-xs text-gray-500 mt-1">Team Invitation Portal</p>
             </div>
 

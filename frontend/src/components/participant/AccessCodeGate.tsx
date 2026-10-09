@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Lock, ShieldCheck, ShieldAlert, X, Loader2, KeyRound, ShieldQuestion } from 'lucide-react';
-import { KryptaviaLogo } from '../common/KryptaviaLogo';
+import { TieEduLogo } from '../common/TieEduLogo';
 
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_SECONDS = 30;
@@ -25,7 +25,7 @@ export interface AccessCodeGateProps {
 
 export function AccessCodeGate({
   examTitle = 'Cognizant GenC Campus Drive 2026',
-  orgLabel = 'Kryptavia OS Assessment Portal',
+  orgLabel = 'TieEdu OS Assessment Portal',
   codeLength = 6,
   onClose = () => {},
   onVerify,
@@ -123,7 +123,7 @@ export function AccessCodeGate({
     if (isComplete && status === 'idle') handleSubmit();
   }, [isComplete]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Kryptavia OS palette
+  // TieEdu OS palette
   const c = {
     void: '#0A0C10',
     panel: '#111318',
@@ -202,7 +202,7 @@ export function AccessCodeGate({
 
         {/* brand strip, matches sidebar wordmark style */}
         <div className="flex items-center justify-between px-6 pt-5 pb-4" style={{ borderBottom: `1px solid ${c.borderSoft}` }}>
-          <KryptaviaLogo size="sm" />
+          <TieEduLogo size="sm" />
           <button onClick={onClose} disabled={status === 'checking' || status === 'success'} className="acg-close p-1.5 rounded-lg" style={{ color: c.mutedDim, opacity: status === 'checking' || status === 'success' ? 0.25 : 1 }} aria-label="Close">
             <X size={16} />
           </button>

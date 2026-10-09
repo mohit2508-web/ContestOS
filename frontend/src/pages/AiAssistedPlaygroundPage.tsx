@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import { VibeAssistantPanel } from '../components/assistant/VibeAssistantPanel';
-import { KryptaviaLogo } from '../components/common/KryptaviaLogo';
+import { TieEduLogo } from '../components/common/TieEduLogo';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotify } from '../components/notifications';
 import { api } from '../services/api';
@@ -729,7 +729,7 @@ export function AiAssistedPlaygroundPage({
       {/* Top Navigation Header Bar */}
       <header className={`h-14 ${isDayMode ? 'bg-[#1e232a]' : 'bg-[#14161f]'} text-white flex items-center justify-between px-4 shrink-0 shadow z-30`}>
         <div className="flex items-center gap-3">
-          <KryptaviaLogo size="sm" showText={true} />
+          <TieEduLogo size="sm" showText={true} />
           {activeContestMode ? (
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-black rounded-lg flex items-center gap-1.5 shadow-sm">

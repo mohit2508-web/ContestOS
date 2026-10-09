@@ -5,7 +5,7 @@ import { evaluateQuizResponse } from './services/quizEvaluator';
 import { detectSynchronizedCheating, isQuizSessionFrozen, setQuizSessionFreeze } from './services/proctoringService';
 
 async function runQuizIntegrationSuite() {
-  console.log('🧪 Starting Kryptavia OS Quiz Subsystem Automated Integration Suite...\n');
+  console.log('🧪 Starting TieEdu OS Quiz Subsystem Automated Integration Suite...\n');
 
   let passedTests = 0;
   let totalTests = 0;

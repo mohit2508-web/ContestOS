@@ -19,7 +19,7 @@ interface TestCaseEntry {
 
 const LANGUAGE_KEYS = ['cpp', 'java', 'python'] as const;
 
-const AI_PROMPT_TEMPLATE = `You are a problem-import assistant for Kryptavia OS.
+const AI_PROMPT_TEMPLATE = `You are a problem-import assistant for TieEdu OS.
 Your task is to convert ANY coding problem description (Arrays, Strings, Dynamic Programming, Graphs, Matrices, Trees, Math, Linked Lists, etc.) into a structured JSON configuration block matching the corporate assessment format used in AON, CoCubes, HackerEarth, and AMCAT exams.
 
 CRITICAL REQUIREMENTS FOR GENERIC DESCRIPTION FORMATTING:
@@ -87,7 +87,7 @@ Now parse the following problem:
 
 [PASTE YOUR PROBLEM HERE]`;
 
-const SQL_AI_PROMPT_TEMPLATE = `You are a SQL problem import assistant for Kryptavia OS.
+const SQL_AI_PROMPT_TEMPLATE = `You are a SQL problem import assistant for TieEdu OS.
 Your task is to convert any SQL problem description (from LeetCode, HackerRank, StrataScratch, or custom exams) into a structured JSON configuration block matching the following schema.
 
 Requirements:
@@ -121,7 +121,7 @@ Now convert the following SQL problem into JSON:
 
 [PASTE YOUR SQL PROBLEM QUESTION HERE]`;
 
-const WEB_DEV_AI_PROMPT_TEMPLATE = `You are a Web Development problem import assistant for Kryptavia OS.
+const WEB_DEV_AI_PROMPT_TEMPLATE = `You are a Web Development problem import assistant for TieEdu OS.
 Your task is to convert any frontend web development challenge (HTML, CSS, JavaScript, DOM manipulation, React UI component) into a structured JSON configuration block matching the following schema.
 
 Requirements:
@@ -155,7 +155,7 @@ Now convert the following Web-Dev problem into JSON:
 
 [PASTE YOUR WEB DEV PROBLEM HERE]`;
 
-const VIBE_CODE_AI_PROMPT_TEMPLATE = `You are an AI Coding Assistant problem import helper for Kryptavia OS (AON Socratic / Corporate Assessment Mode).
+const VIBE_CODE_AI_PROMPT_TEMPLATE = `You are an AI Coding Assistant problem import helper for TieEdu OS (AON Socratic / Corporate Assessment Mode).
 Your task is to convert ANY coding problem description (Arrays, Strings, Dynamic Programming, Graphs, Matrices, Linked Lists, Trees, Stack/Queue, Math, etc.) into a structured JSON configuration block matching the corporate assessment format used in AON, CoCubes, HackerEarth, and AMCAT exams.
 
 CRITICAL REQUIREMENTS FOR GENERIC DESCRIPTION FORMATTING:
@@ -1088,7 +1088,7 @@ export function TeacherProblemEditorPage() {
             <div className="flex items-center gap-3">
               <span className="text-2xl">💡</span>
               <div>
-                <h3 className="text-md font-bold text-blue-300">Kryptavia OS Problem Mapping Guide & Best Practices</h3>
+                <h3 className="text-md font-bold text-blue-300">TieEdu OS Problem Mapping Guide & Best Practices</h3>
                 <p className="text-xs text-blue-400/80 mt-0.5">Click to expand our step-by-step guidelines for creating coding, SQL, and Web-Dev challenges.</p>
               </div>
             </div>
@@ -1208,7 +1208,7 @@ export function TeacherProblemEditorPage() {
                   />
                   <div>
                     <p className="text-sm font-bold text-purple-300">Publish to Public Platform Bank</p>
-                    <p className="text-xs text-purple-400/70">Allow all organizations on Kryptavia OS to view & clone this question.</p>
+                    <p className="text-xs text-purple-400/70">Allow all organizations on TieEdu OS to view & clone this question.</p>
                   </div>
                 </label>
               </div>

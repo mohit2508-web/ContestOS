@@ -349,7 +349,7 @@ export function ContestReport() {
         <span>SHA-256 Tamper Digest: </span>
         <span class="sha-box">sha256-${sha256Hash}</span>
       </div>
-      <div>Verified by Kryptavia OS Exam Integrity Engine</div>
+      <div>Verified by TieEdu OS Exam Integrity Engine</div>
     </div>
   </div>
 </body>
@@ -594,7 +594,7 @@ export function ContestReport() {
             <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 print-card flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h2 className="text-2xl font-black text-white md:text-3xl tracking-tight no-print">CONTEST SCORECARD</h2>
-                <h2 className="hidden print:block text-2xl font-black text-black">Kryptavia OS Exam Performance Certificate</h2>
+                <h2 className="hidden print:block text-2xl font-black text-black">TieEdu OS Exam Performance Certificate</h2>
                 <div className="flex flex-wrap items-center gap-3 mt-2 text-xs md:text-sm text-gray-400">
                   <span>Candidate ID: <strong className="text-white print:text-black">{report.participant.id.slice(0, 8)}</strong></span>
                   <span>•</span>

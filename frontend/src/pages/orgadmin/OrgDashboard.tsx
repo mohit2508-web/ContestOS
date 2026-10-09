@@ -1696,7 +1696,7 @@ function TeamTab({
                 </div>
                 <h4 className="text-lg font-black text-white">Invitation Created Successfully!</h4>
                 <p className="text-xs text-gray-400 max-w-md mx-auto">
-                  If the invited user has a Kryptavia OS account, an instant alert has been pushed to their 🔔 Notification Bell.
+                  If the invited user has a TieEdu OS account, an instant alert has been pushed to their 🔔 Notification Bell.
                   You can also share this link directly:
                 </p>
 
@@ -1921,7 +1921,7 @@ function ParticipantsTab({ contests, org }: { contests: Contest[]; org: OrgData 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `kryptaviaos_candidates_${selectedDriveId}_${Date.now()}.csv`);
+    link.setAttribute('download', `tieeduos_candidates_${selectedDriveId}_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -2555,7 +2555,7 @@ function SamlConfigTab({ org, reload }: { org: OrgData | null; reload: () => voi
         <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-2">
           <span>⚙️ Step 1: Service Provider (SP) Metadata for your IdP</span>
         </h3>
-        <p className="text-xs text-gray-400">Provide these URLs when setting up the Kryptavia OS SAML App in Okta, Azure AD, or Ping:</p>
+        <p className="text-xs text-gray-400">Provide these URLs when setting up the TieEdu OS SAML App in Okta, Azure AD, or Ping:</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
           <div className="bg-black p-3.5 rounded-xl border border-white/10 space-y-1">

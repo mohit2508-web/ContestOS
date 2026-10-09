@@ -31,7 +31,7 @@ export function generateSebConfig(options: SebConfigOptions): string {
     : '';
 
   // Extract allowed domain from startUrl for URL filter rules
-  let allowedDomain = 'kryptaviaos.vercel.app';
+  let allowedDomain = 'tieeduos.vercel.app';
   try {
     const parsed = new URL(startUrl);
     allowedDomain = parsed.hostname;
@@ -44,7 +44,7 @@ export function generateSebConfig(options: SebConfigOptions): string {
     <key>originatorVersion</key>
     <string>SEB 3.0</string>
 
-    <!-- Start URL for Kryptavia OS Exam -->
+    <!-- Start URL for TieEdu OS Exam -->
     <key>startURL</key>
     <string>${startUrl}</string>
 

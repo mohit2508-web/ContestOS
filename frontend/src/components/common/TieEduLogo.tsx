@@ -51,4 +51,5 @@ export function TieEduLogo({
   );
 }
 
+export const KryptaviaLogo = TieEduLogo;
 export default TieEduLogo;

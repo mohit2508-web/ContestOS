@@ -228,7 +228,7 @@ export function EvaluatorDashboard() {
                   OFFICIAL EVALUATION & GRADING DIRECTIVE ACCORD
                 </span>
                 <h3 className="text-sm font-black text-white">
-                  Kryptavia OS Governance Engine · Official Evaluator Code of Conduct
+                  TieEdu OS Governance Engine · Official Evaluator Code of Conduct
                 </h3>
               </div>
             </div>
@@ -607,7 +607,7 @@ export function EvaluatorDashboard() {
                     <button
                       onClick={async () => {
                         await notify.alert('Encrypted Audit Report Downloaded', {
-                          description: `File: KryptaviaOS_Evaluation_Audit_Report_${Date.now()}.pdf\nDecryption Key: admin123\nSHA-256 Digest: ${reportSha256Digest}`,
+                          description: `File: TieEduOS_Evaluation_Audit_Report_${Date.now()}.pdf\nDecryption Key: admin123\nSHA-256 Digest: ${reportSha256Digest}`,
                           variant: 'success',
                         });
                       }}

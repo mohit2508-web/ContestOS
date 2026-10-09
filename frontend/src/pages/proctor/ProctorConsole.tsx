@@ -784,7 +784,7 @@ export const ProctorConsolePage: React.FC = () => {
                 OFFICIAL CHIEF PROCTOR INVIGILATION DIRECTIVE
               </span>
               <h3 className="text-xs font-bold text-white">
-                Kryptavia OS Governance Engine · Official Invigilator Statutes
+                TieEdu OS Governance Engine · Official Invigilator Statutes
               </h3>
             </div>
           </div>
@@ -1766,7 +1766,7 @@ export const ProctorConsolePage: React.FC = () => {
             {/* Footer */}
             <div className="p-4 bg-zinc-900/60 border-t border-white/10 flex items-center justify-between">
               <span className="text-[11px] text-zinc-400">
-                Verified by Kryptavia OS Plagiarism Engine (AST Tokenizer)
+                Verified by TieEdu OS Plagiarism Engine (AST Tokenizer)
               </span>
               <button
                 onClick={() => setSelectedDiffPair(null)}
@@ -1929,7 +1929,7 @@ export const ProctorConsolePage: React.FC = () => {
                     <span className="font-bold text-white">Report Verification Checksum: </span>
                     <span className="font-mono text-zinc-400">{reportSha256Hash.substring(0, 32)}...</span>
                   </div>
-                  <span className="text-zinc-500">Certified by Kryptavia OS Integrity Engine</span>
+                  <span className="text-zinc-500">Certified by TieEdu OS Integrity Engine</span>
                 </div>
               </div>
             )}

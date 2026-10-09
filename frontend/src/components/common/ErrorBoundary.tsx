@@ -21,7 +21,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error caught by Kryptavia OS ErrorBoundary:', error, errorInfo);
+    console.error('Uncaught error caught by TieEdu OS ErrorBoundary:', error, errorInfo);
   }
 
   public render() {

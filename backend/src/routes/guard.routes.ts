@@ -128,14 +128,14 @@ router.get('/seb-config/:contestId', async (req: Request, res: Response): Promis
 
     const sebXml = generateSebConfig({
       contestId,
-      contestTitle: contest?.title || 'Kryptavia OS Exam',
+      contestTitle: contest?.title || 'TieEdu OS Exam',
       startUrl: contestStartUrl,
       allowQuit: true,
       quitPassword: 'exit-exam-pwd',
     });
 
     res.setHeader('Content-Type', 'application/seb');
-    res.setHeader('Content-Disposition', `attachment; filename="Kryptavia_Exam_${contestId}.seb"`);
+    res.setHeader('Content-Disposition', `attachment; filename="TieEdu_Exam_${contestId}.seb"`);
     res.send(sebXml);
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to generate SEB configuration file' });

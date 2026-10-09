@@ -3276,7 +3276,7 @@ function SebGateOverlay({ contest, onBypass }: { contest: any; onBypass: () => v
 
         {/* Bypass Dev Mode */}
         <div className="pt-3 border-t border-white/10 flex items-center justify-between">
-          <span className="text-[10px] font-mono text-zinc-500">Kryptavia OS Security Engine</span>
+          <span className="text-[10px] font-mono text-zinc-500">TieEdu OS Security Engine</span>
           <button
             type="button"
             onClick={onBypass}

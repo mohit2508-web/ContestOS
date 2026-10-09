@@ -9,7 +9,7 @@ import CertificatePreview from '../components/college/CertificatePreview';
 import PlacementConnect from '../components/college/PlacementConnect';
 import CollegeCTA from '../components/college/CollegeCTA';
 import LiveJudgeSpeed from '../components/shared/LiveJudgeSpeed';
-import { KryptaviaLogo } from '../../components/common/KryptaviaLogo';
+import { TieEduLogo } from '../../components/common/TieEduLogo';
 
 export default function CollegePage() {
   return (
@@ -31,14 +31,14 @@ export default function CollegePage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-3">
-              <KryptaviaLogo size="sm" />
+              <TieEduLogo size="sm" />
             </div>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
               {['Features', 'Pricing', 'Docs', 'Blog', 'Privacy', 'Terms'].map(l => (
                 <a key={l} href="#" className="hover:text-white transition-colors">{l}</a>
               ))}
             </div>
-            <p className="text-xs text-gray-600">© 2026 Kryptavia OS. All rights reserved.</p>
+            <p className="text-xs text-gray-600">© 2026 TieEdu OS. All rights reserved.</p>
           </div>
         </div>
       </footer>

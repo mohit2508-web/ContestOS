@@ -197,7 +197,7 @@ export function DashboardTour() {
 
           <div className="space-y-2">
             <h2 className="text-lg font-bold text-white tracking-tight">
-              Welcome to Kryptavia OS
+              Welcome to TieEdu OS
             </h2>
             <p className="text-zinc-400 text-xs leading-relaxed">
               Take a quick 2-step tour to learn how to register for live assessment drives and access your performance scorecards.
