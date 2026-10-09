@@ -122,6 +122,7 @@ model Organization {
   auditLogs         AuditLog[]
   questionBanks     QuestionBank[]
   interviewSessions MockInterviewSession[]
+  companyVaults     CompanyVault[]
 }
 
 model User {
@@ -173,7 +174,10 @@ model User {
   interviewParticipants InterviewParticipant[]
 
   // Capgemini AI-assisted Coding Socratic Engine
-  assistantSessions AssistantSession[]
+  assistantSessions    AssistantSession[]
+  problemAiCreditLogs  ProblemAiCreditLog[]
+  createdCompanyVaults CompanyVault[]       @relation("CreatedCompanyVaults")
+  companyAccessLogs    CompanyAccessLog[]
 }
 
 model Problem {
@@ -197,6 +201,11 @@ model Problem {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
+  // Per-Question AI Credit System
+  aiCreditsRemaining Int                  @default(2000)
+  aiCreditsMax       Int                  @default(2000)
+  aiCreditLogs       ProblemAiCreditLog[]
+
   testCases         TestCase[]
   contestProblems   ContestProblem[]
   submissions       Submission[]
@@ -204,6 +213,20 @@ model Problem {
 
   @@index([organizationId, isPublic])
   @@index([createdById])
+}
+
+model ProblemAiCreditLog {
+  id               String   @id @default(uuid())
+  problemId        String
+  problem          Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action           String // 'GENERATE_PROBLEM' | 'AI_CODE_ASSIST' | 'TESTCASE_GENERATE' | 'HINT_GENERATE'
+  creditsDeducted  Int
+  creditsRemaining Int
+  createdAt        DateTime @default(now())
+
+  @@index([problemId, createdAt])
 }
 
 model TestCase {
@@ -965,4 +988,75 @@ model AssistantCodeSnapshot {
   version    Int              @default(1)
   insertedAt DateTime?
   createdAt  DateTime         @default(now())
+}
+
+// ─────────────────────────────────────────────────────────────
+// COMPANY PLACEMENT PREP & SECRET VAULT MODULE
+// ─────────────────────────────────────────────────────────────
+
+model CompanyVault {
+  id              String        @id @default(uuid())
+  name            String // e.g. "Amazon SDE-1 Placement Vault"
+  slug            String        @unique
+  companyName     String // "Amazon"
+  brandColor      String        @default("#FF9900") // Ambient glow color
+  logoUrl         String?
+  targetCtc       String? // "18 - 32 LPA"
+  examPattern     String? // "AON Assessment + 3 Technical Rounds"
+  description     String?
+  accessCode      String // Hashed secret code
+  accessCodePlain String? // Admin reference
+  expiresAt       DateTime? // Passcode expiration date
+  isLocked        Boolean       @default(true)
+  organizationId  String?
+  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  createdById     String
+  createdBy       User          @relation("CreatedCompanyVaults", fields: [createdById], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  materials   CompanyMaterial[]
+  transcripts CompanyInterviewTranscript[]
+  accessLogs  CompanyAccessLog[]
+
+  @@index([slug, isLocked])
+}
+
+model CompanyMaterial {
+  id           String       @id @default(uuid())
+  vaultId      String
+  vault        CompanyVault @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  title        String
+  materialType String // 'PROBLEM' | 'QUIZ' | 'PDF_GUIDE' | 'ROUND_INTEL'
+  contentUrl   String? // PDF link or external resource
+  dataJson     Json? // Problem/Quiz embedded payload
+  order        Int          @default(0)
+  createdAt    DateTime     @default(now())
+
+  @@index([vaultId, order])
+}
+
+model CompanyInterviewTranscript {
+  id         String       @id @default(uuid())
+  vaultId    String
+  vault      CompanyVault @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  roleTitle  String // "SDE-1 / System Engineer"
+  location   String? // "Bangalore / Remote"
+  experience String // Detailed candidate interview breakdown
+  difficulty String       @default("Medium")
+  upvotes    Int          @default(0)
+  createdAt  DateTime     @default(now())
+
+  @@index([vaultId])
+}
+
+model CompanyAccessLog {
+  id         String       @id @default(uuid())
+  vaultId    String
+  vault      CompanyVault @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unlockedAt DateTime     @default(now())
+
+  @@unique([vaultId, userId])
 }
