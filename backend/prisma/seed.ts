@@ -6,7 +6,7 @@ declare const process: any;
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Starting Kryptavia OS Database Seeding...');
+  console.log('Starting TieEdu OS Database Seeding...');
 
   const org = await prisma.organization.upsert({
     where: { slug: 'iit-delhi' },
@@ -28,11 +28,11 @@ async function main() {
   const studentPassword = await bcrypt.hash('Student@123456', 12);
 
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'admin@kryptavia.io' },
+    where: { email: 'admin@kryptavia.in' },
     update: {},
     create: {
-      name: 'Kryptavia OS Platform Admin',
-      email: 'admin@kryptavia.io',
+      name: 'TieEdu OS Platform Admin',
+      email: 'admin@kryptavia.in',
       password: password,
       role: 'SUPER_ADMIN' as Role,
       status: 'ACTIVE',

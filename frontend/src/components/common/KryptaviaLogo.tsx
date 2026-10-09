@@ -55,7 +55,7 @@ export function KryptaviaLogo({
       {showText && (
         <div className="flex flex-col min-w-0">
           <div className={`font-black ${dimensions.text} text-white tracking-tight flex items-center gap-1 font-sans`}>
-            <span>Kryptavia</span>
+            <span>TieEdu</span>
             <span className="text-amber-400 font-extrabold">OS</span>
           </div>
           {showTagline && (
