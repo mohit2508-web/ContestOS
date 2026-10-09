@@ -58,7 +58,7 @@ const io = new SocketServer(httpServer, {
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return callback(null, true);
-      if (/\.vercel\.app$/.test(origin) || /\.render\.com$/.test(origin)) return callback(null, true);
+      if (/\.vercel\.app$/.test(origin) || /\.render\.com$/.test(origin) || /\.kryptavia\.in$/.test(origin) || origin === 'https://kryptavia.in') return callback(null, true);
       return callback(null, true); // Allow all — same CORS policy as HTTP
     },
     credentials: true,
@@ -108,8 +108,8 @@ app.use(cors({
     if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
       return callback(null, true);
     }
-    // Allow vercel.app and your custom domains
-    if (/\.vercel\.app$/.test(origin) || /\.render\.com$/.test(origin)) {
+    // Allow vercel.app, render.com, and kryptavia.in custom domains
+    if (/\.vercel\.app$/.test(origin) || /\.render\.com$/.test(origin) || /\.kryptavia\.in$/.test(origin) || origin === 'https://kryptavia.in') {
       return callback(null, true);
     }
     if (allowedOrigins.includes(origin)) {
