@@ -717,6 +717,33 @@ model GuestInvite {
   @@index([token])
 }
 
+// ── TieEdu assessment-bridge hand-off sessions ─────────────────────────────
+// One row per (Kryptavia user, TieEdu test) pairing created when a TieEdu
+// student arrives through the one-time launch token. Holds the context needed
+// to report attempt.started / attempt.completed back to TieEdu.
+model BridgeSession {
+  id                 String    @id @default(uuid())
+  kryptaviaUserId    String
+  contestId          String
+  tieeduUserId       String
+  driveId            String
+  testId             String
+  providerAttemptId  String
+  rollNo             String?
+  returnUrl          String?
+  status             String    @default("launched") // launched | in_progress | completed | aborted
+  startedEventSent   Boolean   @default(false)
+  completedEventSent Boolean   @default(false)
+  startedAt          DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([kryptaviaUserId, testId])
+  @@index([kryptaviaUserId, contestId])
+  @@index([status])
+}
+
 // ── COMPLIANCE_OFFICER: GDPR erasure request queue ────────────────────────
 model GdprErasureRequest {
   id               String    @id @default(uuid())

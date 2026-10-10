@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import prisma from '../lib/prisma';
 import { authenticateToken } from '../middlewares/auth';
 import { requireRole } from '../middlewares/rbac';
+import { reportAttemptStarted, reportAttemptCompleted } from '../lib/tieeduBridge';
 import crypto from 'crypto';
 
 const router = Router();
@@ -647,6 +648,9 @@ router.post('/:id/join', authenticateToken, async (req: Request, res: Response):
       },
     });
 
+    // Report attempt.started to TieEdu (no-op unless this is a bridged candidate).
+    await reportAttemptStarted(userId, contestId);
+
     res.json({ success: true, message: 'Successfully joined contest' });
   } catch (error: any) {
     res.status(500).json({ error: 'Failed to join contest' });
@@ -985,6 +989,9 @@ router.post('/:id/finalize', authenticateToken, async (req: Request, res: Respon
     } catch (_e) {
       // Table may not exist in migration yet — swallow
     }
+
+    // Report attempt.completed to TieEdu (no-op unless this is a bridged candidate).
+    await reportAttemptCompleted(userId, contestId);
 
     res.json({ success: true, message: 'Exam finalized and submitted.' });
   } catch (error: any) {

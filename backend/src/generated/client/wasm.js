@@ -545,6 +545,25 @@ exports.Prisma.GuestInviteScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.BridgeSessionScalarFieldEnum = {
+  id: 'id',
+  kryptaviaUserId: 'kryptaviaUserId',
+  contestId: 'contestId',
+  tieeduUserId: 'tieeduUserId',
+  driveId: 'driveId',
+  testId: 'testId',
+  providerAttemptId: 'providerAttemptId',
+  rollNo: 'rollNo',
+  returnUrl: 'returnUrl',
+  status: 'status',
+  startedEventSent: 'startedEventSent',
+  completedEventSent: 'completedEventSent',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.GdprErasureRequestScalarFieldEnum = {
   id: 'id',
   requestedByEmail: 'requestedByEmail',
@@ -956,6 +975,7 @@ exports.Prisma.ModelName = {
   QuizItemAnalytics: 'QuizItemAnalytics',
   BreakGlassAuditLog: 'BreakGlassAuditLog',
   GuestInvite: 'GuestInvite',
+  BridgeSession: 'BridgeSession',
   GdprErasureRequest: 'GdprErasureRequest',
   ContestModerationAssignment: 'ContestModerationAssignment',
   Notification: 'Notification',

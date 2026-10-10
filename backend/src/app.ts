@@ -44,6 +44,7 @@ import guestRoutes from './routes/guest.routes';
 import complianceRoutes from './routes/compliance.routes';
 import notificationRoutes from './routes/notification.routes';
 import ssoRoutes from './routes/sso.routes';
+import bridgeRoutes from './routes/bridge.routes';
 import assistantRoutes from './routes/assistant.routes';
 import companyVaultRoutes from './routes/company-vault.routes';
 import { closeBrowser } from './services/webDevEvaluatorV2';
@@ -267,6 +268,9 @@ app.get('/api/classes/:id/students', (_req, res) => {
 // Auth & SSO Routes
 app.use('/api/auth/sso', ssoRoutes);
 app.use('/api/auth', authRoutes);
+
+// TieEdu Assessment Bridge (SSO hand-off + attempt lifecycle webhooks)
+app.use('/api/bridge', bridgeRoutes);
 
 // Organization Management
 app.use('/api/org', orgRoutes);

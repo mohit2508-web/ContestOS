@@ -56,6 +56,7 @@ export function SsoCallbackPage() {
     const email = searchParams.get('email') || '';
     const role = searchParams.get('role') || 'STUDENT';
     const provider = searchParams.get('provider') || 'Single Sign-On';
+    const nextPath = searchParams.get('next');
     const err = searchParams.get('error');
 
     if (err) {
@@ -70,7 +71,7 @@ export function SsoCallbackPage() {
       return;
     }
 
-    const redirectPath = roleToPath(role);
+    const redirectPath = nextPath && nextPath.startsWith('/') ? nextPath : roleToPath(role);
 
     // Save tokens and user session in AuthContext
     login(token, refreshToken, {

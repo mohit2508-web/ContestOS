@@ -159,6 +159,11 @@ export type BreakGlassAuditLog = $Result.DefaultSelection<Prisma.$BreakGlassAudi
  */
 export type GuestInvite = $Result.DefaultSelection<Prisma.$GuestInvitePayload>
 /**
+ * Model BridgeSession
+ * 
+ */
+export type BridgeSession = $Result.DefaultSelection<Prisma.$BridgeSessionPayload>
+/**
  * Model GdprErasureRequest
  * 
  */
@@ -943,6 +948,16 @@ export class PrismaClient<
   get guestInvite(): Prisma.GuestInviteDelegate<ExtArgs>;
 
   /**
+   * `prisma.bridgeSession`: Exposes CRUD operations for the **BridgeSession** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BridgeSessions
+    * const bridgeSessions = await prisma.bridgeSession.findMany()
+    * ```
+    */
+  get bridgeSession(): Prisma.BridgeSessionDelegate<ExtArgs>;
+
+  /**
    * `prisma.gdprErasureRequest`: Exposes CRUD operations for the **GdprErasureRequest** model.
     * Example usage:
     * ```ts
@@ -1591,6 +1606,7 @@ export namespace Prisma {
     QuizItemAnalytics: 'QuizItemAnalytics',
     BreakGlassAuditLog: 'BreakGlassAuditLog',
     GuestInvite: 'GuestInvite',
+    BridgeSession: 'BridgeSession',
     GdprErasureRequest: 'GdprErasureRequest',
     ContestModerationAssignment: 'ContestModerationAssignment',
     Notification: 'Notification',
@@ -1624,7 +1640,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organization" | "user" | "problem" | "problemAiCreditLog" | "testCase" | "contest" | "contestProblem" | "contestRegistration" | "submission" | "proctoringLog" | "plagiarismReport" | "teamInvitation" | "contestAssignment" | "auditLog" | "refreshToken" | "organizationRequest" | "contestSection" | "questionBank" | "quizPassage" | "quizQuestion" | "questionVersion" | "questionReviewLog" | "contestAssemblyRule" | "quizOption" | "quizAttemptQuestion" | "quizResponse" | "quizItemAnalytics" | "breakGlassAuditLog" | "guestInvite" | "gdprErasureRequest" | "contestModerationAssignment" | "notification" | "mockInterviewSession" | "interviewParticipant" | "interviewFeedback" | "interviewCodeSnapshot" | "interviewHintRequest" | "interviewExecutionResult" | "assistantSession" | "capturedAnswer" | "assistantTranscript" | "assistantStageEvent" | "assistantCodeSnapshot" | "companyVault" | "companyMaterial" | "companyInterviewTranscript" | "companyAccessLog"
+      modelProps: "organization" | "user" | "problem" | "problemAiCreditLog" | "testCase" | "contest" | "contestProblem" | "contestRegistration" | "submission" | "proctoringLog" | "plagiarismReport" | "teamInvitation" | "contestAssignment" | "auditLog" | "refreshToken" | "organizationRequest" | "contestSection" | "questionBank" | "quizPassage" | "quizQuestion" | "questionVersion" | "questionReviewLog" | "contestAssemblyRule" | "quizOption" | "quizAttemptQuestion" | "quizResponse" | "quizItemAnalytics" | "breakGlassAuditLog" | "guestInvite" | "bridgeSession" | "gdprErasureRequest" | "contestModerationAssignment" | "notification" | "mockInterviewSession" | "interviewParticipant" | "interviewFeedback" | "interviewCodeSnapshot" | "interviewHintRequest" | "interviewExecutionResult" | "assistantSession" | "capturedAnswer" | "assistantTranscript" | "assistantStageEvent" | "assistantCodeSnapshot" | "companyVault" | "companyMaterial" | "companyInterviewTranscript" | "companyAccessLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3655,6 +3671,76 @@ export namespace Prisma {
           count: {
             args: Prisma.GuestInviteCountArgs<ExtArgs>
             result: $Utils.Optional<GuestInviteCountAggregateOutputType> | number
+          }
+        }
+      }
+      BridgeSession: {
+        payload: Prisma.$BridgeSessionPayload<ExtArgs>
+        fields: Prisma.BridgeSessionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BridgeSessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BridgeSessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload>
+          }
+          findFirst: {
+            args: Prisma.BridgeSessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BridgeSessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload>
+          }
+          findMany: {
+            args: Prisma.BridgeSessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload>[]
+          }
+          create: {
+            args: Prisma.BridgeSessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload>
+          }
+          createMany: {
+            args: Prisma.BridgeSessionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BridgeSessionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload>[]
+          }
+          delete: {
+            args: Prisma.BridgeSessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload>
+          }
+          update: {
+            args: Prisma.BridgeSessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload>
+          }
+          deleteMany: {
+            args: Prisma.BridgeSessionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BridgeSessionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.BridgeSessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BridgeSessionPayload>
+          }
+          aggregate: {
+            args: Prisma.BridgeSessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBridgeSession>
+          }
+          groupBy: {
+            args: Prisma.BridgeSessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BridgeSessionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BridgeSessionCountArgs<ExtArgs>
+            result: $Utils.Optional<BridgeSessionCountAggregateOutputType> | number
           }
         }
       }
@@ -37698,6 +37784,1016 @@ export namespace Prisma {
 
 
   /**
+   * Model BridgeSession
+   */
+
+  export type AggregateBridgeSession = {
+    _count: BridgeSessionCountAggregateOutputType | null
+    _min: BridgeSessionMinAggregateOutputType | null
+    _max: BridgeSessionMaxAggregateOutputType | null
+  }
+
+  export type BridgeSessionMinAggregateOutputType = {
+    id: string | null
+    kryptaviaUserId: string | null
+    contestId: string | null
+    tieeduUserId: string | null
+    driveId: string | null
+    testId: string | null
+    providerAttemptId: string | null
+    rollNo: string | null
+    returnUrl: string | null
+    status: string | null
+    startedEventSent: boolean | null
+    completedEventSent: boolean | null
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BridgeSessionMaxAggregateOutputType = {
+    id: string | null
+    kryptaviaUserId: string | null
+    contestId: string | null
+    tieeduUserId: string | null
+    driveId: string | null
+    testId: string | null
+    providerAttemptId: string | null
+    rollNo: string | null
+    returnUrl: string | null
+    status: string | null
+    startedEventSent: boolean | null
+    completedEventSent: boolean | null
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BridgeSessionCountAggregateOutputType = {
+    id: number
+    kryptaviaUserId: number
+    contestId: number
+    tieeduUserId: number
+    driveId: number
+    testId: number
+    providerAttemptId: number
+    rollNo: number
+    returnUrl: number
+    status: number
+    startedEventSent: number
+    completedEventSent: number
+    startedAt: number
+    completedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BridgeSessionMinAggregateInputType = {
+    id?: true
+    kryptaviaUserId?: true
+    contestId?: true
+    tieeduUserId?: true
+    driveId?: true
+    testId?: true
+    providerAttemptId?: true
+    rollNo?: true
+    returnUrl?: true
+    status?: true
+    startedEventSent?: true
+    completedEventSent?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BridgeSessionMaxAggregateInputType = {
+    id?: true
+    kryptaviaUserId?: true
+    contestId?: true
+    tieeduUserId?: true
+    driveId?: true
+    testId?: true
+    providerAttemptId?: true
+    rollNo?: true
+    returnUrl?: true
+    status?: true
+    startedEventSent?: true
+    completedEventSent?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BridgeSessionCountAggregateInputType = {
+    id?: true
+    kryptaviaUserId?: true
+    contestId?: true
+    tieeduUserId?: true
+    driveId?: true
+    testId?: true
+    providerAttemptId?: true
+    rollNo?: true
+    returnUrl?: true
+    status?: true
+    startedEventSent?: true
+    completedEventSent?: true
+    startedAt?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BridgeSessionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BridgeSession to aggregate.
+     */
+    where?: BridgeSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BridgeSessions to fetch.
+     */
+    orderBy?: BridgeSessionOrderByWithRelationInput | BridgeSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BridgeSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BridgeSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BridgeSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BridgeSessions
+    **/
+    _count?: true | BridgeSessionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BridgeSessionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BridgeSessionMaxAggregateInputType
+  }
+
+  export type GetBridgeSessionAggregateType<T extends BridgeSessionAggregateArgs> = {
+        [P in keyof T & keyof AggregateBridgeSession]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBridgeSession[P]>
+      : GetScalarType<T[P], AggregateBridgeSession[P]>
+  }
+
+
+
+
+  export type BridgeSessionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BridgeSessionWhereInput
+    orderBy?: BridgeSessionOrderByWithAggregationInput | BridgeSessionOrderByWithAggregationInput[]
+    by: BridgeSessionScalarFieldEnum[] | BridgeSessionScalarFieldEnum
+    having?: BridgeSessionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BridgeSessionCountAggregateInputType | true
+    _min?: BridgeSessionMinAggregateInputType
+    _max?: BridgeSessionMaxAggregateInputType
+  }
+
+  export type BridgeSessionGroupByOutputType = {
+    id: string
+    kryptaviaUserId: string
+    contestId: string
+    tieeduUserId: string
+    driveId: string
+    testId: string
+    providerAttemptId: string
+    rollNo: string | null
+    returnUrl: string | null
+    status: string
+    startedEventSent: boolean
+    completedEventSent: boolean
+    startedAt: Date | null
+    completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: BridgeSessionCountAggregateOutputType | null
+    _min: BridgeSessionMinAggregateOutputType | null
+    _max: BridgeSessionMaxAggregateOutputType | null
+  }
+
+  type GetBridgeSessionGroupByPayload<T extends BridgeSessionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BridgeSessionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BridgeSessionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BridgeSessionGroupByOutputType[P]>
+            : GetScalarType<T[P], BridgeSessionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BridgeSessionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    kryptaviaUserId?: boolean
+    contestId?: boolean
+    tieeduUserId?: boolean
+    driveId?: boolean
+    testId?: boolean
+    providerAttemptId?: boolean
+    rollNo?: boolean
+    returnUrl?: boolean
+    status?: boolean
+    startedEventSent?: boolean
+    completedEventSent?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["bridgeSession"]>
+
+  export type BridgeSessionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    kryptaviaUserId?: boolean
+    contestId?: boolean
+    tieeduUserId?: boolean
+    driveId?: boolean
+    testId?: boolean
+    providerAttemptId?: boolean
+    rollNo?: boolean
+    returnUrl?: boolean
+    status?: boolean
+    startedEventSent?: boolean
+    completedEventSent?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["bridgeSession"]>
+
+  export type BridgeSessionSelectScalar = {
+    id?: boolean
+    kryptaviaUserId?: boolean
+    contestId?: boolean
+    tieeduUserId?: boolean
+    driveId?: boolean
+    testId?: boolean
+    providerAttemptId?: boolean
+    rollNo?: boolean
+    returnUrl?: boolean
+    status?: boolean
+    startedEventSent?: boolean
+    completedEventSent?: boolean
+    startedAt?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+
+  export type $BridgeSessionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BridgeSession"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      kryptaviaUserId: string
+      contestId: string
+      tieeduUserId: string
+      driveId: string
+      testId: string
+      providerAttemptId: string
+      rollNo: string | null
+      returnUrl: string | null
+      status: string
+      startedEventSent: boolean
+      completedEventSent: boolean
+      startedAt: Date | null
+      completedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["bridgeSession"]>
+    composites: {}
+  }
+
+  type BridgeSessionGetPayload<S extends boolean | null | undefined | BridgeSessionDefaultArgs> = $Result.GetResult<Prisma.$BridgeSessionPayload, S>
+
+  type BridgeSessionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<BridgeSessionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: BridgeSessionCountAggregateInputType | true
+    }
+
+  export interface BridgeSessionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BridgeSession'], meta: { name: 'BridgeSession' } }
+    /**
+     * Find zero or one BridgeSession that matches the filter.
+     * @param {BridgeSessionFindUniqueArgs} args - Arguments to find a BridgeSession
+     * @example
+     * // Get one BridgeSession
+     * const bridgeSession = await prisma.bridgeSession.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BridgeSessionFindUniqueArgs>(args: SelectSubset<T, BridgeSessionFindUniqueArgs<ExtArgs>>): Prisma__BridgeSessionClient<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one BridgeSession that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {BridgeSessionFindUniqueOrThrowArgs} args - Arguments to find a BridgeSession
+     * @example
+     * // Get one BridgeSession
+     * const bridgeSession = await prisma.bridgeSession.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BridgeSessionFindUniqueOrThrowArgs>(args: SelectSubset<T, BridgeSessionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BridgeSessionClient<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first BridgeSession that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BridgeSessionFindFirstArgs} args - Arguments to find a BridgeSession
+     * @example
+     * // Get one BridgeSession
+     * const bridgeSession = await prisma.bridgeSession.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BridgeSessionFindFirstArgs>(args?: SelectSubset<T, BridgeSessionFindFirstArgs<ExtArgs>>): Prisma__BridgeSessionClient<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first BridgeSession that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BridgeSessionFindFirstOrThrowArgs} args - Arguments to find a BridgeSession
+     * @example
+     * // Get one BridgeSession
+     * const bridgeSession = await prisma.bridgeSession.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BridgeSessionFindFirstOrThrowArgs>(args?: SelectSubset<T, BridgeSessionFindFirstOrThrowArgs<ExtArgs>>): Prisma__BridgeSessionClient<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more BridgeSessions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BridgeSessionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BridgeSessions
+     * const bridgeSessions = await prisma.bridgeSession.findMany()
+     * 
+     * // Get first 10 BridgeSessions
+     * const bridgeSessions = await prisma.bridgeSession.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const bridgeSessionWithIdOnly = await prisma.bridgeSession.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BridgeSessionFindManyArgs>(args?: SelectSubset<T, BridgeSessionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a BridgeSession.
+     * @param {BridgeSessionCreateArgs} args - Arguments to create a BridgeSession.
+     * @example
+     * // Create one BridgeSession
+     * const BridgeSession = await prisma.bridgeSession.create({
+     *   data: {
+     *     // ... data to create a BridgeSession
+     *   }
+     * })
+     * 
+     */
+    create<T extends BridgeSessionCreateArgs>(args: SelectSubset<T, BridgeSessionCreateArgs<ExtArgs>>): Prisma__BridgeSessionClient<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many BridgeSessions.
+     * @param {BridgeSessionCreateManyArgs} args - Arguments to create many BridgeSessions.
+     * @example
+     * // Create many BridgeSessions
+     * const bridgeSession = await prisma.bridgeSession.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BridgeSessionCreateManyArgs>(args?: SelectSubset<T, BridgeSessionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BridgeSessions and returns the data saved in the database.
+     * @param {BridgeSessionCreateManyAndReturnArgs} args - Arguments to create many BridgeSessions.
+     * @example
+     * // Create many BridgeSessions
+     * const bridgeSession = await prisma.bridgeSession.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BridgeSessions and only return the `id`
+     * const bridgeSessionWithIdOnly = await prisma.bridgeSession.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BridgeSessionCreateManyAndReturnArgs>(args?: SelectSubset<T, BridgeSessionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a BridgeSession.
+     * @param {BridgeSessionDeleteArgs} args - Arguments to delete one BridgeSession.
+     * @example
+     * // Delete one BridgeSession
+     * const BridgeSession = await prisma.bridgeSession.delete({
+     *   where: {
+     *     // ... filter to delete one BridgeSession
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BridgeSessionDeleteArgs>(args: SelectSubset<T, BridgeSessionDeleteArgs<ExtArgs>>): Prisma__BridgeSessionClient<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one BridgeSession.
+     * @param {BridgeSessionUpdateArgs} args - Arguments to update one BridgeSession.
+     * @example
+     * // Update one BridgeSession
+     * const bridgeSession = await prisma.bridgeSession.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BridgeSessionUpdateArgs>(args: SelectSubset<T, BridgeSessionUpdateArgs<ExtArgs>>): Prisma__BridgeSessionClient<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more BridgeSessions.
+     * @param {BridgeSessionDeleteManyArgs} args - Arguments to filter BridgeSessions to delete.
+     * @example
+     * // Delete a few BridgeSessions
+     * const { count } = await prisma.bridgeSession.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BridgeSessionDeleteManyArgs>(args?: SelectSubset<T, BridgeSessionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BridgeSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BridgeSessionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BridgeSessions
+     * const bridgeSession = await prisma.bridgeSession.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BridgeSessionUpdateManyArgs>(args: SelectSubset<T, BridgeSessionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one BridgeSession.
+     * @param {BridgeSessionUpsertArgs} args - Arguments to update or create a BridgeSession.
+     * @example
+     * // Update or create a BridgeSession
+     * const bridgeSession = await prisma.bridgeSession.upsert({
+     *   create: {
+     *     // ... data to create a BridgeSession
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BridgeSession we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BridgeSessionUpsertArgs>(args: SelectSubset<T, BridgeSessionUpsertArgs<ExtArgs>>): Prisma__BridgeSessionClient<$Result.GetResult<Prisma.$BridgeSessionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of BridgeSessions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BridgeSessionCountArgs} args - Arguments to filter BridgeSessions to count.
+     * @example
+     * // Count the number of BridgeSessions
+     * const count = await prisma.bridgeSession.count({
+     *   where: {
+     *     // ... the filter for the BridgeSessions we want to count
+     *   }
+     * })
+    **/
+    count<T extends BridgeSessionCountArgs>(
+      args?: Subset<T, BridgeSessionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BridgeSessionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BridgeSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BridgeSessionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BridgeSessionAggregateArgs>(args: Subset<T, BridgeSessionAggregateArgs>): Prisma.PrismaPromise<GetBridgeSessionAggregateType<T>>
+
+    /**
+     * Group by BridgeSession.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BridgeSessionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BridgeSessionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BridgeSessionGroupByArgs['orderBy'] }
+        : { orderBy?: BridgeSessionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BridgeSessionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBridgeSessionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BridgeSession model
+   */
+  readonly fields: BridgeSessionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BridgeSession.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BridgeSessionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BridgeSession model
+   */ 
+  interface BridgeSessionFieldRefs {
+    readonly id: FieldRef<"BridgeSession", 'String'>
+    readonly kryptaviaUserId: FieldRef<"BridgeSession", 'String'>
+    readonly contestId: FieldRef<"BridgeSession", 'String'>
+    readonly tieeduUserId: FieldRef<"BridgeSession", 'String'>
+    readonly driveId: FieldRef<"BridgeSession", 'String'>
+    readonly testId: FieldRef<"BridgeSession", 'String'>
+    readonly providerAttemptId: FieldRef<"BridgeSession", 'String'>
+    readonly rollNo: FieldRef<"BridgeSession", 'String'>
+    readonly returnUrl: FieldRef<"BridgeSession", 'String'>
+    readonly status: FieldRef<"BridgeSession", 'String'>
+    readonly startedEventSent: FieldRef<"BridgeSession", 'Boolean'>
+    readonly completedEventSent: FieldRef<"BridgeSession", 'Boolean'>
+    readonly startedAt: FieldRef<"BridgeSession", 'DateTime'>
+    readonly completedAt: FieldRef<"BridgeSession", 'DateTime'>
+    readonly createdAt: FieldRef<"BridgeSession", 'DateTime'>
+    readonly updatedAt: FieldRef<"BridgeSession", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BridgeSession findUnique
+   */
+  export type BridgeSessionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * Filter, which BridgeSession to fetch.
+     */
+    where: BridgeSessionWhereUniqueInput
+  }
+
+  /**
+   * BridgeSession findUniqueOrThrow
+   */
+  export type BridgeSessionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * Filter, which BridgeSession to fetch.
+     */
+    where: BridgeSessionWhereUniqueInput
+  }
+
+  /**
+   * BridgeSession findFirst
+   */
+  export type BridgeSessionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * Filter, which BridgeSession to fetch.
+     */
+    where?: BridgeSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BridgeSessions to fetch.
+     */
+    orderBy?: BridgeSessionOrderByWithRelationInput | BridgeSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BridgeSessions.
+     */
+    cursor?: BridgeSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BridgeSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BridgeSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BridgeSessions.
+     */
+    distinct?: BridgeSessionScalarFieldEnum | BridgeSessionScalarFieldEnum[]
+  }
+
+  /**
+   * BridgeSession findFirstOrThrow
+   */
+  export type BridgeSessionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * Filter, which BridgeSession to fetch.
+     */
+    where?: BridgeSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BridgeSessions to fetch.
+     */
+    orderBy?: BridgeSessionOrderByWithRelationInput | BridgeSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BridgeSessions.
+     */
+    cursor?: BridgeSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BridgeSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BridgeSessions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BridgeSessions.
+     */
+    distinct?: BridgeSessionScalarFieldEnum | BridgeSessionScalarFieldEnum[]
+  }
+
+  /**
+   * BridgeSession findMany
+   */
+  export type BridgeSessionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * Filter, which BridgeSessions to fetch.
+     */
+    where?: BridgeSessionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BridgeSessions to fetch.
+     */
+    orderBy?: BridgeSessionOrderByWithRelationInput | BridgeSessionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BridgeSessions.
+     */
+    cursor?: BridgeSessionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BridgeSessions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BridgeSessions.
+     */
+    skip?: number
+    distinct?: BridgeSessionScalarFieldEnum | BridgeSessionScalarFieldEnum[]
+  }
+
+  /**
+   * BridgeSession create
+   */
+  export type BridgeSessionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * The data needed to create a BridgeSession.
+     */
+    data: XOR<BridgeSessionCreateInput, BridgeSessionUncheckedCreateInput>
+  }
+
+  /**
+   * BridgeSession createMany
+   */
+  export type BridgeSessionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BridgeSessions.
+     */
+    data: BridgeSessionCreateManyInput | BridgeSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BridgeSession createManyAndReturn
+   */
+  export type BridgeSessionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many BridgeSessions.
+     */
+    data: BridgeSessionCreateManyInput | BridgeSessionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BridgeSession update
+   */
+  export type BridgeSessionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * The data needed to update a BridgeSession.
+     */
+    data: XOR<BridgeSessionUpdateInput, BridgeSessionUncheckedUpdateInput>
+    /**
+     * Choose, which BridgeSession to update.
+     */
+    where: BridgeSessionWhereUniqueInput
+  }
+
+  /**
+   * BridgeSession updateMany
+   */
+  export type BridgeSessionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BridgeSessions.
+     */
+    data: XOR<BridgeSessionUpdateManyMutationInput, BridgeSessionUncheckedUpdateManyInput>
+    /**
+     * Filter which BridgeSessions to update
+     */
+    where?: BridgeSessionWhereInput
+  }
+
+  /**
+   * BridgeSession upsert
+   */
+  export type BridgeSessionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * The filter to search for the BridgeSession to update in case it exists.
+     */
+    where: BridgeSessionWhereUniqueInput
+    /**
+     * In case the BridgeSession found by the `where` argument doesn't exist, create a new BridgeSession with this data.
+     */
+    create: XOR<BridgeSessionCreateInput, BridgeSessionUncheckedCreateInput>
+    /**
+     * In case the BridgeSession was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BridgeSessionUpdateInput, BridgeSessionUncheckedUpdateInput>
+  }
+
+  /**
+   * BridgeSession delete
+   */
+  export type BridgeSessionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+    /**
+     * Filter which BridgeSession to delete.
+     */
+    where: BridgeSessionWhereUniqueInput
+  }
+
+  /**
+   * BridgeSession deleteMany
+   */
+  export type BridgeSessionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BridgeSessions to delete
+     */
+    where?: BridgeSessionWhereInput
+  }
+
+  /**
+   * BridgeSession without action
+   */
+  export type BridgeSessionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BridgeSession
+     */
+    select?: BridgeSessionSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model GdprErasureRequest
    */
 
@@ -56438,6 +57534,28 @@ export namespace Prisma {
   export type GuestInviteScalarFieldEnum = (typeof GuestInviteScalarFieldEnum)[keyof typeof GuestInviteScalarFieldEnum]
 
 
+  export const BridgeSessionScalarFieldEnum: {
+    id: 'id',
+    kryptaviaUserId: 'kryptaviaUserId',
+    contestId: 'contestId',
+    tieeduUserId: 'tieeduUserId',
+    driveId: 'driveId',
+    testId: 'testId',
+    providerAttemptId: 'providerAttemptId',
+    rollNo: 'rollNo',
+    returnUrl: 'returnUrl',
+    status: 'status',
+    startedEventSent: 'startedEventSent',
+    completedEventSent: 'completedEventSent',
+    startedAt: 'startedAt',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BridgeSessionScalarFieldEnum = (typeof BridgeSessionScalarFieldEnum)[keyof typeof BridgeSessionScalarFieldEnum]
+
+
   export const GdprErasureRequestScalarFieldEnum: {
     id: 'id',
     requestedByEmail: 'requestedByEmail',
@@ -59930,6 +61048,114 @@ export namespace Prisma {
     usedAt?: DateTimeNullableWithAggregatesFilter<"GuestInvite"> | Date | string | null
     expiresAt?: DateTimeWithAggregatesFilter<"GuestInvite"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"GuestInvite"> | Date | string
+  }
+
+  export type BridgeSessionWhereInput = {
+    AND?: BridgeSessionWhereInput | BridgeSessionWhereInput[]
+    OR?: BridgeSessionWhereInput[]
+    NOT?: BridgeSessionWhereInput | BridgeSessionWhereInput[]
+    id?: StringFilter<"BridgeSession"> | string
+    kryptaviaUserId?: StringFilter<"BridgeSession"> | string
+    contestId?: StringFilter<"BridgeSession"> | string
+    tieeduUserId?: StringFilter<"BridgeSession"> | string
+    driveId?: StringFilter<"BridgeSession"> | string
+    testId?: StringFilter<"BridgeSession"> | string
+    providerAttemptId?: StringFilter<"BridgeSession"> | string
+    rollNo?: StringNullableFilter<"BridgeSession"> | string | null
+    returnUrl?: StringNullableFilter<"BridgeSession"> | string | null
+    status?: StringFilter<"BridgeSession"> | string
+    startedEventSent?: BoolFilter<"BridgeSession"> | boolean
+    completedEventSent?: BoolFilter<"BridgeSession"> | boolean
+    startedAt?: DateTimeNullableFilter<"BridgeSession"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"BridgeSession"> | Date | string | null
+    createdAt?: DateTimeFilter<"BridgeSession"> | Date | string
+    updatedAt?: DateTimeFilter<"BridgeSession"> | Date | string
+  }
+
+  export type BridgeSessionOrderByWithRelationInput = {
+    id?: SortOrder
+    kryptaviaUserId?: SortOrder
+    contestId?: SortOrder
+    tieeduUserId?: SortOrder
+    driveId?: SortOrder
+    testId?: SortOrder
+    providerAttemptId?: SortOrder
+    rollNo?: SortOrderInput | SortOrder
+    returnUrl?: SortOrderInput | SortOrder
+    status?: SortOrder
+    startedEventSent?: SortOrder
+    completedEventSent?: SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BridgeSessionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    kryptaviaUserId_testId?: BridgeSessionKryptaviaUserIdTestIdCompoundUniqueInput
+    AND?: BridgeSessionWhereInput | BridgeSessionWhereInput[]
+    OR?: BridgeSessionWhereInput[]
+    NOT?: BridgeSessionWhereInput | BridgeSessionWhereInput[]
+    kryptaviaUserId?: StringFilter<"BridgeSession"> | string
+    contestId?: StringFilter<"BridgeSession"> | string
+    tieeduUserId?: StringFilter<"BridgeSession"> | string
+    driveId?: StringFilter<"BridgeSession"> | string
+    testId?: StringFilter<"BridgeSession"> | string
+    providerAttemptId?: StringFilter<"BridgeSession"> | string
+    rollNo?: StringNullableFilter<"BridgeSession"> | string | null
+    returnUrl?: StringNullableFilter<"BridgeSession"> | string | null
+    status?: StringFilter<"BridgeSession"> | string
+    startedEventSent?: BoolFilter<"BridgeSession"> | boolean
+    completedEventSent?: BoolFilter<"BridgeSession"> | boolean
+    startedAt?: DateTimeNullableFilter<"BridgeSession"> | Date | string | null
+    completedAt?: DateTimeNullableFilter<"BridgeSession"> | Date | string | null
+    createdAt?: DateTimeFilter<"BridgeSession"> | Date | string
+    updatedAt?: DateTimeFilter<"BridgeSession"> | Date | string
+  }, "id" | "kryptaviaUserId_testId">
+
+  export type BridgeSessionOrderByWithAggregationInput = {
+    id?: SortOrder
+    kryptaviaUserId?: SortOrder
+    contestId?: SortOrder
+    tieeduUserId?: SortOrder
+    driveId?: SortOrder
+    testId?: SortOrder
+    providerAttemptId?: SortOrder
+    rollNo?: SortOrderInput | SortOrder
+    returnUrl?: SortOrderInput | SortOrder
+    status?: SortOrder
+    startedEventSent?: SortOrder
+    completedEventSent?: SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BridgeSessionCountOrderByAggregateInput
+    _max?: BridgeSessionMaxOrderByAggregateInput
+    _min?: BridgeSessionMinOrderByAggregateInput
+  }
+
+  export type BridgeSessionScalarWhereWithAggregatesInput = {
+    AND?: BridgeSessionScalarWhereWithAggregatesInput | BridgeSessionScalarWhereWithAggregatesInput[]
+    OR?: BridgeSessionScalarWhereWithAggregatesInput[]
+    NOT?: BridgeSessionScalarWhereWithAggregatesInput | BridgeSessionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BridgeSession"> | string
+    kryptaviaUserId?: StringWithAggregatesFilter<"BridgeSession"> | string
+    contestId?: StringWithAggregatesFilter<"BridgeSession"> | string
+    tieeduUserId?: StringWithAggregatesFilter<"BridgeSession"> | string
+    driveId?: StringWithAggregatesFilter<"BridgeSession"> | string
+    testId?: StringWithAggregatesFilter<"BridgeSession"> | string
+    providerAttemptId?: StringWithAggregatesFilter<"BridgeSession"> | string
+    rollNo?: StringNullableWithAggregatesFilter<"BridgeSession"> | string | null
+    returnUrl?: StringNullableWithAggregatesFilter<"BridgeSession"> | string | null
+    status?: StringWithAggregatesFilter<"BridgeSession"> | string
+    startedEventSent?: BoolWithAggregatesFilter<"BridgeSession"> | boolean
+    completedEventSent?: BoolWithAggregatesFilter<"BridgeSession"> | boolean
+    startedAt?: DateTimeNullableWithAggregatesFilter<"BridgeSession"> | Date | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"BridgeSession"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"BridgeSession"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BridgeSession"> | Date | string
   }
 
   export type GdprErasureRequestWhereInput = {
@@ -64499,6 +65725,139 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BridgeSessionCreateInput = {
+    id?: string
+    kryptaviaUserId: string
+    contestId: string
+    tieeduUserId: string
+    driveId: string
+    testId: string
+    providerAttemptId: string
+    rollNo?: string | null
+    returnUrl?: string | null
+    status?: string
+    startedEventSent?: boolean
+    completedEventSent?: boolean
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BridgeSessionUncheckedCreateInput = {
+    id?: string
+    kryptaviaUserId: string
+    contestId: string
+    tieeduUserId: string
+    driveId: string
+    testId: string
+    providerAttemptId: string
+    rollNo?: string | null
+    returnUrl?: string | null
+    status?: string
+    startedEventSent?: boolean
+    completedEventSent?: boolean
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BridgeSessionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kryptaviaUserId?: StringFieldUpdateOperationsInput | string
+    contestId?: StringFieldUpdateOperationsInput | string
+    tieeduUserId?: StringFieldUpdateOperationsInput | string
+    driveId?: StringFieldUpdateOperationsInput | string
+    testId?: StringFieldUpdateOperationsInput | string
+    providerAttemptId?: StringFieldUpdateOperationsInput | string
+    rollNo?: NullableStringFieldUpdateOperationsInput | string | null
+    returnUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    startedEventSent?: BoolFieldUpdateOperationsInput | boolean
+    completedEventSent?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BridgeSessionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kryptaviaUserId?: StringFieldUpdateOperationsInput | string
+    contestId?: StringFieldUpdateOperationsInput | string
+    tieeduUserId?: StringFieldUpdateOperationsInput | string
+    driveId?: StringFieldUpdateOperationsInput | string
+    testId?: StringFieldUpdateOperationsInput | string
+    providerAttemptId?: StringFieldUpdateOperationsInput | string
+    rollNo?: NullableStringFieldUpdateOperationsInput | string | null
+    returnUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    startedEventSent?: BoolFieldUpdateOperationsInput | boolean
+    completedEventSent?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BridgeSessionCreateManyInput = {
+    id?: string
+    kryptaviaUserId: string
+    contestId: string
+    tieeduUserId: string
+    driveId: string
+    testId: string
+    providerAttemptId: string
+    rollNo?: string | null
+    returnUrl?: string | null
+    status?: string
+    startedEventSent?: boolean
+    completedEventSent?: boolean
+    startedAt?: Date | string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BridgeSessionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kryptaviaUserId?: StringFieldUpdateOperationsInput | string
+    contestId?: StringFieldUpdateOperationsInput | string
+    tieeduUserId?: StringFieldUpdateOperationsInput | string
+    driveId?: StringFieldUpdateOperationsInput | string
+    testId?: StringFieldUpdateOperationsInput | string
+    providerAttemptId?: StringFieldUpdateOperationsInput | string
+    rollNo?: NullableStringFieldUpdateOperationsInput | string | null
+    returnUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    startedEventSent?: BoolFieldUpdateOperationsInput | boolean
+    completedEventSent?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BridgeSessionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kryptaviaUserId?: StringFieldUpdateOperationsInput | string
+    contestId?: StringFieldUpdateOperationsInput | string
+    tieeduUserId?: StringFieldUpdateOperationsInput | string
+    driveId?: StringFieldUpdateOperationsInput | string
+    testId?: StringFieldUpdateOperationsInput | string
+    providerAttemptId?: StringFieldUpdateOperationsInput | string
+    rollNo?: NullableStringFieldUpdateOperationsInput | string | null
+    returnUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    startedEventSent?: BoolFieldUpdateOperationsInput | boolean
+    completedEventSent?: BoolFieldUpdateOperationsInput | boolean
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type GdprErasureRequestCreateInput = {
     id?: string
     requestedByEmail: string
@@ -68418,6 +69777,68 @@ export namespace Prisma {
     usedAt?: SortOrder
     expiresAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type BridgeSessionKryptaviaUserIdTestIdCompoundUniqueInput = {
+    kryptaviaUserId: string
+    testId: string
+  }
+
+  export type BridgeSessionCountOrderByAggregateInput = {
+    id?: SortOrder
+    kryptaviaUserId?: SortOrder
+    contestId?: SortOrder
+    tieeduUserId?: SortOrder
+    driveId?: SortOrder
+    testId?: SortOrder
+    providerAttemptId?: SortOrder
+    rollNo?: SortOrder
+    returnUrl?: SortOrder
+    status?: SortOrder
+    startedEventSent?: SortOrder
+    completedEventSent?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BridgeSessionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    kryptaviaUserId?: SortOrder
+    contestId?: SortOrder
+    tieeduUserId?: SortOrder
+    driveId?: SortOrder
+    testId?: SortOrder
+    providerAttemptId?: SortOrder
+    rollNo?: SortOrder
+    returnUrl?: SortOrder
+    status?: SortOrder
+    startedEventSent?: SortOrder
+    completedEventSent?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BridgeSessionMinOrderByAggregateInput = {
+    id?: SortOrder
+    kryptaviaUserId?: SortOrder
+    contestId?: SortOrder
+    tieeduUserId?: SortOrder
+    driveId?: SortOrder
+    testId?: SortOrder
+    providerAttemptId?: SortOrder
+    rollNo?: SortOrder
+    returnUrl?: SortOrder
+    status?: SortOrder
+    startedEventSent?: SortOrder
+    completedEventSent?: SortOrder
+    startedAt?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type GdprErasureRequestCountOrderByAggregateInput = {
@@ -94188,6 +95609,10 @@ export namespace Prisma {
      * @deprecated Use GuestInviteDefaultArgs instead
      */
     export type GuestInviteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GuestInviteDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use BridgeSessionDefaultArgs instead
+     */
+    export type BridgeSessionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = BridgeSessionDefaultArgs<ExtArgs>
     /**
      * @deprecated Use GdprErasureRequestDefaultArgs instead
      */
